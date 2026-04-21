@@ -6,11 +6,16 @@ import { CalculatorShell } from "@/components/calculator-shell";
 import { getCalculatorBySlug } from "@/lib/calculators";
 
 describe("CalculatorShell", () => {
-  it("renders the selected category workspace on the catalog route", () => {
+  it("renders the redesigned homepage content on the catalog route", () => {
     render(<CalculatorShell selectedCategory="beton" />);
 
     expect(screen.getByRole("heading", { name: "Бетон" })).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "CadEE.pro" })).toHaveLength(2);
+    expect(screen.getByText("Іванейко Володимир")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "GitHub" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Про автора" })).toHaveAttribute(
+      "href",
+      "/author",
+    );
     expect(
       screen.getByRole("link", { name: "Калькулятор об'єму бетону" }),
     ).toBeInTheDocument();
@@ -18,15 +23,17 @@ describe("CalculatorShell", () => {
       screen.getByRole("link", { name: "Калькулятор стрічкового фундаменту" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Інші проєкти" }),
+      screen.getByRole("heading", { name: "Інженерні продукти та напрями" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Електротехнічні розрахунки" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Розрахунок електричних навантажень будівель" }),
+    ).toHaveAttribute("href", "https://pc.dbnassistant.com");
     expect(screen.getByRole("link", { name: "NormControl" })).toHaveAttribute(
       "href",
       "https://nc.dbnassistant.com",
-    );
-    expect(screen.getByRole("link", { name: "OptCAD" })).toHaveAttribute(
-      "href",
-      "https://dbnassistant.com/author/",
     );
   });
 
@@ -42,7 +49,7 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByTitle("Калькулятор об'єму бетону"),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Відкрити окремо" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Відкрити інструмент" })).toHaveAttribute(
       "href",
       calculator.openUrl,
     );
@@ -58,7 +65,9 @@ describe("CalculatorShell", () => {
     render(<CalculatorShell selectedCalculator={calculator} />);
 
     expect(
-      screen.getByText("Цей калькулятор відкривається в окремій вкладці."),
+      screen.getByText(
+        "Цей інструмент відкривається на окремій сторінці, щоб зберегти повний функціонал розрахунку.",
+      ),
     ).toBeInTheDocument();
     expect(
       screen.queryByTitle("Калькулятор стрічкового фундаменту"),

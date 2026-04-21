@@ -9,7 +9,7 @@ import {
   type Calculator,
   type CategorySlug,
 } from "@/lib/calculators";
-import { authorProjects } from "@/lib/projects";
+import { projectCategories } from "@/lib/projects";
 import { siteContent } from "@/lib/site-content";
 
 type CalculatorShellProps = {
@@ -151,9 +151,12 @@ export function CalculatorShell({
           <ProjectsView />
 
           <footer className="footer-note" id="author-note">
-            <p className="footer-note__label">Авторський підхід</p>
-            <h2>{siteContent.footer.title}</h2>
-            <p>{siteContent.footer.description}</p>
+            <p className="footer-note__label">{siteContent.authorTeaser.label}</p>
+            <h2>{siteContent.authorTeaser.title}</h2>
+            <p>{siteContent.authorTeaser.description}</p>
+            <Link className="cta-link" href="/author">
+              {siteContent.authorTeaser.cta}
+            </Link>
           </footer>
         </main>
       </div>
@@ -264,22 +267,36 @@ function ProjectsView() {
         <p>{siteContent.projects.description}</p>
       </div>
 
-      <div className="project-list">
-        {authorProjects.map((project) => (
-          <Link
-            key={project.slug}
-            className="project-row"
-            href={project.href}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={project.title}
+      <div className="project-categories">
+        {projectCategories.map((category) => (
+          <section
+            key={category.slug}
+            className="project-category"
+            aria-labelledby={`project-category-${category.slug}`}
           >
-            <div className="project-row__copy">
-              <h3>{project.title}</h3>
-              <p>{project.description}</p>
+            <div className="project-category__header">
+              <h3 id={`project-category-${category.slug}`}>{category.title}</h3>
+              <p>{category.description}</p>
             </div>
-            <span className="project-row__cta">{siteContent.projects.openProject}</span>
-          </Link>
+            <div className="project-list">
+              {category.projects.map((project) => (
+                <Link
+                  key={project.slug}
+                  className="project-row"
+                  href={project.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={project.title}
+                >
+                  <div className="project-row__copy">
+                    <h4>{project.title}</h4>
+                    <p>{project.description}</p>
+                  </div>
+                  <span className="project-row__cta">{siteContent.projects.openProject}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
         ))}
       </div>
     </section>
