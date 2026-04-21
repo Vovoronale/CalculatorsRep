@@ -1,0 +1,23 @@
+
+> construction-calculators-hub@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.19:3000
+
+ ✓ Starting...
+ ✓ Ready in 1982ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.8s (635 modules)
+ GET / 200 in 1184ms
+ GET / 200 in 52ms
+ GET / 200 in 85ms
+ ✓ Compiled /calculator/[slug] in 364ms (614 modules)
+ GET /calculator/brick-count 200 in 1209ms
+ GET / 200 in 64ms
+ GET / 200 in 63ms
+ GET /calculator/strip-foundation 200 in 82ms
+ GET / 200 in 87ms
+ GET / 200 in 143ms
+ GET / 200 in 16ms
