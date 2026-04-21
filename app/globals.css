@@ -113,6 +113,7 @@ button {
 
 .sidebar,
 .catalog-panel,
+.projects-panel,
 .detail-panel,
 .footer-note {
   border: 1px solid var(--line);
@@ -197,25 +198,29 @@ button {
 }
 
 .catalog-panel,
+.projects-panel,
 .detail-panel,
 .footer-note {
   padding: 22px;
 }
 
 .catalog-panel__header,
+.projects-panel__header,
 .detail-panel__header {
   display: flex;
   justify-content: space-between;
   gap: 20px;
 }
 
-.catalog-panel__header {
+.catalog-panel__header,
+.projects-panel__header {
   align-items: flex-end;
   padding-bottom: 18px;
   border-bottom: 1px solid var(--line);
 }
 
 .catalog-panel__header h2,
+.projects-panel__header h2,
 .detail-panel__header h2,
 .footer-note h2,
 .not-found h1 {
@@ -226,6 +231,7 @@ button {
 }
 
 .catalog-panel__header p,
+.projects-panel__header p,
 .detail-panel__header p,
 .footer-note p,
 .calculator-strip p,
@@ -237,6 +243,12 @@ button {
 .calculator-list {
   display: grid;
   gap: 12px;
+  margin-top: 18px;
+}
+
+.project-list {
+  display: grid;
+  gap: 10px;
   margin-top: 18px;
 }
 
@@ -258,6 +270,43 @@ button {
   border-color: var(--line-strong);
   transform: translateY(-2px);
   background: linear-gradient(180deg, rgba(243, 163, 59, 0.08), rgba(255, 255, 255, 0.012));
+}
+
+.project-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.018);
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    background-color 180ms ease;
+}
+
+.project-row:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-2px);
+  background: rgba(243, 163, 59, 0.06);
+}
+
+.project-row__copy h3 {
+  margin: 0 0 8px;
+  font-size: 1.06rem;
+}
+
+.project-row__copy p {
+  margin: 0;
+}
+
+.project-row__cta {
+  color: var(--accent);
+  white-space: nowrap;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .calculator-strip__title-row {
@@ -406,6 +455,10 @@ button {
   }
 
   .calculator-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .project-row {
     grid-template-columns: 1fr;
   }
 

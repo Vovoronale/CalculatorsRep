@@ -7,8 +7,14 @@ export const siteContent = {
   navigation: {
     utilityLinks: [
       {
+        label: "CadEE.pro",
+        href: "https://cadee.pro",
+        external: true,
+      },
+      {
         label: "GitHub",
         href: "https://github.com/Vovoronale",
+        external: true,
       },
       {
         label: "Про автора",
@@ -27,6 +33,13 @@ export const siteContent = {
       "Цей калькулятор відкривається в окремій вкладці.",
     openStandalone: "Відкрити окремо",
     backToCatalog: "Назад до каталогу",
+  },
+  projects: {
+    label: "Портфель",
+    title: "Інші проєкти",
+    description:
+      "Добірка сервісів і інструментів, які зараз опубліковані на dbnassistant.com та пов'язаних доменах.",
+    openProject: "Відкрити проєкт",
   },
   footer: {
     title: "Потрібен інший сценарій розрахунку?",

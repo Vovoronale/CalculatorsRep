@@ -34,6 +34,8 @@ Main brand copy lives in [lib/site-content.ts](/I:/CalculatorsRep/lib/site-conte
 
 Calculator entries, categories, and route metadata live in [lib/calculators.ts](/I:/CalculatorsRep/lib/calculators.ts).
 
+Author projects and external product links live in [lib/projects.ts](/I:/CalculatorsRep/lib/projects.ts).
+
 ## Cloudflare Pages
 
 Use these settings for GitHub-connected deployment:

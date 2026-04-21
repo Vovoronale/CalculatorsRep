@@ -10,12 +10,24 @@ describe("CalculatorShell", () => {
     render(<CalculatorShell selectedCategory="beton" />);
 
     expect(screen.getByRole("heading", { name: "Бетон" })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "CadEE.pro" })).toHaveLength(2);
     expect(
       screen.getByRole("link", { name: "Калькулятор об'єму бетону" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Калькулятор стрічкового фундаменту" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Інші проєкти" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "NormControl" })).toHaveAttribute(
+      "href",
+      "https://nc.dbnassistant.com",
+    );
+    expect(screen.getByRole("link", { name: "OptCAD" })).toHaveAttribute(
+      "href",
+      "https://dbnassistant.com/author/",
+    );
   });
 
   it("renders an iframe for embedded calculators", () => {
