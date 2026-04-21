@@ -38,11 +38,18 @@ Author projects and external product links live in [lib/projects.ts](/I:/Calcula
 
 ## Cloudflare Pages
 
-Use these settings for GitHub-connected deployment:
+This repository supports two Cloudflare Pages deployment modes:
 
-- Framework preset: `Next.js`
+- Git integration in the Cloudflare Dashboard
+- GitHub Actions direct upload from this repository
+
+For Git integration in Cloudflare Pages, use these settings:
+
+- Framework preset: `Next.js (Static HTML Export)`
 - Build command: `npm run build`
 - Build output directory: `out`
 - Root directory: repository root
 
 No server runtime is required.
+
+For repository-driven deployment to `ivapps.pro`, see [docs/cloudflare-pages-ivapps-pro.md](/I:/CalculatorsRep/docs/cloudflare-pages-ivapps-pro.md).
