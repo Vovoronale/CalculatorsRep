@@ -11,6 +11,7 @@ describe("CalculatorShell", () => {
 
     expect(screen.getByRole("heading", { name: "Бетон" })).toBeInTheDocument();
     expect(screen.getByText("Іванейко Володимир")).toBeInTheDocument();
+    expect(screen.getByText("Оновлено 22 квітня 2026")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "GitHub" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Про автора" })).toHaveAttribute(
       "href",

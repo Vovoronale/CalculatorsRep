@@ -197,6 +197,18 @@ button {
   line-height: 1.55;
 }
 
+.workspace__release {
+  display: inline-flex;
+  margin: 16px 0 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(243, 163, 59, 0.28);
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+ }
+
 .catalog-panel,
 .projects-panel,
 .detail-panel,

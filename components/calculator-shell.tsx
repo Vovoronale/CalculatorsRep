@@ -136,6 +136,7 @@ export function CalculatorShell({
             <p className="workspace__eyebrow">{siteContent.workspace.eyebrow}</p>
             <h1>{siteContent.workspace.title}</h1>
             <p className="workspace__description">{siteContent.workspace.description}</p>
+            <p className="workspace__release">{siteContent.workspace.releaseLabel}</p>
           </section>
 
           {isDetailMode && selectedCalculator ? (
