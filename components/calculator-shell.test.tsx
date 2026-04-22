@@ -9,11 +9,21 @@ describe("CalculatorShell", () => {
   it("renders the redesigned homepage content on the catalog route", () => {
     render(<CalculatorShell selectedCategory="beton" />);
 
-    expect(screen.getByRole("heading", { name: "Бетон" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Каталог будівельних калькуляторів для швидкого підбору інструмента.",
+      }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Іванейко Володимир")).toBeInTheDocument();
-    expect(screen.getByText("Оновлено 22 квітня 2026")).toBeInTheDocument();
+    expect(screen.getByText("Оберіть тип задачі")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Бетон" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
     expect(screen.queryByRole("link", { name: "GitHub" })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Про автора" })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: "Про автора" })).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: "Про автора" })[0]).toHaveAttribute(
       "href",
       "/author",
     );
@@ -23,18 +33,19 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("link", { name: "Калькулятор стрічкового фундаменту" }),
     ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Бетон" })).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Інженерні продукти та напрями" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("heading", { name: "Інженерні продукти та напрями" }),
+    ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Електротехнічні розрахунки" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("heading", { name: "Особистий бренд, продукти і AI-напрям у construction." }),
+    ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Розрахунок електричних навантажень будівель" }),
-    ).toHaveAttribute("href", "https://pc.dbnassistant.com");
-    expect(screen.getByRole("link", { name: "NormControl" })).toHaveAttribute(
+      screen.getByRole("contentinfo"),
+    ).toHaveTextContent("Окрема сторінка з професійним профілем, продуктами і напрямами роботи.");
+    expect(screen.getAllByRole("link", { name: "CadEE.pro" })[0]).toHaveAttribute(
       "href",
-      "https://nc.dbnassistant.com",
+      "https://cadee.pro",
     );
   });
 

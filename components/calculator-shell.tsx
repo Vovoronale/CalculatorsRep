@@ -7,9 +7,9 @@ import {
   calculatorCategories,
   getCalculatorsForCategory,
   type Calculator,
+  type CalculatorCategory,
   type CategorySlug,
 } from "@/lib/calculators";
-import { projectCategories } from "@/lib/projects";
 import { siteContent } from "@/lib/site-content";
 
 type CalculatorShellProps = {
@@ -71,7 +71,7 @@ export function CalculatorShell({
   return (
     <div className="shell">
       <header className="topbar">
-        <div>
+        <div className="topbar__brand">
           <p className="topbar__eyebrow">{siteContent.brand.authorName}</p>
           <Link className="brand-link" href="/">
             {siteContent.brand.productName}
@@ -91,77 +91,99 @@ export function CalculatorShell({
         </nav>
       </header>
 
-      <div className="shell__body">
-        <aside className="sidebar" aria-label="Категорії калькуляторів">
-          <p className="sidebar__label">Категорії</p>
-          <div className="sidebar__stack">
-            {calculatorCategories.map((category) => {
-              const isActive =
-                (selectedCalculator && selectedCalculator.mainCategory === category.slug) ||
-                (!selectedCalculator && currentCategory.slug === category.slug);
+      <main className="workspace">
+        <section className="workspace__intro">
+          <p className="workspace__eyebrow">{siteContent.workspace.eyebrow}</p>
+          <h1>{siteContent.workspace.title}</h1>
+          <p className="workspace__description">{siteContent.workspace.description}</p>
+        </section>
 
-              if (selectedCalculator) {
-                return (
-                  <Link
-                    key={category.slug}
-                    className={`sidebar__item${isActive ? " is-active" : ""}`}
-                    href={`/#${category.slug}`}
-                  >
-                    <span>{category.title}</span>
-                    <small>{category.note}</small>
-                  </Link>
-                );
-              }
-
-              return (
-                <button
-                  key={category.slug}
-                  className={`sidebar__item${isActive ? " is-active" : ""}`}
-                  type="button"
-                  onClick={() => {
-                    window.history.replaceState(null, "", `#${category.slug}`);
-                    setActiveCategory(category.slug);
-                  }}
-                >
-                  <span>{category.title}</span>
-                  <small>{category.note}</small>
-                </button>
-              );
-            })}
+        <section className="category-rail" aria-labelledby="category-rail-heading">
+          <div className="category-rail__header">
+            <p className="panel-label">{siteContent.workspace.categoryLabel}</p>
+            <p id="category-rail-heading">{siteContent.workspace.categoryHint}</p>
           </div>
-        </aside>
+          <div className="category-rail__list">
+            {calculatorCategories.map((category) => (
+              <CategoryAction
+                key={category.slug}
+                category={category}
+                isActive={
+                  (selectedCalculator && selectedCalculator.mainCategory === category.slug) ||
+                  (!selectedCalculator && currentCategory.slug === category.slug)
+                }
+                onSelect={setActiveCategory}
+                isLocked={Boolean(selectedCalculator)}
+              />
+            ))}
+          </div>
+        </section>
 
-        <main className="workspace">
-          <section className="workspace__intro">
-            <p className="workspace__eyebrow">{siteContent.workspace.eyebrow}</p>
-            <h1>{siteContent.workspace.title}</h1>
-            <p className="workspace__description">{siteContent.workspace.description}</p>
-            <p className="workspace__release">{siteContent.workspace.releaseLabel}</p>
-          </section>
+        {isDetailMode && selectedCalculator ? (
+          <CalculatorDetail calculator={selectedCalculator} />
+        ) : (
+          <CatalogView
+            categoryTitle={currentCategory.title}
+            categoryNote={currentCategory.note}
+            calculators={currentCalculators}
+          />
+        )}
 
-          {isDetailMode && selectedCalculator ? (
-            <CalculatorDetail calculator={selectedCalculator} />
-          ) : (
-            <CatalogView
-              categoryTitle={currentCategory.title}
-              categoryNote={currentCategory.note}
-              calculators={currentCalculators}
-            />
-          )}
-
-          <ProjectsView />
-
-          <footer className="footer-note" id="author-note">
-            <p className="footer-note__label">{siteContent.authorTeaser.label}</p>
-            <h2>{siteContent.authorTeaser.title}</h2>
-            <p>{siteContent.authorTeaser.description}</p>
-            <Link className="cta-link" href="/author">
-              {siteContent.authorTeaser.cta}
-            </Link>
-          </footer>
-        </main>
-      </div>
+        <footer className="footer-note">
+          <p>{siteContent.footer.note}</p>
+          <div className="footer-note__links">
+            {siteContent.navigation.utilityLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noreferrer" : undefined}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </footer>
+      </main>
     </div>
+  );
+}
+
+type CategoryActionProps = {
+  category: CalculatorCategory;
+  isActive: boolean;
+  onSelect: (categorySlug: CategorySlug) => void;
+  isLocked: boolean;
+};
+
+function CategoryAction({ category, isActive, onSelect, isLocked }: CategoryActionProps) {
+  if (isLocked) {
+    return (
+      <Link
+        className={`category-chip${isActive ? " is-active" : ""}`}
+        href={`/#${category.slug}`}
+        aria-label={category.title}
+      >
+        <span>{category.title}</span>
+        <small>{category.note}</small>
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      className={`category-chip${isActive ? " is-active" : ""}`}
+      type="button"
+      aria-label={category.title}
+      aria-pressed={isActive}
+      onClick={() => {
+        window.history.replaceState(null, "", `#${category.slug}`);
+        onSelect(category.slug);
+      }}
+    >
+      <span>{category.title}</span>
+      <small>{category.note}</small>
+    </button>
   );
 }
 
@@ -176,8 +198,10 @@ function CatalogView({ categoryTitle, categoryNote, calculators }: CatalogViewPr
     <section className="catalog-panel" aria-labelledby="catalog-heading">
       <div className="catalog-panel__header">
         <p className="panel-label">{siteContent.workspace.catalogLabel}</p>
-        <h2 id="catalog-heading">{categoryTitle}</h2>
-        <p>{categoryNote}</p>
+        <div>
+          <h2 id="catalog-heading">{categoryTitle}</h2>
+          <p>{categoryNote}</p>
+        </div>
       </div>
 
       <div className="calculator-list">
@@ -202,6 +226,7 @@ function CatalogView({ categoryTitle, categoryNote, calculators }: CatalogViewPr
                 <li key={useCase}>{useCase}</li>
               ))}
             </ul>
+            <span className="calculator-strip__action">{siteContent.workspace.openCatalogItem}</span>
           </Link>
         ))}
       </div>
@@ -255,51 +280,6 @@ function CalculatorDetail({ calculator }: CalculatorDetailProps) {
           </Link>
         </div>
       )}
-    </section>
-  );
-}
-
-function ProjectsView() {
-  return (
-    <section className="projects-panel" aria-labelledby="projects-heading">
-      <div className="projects-panel__header">
-        <p className="panel-label">{siteContent.projects.label}</p>
-        <h2 id="projects-heading">{siteContent.projects.title}</h2>
-        <p>{siteContent.projects.description}</p>
-      </div>
-
-      <div className="project-categories">
-        {projectCategories.map((category) => (
-          <section
-            key={category.slug}
-            className="project-category"
-            aria-labelledby={`project-category-${category.slug}`}
-          >
-            <div className="project-category__header">
-              <h3 id={`project-category-${category.slug}`}>{category.title}</h3>
-              <p>{category.description}</p>
-            </div>
-            <div className="project-list">
-              {category.projects.map((project) => (
-                <Link
-                  key={project.slug}
-                  className="project-row"
-                  href={project.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={project.title}
-                >
-                  <div className="project-row__copy">
-                    <h4>{project.title}</h4>
-                    <p>{project.description}</p>
-                  </div>
-                  <span className="project-row__cta">{siteContent.projects.openProject}</span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
     </section>
   );
 }
