@@ -1,4 +1,5 @@
 export type EmbedMode = "embed" | "external";
+export type AccessLabel = "Вбудований розрахунок" | "Окремий інструмент";
 
 export type CategorySlug =
   | "beton"
@@ -21,6 +22,7 @@ export type Calculator = {
   mainCategory: CategorySlug;
   extraCategories: CategorySlug[];
   embedMode: EmbedMode;
+  accessLabel: AccessLabel;
   embedUrl?: string;
   openUrl: string;
   order: number;
@@ -34,32 +36,32 @@ const categoryDefinitions: CalculatorCategory[] = [
   {
     slug: "beton",
     title: "Бетон",
-    note: "Об'єми, заливка і базові будівельні суміші.",
+    note: "Монолітні елементи, кубатура й підбір бетонних об'ємів.",
   },
   {
     slug: "fundamenti",
     title: "Фундаменти",
-    note: "Стрічка, плита і підготовка основи.",
+    note: "Стрічкові та плитні рішення, бетон і базові параметри основи.",
   },
   {
     slug: "stiny",
     title: "Стіни",
-    note: "Цегла, блоки і конструктивні матеріали.",
+    note: "Кладка, блоки й матеріальні обсяги для стінових елементів.",
   },
   {
     slug: "pokrivlya",
     title: "Покрівля",
-    note: "Площа, нахил і покрівельний запас.",
+    note: "Площа схилів, запас покриття й параметри покрівельних рішень.",
   },
   {
     slug: "teploizolyatsiya",
     title: "Теплоізоляція",
-    note: "Товщина, щільність і витрати утеплення.",
+    note: "Товщина шарів, орієнтири для утеплення й енергоефективності.",
   },
   {
     slug: "ozdoblennya",
     title: "Оздоблення",
-    note: "Плитка, сухі суміші та чистові роботи.",
+    note: "Плитка, суміші та чистові матеріали для оздоблювальних робіт.",
   },
 ];
 
@@ -69,86 +71,104 @@ export const calculators: Calculator[] = [
   {
     slug: "concrete-volume",
     title: "Калькулятор об'єму бетону",
-    shortDescription: "Швидкий підрахунок кубатури для плит, стяжок і прямокутних заливок.",
+    shortDescription:
+      "Розрахунок кубатури бетону для плит, стяжок, ростверків і прямокутних заливок.",
     mainCategory: "beton",
     extraCategories: ["fundamenti"],
     embedMode: "embed",
+    accessLabel: "Вбудований розрахунок",
     embedUrl: "https://www.calculator.net/concrete-calculator.html",
     openUrl: "https://www.calculator.net/concrete-calculator.html",
     order: 1,
-    seoTitle: "Калькулятор об'єму бетону",
-    seoDescription: "Порахуйте кубатуру бетону для плит, стяжок і фундаментних елементів.",
+    seoTitle: "Розрахунок об'єму бетону",
+    seoDescription:
+      "Калькулятор для визначення кубатури бетону при проектуванні плит, стяжок і монолітних елементів.",
     editorialLabel: "Популярний",
-    useCases: ["Плита перекриття", "Стяжка", "Прямокутна заливка"],
+    useCases: ["Плити та стяжки", "Монолітні подушки", "Попередня відомість бетону"],
   },
   {
     slug: "strip-foundation",
     title: "Калькулятор стрічкового фундаменту",
-    shortDescription: "Об'єм бетону, довжина стрічки і базова витрата для фундаментного контуру.",
+    shortDescription:
+      "Розрахунок стрічкового фундаменту за довжиною контуру, перерізом і витратою бетону.",
     mainCategory: "fundamenti",
     extraCategories: ["beton"],
     embedMode: "external",
+    accessLabel: "Окремий інструмент",
     openUrl: "https://www.omnicalculator.com/construction/concrete-footing",
     order: 2,
-    seoTitle: "Калькулятор стрічкового фундаменту",
-    seoDescription: "Оцініть параметри стрічкового фундаменту і витрати на заливку.",
-    useCases: ["Приватний будинок", "Гараж", "Господарські споруди"],
+    seoTitle: "Розрахунок стрічкового фундаменту",
+    seoDescription:
+      "Інструмент для попередньої оцінки геометрії стрічкового фундаменту та потреби в бетоні.",
+    useCases: ["Стрічка під будинок", "Контур гаража", "Попередня оцінка бетонування"],
   },
   {
     slug: "brick-count",
     title: "Калькулятор кількості цегли",
-    shortDescription: "Порахуйте орієнтовну кількість цегли для стін з урахуванням площі та формату.",
+    shortDescription:
+      "Оцінка кількості цегли для зовнішніх стін, перегородок і облицювальних шарів.",
     mainCategory: "stiny",
     extraCategories: ["ozdoblennya"],
     embedMode: "embed",
+    accessLabel: "Вбудований розрахунок",
     embedUrl: "https://www.calculator.net/brick-calculator.html",
     openUrl: "https://www.calculator.net/brick-calculator.html",
     order: 3,
-    seoTitle: "Калькулятор кількості цегли",
-    seoDescription: "Орієнтовний підрахунок кількості цегли для стін і перегородок.",
-    useCases: ["Зовнішні стіни", "Перегородки", "Облицювання"],
+    seoTitle: "Розрахунок кількості цегли",
+    seoDescription:
+      "Калькулятор для визначення орієнтовної кількості цегли при розрахунку стін і перегородок.",
+    useCases: ["Зовнішні стіни", "Внутрішні перегородки", "Облицювальні шари"],
   },
   {
     slug: "roof-area",
     title: "Калькулятор площі покрівлі",
-    shortDescription: "Розрахунок площі схилів і запасу матеріалу для дахових робіт.",
+    shortDescription:
+      "Розрахунок площі покрівлі, схилів і запасу матеріалу для закупівлі покриття.",
     mainCategory: "pokrivlya",
     extraCategories: [],
     embedMode: "embed",
+    accessLabel: "Вбудований розрахунок",
     embedUrl: "https://www.omnicalculator.com/construction/roofing",
     openUrl: "https://www.omnicalculator.com/construction/roofing",
     order: 4,
-    seoTitle: "Калькулятор площі покрівлі",
-    seoDescription: "Площа покрівлі, запас покриття та орієнтир для закупівлі матеріалу.",
+    seoTitle: "Розрахунок площі покрівлі",
+    seoDescription:
+      "Інструмент для оцінки площі схилів, запасу покрівельного матеріалу й попередньої закупівлі.",
     editorialLabel: "Новий",
-    useCases: ["Металочерепиця", "Бітумна черепиця", "Профнастил"],
+    useCases: ["Скатні покрівлі", "Підбір покриття", "Резерв на підрізування"],
   },
   {
     slug: "insulation-thickness",
     title: "Калькулятор товщини утеплення",
-    shortDescription: "Швидкий орієнтир для підбору товщини утеплювача під стіни та перекриття.",
+    shortDescription:
+      "Орієнтир для підбору товщини утеплення в стінах, перекриттях і покрівельних вузлах.",
     mainCategory: "teploizolyatsiya",
     extraCategories: ["stiny"],
     embedMode: "external",
+    accessLabel: "Окремий інструмент",
     openUrl: "https://www.omnicalculator.com/construction/insulation",
     order: 5,
-    seoTitle: "Калькулятор товщини утеплення",
-    seoDescription: "Оцініть потрібну товщину утеплювача для різних конструкцій.",
-    useCases: ["Фасад", "Покрівельний пиріг", "Перекриття"],
+    seoTitle: "Розрахунок товщини утеплення",
+    seoDescription:
+      "Калькулятор для попереднього підбору товщини теплоізоляції в основних огороджувальних конструкціях.",
+    useCases: ["Фасадні стіни", "Покрівельні вузли", "Міжповерхові перекриття"],
   },
   {
     slug: "tile-layout",
     title: "Калькулятор плитки",
-    shortDescription: "Площа облицювання, кількість плитки та запас на підрізку.",
+    shortDescription:
+      "Розрахунок площі облицювання, кількості плитки й запасу на підрізування.",
     mainCategory: "ozdoblennya",
     extraCategories: [],
     embedMode: "external",
+    accessLabel: "Окремий інструмент",
     openUrl: "https://www.calculator.net/tile-calculator.html",
     order: 6,
-    seoTitle: "Калькулятор плитки",
-    seoDescription: "Порахуйте кількість плитки та запас для оздоблювальних робіт.",
+    seoTitle: "Розрахунок кількості плитки",
+    seoDescription:
+      "Інструмент для визначення кількості плитки та резерву матеріалу для облицювальних робіт.",
     editorialLabel: "Популярний",
-    useCases: ["Санвузол", "Кухня", "Підлога"],
+    useCases: ["Санвузли", "Кухонні зони", "Підлога та фартухи"],
   },
 ];
 

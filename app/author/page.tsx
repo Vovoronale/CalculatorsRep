@@ -8,7 +8,7 @@ import { siteContent } from "@/lib/site-content";
 
 export const metadata: Metadata = {
   title: `Про автора | ${siteContent.brand.authorName}`,
-  description: siteContent.authorPage.title,
+  description: siteContent.brand.role,
 };
 
 export default function AuthorPage() {
@@ -30,7 +30,7 @@ export default function AuthorPage() {
 
         <section className="author-section" aria-labelledby="directions-heading">
           <p className="workspace-panel__label">{siteContent.authorPage.directionsLabel}</p>
-          <h2 id="directions-heading">Сфери, у яких поєдную інженерію, продукти і AI.</h2>
+          <h2 id="directions-heading">{siteContent.authorPage.directionsTitle}</h2>
           <ul className="author-directions">
             {siteContent.authorPage.directions.map((direction) => (
               <li key={direction}>{direction}</li>

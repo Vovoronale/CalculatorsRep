@@ -21,11 +21,11 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Будівельні калькулятори",
+        name: "Інженерні розрахунки для проектування",
       }),
     ).toBeInTheDocument();
     expect(within(rail).getByText("Іванейко Володимир")).toBeInTheDocument();
-    expect(within(rail).getByText("Категорії розрахунків")).toBeInTheDocument();
+    expect(within(rail).getByText("Напрями розрахунків")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Бетон" })).toHaveAttribute(
       "aria-pressed",
       "true",
@@ -44,6 +44,7 @@ describe("CalculatorShell", () => {
     expect(
       within(workspace).getByRole("link", { name: "Калькулятор об'єму бетону" }),
     ).toBeInTheDocument();
+    expect(within(workspace).getByText("Вбудований розрахунок")).toBeInTheDocument();
     expect(
       within(workspace).getByRole("link", { name: "Про автора" }),
     ).toHaveAttribute("href", "/author");
@@ -55,7 +56,9 @@ describe("CalculatorShell", () => {
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole("contentinfo"),
-    ).toHaveTextContent("Окрема сторінка з професійним профілем, продуктами і напрямами роботи.");
+    ).toHaveTextContent(
+      "Платформа виросла з практики проектування, нормативної роботи та прикладних цифрових сервісів.",
+    );
     expect(screen.getAllByRole("link", { name: "CadEE.pro" })[0]).toHaveAttribute(
       "href",
       "https://cadee.pro",
@@ -78,10 +81,11 @@ describe("CalculatorShell", () => {
       "page",
     );
     expect(screen.getByRole("heading", { level: 2, name: "Калькулятор об'єму бетону" })).toBeInTheDocument();
+    expect(screen.getByText("Вбудований розрахунок")).toBeInTheDocument();
     expect(
       screen.getByTitle("Калькулятор об'єму бетону"),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Відкрити інструмент" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Відкрити окремо" })).toHaveAttribute(
       "href",
       calculator.openUrl,
     );
@@ -101,11 +105,12 @@ describe("CalculatorShell", () => {
     expect(
       within(rail).getByRole("link", { name: "Калькулятор стрічкового фундаменту" }),
     ).toHaveAttribute("aria-current", "page");
-    expect(
-      screen.getByText(
-        "Цей інструмент відкривається на окремій сторінці, щоб зберегти повний функціонал розрахунку.",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Окремий інструмент")).toBeInTheDocument();
+    expect(screen.getByText("Розрахунок відкривається в окремому вікні.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Перейти до інструмента" })).toHaveAttribute(
+      "href",
+      calculator.openUrl,
+    );
     expect(
       screen.queryByTitle("Калькулятор стрічкового фундаменту"),
     ).not.toBeInTheDocument();

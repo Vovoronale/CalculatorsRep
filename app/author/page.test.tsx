@@ -23,9 +23,11 @@ describe("AuthorPage", () => {
     expect(
       within(workspace).getByRole("heading", { level: 1, name: "Іванейко Володимир" }),
     ).toBeInTheDocument();
-    expect(within(workspace).getByText(/CTO \/ Head of AI R&D/i)).toBeInTheDocument();
     expect(
-      within(workspace).getByRole("heading", { name: "Теплотехнічні розрахунки" }),
+      within(workspace).getByText(/засновник цифрових інженерних продуктів/i),
+    ).toBeInTheDocument();
+    expect(
+      within(workspace).getByRole("heading", { name: "Інженерні розрахунки" }),
     ).toBeInTheDocument();
     expect(within(workspace).getByRole("heading", { name: "ШІ-асистенти" })).toBeInTheDocument();
     expect(within(workspace).getByRole("link", { name: "ДБН В.2.2-5:2023" })).toHaveAttribute(

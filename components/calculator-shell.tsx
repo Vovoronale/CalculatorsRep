@@ -59,7 +59,7 @@ export function CalculatorShell({
         )}
 
         <footer className="site-footer">
-          <p>{siteContent.workspace.authorCtaDescription}</p>
+          <p>{siteContent.footer.note}</p>
           <div className="site-footer__links">
             {siteContent.navigation.utilityLinks
               .filter((link) => link.external)
@@ -118,6 +118,7 @@ function CatalogWorkspace({ category, calculators }: CatalogWorkspaceProps) {
                 ) : null}
               </div>
               <p>{calculator.shortDescription}</p>
+              <p className="workspace-calculator__access">{calculator.accessLabel}</p>
               <ul aria-label={`Сценарії: ${calculator.title}`}>
                 {calculator.useCases.map((useCase) => (
                   <li key={useCase}>{useCase}</li>
@@ -146,6 +147,11 @@ type CalculatorDetailProps = {
 };
 
 function CalculatorDetail({ calculator }: CalculatorDetailProps) {
+  const detailNote =
+    calculator.embedMode === "embed"
+      ? siteContent.workspace.embeddedDetailNote
+      : siteContent.workspace.externalAccessNote;
+
   return (
     <section className="workspace-panel workspace-panel--detail" aria-labelledby="detail-heading">
       <div className="workspace-panel__header workspace-panel__header--detail">
@@ -153,14 +159,25 @@ function CalculatorDetail({ calculator }: CalculatorDetailProps) {
           <p className="workspace-panel__label">{siteContent.workspace.detailLabel}</p>
           <h2 id="detail-heading">{calculator.title}</h2>
           <p className="workspace-panel__description">{calculator.shortDescription}</p>
+          <div className="workspace-panel__access">
+            <span className="workspace-panel__access-badge">{calculator.accessLabel}</span>
+            <p className="workspace-panel__access-note">{detailNote}</p>
+          </div>
         </div>
         <div className="workspace-panel__actions">
           <Link className="workspace-panel__link" href={`/#${calculator.mainCategory}`}>
             {siteContent.workspace.backToCatalog}
           </Link>
-          <Link className="workspace-panel__cta" href={calculator.openUrl} target="_blank" rel="noreferrer">
-            {siteContent.workspace.openStandalone}
-          </Link>
+          {calculator.embedMode === "embed" ? (
+            <Link
+              className="workspace-panel__cta"
+              href={calculator.openUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {siteContent.workspace.openEmbedded}
+            </Link>
+          ) : null}
         </div>
       </div>
 
@@ -181,9 +198,9 @@ function CalculatorDetail({ calculator }: CalculatorDetailProps) {
         </div>
       ) : (
         <div className="workspace-external">
-          <p>{siteContent.workspace.detailFallback}</p>
+          <p>{siteContent.workspace.externalDetailNote}</p>
           <Link className="workspace-panel__cta" href={calculator.openUrl} target="_blank" rel="noreferrer">
-            {siteContent.workspace.openStandalone}
+            {siteContent.workspace.openExternal}
           </Link>
         </div>
       )}
