@@ -7,13 +7,10 @@ export type AuthorProject = {
 
 export type ProjectCategory = {
   slug:
-    | "thermal"
-    | "design-docs"
-    | "reinforced-concrete"
-    | "structural-mechanics"
-    | "revit-plugins"
-    | "electrical"
-    | "ai-assistants";
+    | "engineering-calculations"
+    | "design-and-norms"
+    | "bim-tools"
+    | "ai-products";
   title: string;
   description: string;
   projects: AuthorProject[];
@@ -28,9 +25,10 @@ export type AiAssistant = {
 
 export const projectCategories: ProjectCategory[] = [
   {
-    slug: "thermal",
-    title: "Теплотехнічні розрахунки",
-    description: "Сервіси для енергоефективності, огороджувальних конструкцій і теплотехнічних перевірок.",
+    slug: "engineering-calculations",
+    title: "Інженерні розрахунки",
+    description:
+      "Розрахункові сервіси для енергоефективності, конструктивних перевірок, механіки та прикладних технічних оцінок.",
     projects: [
       {
         slug: "cadee-pro",
@@ -39,12 +37,34 @@ export const projectCategories: ProjectCategory[] = [
           "Онлайн-сервіс теплотехнічних розрахунків огороджувальних конструкцій та оцінки енергоефективності за українськими нормами.",
         href: "https://cadee.pro",
       },
+      {
+        slug: "armcon",
+        title: "ArmCon",
+        description:
+          "Розрахунок армування залізобетонних конструкцій за Єврокодами та українськими нормами.",
+        href: "https://dbnassistant.com/products/armcon/",
+      },
+      {
+        slug: "livebeamcalculator",
+        title: "LiveBeamCalculator",
+        description:
+          "Онлайн-калькулятор балок для оцінки згинальних моментів, поперечних сил та прогинів.",
+        href: "https://dbnassistant.com/products/livebeamcalculator/",
+      },
+      {
+        slug: "power-calculator",
+        title: "Розрахунок електричних навантажень будівель",
+        description:
+          "Сервіс для розрахунку електричних навантажень житлових і громадських будівель за ДБН В.2.5-23:2025.",
+        href: "https://pc.dbnassistant.com",
+      },
     ],
   },
   {
-    slug: "design-docs",
-    title: "Інструменти для ПД",
-    description: "Рішення для нормативної роботи, перевірки даних і підготовки проєктної документації.",
+    slug: "design-and-norms",
+    title: "Нормативні та проектні сервіси",
+    description:
+      "Інструменти для перевірки нормативів, підготовки документації, обробки даних і технічного супроводу проектної роботи.",
     projects: [
       {
         slug: "normcontrol",
@@ -68,43 +88,17 @@ export const projectCategories: ProjectCategory[] = [
       {
         slug: "optcad",
         title: "OptCAD",
-        description: "Середовище для оптимізації проєктних рішень і прикладних інженерних сценаріїв.",
+        description:
+          "Середовище для оптимізації проектних рішень і прикладних інженерних сценаріїв.",
         href: "https://dbnassistant.com/author/",
       },
     ],
   },
   {
-    slug: "reinforced-concrete",
-    title: "Залізобетонні конструкції",
-    description: "Цифрові інструменти для армування, конструювання і конструктивних перевірок.",
-    projects: [
-      {
-        slug: "armcon",
-        title: "ArmCon",
-        description:
-          "Розрахунок армування залізобетонних конструкцій за Єврокодами та українськими нормами.",
-        href: "https://dbnassistant.com/products/armcon/",
-      },
-    ],
-  },
-  {
-    slug: "structural-mechanics",
-    title: "Будівельна механіка",
-    description: "Онлайн-інструменти для оцінки роботи елементів і базових механічних сценаріїв.",
-    projects: [
-      {
-        slug: "livebeamcalculator",
-        title: "LiveBeamCalculator",
-        description:
-          "Онлайн-калькулятор балок для розрахунку згинальних моментів, поперечних сил та прогинів.",
-        href: "https://dbnassistant.com/products/livebeamcalculator/",
-      },
-    ],
-  },
-  {
-    slug: "revit-plugins",
-    title: "Плагіни Revit",
-    description: "Розширення для BIM-процесів і повсякденної роботи всередині Revit.",
+    slug: "bim-tools",
+    title: "BIM та робочі інструменти",
+    description:
+      "Плагіни й утиліти для щоденної роботи всередині Revit та інших цифрових проектних процесів.",
     projects: [
       {
         slug: "revit-screenshot-plugin",
@@ -116,23 +110,10 @@ export const projectCategories: ProjectCategory[] = [
     ],
   },
   {
-    slug: "electrical",
-    title: "Електротехнічні розрахунки",
-    description: "Спеціалізовані сервіси для профільних електротехнічних перевірок у будівництві.",
-    projects: [
-      {
-        slug: "power-calculator",
-        title: "Розрахунок електричних навантажень будівель",
-        description:
-          "Сервіс для розрахунку електричних навантажень житлових і громадських будівель за ДБН В.2.5-23:2025.",
-        href: "https://pc.dbnassistant.com",
-      },
-    ],
-  },
-  {
-    slug: "ai-assistants",
-    title: "ШІ-асистенти",
-    description: "AI-інструменти для роботи з будівельними нормами і швидкої аналітики нормативної бази.",
+    slug: "ai-products",
+    title: "AI та прикладні сервіси",
+    description:
+      "AI-інструменти для нормативної аналітики, швидких відповідей і підтримки технічних сценаріїв.",
     projects: [
       {
         slug: "dbn-assistant",

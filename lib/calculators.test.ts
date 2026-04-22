@@ -32,5 +32,6 @@ describe("calculator data model", () => {
 
     expect(calculator?.title).toBe("Калькулятор площі покрівлі");
     expect(calculator?.mainCategory).toBe("pokrivlya");
+    expect(calculator?.accessLabel).toBe("Вбудований розрахунок");
   });
 });
