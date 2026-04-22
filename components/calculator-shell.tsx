@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 
+import { CatalogRail } from "@/components/catalog-rail";
 import {
   calculatorCategories,
   getCalculatorsForCategory,
@@ -17,17 +18,6 @@ type CalculatorShellProps = {
   selectedCalculator?: Calculator;
 };
 
-function resolveHashCategory() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const rawHash = window.location.hash.replace("#", "") as CategorySlug;
-  return calculatorCategories.some((category) => category.slug === rawHash)
-    ? rawHash
-    : null;
-}
-
 export function CalculatorShell({
   selectedCategory,
   selectedCalculator,
@@ -37,102 +27,43 @@ export function CalculatorShell({
     selectedCategory ??
     calculatorCategories[0].slug;
 
-  const [activeCategory, setActiveCategory] = useState<CategorySlug>(initialCategory);
-
-  useEffect(() => {
-    if (selectedCategory || selectedCalculator) {
-      return;
-    }
-
-    const syncWithHash = () => {
-      const hashCategory = resolveHashCategory();
-      if (hashCategory) {
-        setActiveCategory(hashCategory);
-      }
-    };
-
-    syncWithHash();
-    window.addEventListener("hashchange", syncWithHash);
-
-    return () => window.removeEventListener("hashchange", syncWithHash);
-  }, [selectedCalculator, selectedCategory]);
-
-  const currentCategory =
-    calculatorCategories.find((category) => category.slug === activeCategory) ??
-    calculatorCategories[0];
-
-  const currentCalculators = useMemo(
-    () => getCalculatorsForCategory(currentCategory.slug),
-    [currentCategory.slug],
+  const [currentCategory, setCurrentCategory] = useState<CalculatorCategory>(
+    calculatorCategories.find((category) => category.slug === initialCategory) ??
+      calculatorCategories[0],
   );
+  const [currentCalculators, setCurrentCalculators] = useState<Calculator[]>(
+    selectedCalculator ? [] : getCalculatorsForCategory(initialCategory),
+  );
+
+  const handleCategoryChange = (category: CalculatorCategory, calculators: Calculator[]) => {
+    setCurrentCategory(category);
+    setCurrentCalculators(calculators);
+  };
 
   const isDetailMode = Boolean(selectedCalculator);
 
   return (
-    <div className="shell">
-      <header className="topbar">
-        <div className="topbar__brand">
-          <p className="topbar__eyebrow">{siteContent.brand.authorName}</p>
-          <Link className="brand-link" href="/">
-            {siteContent.brand.productName}
-          </Link>
-        </div>
-        <nav className="utility-nav" aria-label="Сервісна навігація">
-          {siteContent.navigation.utilityLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noreferrer" : undefined}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-      </header>
+    <div className="site-shell">
+      <CatalogRail
+        initialCategory={initialCategory}
+        selectedCalculator={selectedCalculator}
+        syncWithHash={!selectedCategory && !selectedCalculator}
+        onCategoryChange={handleCategoryChange}
+      />
 
-      <main className="workspace">
-        <section className="workspace__intro">
-          <p className="workspace__eyebrow">{siteContent.workspace.eyebrow}</p>
-          <h1>{siteContent.workspace.title}</h1>
-          <p className="workspace__description">{siteContent.workspace.description}</p>
-        </section>
-
-        <section className="category-rail" aria-labelledby="category-rail-heading">
-          <div className="category-rail__header">
-            <p className="panel-label">{siteContent.workspace.categoryLabel}</p>
-            <p id="category-rail-heading">{siteContent.workspace.categoryHint}</p>
-          </div>
-          <div className="category-rail__list">
-            {calculatorCategories.map((category) => (
-              <CategoryAction
-                key={category.slug}
-                category={category}
-                isActive={
-                  (selectedCalculator && selectedCalculator.mainCategory === category.slug) ||
-                  (!selectedCalculator && currentCategory.slug === category.slug)
-                }
-                onSelect={setActiveCategory}
-                isLocked={Boolean(selectedCalculator)}
-              />
-            ))}
-          </div>
-        </section>
-
+      <main className="site-workspace">
         {isDetailMode && selectedCalculator ? (
           <CalculatorDetail calculator={selectedCalculator} />
         ) : (
-          <CatalogView
-            categoryTitle={currentCategory.title}
-            categoryNote={currentCategory.note}
-            calculators={currentCalculators}
-          />
+          <CatalogWorkspace category={currentCategory} calculators={currentCalculators} />
         )}
 
-        <footer className="footer-note">
-          <p>{siteContent.footer.note}</p>
-          <div className="footer-note__links">
-            {siteContent.navigation.utilityLinks.map((link) => (
+        <footer className="site-footer">
+          <p>{siteContent.workspace.authorCtaDescription}</p>
+          <div className="site-footer__links">
+            {siteContent.navigation.utilityLinks
+              .filter((link) => link.external)
+              .map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
@@ -141,7 +72,7 @@ export function CalculatorShell({
               >
                 {link.label}
               </Link>
-            ))}
+              ))}
           </div>
         </footer>
       </main>
@@ -149,88 +80,64 @@ export function CalculatorShell({
   );
 }
 
-type CategoryActionProps = {
+type CatalogWorkspaceProps = {
   category: CalculatorCategory;
-  isActive: boolean;
-  onSelect: (categorySlug: CategorySlug) => void;
-  isLocked: boolean;
-};
-
-function CategoryAction({ category, isActive, onSelect, isLocked }: CategoryActionProps) {
-  if (isLocked) {
-    return (
-      <Link
-        className={`category-chip${isActive ? " is-active" : ""}`}
-        href={`/#${category.slug}`}
-        aria-label={category.title}
-      >
-        <span>{category.title}</span>
-        <small>{category.note}</small>
-      </Link>
-    );
-  }
-
-  return (
-    <button
-      className={`category-chip${isActive ? " is-active" : ""}`}
-      type="button"
-      aria-label={category.title}
-      aria-pressed={isActive}
-      onClick={() => {
-        window.history.replaceState(null, "", `#${category.slug}`);
-        onSelect(category.slug);
-      }}
-    >
-      <span>{category.title}</span>
-      <small>{category.note}</small>
-    </button>
-  );
-}
-
-type CatalogViewProps = {
-  categoryTitle: string;
-  categoryNote: string;
   calculators: Calculator[];
 };
 
-function CatalogView({ categoryTitle, categoryNote, calculators }: CatalogViewProps) {
+function CatalogWorkspace({ category, calculators }: CatalogWorkspaceProps) {
   return (
-    <section className="catalog-panel" aria-labelledby="catalog-heading">
-      <div className="catalog-panel__header">
-        <p className="panel-label">{siteContent.workspace.catalogLabel}</p>
-        <div>
-          <h2 id="catalog-heading">{categoryTitle}</h2>
-          <p>{categoryNote}</p>
-        </div>
-      </div>
+    <>
+      <section className="workspace-hero">
+        <p className="workspace-hero__eyebrow">{siteContent.workspace.eyebrow}</p>
+        <h1>{siteContent.workspace.title}</h1>
+        <p className="workspace-hero__description">{siteContent.workspace.description}</p>
+      </section>
 
-      <div className="calculator-list">
-        {calculators.map((calculator) => (
-          <Link
-            key={calculator.slug}
-            className="calculator-strip"
-            href={`/calculator/${calculator.slug}`}
-            aria-label={calculator.title}
-          >
-            <div className="calculator-strip__copy">
-              <div className="calculator-strip__title-row">
+      <section className="workspace-panel" aria-labelledby="workspace-category-heading">
+        <div className="workspace-panel__header">
+          <div>
+            <p className="workspace-panel__label">{siteContent.workspace.categoryLabel}</p>
+            <h2 id="workspace-category-heading">{category.title}</h2>
+          </div>
+          <p className="workspace-panel__note">{category.note}</p>
+        </div>
+
+        <div className="workspace-panel__list">
+          {calculators.map((calculator) => (
+            <Link
+              key={calculator.slug}
+              className="workspace-calculator"
+              href={`/calculator/${calculator.slug}`}
+              aria-label={calculator.title}
+            >
+              <div className="workspace-calculator__header">
                 <h3>{calculator.title}</h3>
                 {calculator.editorialLabel ? (
-                  <span className="editorial-pill">{calculator.editorialLabel}</span>
+                  <span className="workspace-calculator__badge">{calculator.editorialLabel}</span>
                 ) : null}
               </div>
               <p>{calculator.shortDescription}</p>
-            </div>
-            <ul className="calculator-strip__tags" aria-label={`Сценарії: ${calculator.title}`}>
-              {calculator.useCases.map((useCase) => (
-                <li key={useCase}>{useCase}</li>
-              ))}
-            </ul>
-            <span className="calculator-strip__action">{siteContent.workspace.openCatalogItem}</span>
-          </Link>
-        ))}
-      </div>
-    </section>
+              <ul aria-label={`Сценарії: ${calculator.title}`}>
+                {calculator.useCases.map((useCase) => (
+                  <li key={useCase}>{useCase}</li>
+                ))}
+              </ul>
+              <span>{siteContent.workspace.openCatalogItem}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="workspace-panel workspace-panel--compact" aria-labelledby="author-cta-heading">
+        <p className="workspace-panel__label">{siteContent.workspace.authorCtaLabel}</p>
+        <h2 id="author-cta-heading">{siteContent.workspace.authorCtaTitle}</h2>
+        <p className="workspace-panel__description">{siteContent.workspace.authorCtaDescription}</p>
+        <Link className="workspace-panel__cta" href="/author">
+          Про автора
+        </Link>
+      </section>
+    </>
   );
 }
 
@@ -240,31 +147,31 @@ type CalculatorDetailProps = {
 
 function CalculatorDetail({ calculator }: CalculatorDetailProps) {
   return (
-    <section className="detail-panel" aria-labelledby="detail-heading">
-      <div className="detail-panel__header">
+    <section className="workspace-panel workspace-panel--detail" aria-labelledby="detail-heading">
+      <div className="workspace-panel__header workspace-panel__header--detail">
         <div>
-          <p className="panel-label">{siteContent.workspace.detailLabel}</p>
+          <p className="workspace-panel__label">{siteContent.workspace.detailLabel}</p>
           <h2 id="detail-heading">{calculator.title}</h2>
-          <p>{calculator.shortDescription}</p>
+          <p className="workspace-panel__description">{calculator.shortDescription}</p>
         </div>
-        <div className="detail-panel__actions">
-          <Link className="ghost-link" href={`/#${calculator.mainCategory}`}>
+        <div className="workspace-panel__actions">
+          <Link className="workspace-panel__link" href={`/#${calculator.mainCategory}`}>
             {siteContent.workspace.backToCatalog}
           </Link>
-          <Link className="cta-link" href={calculator.openUrl} target="_blank" rel="noreferrer">
+          <Link className="workspace-panel__cta" href={calculator.openUrl} target="_blank" rel="noreferrer">
             {siteContent.workspace.openStandalone}
           </Link>
         </div>
       </div>
 
-      <ul className="use-case-list" aria-label={`Сценарії: ${calculator.title}`}>
+      <ul className="workspace-use-cases" aria-label={`Сценарії: ${calculator.title}`}>
         {calculator.useCases.map((useCase) => (
           <li key={useCase}>{useCase}</li>
         ))}
       </ul>
 
       {calculator.embedMode === "embed" && calculator.embedUrl ? (
-        <div className="embed-frame">
+        <div className="workspace-embed">
           <iframe
             src={calculator.embedUrl}
             title={calculator.title}
@@ -273,9 +180,9 @@ function CalculatorDetail({ calculator }: CalculatorDetailProps) {
           />
         </div>
       ) : (
-        <div className="external-panel">
+        <div className="workspace-external">
           <p>{siteContent.workspace.detailFallback}</p>
-          <Link className="cta-link" href={calculator.openUrl} target="_blank" rel="noreferrer">
+          <Link className="workspace-panel__cta" href={calculator.openUrl} target="_blank" rel="noreferrer">
             {siteContent.workspace.openStandalone}
           </Link>
         </div>
