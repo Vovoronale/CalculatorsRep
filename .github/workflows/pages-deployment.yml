@@ -40,6 +40,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: "3"
-          command: pages deploy out --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+          wranglerVersion: "4"
+          command: pages deploy out --project-name=ivapps-pro
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
