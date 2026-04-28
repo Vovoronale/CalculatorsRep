@@ -1,76 +1,101 @@
-export const siteContent = {
-  brand: {
-    productName: "Платформа інженерних розрахунків",
-    authorName: "Іванейко Володимир",
-    role:
-      "Цифрова платформа розрахункових інструментів для проектування, технічних оцінок і підготовки рішень у будівництві.",
-  },
-  navigation: {
-    utilityLinks: [
-      {
-        label: "CadEE.pro",
-        href: "https://cadee.pro",
-        external: true,
-      },
-      {
-        label: "Про автора",
-        href: "/author",
-      },
-    ],
-  },
-  workspace: {
-    eyebrow: "Платформа інженерних розрахунків",
-    title: "Інженерні розрахунки для проектування",
-    description:
-      "Єдина робоча навігація для калькуляторів, що допомагають оцінювати об'єми, матеріали, конструктивні рішення й технічні параметри в будівництві.",
-    railLabel: "Напрями розрахунків",
-    railDescription:
-      "Платформа поєднує вбудовані калькулятори й окремі інструменти в одній робочій навігації.",
-    categoryLabel: "Напрям розрахунків",
-    categoryHint:
-      "Оберіть напрям у лівій колонці, щоб перейти до потрібного типу розрахунку.",
-    detailLabel: "Розрахунковий інструмент",
-    embeddedDetailNote: "Розрахунок доступний безпосередньо в робочій області.",
-    externalAccessNote: "Інструмент відкривається поза робочою областю платформи.",
-    externalDetailNote: "Розрахунок відкривається в окремому вікні.",
-    openEmbedded: "Відкрити окремо",
-    openExternal: "Перейти до інструмента",
-    backToCatalog: "Повернутися до каталогу",
-    openCatalogItem: "Переглянути інструмент",
-    authorCtaLabel: "Автор платформи",
-    authorCtaTitle: "Платформу створює інженер із практикою в проектуванні, цифрових сервісах і AI.",
-    authorCtaDescription:
-      "Сторінка автора збирає суміжні інженерні продукти, нормативні сервіси й напрями роботи, з яких виросла ця платформа.",
-  },
-  footer: {
-    note: "Платформа виросла з практики проектування, нормативної роботи та прикладних цифрових сервісів.",
-    authorCta: "Про автора",
-  },
-  authorPage: {
-    eyebrow: "Автор платформи",
-    title:
-      "CTO / Head of AI R&D, засновник цифрових інженерних продуктів для будівництва",
-    intro: [
-      "Працюю на стику інженерного проектування, цифрових продуктів і прикладного AI для будівельної галузі.",
-      "Платформа інженерних розрахунків є частиною ширшої продуктової екосистеми: від нормативних сервісів і BIM-інструментів до спеціалізованих AI-рішень для технічних команд.",
-    ],
-    directionsLabel: "Фокус роботи",
-    directionsTitle: "Практика, з якої виростають розрахункові сервіси.",
-    directions: [
-      "Інженерні цифрові продукти для проектних і технічних команд",
-      "AI та R&D для будівельних і проектних компаній",
-      "Нормативні та документні сервіси для підготовки рішень",
-      "BIM-інструменти і прикладна автоматизація в Revit",
-    ],
-    projectsLabel: "Екосистема продуктів",
-    projectsTitle: "Суміжні сервіси, що доповнюють платформу інженерних розрахунків.",
-    assistantsLabel: "Нормативний AI-шар",
-    assistantsTitle: "ШІ-асистенти",
-    assistantsDescription:
-      "Профільні AI-інструменти для швидкої навігації в будівельних нормах. DBN Assistant і спеціалізовані GPT-асистенти працюють як окремий нормативний шар для аналізу документів, вимог і технічних сценаріїв.",
-    closingLabel: "Контекст платформи",
-    closingTitle: "Платформа спирається на реальну проектну і продуктову практику.",
-    closingDescription:
-      "Калькулятори, нормативні сервіси, BIM-інструменти й AI-напрями будуються як робочі системи для щоденної інженерної роботи, а не як ізольовані демонстраційні продукти.",
-  },
+import contentData from "@/data/content.json";
+
+type UtilityLink = {
+  label: string;
+  href: string;
+  external: boolean;
 };
+
+type Brand = {
+  productName: string;
+  subBrandName: string;
+  umbrella: string;
+  umbrellaMonogram: string;
+  umbrellaWordmark: string;
+  authorName: string;
+  role: string;
+};
+
+export type TopbarProduct = {
+  label: string;
+  href: string;
+  external: boolean;
+  active?: boolean;
+  tagline?: string;
+};
+
+export type TopbarLanguage = {
+  code: string;
+  label: string;
+  available: boolean;
+};
+
+export type TopbarCta = {
+  label: string;
+  href: string;
+};
+
+type Topbar = {
+  productsLabel: string;
+  products: TopbarProduct[];
+  allProductsLabel: string;
+  allProductsHref: string;
+  languages: TopbarLanguage[];
+  cta: TopbarCta;
+};
+
+type Workspace = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  railLabel: string;
+  railDescription: string;
+  categoryLabel: string;
+  categoryHint: string;
+  detailLabel: string;
+  embeddedDetailNote: string;
+  externalAccessNote: string;
+  externalDetailNote: string;
+  modalDetailNote: string;
+  openEmbedded: string;
+  openExternal: string;
+  openModal: string;
+  backToCatalog: string;
+  openCatalogItem: string;
+  authorCtaLabel: string;
+  authorCtaTitle: string;
+  authorCtaDescription: string;
+};
+
+type Footer = {
+  note: string;
+  authorCta: string;
+};
+
+type AuthorPage = {
+  eyebrow: string;
+  title: string;
+  intro: string[];
+  directionsLabel: string;
+  directionsTitle: string;
+  directions: string[];
+  projectsLabel: string;
+  projectsTitle: string;
+  assistantsLabel: string;
+  assistantsTitle: string;
+  assistantsDescription: string;
+  closingLabel: string;
+  closingTitle: string;
+  closingDescription: string;
+};
+
+export type SiteContent = {
+  brand: Brand;
+  navigation: { utilityLinks: UtilityLink[] };
+  topbar: Topbar;
+  workspace: Workspace;
+  footer: Footer;
+  authorPage: AuthorPage;
+};
+
+export const siteContent: SiteContent = contentData.site as SiteContent;

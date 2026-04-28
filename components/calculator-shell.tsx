@@ -1,10 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import { ExternalLink } from "lucide-react";
+import { useEffect, useState } from "react";
 
+import { CalculatorCard } from "@/components/calculator-card";
+import { CalculatorModal } from "@/components/calculator-modal";
+import { CategoryCard } from "@/components/category-card";
 import { CatalogRail } from "@/components/catalog-rail";
+import { DrawerBackdrop } from "@/components/drawer-backdrop";
+import { MobileTopBar } from "@/components/mobile-top-bar";
+import { SiteFooter } from "@/components/site-footer";
+import { WorkspaceTopBar, type Breadcrumb } from "@/components/workspace-top-bar";
 import {
+  calculators,
   calculatorCategories,
   getCalculatorsForCategory,
   type Calculator,
@@ -28,113 +37,211 @@ export function CalculatorShell({
     calculatorCategories[0].slug;
 
   const [currentCategory, setCurrentCategory] = useState<CalculatorCategory>(
-    calculatorCategories.find((category) => category.slug === initialCategory) ??
+    calculatorCategories.find((c) => c.slug === initialCategory) ??
       calculatorCategories[0],
   );
   const [currentCalculators, setCurrentCalculators] = useState<Calculator[]>(
     selectedCalculator ? [] : getCalculatorsForCategory(initialCategory),
   );
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [modalCalculator, setModalCalculator] = useState<Calculator | null>(null);
 
-  const handleCategoryChange = (category: CalculatorCategory, calculators: Calculator[]) => {
-    setCurrentCategory(category);
-    setCurrentCalculators(calculators);
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("sidebar:collapsed") === "true") {
+        setIsCollapsed(true);
+      }
+    } catch {
+      // localStorage unavailable; ignore
+    }
+  }, []);
+
+  const toggleCollapse = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("sidebar:collapsed", next ? "true" : "false");
+      } catch {
+        // ignore
+      }
+      return next;
+    });
   };
 
-  const isDetailMode = Boolean(selectedCalculator);
+  const handleCategoryChange = (
+    category: CalculatorCategory,
+    calculatorList: Calculator[],
+  ) => {
+    setCurrentCategory(category);
+    setCurrentCalculators(calculatorList);
+  };
+
+  const detailBreadcrumbs: Breadcrumb[] | null = selectedCalculator
+    ? [
+        { label: "Каталог", href: "/" },
+        {
+          label: currentCategory.title,
+          href: `/#${currentCategory.slug}`,
+        },
+        { label: selectedCalculator.title },
+      ]
+    : null;
 
   return (
-    <div className="site-shell">
+    <div className="site-shell" data-collapsed={isCollapsed ? "true" : "false"}>
+      <MobileTopBar onOpenDrawer={() => setIsMobileOpen(true)} />
+      <DrawerBackdrop open={isMobileOpen} onClose={() => setIsMobileOpen(false)} />
+
       <CatalogRail
         initialCategory={initialCategory}
         selectedCalculator={selectedCalculator}
         syncWithHash={!selectedCategory && !selectedCalculator}
         onCategoryChange={handleCategoryChange}
+        isCollapsed={isCollapsed}
+        onToggleCollapse={toggleCollapse}
+        isMobileOpen={isMobileOpen}
+        onCloseMobile={() => setIsMobileOpen(false)}
       />
 
       <main className="site-workspace">
-        {isDetailMode && selectedCalculator ? (
-          <CalculatorDetail calculator={selectedCalculator} />
+        {selectedCalculator && detailBreadcrumbs ? (
+          <>
+            <WorkspaceTopBar
+              breadcrumbs={detailBreadcrumbs}
+              actions={
+                selectedCalculator.displayMode !== "external" ? (
+                  <Link
+                    className="workspace-top-bar__action"
+                    href={selectedCalculator.openUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <ExternalLink size={14} aria-hidden />
+                    {siteContent.workspace.openEmbedded}
+                  </Link>
+                ) : null
+              }
+            />
+            <div className="workspace-content workspace-content--reading">
+              <CalculatorDetail
+                calculator={selectedCalculator}
+                onOpenModal={setModalCalculator}
+              />
+            </div>
+          </>
         ) : (
-          <CatalogWorkspace category={currentCategory} calculators={currentCalculators} />
+          <>
+            <WorkspaceTopBar breadcrumbs={[{ label: "Каталог" }]} />
+            <div className="workspace-content">
+              <HomeView
+                activeCategory={currentCategory}
+                onOpenModal={setModalCalculator}
+              />
+            </div>
+          </>
         )}
 
-        <footer className="site-footer">
-          <p>{siteContent.footer.note}</p>
-          <div className="site-footer__links">
-            {siteContent.navigation.utilityLinks
-              .filter((link) => link.external)
-              .map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                target={link.external ? "_blank" : undefined}
-                rel={link.external ? "noreferrer" : undefined}
-              >
-                {link.label}
-              </Link>
-              ))}
-          </div>
-        </footer>
+        <SiteFooter />
       </main>
+
+      <CalculatorModal
+        calculator={modalCalculator}
+        onClose={() => setModalCalculator(null)}
+      />
     </div>
   );
 }
 
-type CatalogWorkspaceProps = {
-  category: CalculatorCategory;
-  calculators: Calculator[];
+type HomeViewProps = {
+  activeCategory: CalculatorCategory;
+  onOpenModal: (calculator: Calculator) => void;
 };
 
-function CatalogWorkspace({ category, calculators }: CatalogWorkspaceProps) {
+function HomeView({ activeCategory, onOpenModal }: HomeViewProps) {
+  const popular = calculators.filter((c) => c.editorialLabel === "Популярний");
+
   return (
     <>
-      <section className="workspace-hero">
+      <section className="workspace-hero" aria-labelledby="home-hero-title">
         <p className="workspace-hero__eyebrow">{siteContent.workspace.eyebrow}</p>
-        <h1>{siteContent.workspace.title}</h1>
-        <p className="workspace-hero__description">{siteContent.workspace.description}</p>
+        <h1 id="home-hero-title">{siteContent.workspace.title}</h1>
+        <p className="workspace-hero__stats">
+          <strong>{calculators.length}</strong> калькуляторів ·{" "}
+          <strong>{calculatorCategories.length}</strong> категорій · вбудовані, модальні та зовнішні інструменти
+        </p>
+        {popular.length > 0 ? (
+          <div className="workspace-hero__chips">
+            <p className="workspace-hero__chips-label">Популярне:</p>
+            {popular.map((calc) =>
+              calc.displayMode === "modal" ? (
+                <button
+                  key={calc.slug}
+                  type="button"
+                  className="workspace-hero__chip"
+                  onClick={() => onOpenModal(calc)}
+                >
+                  {calc.title}
+                </button>
+              ) : (
+                <Link
+                  key={calc.slug}
+                  href={`/calculator/${calc.slug}`}
+                  className="workspace-hero__chip"
+                >
+                  {calc.title}
+                </Link>
+              ),
+            )}
+          </div>
+        ) : null}
       </section>
 
-      <section className="workspace-panel" aria-labelledby="workspace-category-heading">
-        <div className="workspace-panel__header">
-          <div>
-            <p className="workspace-panel__label">{siteContent.workspace.categoryLabel}</p>
-            <h2 id="workspace-category-heading">{category.title}</h2>
-          </div>
-          <p className="workspace-panel__note">{category.note}</p>
+      <section className="workspace-section" aria-labelledby="home-categories-title">
+        <div className="workspace-section__head">
+          <h2 className="workspace-section__title" id="home-categories-title">
+            Усі категорії
+          </h2>
+          <p className="workspace-section__note">{siteContent.workspace.categoryHint}</p>
         </div>
-
-        <div className="workspace-panel__list">
-          {calculators.map((calculator) => (
-            <Link
-              key={calculator.slug}
-              className="workspace-calculator"
-              href={`/calculator/${calculator.slug}`}
-              aria-label={calculator.title}
-            >
-              <div className="workspace-calculator__header">
-                <h3>{calculator.title}</h3>
-                {calculator.editorialLabel ? (
-                  <span className="workspace-calculator__badge">{calculator.editorialLabel}</span>
-                ) : null}
-              </div>
-              <p>{calculator.shortDescription}</p>
-              <p className="workspace-calculator__access">{calculator.accessLabel}</p>
-              <ul aria-label={`Сценарії: ${calculator.title}`}>
-                {calculator.useCases.map((useCase) => (
-                  <li key={useCase}>{useCase}</li>
-                ))}
-              </ul>
-              <span>{siteContent.workspace.openCatalogItem}</span>
-            </Link>
+        <div className="category-grid">
+          {calculatorCategories.map((category) => (
+            <CategoryCard key={category.slug} category={category} />
           ))}
         </div>
       </section>
 
-      <section className="workspace-panel workspace-panel--compact" aria-labelledby="author-cta-heading">
-        <p className="workspace-panel__label">{siteContent.workspace.authorCtaLabel}</p>
-        <h2 id="author-cta-heading">{siteContent.workspace.authorCtaTitle}</h2>
-        <p className="workspace-panel__description">{siteContent.workspace.authorCtaDescription}</p>
-        <Link className="workspace-panel__cta" href="/author">
+      <section className="workspace-section" aria-labelledby="home-calculators-title">
+        <div className="workspace-section__head">
+          <h2 className="workspace-section__title" id="home-calculators-title">
+            Усі калькулятори
+          </h2>
+          <p className="workspace-section__note">
+            Активна категорія: <strong>{activeCategory.title}</strong>
+          </p>
+        </div>
+        <div className="calc-grid">
+          {calculators.map((calculator) => (
+            <CalculatorCard
+              key={calculator.slug}
+              calculator={calculator}
+              showCategoryBadge
+              onOpenModal={onOpenModal}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section className="workspace-section" aria-labelledby="home-author-title">
+        <div className="workspace-section__head">
+          <h2 className="workspace-section__title" id="home-author-title">
+            {siteContent.workspace.authorCtaTitle}
+          </h2>
+        </div>
+        <p className="workspace-section__note">
+          {siteContent.workspace.authorCtaDescription}
+        </p>
+        <Link className="cta-button cta-button--ghost" href="/author">
           Про автора
         </Link>
       </section>
@@ -144,51 +251,57 @@ function CatalogWorkspace({ category, calculators }: CatalogWorkspaceProps) {
 
 type CalculatorDetailProps = {
   calculator: Calculator;
+  onOpenModal: (calculator: Calculator) => void;
 };
 
-function CalculatorDetail({ calculator }: CalculatorDetailProps) {
-  const detailNote =
-    calculator.embedMode === "embed"
-      ? siteContent.workspace.embeddedDetailNote
-      : siteContent.workspace.externalAccessNote;
+function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
+  const showsIframe =
+    calculator.displayMode === "embed" && Boolean(calculator.embedUrl);
+  const related = calculators
+    .filter(
+      (c) =>
+        c.slug !== calculator.slug &&
+        (c.mainCategory === calculator.mainCategory ||
+          c.extraCategories.includes(calculator.mainCategory)),
+    )
+    .slice(0, 3);
 
   return (
-    <section className="workspace-panel workspace-panel--detail" aria-labelledby="detail-heading">
-      <div className="workspace-panel__header workspace-panel__header--detail">
-        <div>
-          <p className="workspace-panel__label">{siteContent.workspace.detailLabel}</p>
-          <h2 id="detail-heading">{calculator.title}</h2>
-          <p className="workspace-panel__description">{calculator.shortDescription}</p>
-          <div className="workspace-panel__access">
-            <span className="workspace-panel__access-badge">{calculator.accessLabel}</span>
-            <p className="workspace-panel__access-note">{detailNote}</p>
-          </div>
-        </div>
-        <div className="workspace-panel__actions">
-          <Link className="workspace-panel__link" href={`/#${calculator.mainCategory}`}>
-            {siteContent.workspace.backToCatalog}
-          </Link>
-          {calculator.embedMode === "embed" ? (
-            <Link
-              className="workspace-panel__cta"
-              href={calculator.openUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {siteContent.workspace.openEmbedded}
-            </Link>
+    <section className="detail-section" aria-labelledby="detail-title">
+      <header className="detail-header">
+        <div className="detail-header__badges">
+          <span className="detail-badge detail-badge--accent">{calculator.accessLabel}</span>
+          {calculator.editorialLabel ? (
+            <span className="detail-badge detail-badge--neutral">
+              {calculator.editorialLabel}
+            </span>
           ) : null}
+          {calculator.tools?.map((tool) => (
+            <span key={tool} className="detail-badge detail-badge--neutral">
+              {tool}
+            </span>
+          ))}
         </div>
-      </div>
+        <h2 id="detail-title" className="detail-header__title">
+          {calculator.title}
+        </h2>
+        <p className="detail-header__desc">{calculator.shortDescription}</p>
+        {calculator.description ? (
+          <p className="detail-header__long">{calculator.description}</p>
+        ) : null}
+      </header>
 
-      <ul className="workspace-use-cases" aria-label={`Сценарії: ${calculator.title}`}>
+      <ul
+        className="detail-use-cases"
+        aria-label={`Сценарії: ${calculator.title}`}
+      >
         {calculator.useCases.map((useCase) => (
           <li key={useCase}>{useCase}</li>
         ))}
       </ul>
 
-      {calculator.embedMode === "embed" && calculator.embedUrl ? (
-        <div className="workspace-embed">
+      {showsIframe && calculator.embedUrl ? (
+        <div className="detail-embed">
           <iframe
             src={calculator.embedUrl}
             title={calculator.title}
@@ -196,14 +309,64 @@ function CalculatorDetail({ calculator }: CalculatorDetailProps) {
             referrerPolicy="no-referrer-when-downgrade"
           />
         </div>
+      ) : calculator.displayMode === "modal" && calculator.embedUrl ? (
+        <div className="detail-external">
+          <h3 className="detail-external__title">{calculator.accessLabel}</h3>
+          <p className="detail-external__desc">
+            {siteContent.workspace.modalDetailNote}
+          </p>
+          <button
+            type="button"
+            className="cta-button"
+            onClick={() => onOpenModal(calculator)}
+          >
+            {siteContent.workspace.openModal}
+          </button>
+        </div>
       ) : (
-        <div className="workspace-external">
-          <p>{siteContent.workspace.externalDetailNote}</p>
-          <Link className="workspace-panel__cta" href={calculator.openUrl} target="_blank" rel="noreferrer">
+        <div className="detail-external">
+          <h3 className="detail-external__title">{calculator.accessLabel}</h3>
+          <p className="detail-external__desc">
+            {siteContent.workspace.externalDetailNote}
+          </p>
+          <Link
+            className="cta-button"
+            href={calculator.openUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <ExternalLink size={14} aria-hidden />
             {siteContent.workspace.openExternal}
           </Link>
         </div>
       )}
+
+      {calculator.tags && calculator.tags.length > 0 ? (
+        <ul className="detail-tags" aria-label={`Теги: ${calculator.title}`}>
+          {calculator.tags.map((tag) => (
+            <li key={tag}>#{tag}</li>
+          ))}
+        </ul>
+      ) : null}
+
+      {related.length > 0 ? (
+        <section className="workspace-section" aria-labelledby="detail-related-title">
+          <div className="workspace-section__head">
+            <h2 className="workspace-section__title" id="detail-related-title">
+              Схожі калькулятори
+            </h2>
+          </div>
+          <div className="calc-grid">
+            {related.map((calc) => (
+              <CalculatorCard
+                key={calc.slug}
+                calculator={calc}
+                onOpenModal={onOpenModal}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
     </section>
   );
 }

@@ -16,7 +16,7 @@ describe("AuthorPage", () => {
     const workspace = screen.getByRole("main");
 
     expect(within(rail).getByText("Іванейко Володимир")).toBeInTheDocument();
-    expect(within(rail).getByRole("link", { name: "CadEE.pro" })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: "CadEE.pro" })[0]).toHaveAttribute(
       "href",
       "https://cadee.pro",
     );

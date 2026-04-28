@@ -1,0 +1,368 @@
+{
+  "site": {
+    "brand": {
+      "productName": "Платформа інженерних розрахунків",
+      "subBrandName": "Калькулятори",
+      "umbrella": "IVapps.pro",
+      "umbrellaMonogram": "IV",
+      "umbrellaWordmark": "apps.pro",
+      "authorName": "Іванейко Володимир",
+      "role": "Цифрова платформа розрахункових інструментів для проектування, технічних оцінок і підготовки рішень у будівництві."
+    },
+    "navigation": {
+      "utilityLinks": [
+        { "label": "CadEE.pro", "href": "https://cadee.pro", "external": true },
+        { "label": "Про автора", "href": "/author", "external": false }
+      ]
+    },
+    "topbar": {
+      "productsLabel": "Усі продукти",
+      "products": [
+        { "label": "Калькулятори", "href": "/", "external": false, "active": true },
+        { "label": "CadEE.pro", "href": "https://cadee.pro", "external": true, "tagline": "Теплотехнічні розрахунки" },
+        { "label": "ArmCon", "href": "https://dbnassistant.com/products/armcon/", "external": true, "tagline": "Армування ЗБК" },
+        { "label": "LiveBeamCalculator", "href": "https://dbnassistant.com/products/livebeamcalculator/", "external": true, "tagline": "Розрахунок балок" },
+        { "label": "NormControl", "href": "https://nc.dbnassistant.com", "external": true, "tagline": "Перевірка нормативів" },
+        { "label": "DBN Assistant", "href": "https://dbnassistant.com/assistants", "external": true, "tagline": "AI-асистенти ДБН" },
+        { "label": "IV GeoJSON", "href": "https://gj.dbnassistant.com", "external": true, "tagline": "DXF → GeoJSON" }
+      ],
+      "allProductsLabel": "Усі продукти автора →",
+      "allProductsHref": "/author",
+      "languages": [
+        { "code": "uk", "label": "UK", "available": true },
+        { "code": "en", "label": "EN", "available": false }
+      ],
+      "cta": {
+        "label": "Запропонувати калькулятор",
+        "href": "mailto:iv.mybox@gmail.com?subject=%D0%97%D0%B0%D0%BF%D1%80%D0%BE%D0%BF%D0%BE%D0%BD%D1%83%D0%B2%D0%B0%D1%82%D0%B8%20%D0%BA%D0%B0%D0%BB%D1%8C%D0%BA%D1%83%D0%BB%D1%8F%D1%82%D0%BE%D1%80&body=%D0%9F%D1%80%D0%B8%D0%B2%D1%96%D1%82%21%20%D0%9F%D1%80%D0%BE%D0%BF%D0%BE%D0%BD%D1%83%D1%8E%20%D0%B4%D0%BE%D0%B4%D0%B0%D1%82%D0%B8%20%D0%BD%D0%BE%D0%B2%D0%B8%D0%B9%20%D0%BA%D0%B0%D0%BB%D1%8C%D0%BA%D1%83%D0%BB%D1%8F%D1%82%D0%BE%D1%80%3A%20"
+      }
+    },
+    "workspace": {
+      "eyebrow": "Платформа інженерних розрахунків",
+      "title": "Інженерні розрахунки для проектування",
+      "description": "Єдина робоча навігація для калькуляторів, що допомагають оцінювати об'єми, матеріали, конструктивні рішення й технічні параметри в будівництві.",
+      "railLabel": "Напрями розрахунків",
+      "railDescription": "Платформа поєднує вбудовані калькулятори й окремі інструменти в одній робочій навігації.",
+      "categoryLabel": "Напрям розрахунків",
+      "categoryHint": "Оберіть напрям у лівій колонці, щоб перейти до потрібного типу розрахунку.",
+      "detailLabel": "Розрахунковий інструмент",
+      "embeddedDetailNote": "Розрахунок доступний безпосередньо в робочій області.",
+      "externalAccessNote": "Інструмент відкривається поза робочою областю платформи.",
+      "externalDetailNote": "Розрахунок відкривається в окремому вікні.",
+      "modalDetailNote": "Розрахунок відкривається в швидкому вікні поверх каталогу.",
+      "openEmbedded": "Відкрити окремо",
+      "openExternal": "Перейти до інструмента",
+      "openModal": "Відкрити швидко",
+      "backToCatalog": "Повернутися до каталогу",
+      "openCatalogItem": "Переглянути інструмент",
+      "authorCtaLabel": "Автор платформи",
+      "authorCtaTitle": "Платформу створює інженер із практикою в проектуванні, цифрових сервісах і AI.",
+      "authorCtaDescription": "Сторінка автора збирає суміжні інженерні продукти, нормативні сервіси й напрями роботи, з яких виросла ця платформа."
+    },
+    "footer": {
+      "note": "Платформа виросла з практики проектування, нормативної роботи та прикладних цифрових сервісів.",
+      "authorCta": "Про автора"
+    },
+    "authorPage": {
+      "eyebrow": "Автор платформи",
+      "title": "CTO / Head of AI R&D, засновник цифрових інженерних продуктів для будівництва",
+      "intro": [
+        "Працюю на стику інженерного проектування, цифрових продуктів і прикладного AI для будівельної галузі.",
+        "Платформа інженерних розрахунків є частиною ширшої продуктової екосистеми: від нормативних сервісів і BIM-інструментів до спеціалізованих AI-рішень для технічних команд."
+      ],
+      "directionsLabel": "Фокус роботи",
+      "directionsTitle": "Практика, з якої виростають розрахункові сервіси.",
+      "directions": [
+        "Інженерні цифрові продукти для проектних і технічних команд",
+        "AI та R&D для будівельних і проектних компаній",
+        "Нормативні та документні сервіси для підготовки рішень",
+        "BIM-інструменти і прикладна автоматизація в Revit"
+      ],
+      "projectsLabel": "Екосистема продуктів",
+      "projectsTitle": "Суміжні сервіси, що доповнюють платформу інженерних розрахунків.",
+      "assistantsLabel": "Нормативний AI-шар",
+      "assistantsTitle": "ШІ-асистенти",
+      "assistantsDescription": "Профільні AI-інструменти для швидкої навігації в будівельних нормах. DBN Assistant і спеціалізовані GPT-асистенти працюють як окремий нормативний шар для аналізу документів, вимог і технічних сценаріїв.",
+      "closingLabel": "Контекст платформи",
+      "closingTitle": "Платформа спирається на реальну проектну і продуктову практику.",
+      "closingDescription": "Калькулятори, нормативні сервіси, BIM-інструменти й AI-напрями будуються як робочі системи для щоденної інженерної роботи, а не як ізольовані демонстраційні продукти."
+    }
+  },
+  "categories": [
+    {
+      "slug": "beton",
+      "title": "Бетон",
+      "note": "Монолітні елементи, кубатура й підбір бетонних об'ємів.",
+      "icon": "Box"
+    },
+    {
+      "slug": "fundamenti",
+      "title": "Фундаменти",
+      "note": "Стрічкові та плитні рішення, бетон і базові параметри основи.",
+      "icon": "Layers"
+    },
+    {
+      "slug": "stiny",
+      "title": "Стіни",
+      "note": "Кладка, блоки й матеріальні обсяги для стінових елементів.",
+      "icon": "BrickWall"
+    },
+    {
+      "slug": "pokrivlya",
+      "title": "Покрівля",
+      "note": "Площа схилів, запас покриття й параметри покрівельних рішень.",
+      "icon": "Home"
+    },
+    {
+      "slug": "teploizolyatsiya",
+      "title": "Теплоізоляція",
+      "note": "Товщина шарів, орієнтири для утеплення й енергоефективності.",
+      "icon": "Thermometer"
+    },
+    {
+      "slug": "ozdoblennya",
+      "title": "Оздоблення",
+      "note": "Плитка, суміші та чистові матеріали для оздоблювальних робіт.",
+      "icon": "Paintbrush"
+    }
+  ],
+  "calculators": [
+    {
+      "slug": "concrete-volume",
+      "title": "Калькулятор об'єму бетону",
+      "shortDescription": "Розрахунок кубатури бетону для плит, стяжок, ростверків і прямокутних заливок.",
+      "description": "Інструмент для попередньої оцінки кубатури бетону за геометрією елемента: довжина, ширина, товщина. Підходить для плит перекриттів, стяжок, монолітних подушок та простих ростверків. Враховуй технологічні припуски (5–10%) на втрати при заливці й вирівнюванні.",
+      "mainCategory": "beton",
+      "extraCategories": ["fundamenti"],
+      "displayMode": "embed",
+      "accessLabel": "Вбудований розрахунок",
+      "embedUrl": "https://www.calculator.net/concrete-calculator.html",
+      "openUrl": "https://www.calculator.net/concrete-calculator.html",
+      "order": 1,
+      "seoTitle": "Розрахунок об'єму бетону",
+      "seoDescription": "Калькулятор для визначення кубатури бетону при проектуванні плит, стяжок і монолітних елементів.",
+      "editorialLabel": "Популярний",
+      "useCases": ["Плити та стяжки", "Монолітні подушки", "Попередня відомість бетону"],
+      "tags": ["об'єм", "плити", "стяжки", "монолітні елементи"],
+      "tools": ["Calculator.net", "Excel-таблиці"],
+      "icon": "Box"
+    },
+    {
+      "slug": "strip-foundation",
+      "title": "Калькулятор стрічкового фундаменту",
+      "shortDescription": "Розрахунок стрічкового фундаменту за довжиною контуру, перерізом і витратою бетону.",
+      "description": "Швидка оцінка геометрії стрічкового фундаменту під будинок або гараж. Розрахунок виконується за довжиною контуру, шириною та висотою стрічки, з виведенням орієнтовного обсягу бетону.",
+      "mainCategory": "fundamenti",
+      "extraCategories": ["beton"],
+      "displayMode": "external",
+      "accessLabel": "Окремий інструмент",
+      "openUrl": "https://www.omnicalculator.com/construction/concrete-footing",
+      "order": 2,
+      "seoTitle": "Розрахунок стрічкового фундаменту",
+      "seoDescription": "Інструмент для попередньої оцінки геометрії стрічкового фундаменту та потреби в бетоні.",
+      "useCases": ["Стрічка під будинок", "Контур гаража", "Попередня оцінка бетонування"],
+      "tags": ["фундамент", "стрічка", "бетон"],
+      "tools": ["Omni Calculator"],
+      "icon": "Layers"
+    },
+    {
+      "slug": "brick-count",
+      "title": "Калькулятор кількості цегли",
+      "shortDescription": "Оцінка кількості цегли для зовнішніх стін, перегородок і облицювальних шарів.",
+      "description": "Інструмент для оцінки штук цегли на стіну за площею і типом кладки (1, 1.5, 2 цегли). Враховує товщину розчинного шва, але не враховує бій і технологічні відходи — додавай 5–10% запасу.",
+      "mainCategory": "stiny",
+      "extraCategories": ["ozdoblennya"],
+      "displayMode": "modal",
+      "accessLabel": "Швидкий розрахунок",
+      "embedUrl": "https://www.calculator.net/brick-calculator.html",
+      "openUrl": "https://www.calculator.net/brick-calculator.html",
+      "order": 3,
+      "seoTitle": "Розрахунок кількості цегли",
+      "seoDescription": "Калькулятор для визначення орієнтовної кількості цегли при розрахунку стін і перегородок.",
+      "useCases": ["Зовнішні стіни", "Внутрішні перегородки", "Облицювальні шари"],
+      "tags": ["цегла", "кладка", "стіни"],
+      "tools": ["Calculator.net"],
+      "icon": "BrickWall"
+    },
+    {
+      "slug": "roof-area",
+      "title": "Калькулятор площі покрівлі",
+      "shortDescription": "Розрахунок площі покрівлі, схилів і запасу матеріалу для закупівлі покриття.",
+      "description": "Розрахунок площі скатної покрівлі за геометрією схилів і кутом нахилу. Дає орієнтовний результат для попередньої закупівлі покрівельного матеріалу з урахуванням резерву на підрізування.",
+      "mainCategory": "pokrivlya",
+      "extraCategories": [],
+      "displayMode": "embed",
+      "accessLabel": "Вбудований розрахунок",
+      "embedUrl": "https://www.omnicalculator.com/construction/roofing",
+      "openUrl": "https://www.omnicalculator.com/construction/roofing",
+      "order": 4,
+      "seoTitle": "Розрахунок площі покрівлі",
+      "seoDescription": "Інструмент для оцінки площі схилів, запасу покрівельного матеріалу й попередньої закупівлі.",
+      "editorialLabel": "Новий",
+      "useCases": ["Скатні покрівлі", "Підбір покриття", "Резерв на підрізування"],
+      "tags": ["покрівля", "схили", "площа"],
+      "tools": ["Omni Calculator"],
+      "icon": "Home"
+    },
+    {
+      "slug": "insulation-thickness",
+      "title": "Калькулятор товщини утеплення",
+      "shortDescription": "Орієнтир для підбору товщини утеплення в стінах, перекриттях і покрівельних вузлах.",
+      "description": "Допомагає підібрати орієнтовну товщину теплоізоляції для огороджувальної конструкції на основі очікуваного R-value. Для нормативних розрахунків звіряйся з ДБН В.2.6-31:2021 й тепловим балансом будівлі.",
+      "mainCategory": "teploizolyatsiya",
+      "extraCategories": ["stiny"],
+      "displayMode": "external",
+      "accessLabel": "Окремий інструмент",
+      "openUrl": "https://www.omnicalculator.com/construction/insulation",
+      "order": 5,
+      "seoTitle": "Розрахунок товщини утеплення",
+      "seoDescription": "Калькулятор для попереднього підбору товщини теплоізоляції в основних огороджувальних конструкціях.",
+      "useCases": ["Фасадні стіни", "Покрівельні вузли", "Міжповерхові перекриття"],
+      "tags": ["утеплення", "теплоізоляція", "R-value"],
+      "tools": ["Omni Calculator", "ДБН В.2.6-31:2021"],
+      "icon": "Thermometer"
+    },
+    {
+      "slug": "tile-layout",
+      "title": "Калькулятор плитки",
+      "shortDescription": "Розрахунок площі облицювання, кількості плитки й запасу на підрізування.",
+      "description": "Розрахунок кількості плитки для облицювання санвузлів, кухонних фартухів і підлоги. Враховує площу облицювання та формат плитки. Додавай 5–10% запасу на підрізування і бій.",
+      "mainCategory": "ozdoblennya",
+      "extraCategories": [],
+      "displayMode": "modal",
+      "accessLabel": "Швидкий розрахунок",
+      "embedUrl": "https://www.calculator.net/tile-calculator.html",
+      "openUrl": "https://www.calculator.net/tile-calculator.html",
+      "order": 6,
+      "seoTitle": "Розрахунок кількості плитки",
+      "seoDescription": "Інструмент для визначення кількості плитки та резерву матеріалу для облицювальних робіт.",
+      "editorialLabel": "Популярний",
+      "useCases": ["Санвузли", "Кухонні зони", "Підлога та фартухи"],
+      "tags": ["плитка", "облицювання", "оздоблення"],
+      "tools": ["Calculator.net"],
+      "icon": "Paintbrush"
+    }
+  ],
+  "projectCategories": [
+    {
+      "slug": "engineering-calculations",
+      "title": "Інженерні розрахунки",
+      "description": "Розрахункові сервіси для енергоефективності, конструктивних перевірок, механіки та прикладних технічних оцінок.",
+      "projects": [
+        {
+          "slug": "cadee-pro",
+          "title": "CadEE.pro",
+          "description": "Онлайн-сервіс теплотехнічних розрахунків огороджувальних конструкцій та оцінки енергоефективності за українськими нормами.",
+          "href": "https://cadee.pro"
+        },
+        {
+          "slug": "armcon",
+          "title": "ArmCon",
+          "description": "Розрахунок армування залізобетонних конструкцій за Єврокодами та українськими нормами.",
+          "href": "https://dbnassistant.com/products/armcon/"
+        },
+        {
+          "slug": "livebeamcalculator",
+          "title": "LiveBeamCalculator",
+          "description": "Онлайн-калькулятор балок для оцінки згинальних моментів, поперечних сил та прогинів.",
+          "href": "https://dbnassistant.com/products/livebeamcalculator/"
+        },
+        {
+          "slug": "power-calculator",
+          "title": "Розрахунок електричних навантажень будівель",
+          "description": "Сервіс для розрахунку електричних навантажень житлових і громадських будівель за ДБН В.2.5-23:2025.",
+          "href": "https://pc.dbnassistant.com"
+        }
+      ]
+    },
+    {
+      "slug": "design-and-norms",
+      "title": "Нормативні та проектні сервіси",
+      "description": "Інструменти для перевірки нормативів, підготовки документації, обробки даних і технічного супроводу проектної роботи.",
+      "projects": [
+        {
+          "slug": "normcontrol",
+          "title": "NormControl",
+          "description": "Перевірка чинності нормативів у PDF з експортом результатів у CSV/JSON.",
+          "href": "https://nc.dbnassistant.com"
+        },
+        {
+          "slug": "iv-geojson",
+          "title": "IV GeoJSON",
+          "description": "Конвертація DXF у GeoJSON з геоприв'язкою до карти для GIS і державних сервісів.",
+          "href": "https://gj.dbnassistant.com"
+        },
+        {
+          "slug": "consequence-class",
+          "title": "Розрахунок класу наслідків",
+          "description": "Вебкалькулятор за ДСТУ 8855:2019 з покроковим журналом дій і експортом у PDF/DOCX.",
+          "href": "https://cc.dbnassistant.com"
+        },
+        {
+          "slug": "optcad",
+          "title": "OptCAD",
+          "description": "Середовище для оптимізації проектних рішень і прикладних інженерних сценаріїв.",
+          "href": "https://dbnassistant.com/author/"
+        }
+      ]
+    },
+    {
+      "slug": "bim-tools",
+      "title": "BIM та робочі інструменти",
+      "description": "Плагіни й утиліти для щоденної роботи всередині Revit та інших цифрових проектних процесів.",
+      "projects": [
+        {
+          "slug": "revit-screenshot-plugin",
+          "title": "Revit Screenshot Plugin",
+          "description": "Плагін для Autodesk Revit з ручним та автоматичним створенням скриншотів.",
+          "href": "https://dbnassistant.com/products/revit-screenshot/"
+        }
+      ]
+    },
+    {
+      "slug": "ai-products",
+      "title": "AI та прикладні сервіси",
+      "description": "AI-інструменти для нормативної аналітики, швидких відповідей і підтримки технічних сценаріїв.",
+      "projects": [
+        {
+          "slug": "dbn-assistant",
+          "title": "DBN Assistant",
+          "description": "Набір AI-асистентів на базі OpenAI/ChatGPT для аналізу будівельних норм і профільних запитів.",
+          "href": "https://dbnassistant.com/assistants"
+        }
+      ]
+    }
+  ],
+  "aiAssistants": [
+    {
+      "slug": "dbn-v-2-2-5-2023",
+      "title": "ДБН В.2.2-5:2023",
+      "description": "Захисні споруди цивільного захисту.",
+      "href": "https://chatgpt.com/g/g-679fe1d48b6c8191a2b9b2dc0e38e431-dbn-v-2-2-5-2023"
+    },
+    {
+      "slug": "dbn-v-2-6-31-2021",
+      "title": "ДБН В.2.6-31:2021",
+      "description": "Теплова ізоляція та енергоефективність будівель.",
+      "href": "https://chatgpt.com/g/g-679f8359022c819185183f9d67dba80e-dbn-v-2-6-31-2021"
+    },
+    {
+      "slug": "dbn-v-1-1-7-2016",
+      "title": "ДБН В.1.1-7:2016",
+      "description": "Пожежна безпека об'єктів будівництва.",
+      "href": "https://chatgpt.com/g/g-679a43e723088191ba0208ec2f058393-dbn-v-1-1-7-2016"
+    },
+    {
+      "slug": "dbn-v-2-2-15-2019",
+      "title": "ДБН В.2.2-15:2019",
+      "description": "Житлові будинки. Основні положення.",
+      "href": "https://chatgpt.com/g/g-67a9239a7a28819197664b900dcb30e9-dbn-v-2-2-15-2019"
+    },
+    {
+      "slug": "dbn-v-2-5-67-2013",
+      "title": "ДБН В.2.5-67:2013",
+      "description": "Опалення, вентиляція та кондиціонування.",
+      "href": "https://chatgpt.com/g/g-67bb9c7d29e481919219dfe99e246a96-dbn-v-2-5-67-2013"
+    }
+  ]
+}

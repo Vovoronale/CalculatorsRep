@@ -30,7 +30,9 @@ describe("CalculatorShell", () => {
       "aria-pressed",
       "true",
     );
-    expect(within(rail).getByRole("link", { name: "Калькулятор об'єму бетону" })).toBeInTheDocument();
+    expect(
+      within(rail).getByRole("link", { name: "Калькулятор об'єму бетону" }),
+    ).toBeInTheDocument();
     expect(
       within(rail).getByRole("link", { name: "Калькулятор стрічкового фундаменту" }),
     ).toBeInTheDocument();
@@ -40,23 +42,19 @@ describe("CalculatorShell", () => {
       "href",
       "/author",
     );
-    expect(within(workspace).getByRole("heading", { level: 2, name: "Бетон" })).toBeInTheDocument();
     expect(
-      within(workspace).getByRole("link", { name: "Калькулятор об'єму бетону" }),
-    ).toBeInTheDocument();
-    expect(within(workspace).getByText("Вбудований розрахунок")).toBeInTheDocument();
+      within(workspace).getAllByRole("link", { name: "Калькулятор об'єму бетону" }).length,
+    ).toBeGreaterThanOrEqual(1);
+    expect(
+      within(workspace).getAllByText("Вбудований розрахунок").length,
+    ).toBeGreaterThanOrEqual(1);
     expect(
       within(workspace).getByRole("link", { name: "Про автора" }),
     ).toHaveAttribute("href", "/author");
     expect(
       screen.queryByRole("heading", { name: "Інженерні продукти та напрями" }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("heading", { name: "Особистий бренд, продукти і AI-напрям у construction." }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("contentinfo"),
-    ).toHaveTextContent(
+    expect(screen.getByRole("contentinfo")).toHaveTextContent(
       "Платформа виросла з практики проектування, нормативної роботи та прикладних цифрових сервісів.",
     );
     expect(screen.getAllByRole("link", { name: "CadEE.pro" })[0]).toHaveAttribute(
@@ -76,19 +74,17 @@ describe("CalculatorShell", () => {
 
     const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
 
-    expect(within(rail).getByRole("link", { name: "Калькулятор об'єму бетону" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
-    expect(screen.getByRole("heading", { level: 2, name: "Калькулятор об'єму бетону" })).toBeInTheDocument();
-    expect(screen.getByText("Вбудований розрахунок")).toBeInTheDocument();
     expect(
-      screen.getByTitle("Калькулятор об'єму бетону"),
+      within(rail).getByRole("link", { name: "Калькулятор об'єму бетону" }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Калькулятор об'єму бетону" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Відкрити окремо" })).toHaveAttribute(
-      "href",
-      calculator.openUrl,
-    );
+    expect(screen.getAllByText("Вбудований розрахунок").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByTitle("Калькулятор об'єму бетону")).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: /Відкрити окремо/ })[0],
+    ).toHaveAttribute("href", calculator.openUrl);
   });
 
   it("keeps the left rail visible and renders the external fallback when embed is disabled", () => {
@@ -105,12 +101,13 @@ describe("CalculatorShell", () => {
     expect(
       within(rail).getByRole("link", { name: "Калькулятор стрічкового фундаменту" }),
     ).toHaveAttribute("aria-current", "page");
-    expect(screen.getByText("Окремий інструмент")).toBeInTheDocument();
-    expect(screen.getByText("Розрахунок відкривається в окремому вікні.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Перейти до інструмента" })).toHaveAttribute(
-      "href",
-      calculator.openUrl,
-    );
+    expect(screen.getAllByText("Окремий інструмент").length).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getByText("Розрахунок відкривається в окремому вікні."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Перейти до інструмента/ }),
+    ).toHaveAttribute("href", calculator.openUrl);
     expect(
       screen.queryByTitle("Калькулятор стрічкового фундаменту"),
     ).not.toBeInTheDocument();

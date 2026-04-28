@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, User, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
+import { SearchInput } from "@/components/search-input";
+import { getCategoryIcon } from "@/lib/icons";
 import {
   calculatorCategories,
   getCalculatorsForCategory,
@@ -17,18 +20,16 @@ type CatalogRailProps = {
   selectedCalculator?: Calculator;
   syncWithHash?: boolean;
   onCategoryChange?: (category: CalculatorCategory, calculators: Calculator[]) => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 };
 
-function resolveHashCategory() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const rawHash = window.location.hash.replace("#", "") as CategorySlug;
-
-  return calculatorCategories.some((category) => category.slug === rawHash)
-    ? rawHash
-    : null;
+function resolveHashCategory(): CategorySlug | null {
+  if (typeof window === "undefined") return null;
+  const raw = window.location.hash.replace("#", "") as CategorySlug;
+  return calculatorCategories.some((c) => c.slug === raw) ? raw : null;
 }
 
 export function CatalogRail({
@@ -36,32 +37,30 @@ export function CatalogRail({
   selectedCalculator,
   syncWithHash = false,
   onCategoryChange,
+  isCollapsed = false,
+  onToggleCollapse,
+  isMobileOpen = false,
+  onCloseMobile,
 }: CatalogRailProps) {
   const [activeCategory, setActiveCategory] = useState<CategorySlug>(
     selectedCalculator?.mainCategory ?? initialCategory ?? calculatorCategories[0].slug,
   );
 
   useEffect(() => {
-    if (!syncWithHash || selectedCalculator) {
-      return;
-    }
+    if (!syncWithHash || selectedCalculator) return;
 
-    const syncFromHash = () => {
-      const hashCategory = resolveHashCategory();
-
-      if (hashCategory) {
-        setActiveCategory(hashCategory);
-      }
+    const sync = () => {
+      const hashCat = resolveHashCategory();
+      if (hashCat) setActiveCategory(hashCat);
     };
 
-    syncFromHash();
-    window.addEventListener("hashchange", syncFromHash);
-
-    return () => window.removeEventListener("hashchange", syncFromHash);
+    sync();
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
   }, [selectedCalculator, syncWithHash]);
 
   const currentCategory =
-    calculatorCategories.find((category) => category.slug === activeCategory) ??
+    calculatorCategories.find((c) => c.slug === activeCategory) ??
     calculatorCategories[0];
 
   const currentCalculators = useMemo(
@@ -73,84 +72,103 @@ export function CatalogRail({
     onCategoryChange?.(currentCategory, currentCalculators);
   }, [currentCalculators, currentCategory, onCategoryChange]);
 
-  const handleSelect = (categorySlug: CategorySlug) => {
+  const handleSelect = (slug: CategorySlug) => {
     if (syncWithHash) {
-      window.history.replaceState(null, "", `#${categorySlug}`);
+      window.history.replaceState(null, "", `#${slug}`);
     }
-
-    setActiveCategory(categorySlug);
+    setActiveCategory(slug);
   };
 
   return (
-    <aside className="catalog-rail" aria-label="Каталог калькуляторів">
+    <aside
+      className="catalog-rail"
+      aria-label="Каталог калькуляторів"
+      data-mobile-open={isMobileOpen ? "true" : "false"}
+    >
       <div className="catalog-rail__brand-block">
-        <p className="catalog-rail__eyebrow">{siteContent.brand.authorName}</p>
-        <Link className="catalog-rail__brand" href="/">
-          {siteContent.brand.productName}
+        <Link href="/" className="catalog-rail__brand">
+          <span className="catalog-rail__brand-eyebrow">{siteContent.brand.authorName}</span>
+          <span>{siteContent.brand.subBrandName}</span>
         </Link>
-        <p className="catalog-rail__summary">{siteContent.workspace.railDescription}</p>
+        {onCloseMobile ? (
+          <button
+            type="button"
+            className="catalog-rail__close"
+            onClick={onCloseMobile}
+            aria-label="Закрити каталог"
+          >
+            <X size={18} aria-hidden />
+          </button>
+        ) : null}
+        {onToggleCollapse ? (
+          <button
+            type="button"
+            className="catalog-rail__collapse"
+            onClick={onToggleCollapse}
+            aria-label={isCollapsed ? "Розгорнути каталог" : "Згорнути каталог"}
+            title={isCollapsed ? "Розгорнути" : "Згорнути"}
+          >
+            {isCollapsed ? (
+              <ChevronRight size={16} aria-hidden />
+            ) : (
+              <ChevronLeft size={16} aria-hidden />
+            )}
+          </button>
+        ) : null}
       </div>
 
-      <nav className="catalog-rail__nav" aria-label="Сервісна навігація">
-        {siteContent.navigation.utilityLinks.map((link) => (
-          <Link
-            key={link.label}
-            className="catalog-rail__nav-link"
-            href={link.href}
-            target={link.external ? "_blank" : undefined}
-            rel={link.external ? "noreferrer" : undefined}
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
+      <SearchInput onResultClick={onCloseMobile} />
 
       <section className="catalog-rail__section" aria-labelledby="catalog-rail-categories">
-        <div className="catalog-rail__section-header">
-          <p className="catalog-rail__section-label">{siteContent.workspace.railLabel}</p>
-          <p id="catalog-rail-categories" className="catalog-rail__section-note">
-            {siteContent.workspace.categoryHint}
-          </p>
-        </div>
-        <div className="catalog-rail__category-list">
-          {calculatorCategories.map((category) => (
-            <CategoryAction
-              key={category.slug}
-              category={category}
-              isActive={currentCategory.slug === category.slug}
-              isLocked={Boolean(selectedCalculator)}
-              onSelect={handleSelect}
-            />
-          ))}
-        </div>
+        <p className="catalog-rail__section-label" id="catalog-rail-categories">
+          {siteContent.workspace.railLabel}
+        </p>
+        {calculatorCategories.map((category) => (
+          <CategoryAction
+            key={category.slug}
+            category={category}
+            isActive={currentCategory.slug === category.slug}
+            isLocked={Boolean(selectedCalculator)}
+            onSelect={(slug) => {
+              handleSelect(slug);
+              onCloseMobile?.();
+            }}
+          />
+        ))}
       </section>
 
       <section className="catalog-rail__section" aria-labelledby="catalog-rail-calculators">
-        <div className="catalog-rail__section-header">
-          <p className="catalog-rail__section-label">{currentCategory.title}</p>
-          <p id="catalog-rail-calculators" className="catalog-rail__section-note">
-            {currentCategory.note}
-          </p>
-        </div>
+        <p className="catalog-rail__section-label" id="catalog-rail-calculators">
+          {currentCategory.title}
+        </p>
         <div className="catalog-rail__calculator-list">
           {currentCalculators.map((calculator) => {
             const isCurrent = selectedCalculator?.slug === calculator.slug;
-
             return (
               <Link
                 key={calculator.slug}
-                className={`catalog-rail__calculator-link${isCurrent ? " is-current" : ""}`}
                 href={`/calculator/${calculator.slug}`}
+                className={`catalog-rail__calculator-link${isCurrent ? " is-current" : ""}`}
                 aria-label={calculator.title}
                 aria-current={isCurrent ? "page" : undefined}
+                onClick={onCloseMobile}
               >
                 <span>{calculator.title}</span>
-                <small>{calculator.shortDescription}</small>
+                {calculator.editorialLabel ? (
+                  <span className="catalog-rail__calc-badge">{calculator.editorialLabel}</span>
+                ) : null}
               </Link>
             );
           })}
         </div>
       </section>
+
+      <div className="catalog-rail__footer">
+        <Link href="/author" className="catalog-rail__footer-link">
+          <User size={14} aria-hidden />
+          <span>Про автора</span>
+        </Link>
+      </div>
     </aside>
   );
 }
@@ -159,32 +177,43 @@ type CategoryActionProps = {
   category: CalculatorCategory;
   isActive: boolean;
   isLocked: boolean;
-  onSelect: (categorySlug: CategorySlug) => void;
+  onSelect: (slug: CategorySlug) => void;
 };
 
 function CategoryAction({ category, isActive, isLocked, onSelect }: CategoryActionProps) {
+  const Icon = getCategoryIcon(category.slug);
+  const className = `catalog-rail__category${isActive ? " is-active" : ""}`;
+
+  const content = (
+    <>
+      <span className="catalog-rail__category-icon" aria-hidden>
+        <Icon size={16} />
+      </span>
+      <span className="catalog-rail__category-text">{category.title}</span>
+    </>
+  );
+
   if (isLocked) {
     return (
       <Link
-        className={`catalog-rail__category${isActive ? " is-active" : ""}`}
+        className={className}
         href={`/#${category.slug}`}
+        aria-label={category.title}
       >
-        <span>{category.title}</span>
-        <small>{category.note}</small>
+        {content}
       </Link>
     );
   }
 
   return (
     <button
-      className={`catalog-rail__category${isActive ? " is-active" : ""}`}
+      className={className}
       type="button"
       aria-pressed={isActive}
       aria-label={category.title}
       onClick={() => onSelect(category.slug)}
     >
-      <span>{category.title}</span>
-      <small>{category.note}</small>
+      {content}
     </button>
   );
 }

@@ -5,3 +5,10 @@ coverage
 .DS_Store
 .superpowers
 tsconfig.tsbuildinfo
+
+# Local agent / tooling artifacts
+.claude/
+.playwright-mcp/
+
+# Local dev screenshots (visual smoke testing)
+/*.png
