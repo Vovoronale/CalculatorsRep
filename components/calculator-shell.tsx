@@ -123,7 +123,14 @@ export function CalculatorShell({
                 ) : null
               }
             />
-            <div className="workspace-content workspace-content--reading">
+            <div
+              className={
+                selectedCalculator.displayMode === "embed" &&
+                selectedCalculator.embedUrl
+                  ? "workspace-content workspace-content--embed"
+                  : "workspace-content workspace-content--reading"
+              }
+            >
               <CalculatorDetail
                 calculator={selectedCalculator}
                 onOpenModal={setModalCalculator}
@@ -286,19 +293,21 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
           {calculator.title}
         </h2>
         <p className="detail-header__desc">{calculator.shortDescription}</p>
-        {calculator.description ? (
+        {!showsIframe && calculator.description ? (
           <p className="detail-header__long">{calculator.description}</p>
         ) : null}
       </header>
 
-      <ul
-        className="detail-use-cases"
-        aria-label={`Сценарії: ${calculator.title}`}
-      >
-        {calculator.useCases.map((useCase) => (
-          <li key={useCase}>{useCase}</li>
-        ))}
-      </ul>
+      {!showsIframe ? (
+        <ul
+          className="detail-use-cases"
+          aria-label={`Сценарії: ${calculator.title}`}
+        >
+          {calculator.useCases.map((useCase) => (
+            <li key={useCase}>{useCase}</li>
+          ))}
+        </ul>
+      ) : null}
 
       {showsIframe && calculator.embedUrl ? (
         <div className="detail-embed">

@@ -30,11 +30,11 @@ The production build exports static files to `out/`.
 
 ## Content editing
 
-Main brand copy lives in [lib/site-content.ts](/I:/CalculatorsRep/lib/site-content.ts).
+All site content (calculators, categories, IVapps top bar, author page, brand copy) lives in [data/content.json](/I:/CalculatorsRep/data/content.json).
 
-Calculator entries, categories, and route metadata live in [lib/calculators.ts](/I:/CalculatorsRep/lib/calculators.ts).
+See [docs/content-editing.md](/I:/CalculatorsRep/docs/content-editing.md) for the full schema and editing workflow.
 
-Author projects and external product links live in [lib/projects.ts](/I:/CalculatorsRep/lib/projects.ts).
+The TypeScript loaders ([lib/site-content.ts](/I:/CalculatorsRep/lib/site-content.ts), [lib/calculators.ts](/I:/CalculatorsRep/lib/calculators.ts), [lib/projects.ts](/I:/CalculatorsRep/lib/projects.ts)) just type the JSON — they are not edited for content changes.
 
 ## Cloudflare Pages
 

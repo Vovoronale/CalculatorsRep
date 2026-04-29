@@ -1,15 +1,18 @@
 import {
+  Bot,
   Box,
   BrickWall,
   Building,
   Calculator as CalculatorIcon,
   Drill,
+  Grid3x3,
   Hammer,
   Home,
   Layers,
   Paintbrush,
   Pickaxe,
   Ruler,
+  ShieldCheck,
   Square,
   Thermometer,
   Triangle,
@@ -25,17 +28,20 @@ import {
 } from "@/lib/calculators";
 
 export const iconRegistry: Record<string, LucideIcon> = {
+  Bot,
   Box,
   BrickWall,
   Building,
   Calculator: CalculatorIcon,
   Drill,
+  Grid3x3,
   Hammer,
   Home,
   Layers,
   Paintbrush,
   Pickaxe,
   Ruler,
+  ShieldCheck,
   Square,
   Thermometer,
   Triangle,
@@ -45,11 +51,14 @@ export const iconRegistry: Record<string, LucideIcon> = {
 
 const FALLBACK_CATEGORY_ICONS: Record<CategorySlug, LucideIcon> = {
   beton: Box,
-  fundamenti: Layers,
-  stiny: BrickWall,
-  pokrivlya: Home,
   teploizolyatsiya: Thermometer,
-  ozdoblennya: Paintbrush,
+  teplotekhnika: Thermometer,
+  normokontrol: ShieldCheck,
+  "teplovi-vuzly": Grid3x3,
+  konstruktsiyi: Triangle,
+  "inzhenerni-merezhi": Zap,
+  instrumenty: Wrench,
+  "ai-asystenty": Bot,
 };
 
 export function getCategoryIcon(slug: CategorySlug): LucideIcon {

@@ -2,11 +2,14 @@ import contentData from "@/data/content.json";
 
 export type CategorySlug =
   | "beton"
-  | "fundamenti"
-  | "stiny"
-  | "pokrivlya"
   | "teploizolyatsiya"
-  | "ozdoblennya";
+  | "teplotekhnika"
+  | "normokontrol"
+  | "teplovi-vuzly"
+  | "konstruktsiyi"
+  | "inzhenerni-merezhi"
+  | "instrumenty"
+  | "ai-asystenty";
 
 export type DisplayMode = "embed" | "external" | "modal";
 

@@ -177,6 +177,17 @@ textarea {
   max-width: 760px;
 }
 
+.workspace-content--embed {
+  max-width: none;
+  padding: 8px 16px 16px;
+  gap: 8px;
+}
+
+.workspace-content--embed .detail-header,
+.workspace-content--embed .detail-tags {
+  display: none;
+}
+
 /* =====================================================
    Catalog rail — internals
    ===================================================== */
@@ -1081,6 +1092,21 @@ textarea {
   min-height: 70vh;
   border: 0;
   background: #ffffff;
+}
+
+.workspace-content--embed .detail-section {
+  flex: 1;
+  min-height: 0;
+}
+
+.workspace-content--embed .detail-embed {
+  flex: 1;
+  min-height: 0;
+}
+
+.workspace-content--embed .detail-embed iframe {
+  height: calc(100vh - 100px);
+  min-height: calc(100vh - 100px);
 }
 
 .detail-embed__skeleton {

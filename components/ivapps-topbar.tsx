@@ -3,7 +3,6 @@
 import Link from "next/link";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
-import { ProductsDropdown } from "@/components/products-dropdown";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { siteContent } from "@/lib/site-content";
 
@@ -20,8 +19,6 @@ export function IVappsTopbar() {
           </span>
           <span className="ivapps-logo__wordmark">{umbrellaWordmark}</span>
         </Link>
-        <span className="ivapps-topbar__divider" aria-hidden />
-        <ProductsDropdown />
       </div>
 
       <div className="ivapps-topbar__right">
