@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, User, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { SearchInput } from "@/components/search-input";
 import { getCategoryIcon } from "@/lib/icons";
@@ -16,10 +16,8 @@ import {
 import { siteContent } from "@/lib/site-content";
 
 type CatalogRailProps = {
-  initialCategory?: CategorySlug;
   selectedCalculator?: Calculator;
   syncWithHash?: boolean;
-  onCategoryChange?: (category: CalculatorCategory, calculators: Calculator[]) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   isMobileOpen?: boolean;
@@ -33,50 +31,81 @@ function resolveHashCategory(): CategorySlug | null {
 }
 
 export function CatalogRail({
-  initialCategory,
   selectedCalculator,
   syncWithHash = false,
-  onCategoryChange,
   isCollapsed = false,
   onToggleCollapse,
   isMobileOpen = false,
   onCloseMobile,
 }: CatalogRailProps) {
-  const [activeCategory, setActiveCategory] = useState<CategorySlug>(
-    selectedCalculator?.mainCategory ?? initialCategory ?? calculatorCategories[0].slug,
-  );
+  const [expanded, setExpanded] = useState<Set<CategorySlug>>(() => {
+    const initial = new Set<CategorySlug>();
+    if (selectedCalculator) initial.add(selectedCalculator.mainCategory);
+    if (typeof window !== "undefined") {
+      const hashCat = resolveHashCategory();
+      if (hashCat) initial.add(hashCat);
+    }
+    return initial;
+  });
 
   useEffect(() => {
-    if (!syncWithHash || selectedCalculator) return;
-
-    const sync = () => {
-      const hashCat = resolveHashCategory();
-      if (hashCat) setActiveCategory(hashCat);
+    const expand = (slug: CategorySlug | null) => {
+      if (!slug) return;
+      setExpanded((prev) => {
+        if (prev.has(slug)) return prev;
+        const next = new Set(prev);
+        next.add(slug);
+        return next;
+      });
+      requestAnimationFrame(() => {
+        document
+          .querySelector<HTMLElement>(`[data-category-node="${slug}"]`)
+          ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      });
     };
 
-    sync();
-    window.addEventListener("hashchange", sync);
-    return () => window.removeEventListener("hashchange", sync);
-  }, [selectedCalculator, syncWithHash]);
+    const onHash = () => expand(resolveHashCategory());
+    const onRailEvent = (event: Event) => {
+      const detail = (event as CustomEvent<{ slug?: string }>).detail;
+      const slug = detail?.slug;
+      if (!slug) return;
+      if (calculatorCategories.some((c) => c.slug === slug)) {
+        expand(slug as CategorySlug);
+      }
+    };
 
-  const currentCategory =
-    calculatorCategories.find((c) => c.slug === activeCategory) ??
-    calculatorCategories[0];
-
-  const currentCalculators = useMemo(
-    () => getCalculatorsForCategory(currentCategory.slug),
-    [currentCategory.slug],
-  );
+    window.addEventListener("hashchange", onHash);
+    window.addEventListener("rail:expand", onRailEvent);
+    return () => {
+      window.removeEventListener("hashchange", onHash);
+      window.removeEventListener("rail:expand", onRailEvent);
+    };
+  }, []);
 
   useEffect(() => {
-    onCategoryChange?.(currentCategory, currentCalculators);
-  }, [currentCalculators, currentCategory, onCategoryChange]);
+    if (!selectedCalculator) return;
+    setExpanded((prev) => {
+      if (prev.has(selectedCalculator.mainCategory)) return prev;
+      const next = new Set(prev);
+      next.add(selectedCalculator.mainCategory);
+      return next;
+    });
+  }, [selectedCalculator]);
 
-  const handleSelect = (slug: CategorySlug) => {
-    if (syncWithHash) {
-      window.history.replaceState(null, "", `#${slug}`);
+  const toggle = (slug: CategorySlug) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
+      return next;
+    });
+    if (syncWithHash && typeof window !== "undefined" && window.location.hash) {
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
     }
-    setActiveCategory(slug);
   };
 
   return (
@@ -123,43 +152,18 @@ export function CatalogRail({
         <p className="catalog-rail__section-label" id="catalog-rail-categories">
           {siteContent.workspace.railLabel}
         </p>
-        {calculatorCategories.map((category) => (
-          <CategoryAction
-            key={category.slug}
-            category={category}
-            isActive={currentCategory.slug === category.slug}
-            isLocked={Boolean(selectedCalculator)}
-            onSelect={(slug) => {
-              handleSelect(slug);
-              onCloseMobile?.();
-            }}
-          />
-        ))}
-      </section>
-
-      <section className="catalog-rail__section" aria-labelledby="catalog-rail-calculators">
-        <p className="catalog-rail__section-label" id="catalog-rail-calculators">
-          {currentCategory.title}
-        </p>
-        <div className="catalog-rail__calculator-list">
-          {currentCalculators.map((calculator) => {
-            const isCurrent = selectedCalculator?.slug === calculator.slug;
-            return (
-              <Link
-                key={calculator.slug}
-                href={`/calculator/${calculator.slug}`}
-                className={`catalog-rail__calculator-link${isCurrent ? " is-current" : ""}`}
-                aria-label={calculator.title}
-                aria-current={isCurrent ? "page" : undefined}
-                onClick={onCloseMobile}
-              >
-                <span>{calculator.title}</span>
-                {calculator.editorialLabel ? (
-                  <span className="catalog-rail__calc-badge">{calculator.editorialLabel}</span>
-                ) : null}
-              </Link>
-            );
-          })}
+        <div className="rail-tree">
+          {calculatorCategories.map((category) => (
+            <CategoryNode
+              key={category.slug}
+              category={category}
+              isOpen={expanded.has(category.slug)}
+              isCollapsed={isCollapsed}
+              currentCalcSlug={selectedCalculator?.slug}
+              onToggle={toggle}
+              onLeafClick={onCloseMobile}
+            />
+          ))}
         </div>
       </section>
 
@@ -173,47 +177,85 @@ export function CatalogRail({
   );
 }
 
-type CategoryActionProps = {
+type CategoryNodeProps = {
   category: CalculatorCategory;
-  isActive: boolean;
-  isLocked: boolean;
-  onSelect: (slug: CategorySlug) => void;
+  isOpen: boolean;
+  isCollapsed: boolean;
+  currentCalcSlug?: string;
+  onToggle: (slug: CategorySlug) => void;
+  onLeafClick?: () => void;
 };
 
-function CategoryAction({ category, isActive, isLocked, onSelect }: CategoryActionProps) {
+function CategoryNode({
+  category,
+  isOpen,
+  isCollapsed,
+  currentCalcSlug,
+  onToggle,
+  onLeafClick,
+}: CategoryNodeProps) {
   const Icon = getCategoryIcon(category.slug);
-  const className = `catalog-rail__category${isActive ? " is-active" : ""}`;
-
-  const content = (
-    <>
-      <span className="catalog-rail__category-icon" aria-hidden>
-        <Icon size={16} />
-      </span>
-      <span className="catalog-rail__category-text">{category.title}</span>
-    </>
-  );
-
-  if (isLocked) {
-    return (
-      <Link
-        className={className}
-        href={`/#${category.slug}`}
-        aria-label={category.title}
-      >
-        {content}
-      </Link>
-    );
-  }
+  const calcs = getCalculatorsForCategory(category.slug);
+  const showChildren = isOpen && !isCollapsed;
 
   return (
-    <button
-      className={className}
-      type="button"
-      aria-pressed={isActive}
-      aria-label={category.title}
-      onClick={() => onSelect(category.slug)}
+    <div
+      className="rail-tree__node"
+      data-category-node={category.slug}
+      data-open={isOpen ? "true" : "false"}
     >
-      {content}
-    </button>
+      <button
+        type="button"
+        className="rail-tree__row"
+        aria-expanded={isOpen}
+        aria-controls={`rail-tree-children-${category.slug}`}
+        aria-label={category.title}
+        title={isCollapsed ? category.title : undefined}
+        onClick={() => onToggle(category.slug)}
+      >
+        <ChevronRight
+          size={14}
+          className="rail-tree__chevron"
+          data-open={isOpen ? "true" : "false"}
+          aria-hidden
+        />
+        <span className="rail-tree__icon" aria-hidden>
+          <Icon size={16} />
+        </span>
+        <span className="rail-tree__title">{category.title}</span>
+        <span className="rail-tree__count" aria-hidden>{calcs.length}</span>
+      </button>
+      {showChildren ? (
+        <ul
+          className="rail-tree__children"
+          id={`rail-tree-children-${category.slug}`}
+        >
+          {calcs.map((calc) => {
+            const isCurrent = currentCalcSlug === calc.slug;
+            return (
+              <li key={calc.slug}>
+                <Link
+                  href={`/calculator/${calc.slug}`}
+                  className={`rail-tree__leaf${isCurrent ? " is-current" : ""}`}
+                  aria-label={calc.title}
+                  aria-current={isCurrent ? "page" : undefined}
+                  onClick={onLeafClick}
+                >
+                  <span>{calc.title}</span>
+                  {calc.editorialLabel ? (
+                    <span
+                      className="rail-tree__leaf-badge"
+                      aria-hidden
+                    >
+                      {calc.editorialLabel}
+                    </span>
+                  ) : null}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+    </div>
   );
 }

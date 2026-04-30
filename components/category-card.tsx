@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
 
 import { getCategoryIcon } from "@/lib/icons";
 import {
   getCalculatorsForCategory,
   type CalculatorCategory,
+  type CategorySlug,
 } from "@/lib/calculators";
 
 type CategoryCardProps = {
@@ -23,11 +26,29 @@ export function CategoryCard({ category }: CategoryCardProps) {
   const Icon = getCategoryIcon(category.slug);
   const count = getCalculatorsForCategory(category.slug).length;
 
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey ||
+      event.button !== 0
+    ) {
+      return;
+    }
+    window.dispatchEvent(
+      new CustomEvent<{ slug: CategorySlug }>("rail:expand", {
+        detail: { slug: category.slug },
+      }),
+    );
+  };
+
   return (
     <Link
       href={`/#${category.slug}`}
       className="category-card"
       aria-label={category.title}
+      onClick={handleClick}
     >
       <span className="category-card__icon" aria-hidden>
         <Icon size={28} />

@@ -1,11 +1,8 @@
 import contentData from "@/data/content.json";
 
 export type CategorySlug =
-  | "beton"
-  | "teploizolyatsiya"
   | "teplotekhnika"
   | "normokontrol"
-  | "teplovi-vuzly"
   | "konstruktsiyi"
   | "inzhenerni-merezhi"
   | "instrumenty"

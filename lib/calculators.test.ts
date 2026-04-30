@@ -9,11 +9,8 @@ import {
 describe("calculator data model", () => {
   it("builds the category navigation in the expected order", () => {
     expect(calculatorCategories.map((category) => category.slug)).toEqual([
-      "beton",
-      "teploizolyatsiya",
       "teplotekhnika",
       "normokontrol",
-      "teplovi-vuzly",
       "konstruktsiyi",
       "inzhenerni-merezhi",
       "instrumenty",
@@ -30,7 +27,7 @@ describe("calculator data model", () => {
     expect(slugs).toContain("cadee-dewpoint-temperature");
   });
 
-  it("includes nodes via extra category", () => {
+  it("includes FEM nodes under merged teplotekhnika", () => {
     const slugs = getCalculatorsForCategory("teplotekhnika").map(
       (calculator) => calculator.slug,
     );
@@ -38,9 +35,14 @@ describe("calculator data model", () => {
     expect(slugs).toContain("cadee-bridge-homogeneous-wall-floor");
   });
 
-  it("includes ArmCon under beton via extra category", () => {
-    const slugs = getCalculatorsForCategory("beton").map((c) => c.slug);
-    expect(slugs).toContain("armcon");
+  it("places each calculator in exactly one category", () => {
+    for (const calculator of [
+      ...calculatorCategories.flatMap((c) =>
+        getCalculatorsForCategory(c.slug),
+      ),
+    ]) {
+      expect(calculator.extraCategories).toHaveLength(0);
+    }
   });
 
   it("every category has at least one calculator", () => {

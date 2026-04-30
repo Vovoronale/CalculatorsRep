@@ -15,9 +15,7 @@ import { WorkspaceTopBar, type Breadcrumb } from "@/components/workspace-top-bar
 import {
   calculators,
   calculatorCategories,
-  getCalculatorsForCategory,
   type Calculator,
-  type CalculatorCategory,
   type CategorySlug,
 } from "@/lib/calculators";
 import { siteContent } from "@/lib/site-content";
@@ -31,18 +29,12 @@ export function CalculatorShell({
   selectedCategory,
   selectedCalculator,
 }: CalculatorShellProps) {
-  const initialCategory =
-    selectedCalculator?.mainCategory ??
-    selectedCategory ??
-    calculatorCategories[0].slug;
+  const detailCategory = selectedCalculator
+    ? calculatorCategories.find(
+        (c) => c.slug === selectedCalculator.mainCategory,
+      ) ?? calculatorCategories[0]
+    : null;
 
-  const [currentCategory, setCurrentCategory] = useState<CalculatorCategory>(
-    calculatorCategories.find((c) => c.slug === initialCategory) ??
-      calculatorCategories[0],
-  );
-  const [currentCalculators, setCurrentCalculators] = useState<Calculator[]>(
-    selectedCalculator ? [] : getCalculatorsForCategory(initialCategory),
-  );
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [modalCalculator, setModalCalculator] = useState<Calculator | null>(null);
@@ -57,6 +49,23 @@ export function CalculatorShell({
     }
   }, []);
 
+  useEffect(() => {
+    const openIfMobile = () => {
+      if (
+        typeof window !== "undefined" &&
+        window.matchMedia("(max-width: 767px)").matches
+      ) {
+        setIsMobileOpen(true);
+      }
+    };
+    window.addEventListener("hashchange", openIfMobile);
+    window.addEventListener("rail:expand", openIfMobile);
+    return () => {
+      window.removeEventListener("hashchange", openIfMobile);
+      window.removeEventListener("rail:expand", openIfMobile);
+    };
+  }, []);
+
   const toggleCollapse = () => {
     setIsCollapsed((prev) => {
       const next = !prev;
@@ -69,24 +78,17 @@ export function CalculatorShell({
     });
   };
 
-  const handleCategoryChange = (
-    category: CalculatorCategory,
-    calculatorList: Calculator[],
-  ) => {
-    setCurrentCategory(category);
-    setCurrentCalculators(calculatorList);
-  };
-
-  const detailBreadcrumbs: Breadcrumb[] | null = selectedCalculator
-    ? [
-        { label: "Каталог", href: "/" },
-        {
-          label: currentCategory.title,
-          href: `/#${currentCategory.slug}`,
-        },
-        { label: selectedCalculator.title },
-      ]
-    : null;
+  const detailBreadcrumbs: Breadcrumb[] | null =
+    selectedCalculator && detailCategory
+      ? [
+          { label: "Каталог", href: "/" },
+          {
+            label: detailCategory.title,
+            href: `/#${detailCategory.slug}`,
+          },
+          { label: selectedCalculator.title },
+        ]
+      : null;
 
   return (
     <div className="site-shell" data-collapsed={isCollapsed ? "true" : "false"}>
@@ -94,10 +96,8 @@ export function CalculatorShell({
       <DrawerBackdrop open={isMobileOpen} onClose={() => setIsMobileOpen(false)} />
 
       <CatalogRail
-        initialCategory={initialCategory}
         selectedCalculator={selectedCalculator}
         syncWithHash={!selectedCategory && !selectedCalculator}
-        onCategoryChange={handleCategoryChange}
         isCollapsed={isCollapsed}
         onToggleCollapse={toggleCollapse}
         isMobileOpen={isMobileOpen}
@@ -141,10 +141,7 @@ export function CalculatorShell({
           <>
             <WorkspaceTopBar breadcrumbs={[{ label: "Каталог" }]} />
             <div className="workspace-content">
-              <HomeView
-                activeCategory={currentCategory}
-                onOpenModal={setModalCalculator}
-              />
+              <HomeView onOpenModal={setModalCalculator} />
             </div>
           </>
         )}
@@ -161,11 +158,10 @@ export function CalculatorShell({
 }
 
 type HomeViewProps = {
-  activeCategory: CalculatorCategory;
   onOpenModal: (calculator: Calculator) => void;
 };
 
-function HomeView({ activeCategory, onOpenModal }: HomeViewProps) {
+function HomeView({ onOpenModal }: HomeViewProps) {
   const popular = calculators.filter((c) => c.editorialLabel === "Популярний");
 
   return (
@@ -224,7 +220,8 @@ function HomeView({ activeCategory, onOpenModal }: HomeViewProps) {
             Усі калькулятори
           </h2>
           <p className="workspace-section__note">
-            Активна категорія: <strong>{activeCategory.title}</strong>
+            <strong>{calculators.length}</strong> інструментів у{" "}
+            <strong>{calculatorCategories.length}</strong> категоріях.
           </p>
         </div>
         <div className="calc-grid">

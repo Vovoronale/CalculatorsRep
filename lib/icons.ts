@@ -5,7 +5,6 @@ import {
   Building,
   Calculator as CalculatorIcon,
   Drill,
-  Grid3x3,
   Hammer,
   Home,
   Layers,
@@ -34,7 +33,6 @@ export const iconRegistry: Record<string, LucideIcon> = {
   Building,
   Calculator: CalculatorIcon,
   Drill,
-  Grid3x3,
   Hammer,
   Home,
   Layers,
@@ -50,11 +48,8 @@ export const iconRegistry: Record<string, LucideIcon> = {
 };
 
 const FALLBACK_CATEGORY_ICONS: Record<CategorySlug, LucideIcon> = {
-  beton: Box,
-  teploizolyatsiya: Thermometer,
   teplotekhnika: Thermometer,
   normokontrol: ShieldCheck,
-  "teplovi-vuzly": Grid3x3,
   konstruktsiyi: Triangle,
   "inzhenerni-merezhi": Zap,
   instrumenty: Wrench,

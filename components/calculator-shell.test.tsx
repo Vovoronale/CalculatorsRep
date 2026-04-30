@@ -11,7 +11,7 @@ describe("CalculatorShell", () => {
   });
 
   it("renders the engineering shell with a left catalog rail on the homepage", () => {
-    render(<CalculatorShell selectedCategory="teplotekhnika" />);
+    render(<CalculatorShell />);
 
     const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
     const workspace = screen.getByRole("main");
@@ -26,13 +26,13 @@ describe("CalculatorShell", () => {
     ).toBeInTheDocument();
     expect(within(rail).getByText("Іванейко Володимир")).toBeInTheDocument();
     expect(within(rail).getByText("Напрями розрахунків")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Теплотехніка" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
+    expect(within(rail).getByRole("button", { name: "Теплотехніка" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
     );
     expect(
-      within(rail).getByRole("link", { name: "Огороджувальна конструкція" }),
-    ).toBeInTheDocument();
+      within(rail).queryByRole("link", { name: "Огороджувальна конструкція" }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "GitHub" })).not.toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Про автора" })).toHaveLength(2);
     expect(screen.getAllByRole("link", { name: "Про автора" })[0]).toHaveAttribute(

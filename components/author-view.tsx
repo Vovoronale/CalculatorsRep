@@ -56,7 +56,6 @@ export function AuthorView() {
       <DrawerBackdrop open={isMobileOpen} onClose={() => setIsMobileOpen(false)} />
 
       <CatalogRail
-        initialCategory="beton"
         isCollapsed={isCollapsed}
         onToggleCollapse={toggleCollapse}
         isMobileOpen={isMobileOpen}
