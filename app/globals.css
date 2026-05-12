@@ -17,6 +17,7 @@
   --accent-strong: #a8481a;
   --accent-soft: #fef3eb;
   --accent-on-fill: #fff8f2;
+  --info: #047857;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08);
@@ -40,6 +41,7 @@
   --accent-strong: #f59970;
   --accent-soft: rgba(232, 135, 88, 0.12);
   --accent-on-fill: #1a0e08;
+  --info: #6ee7b7;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
@@ -1222,6 +1224,200 @@ textarea {
   color: var(--text-muted);
 }
 
+/* Native calculators */
+
+.rebar-calculator {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.rebar-calculator__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.rebar-field {
+  display: grid;
+  gap: 6px;
+  min-width: 160px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.rebar-field--count {
+  min-width: 96px;
+}
+
+.rebar-field input {
+  width: 100%;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  padding: 0 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+}
+
+.rebar-field input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.rebar-units {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.rebar-units legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.rebar-unit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.rebar-unit:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.rebar-unit input {
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.rebar-calculator__status {
+  min-height: 22px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.rebar-calculator__status p {
+  margin: 0;
+}
+
+.rebar-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.rebar-table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.rebar-table caption {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  text-align: left;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 12px;
+}
+
+.rebar-table th,
+.rebar-table td {
+  padding: 7px 4px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.rebar-table th:first-child,
+.rebar-table td:first-child {
+  width: 64px;
+}
+
+.rebar-table thead th,
+.rebar-table tbody th {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.rebar-table tbody th {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.rebar-table td {
+  position: relative;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.rebar-table td[data-in-range="true"] {
+  padding-top: 12px;
+  padding-bottom: 4px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.rebar-table td[data-best-match="true"] {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.rebar-table__area {
+  display: block;
+}
+
+.rebar-table__utilization {
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  color: var(--info);
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 /* CTA buttons */
 
 .cta-button {
@@ -1823,6 +2019,32 @@ textarea {
 
   .detail-use-cases {
     grid-template-columns: 1fr;
+  }
+
+  .rebar-calculator {
+    padding: 12px;
+  }
+
+  .rebar-calculator__controls {
+    align-items: stretch;
+  }
+
+  .rebar-field {
+    min-width: 100%;
+  }
+
+  .rebar-field--count {
+    min-width: 88px;
+  }
+
+  .rebar-units {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .rebar-table {
+    min-width: 660px;
+    font-size: 10px;
   }
 
   .author-directions {

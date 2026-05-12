@@ -19,6 +19,8 @@ function pickModeLabel(displayMode: Calculator["displayMode"]): string {
       return "Embed";
     case "modal":
       return "Modal";
+    case "native":
+      return "Native";
     case "external":
     default:
       return "Зовнішній";

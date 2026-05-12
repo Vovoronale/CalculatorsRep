@@ -8,7 +8,7 @@ export type CategorySlug =
   | "instrumenty"
   | "ai-asystenty";
 
-export type DisplayMode = "embed" | "external" | "modal";
+export type DisplayMode = "embed" | "external" | "modal" | "native";
 
 export type EditorialLabel = "Новий" | "Популярний";
 
@@ -27,6 +27,7 @@ export type Calculator = {
   mainCategory: CategorySlug;
   extraCategories: CategorySlug[];
   displayMode: DisplayMode;
+  nativeCalculator?: "rebar-area-bars";
   accessLabel: string;
   embedUrl?: string;
   openUrl: string;

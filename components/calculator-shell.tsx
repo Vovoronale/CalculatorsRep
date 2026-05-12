@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { RebarAreaBarsCalculator } from "@/components/calculators/rebar-area-bars-calculator";
 import { CalculatorCard } from "@/components/calculator-card";
 import { CalculatorModal } from "@/components/calculator-modal";
 import { CategoryCard } from "@/components/category-card";
@@ -110,7 +111,7 @@ export function CalculatorShell({
             <WorkspaceTopBar
               breadcrumbs={detailBreadcrumbs}
               actions={
-                selectedCalculator.displayMode !== "external" ? (
+                selectedCalculator.displayMode === "embed" ? (
                   <Link
                     className="workspace-top-bar__action"
                     href={selectedCalculator.openUrl}
@@ -261,6 +262,7 @@ type CalculatorDetailProps = {
 function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
   const showsIframe =
     calculator.displayMode === "embed" && Boolean(calculator.embedUrl);
+  const showsNative = calculator.displayMode === "native";
   const related = calculators
     .filter(
       (c) =>
@@ -315,6 +317,8 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
             referrerPolicy="no-referrer-when-downgrade"
           />
         </div>
+      ) : showsNative ? (
+        <NativeCalculator calculator={calculator} />
       ) : calculator.displayMode === "modal" && calculator.embedUrl ? (
         <div className="detail-external">
           <h3 className="detail-external__title">{calculator.accessLabel}</h3>
@@ -375,4 +379,20 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
       ) : null}
     </section>
   );
+}
+
+function NativeCalculator({ calculator }: { calculator: Calculator }) {
+  switch (calculator.nativeCalculator) {
+    case "rebar-area-bars":
+      return <RebarAreaBarsCalculator />;
+    default:
+      return (
+        <div className="detail-external">
+          <h3 className="detail-external__title">{calculator.accessLabel}</h3>
+          <p className="detail-external__desc">
+            Локальний калькулятор для цього запису ще не налаштований.
+          </p>
+        </div>
+      );
+  }
 }

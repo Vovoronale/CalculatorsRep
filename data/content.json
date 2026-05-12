@@ -534,6 +534,26 @@
       "icon": "Triangle"
     },
     {
+      "slug": "rebar-area-bars",
+      "title": "Підбір кількості стержнів арматури за площею",
+      "shortDescription": "Табличний підбір кількості стержнів за потрібною площею арматури As.",
+      "description": "Локальний калькулятор для підбору кількості стержнів арматури за заданою площею. Показує площу для діаметрів Ø4–Ø40 і кількості стержнів 1–9 плюс користувацьке n.",
+      "mainCategory": "konstruktsiyi",
+      "extraCategories": [],
+      "displayMode": "native",
+      "nativeCalculator": "rebar-area-bars",
+      "accessLabel": "Вбудований розрахунок",
+      "openUrl": "/calculator/rebar-area-bars",
+      "order": 21.5,
+      "seoTitle": "Підбір кількості стержнів арматури за площею",
+      "seoDescription": "Онлайн-калькулятор для підбору кількості стержнів арматури за потрібною площею As.",
+      "editorialLabel": "Новий",
+      "useCases": ["Підбір As", "Таблиця Ø4–Ø40", "Перевірка кількості стержнів"],
+      "tags": ["арматура", "площа", "ЗБК"],
+      "tools": ["IVapps"],
+      "icon": "Ruler"
+    },
+    {
       "slug": "livebeamcalculator",
       "title": "LiveBeamCalculator — розрахунок балок",
       "shortDescription": "Онлайн-калькулятор балок: моменти, поперечні сили, прогини.",
