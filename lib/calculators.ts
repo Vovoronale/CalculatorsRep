@@ -31,7 +31,8 @@ export type Calculator = {
     | "rebar-area-bars"
     | "rebar-characteristics"
     | "concrete-characteristics"
-    | "minimum-reinforcement-area";
+    | "minimum-reinforcement-area"
+    | "foundation-bar-anchorage";
   accessLabel: string;
   embedUrl?: string;
   openUrl: string;

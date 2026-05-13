@@ -574,6 +574,26 @@
       "icon": "Ruler"
     },
     {
+      "slug": "foundation-bar-anchorage",
+      "title": "Анкерування стрижня фундаменту",
+      "shortDescription": "Покрокова перевірка довжини анкерування кінця стрижня фундаменту за ДСТУ Б В.2.6-156:2010.",
+      "description": "Калькулятор визначає силу розтягу в арматурі фундаменту за моделлю п. 8.8.2.5-8.8.2.8 ДСТУ, розраховує довжину анкерування за п. 7.2.2-7.2.4 і формує звіт із клікабельними нормативними посиланнями.",
+      "mainCategory": "konstruktsiyi",
+      "extraCategories": [],
+      "displayMode": "native",
+      "nativeCalculator": "foundation-bar-anchorage",
+      "accessLabel": "Вбудований розрахунок",
+      "openUrl": "/calculator/foundation-bar-anchorage",
+      "order": 21.47,
+      "seoTitle": "Анкерування стрижня фундаменту",
+      "seoDescription": "Онлайн-перевірка довжини анкерування кінця стрижня фундаменту за ДСТУ Б В.2.6-156:2010 з покроковим звітом.",
+      "editorialLabel": "Новий",
+      "useCases": ["Анкерування фундаменту", "ДСТУ 8.8.2.6", "Покроковий звіт"],
+      "tags": ["анкерування", "фундамент", "арматура", "ДСТУ"],
+      "tools": ["IVapps"],
+      "icon": "Ruler"
+    },
+    {
       "slug": "rebar-characteristics",
       "title": "Арматура",
       "shortDescription": "Таблиця характеристик арматури за ДСТУ 3760:2006.",

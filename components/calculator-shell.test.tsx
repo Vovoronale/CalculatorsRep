@@ -424,6 +424,61 @@ describe("CalculatorShell", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders the native foundation bar anchorage calculator with report links", () => {
+    const calculator = getCalculatorBySlug("foundation-bar-anchorage");
+
+    if (!calculator) {
+      throw new Error("Expected native foundation anchorage calculator to exist");
+    }
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: "Анкерування стрижня фундаменту",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Калькулятор анкерування стрижня фундаменту"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: /^Конструкція і матеріали/ })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: /^Геометрія фундаменту/ })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: /^Навантаження на уступі/ })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: /^Анкерована арматура/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: "Схема моделі сили розтягу фундаменту за рисунком 8.13" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/h бетонування, мм/)).toBeInTheDocument();
+    expect(screen.getByText(/a від низу, мм/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("checkbox", { name: /Ковзна опалубка - зменшує eta1 до 0.7/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: "п. 7.2.2.2" }).some(
+        (link) => link.getAttribute("href") === "#norm-dstu-7-2-2-2",
+      ),
+    ).toBe(true);
+    expect(
+      screen.getByRole("img", { name: "Фрагмент п. 8.8.2.5 ДСТУ Б В.2.6-156:2010, формула (8.13)" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Fs = R * ze / zi = 122.5 * 60 / 495 = 14.85 кН")).toBeInTheDocument();
+    expect(screen.getByText(/Анкерування достатнє/)).toBeInTheDocument();
+
+    const dstuLink = screen.getAllByRole("link", { name: "п. 8.8.2.5" })[0];
+    expect(dstuLink).toHaveAttribute("href", "#norm-dstu-8-8-2-5");
+
+    expect(screen.getByRole("tab", { name: "Нормативні пункти" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: "п. 8.8.2.5 ДСТУ Б В.2.6-156:2010, формула (8.13)",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/Сила розтягу для анкерування визначається як Fs = R \* ze \/ zi/).length,
+    ).toBeGreaterThan(0);
+  });
+
   it("prefills the rebar selection calculator from query parameters", async () => {
     window.history.pushState(
       {},

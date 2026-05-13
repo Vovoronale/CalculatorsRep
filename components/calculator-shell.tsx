@@ -5,6 +5,7 @@ import { ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { ConcreteCharacteristicsCalculator } from "@/components/calculators/concrete-characteristics-calculator";
+import { FoundationBarAnchorageCalculator } from "@/components/calculators/foundation-bar-anchorage-calculator";
 import { MinimumReinforcementCalculator } from "@/components/calculators/minimum-reinforcement-calculator";
 import { RebarAreaBarsCalculator } from "@/components/calculators/rebar-area-bars-calculator";
 import { RebarCharacteristicsCalculator } from "@/components/calculators/rebar-characteristics-calculator";
@@ -394,6 +395,8 @@ function NativeCalculator({ calculator }: { calculator: Calculator }) {
       return <ConcreteCharacteristicsCalculator />;
     case "minimum-reinforcement-area":
       return <MinimumReinforcementCalculator />;
+    case "foundation-bar-anchorage":
+      return <FoundationBarAnchorageCalculator />;
     default:
       return (
         <div className="detail-external">
