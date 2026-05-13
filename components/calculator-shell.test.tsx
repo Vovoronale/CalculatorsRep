@@ -414,6 +414,14 @@ describe("CalculatorShell", () => {
     );
 
     expect(screen.getByLabelText("bt = 1000 мм")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Рекомендований підбір на 1 м.п.: Ø12 крок 150 мм = 754 мм²/м.п. (111.1% від As,min).",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Підібрати діаметр і крок/ }),
+    ).toBeInTheDocument();
   });
 
   it("prefills the rebar selection calculator from query parameters", async () => {

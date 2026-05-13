@@ -11,7 +11,7 @@ import {
 } from "@/lib/minimum-reinforcement";
 import { getConcreteClasses, type ConcreteClassName } from "@/lib/materials/concrete";
 import { getRebarClasses, type RebarClassName } from "@/lib/materials/rebar";
-import { getRebarSelection } from "@/lib/rebar-area-bars";
+import { getRebarSelection, getRebarSpacingSelection } from "@/lib/rebar-area-bars";
 
 import { MathNotation } from "./math-notation";
 
@@ -305,6 +305,16 @@ export function MinimumReinforcementCalculator() {
         : null,
     [report],
   );
+  const rebarSpacingSelection = useMemo(
+    () =>
+      report.valid && report.values
+        ? getRebarSpacingSelection({
+            requiredAreaSquareMillimeters: report.values.minimumAreaMm2,
+            customSpacingMillimeters: 400,
+          }).bestMatch
+        : null,
+    [report],
+  );
 
   return (
     <div
@@ -435,7 +445,24 @@ export function MinimumReinforcementCalculator() {
             {report.values.effectiveDepthMm} мм.
           </p>
           <p className="minimum-reinforcement-summary__handoff">
-            {rebarSelection ? (
+            {structureType === "slab" && rebarSpacingSelection ? (
+              <>
+                Рекомендований підбір на 1 м.п.: Ø
+                {rebarSpacingSelection.diameter} крок{" "}
+                {rebarSpacingSelection.spacingMillimeters} мм ={" "}
+                {formatMinimumReinforcementNumber(
+                  rebarSpacingSelection.areaSquareMillimeters,
+                  1,
+                )}{" "}
+                мм²/м.п. (
+                {(
+                  (rebarSpacingSelection.areaSquareMillimeters /
+                    report.values.minimumAreaMm2) *
+                  100
+                ).toFixed(1)}
+                % від As,min).
+              </>
+            ) : structureType === "beam" && rebarSelection ? (
               <>
                 Рекомендований підбір: {rebarSelection.count}Ø
                 {rebarSelection.diameter} ={" "}
@@ -454,12 +481,16 @@ export function MinimumReinforcementCalculator() {
             ) : (
               <>
                 Для As,min = {report.values.minimumAreaMm2.toFixed(1)} мм² не знайдено
-                підбір у поточному сортаменті.
+                {structureType === "slab"
+                  ? " підбір на 1 м.п. у поточному сортаменті."
+                  : " підбір у поточному сортаменті."}
               </>
             )}
           </p>
           <Link className="minimum-reinforcement-summary__link" href={rebarSelectionHref}>
-            Підібрати діаметр і кількість арматури
+            {structureType === "slab"
+              ? "Підібрати діаметр і крок арматури на 1 м.п."
+              : "Підібрати діаметр і кількість арматури"}
           </Link>
         </div>
       ) : null}
