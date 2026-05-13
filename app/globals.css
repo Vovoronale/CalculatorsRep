@@ -176,7 +176,7 @@ textarea {
 }
 
 .workspace-content--reading {
-  max-width: 760px;
+  max-width: 1040px;
 }
 
 .workspace-content--embed {
@@ -1540,7 +1540,7 @@ textarea {
 .concrete-table-wrap,
 .rebar-characteristics-table-wrap {
   width: 100%;
-  overflow-x: auto;
+  overflow-x: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);
@@ -1549,10 +1549,14 @@ textarea {
 .concrete-table,
 .rebar-characteristics-table {
   width: 100%;
-  min-width: 980px;
+  min-width: 0;
   border-collapse: collapse;
   table-layout: fixed;
-  font-size: 11px;
+  font-size: 10px;
+}
+
+.concrete-table {
+  font-size: 9px;
 }
 
 .concrete-table caption,
@@ -1568,11 +1572,24 @@ textarea {
 .concrete-table td,
 .rebar-characteristics-table th,
 .rebar-characteristics-table td {
-  padding: 7px 6px;
+  padding: 6px 3px;
   border-right: 1px solid var(--border);
   border-top: 1px solid var(--border);
   text-align: right;
   white-space: nowrap;
+}
+
+.concrete-table th,
+.concrete-table td {
+  padding-right: 2px;
+  padding-left: 2px;
+}
+
+.concrete-table th:first-child,
+.concrete-table td:first-child,
+.rebar-characteristics-table th:first-child,
+.rebar-characteristics-table td:first-child {
+  width: 16%;
 }
 
 .concrete-table thead th,
@@ -2247,6 +2264,11 @@ textarea {
   .rebar-characteristics-table {
     min-width: 1120px;
     font-size: 10px;
+  }
+
+  .concrete-table-wrap,
+  .rebar-characteristics-table-wrap {
+    overflow-x: auto;
   }
 
   .author-directions {
