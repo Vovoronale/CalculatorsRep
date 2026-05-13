@@ -1226,6 +1226,41 @@ textarea {
 
 /* Native calculators */
 
+.math-notation {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.08em;
+  font-weight: 600;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+.math-notation__base {
+  font-style: italic;
+}
+
+.math-notation sub,
+.math-notation sup {
+  font-size: 0.68em;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 0;
+}
+
+.math-notation sub {
+  vertical-align: -0.35em;
+}
+
+.math-notation sup {
+  vertical-align: 0.55em;
+}
+
+.math-notation__unit {
+  font-style: normal;
+}
+
 .rebar-calculator {
   display: flex;
   flex-direction: column;

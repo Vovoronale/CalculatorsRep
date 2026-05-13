@@ -21,6 +21,8 @@ import {
   type RebarAreaUnit,
 } from "@/lib/rebar-area-bars";
 
+import { MathNotation } from "./math-notation";
+
 const UNIT_OPTIONS = Object.entries(REBAR_AREA_UNITS) as Array<
   [RebarAreaUnit, (typeof REBAR_AREA_UNITS)[RebarAreaUnit]]
 >;
@@ -70,7 +72,10 @@ export function RebarAreaBarsCalculator() {
     <div className="rebar-calculator" aria-label="Калькулятор підбору арматури">
       <div className="rebar-calculator__controls">
         <label className="rebar-field">
-          <span>Мінімальна площа, {unitLabel}</span>
+          <span>
+            Мінімальна площа, <MathNotation base="A" ariaLabel="A" />,{" "}
+            <span className="math-notation__unit">{unitLabel}</span>
+          </span>
           <input
             type="number"
             inputMode="decimal"
@@ -99,7 +104,9 @@ export function RebarAreaBarsCalculator() {
         </fieldset>
 
         <label className="rebar-field rebar-field--count">
-          <span>n</span>
+          <span>
+            <MathNotation base="n" ariaLabel="n" />
+          </span>
           <input
             type="number"
             inputMode="numeric"
@@ -116,8 +123,9 @@ export function RebarAreaBarsCalculator() {
       <div className="rebar-calculator__status" aria-live="polite">
         {selection.bestMatch ? (
           <p>
-            Найменший варіант у діапазоні: Ø{selection.bestMatch.diameter}, n ={" "}
-            {selection.bestMatch.count}, A ={" "}
+            Найменший варіант у діапазоні: Ø{selection.bestMatch.diameter},{" "}
+            <MathNotation base="n" ariaLabel="n" /> = {selection.bestMatch.count},{" "}
+            <MathNotation base="A" ariaLabel="A" /> ={" "}
             {formatRebarArea(selection.bestMatch.areaSquareMillimeters, unit)}{" "}
             {unitLabel}, забезпечення{" "}
             {formatRebarUtilization(
@@ -145,8 +153,18 @@ export function RebarAreaBarsCalculator() {
             <tr>
               <th scope="col">Діаметр</th>
               {barCounts.map((count, index) => (
-                <th key={`${index}:${count}`} scope="col">
-                  {index === barCounts.length - 1 ? `n = ${count}` : count}
+                <th
+                  key={`${index}:${count}`}
+                  scope="col"
+                  aria-label={index === barCounts.length - 1 ? `n = ${count}` : String(count)}
+                >
+                  {index === barCounts.length - 1 ? (
+                    <>
+                      <MathNotation base="n" ariaLabel="n" /> = {count}
+                    </>
+                  ) : (
+                    count
+                  )}
                 </th>
               ))}
             </tr>
@@ -201,7 +219,10 @@ export function RebarAreaBarsCalculator() {
 
         <div className="rebar-calculator__controls rebar-calculator__controls--compact">
           <label className="rebar-field rebar-field--count">
-            <span>s, мм</span>
+            <span>
+              <MathNotation base="s" ariaLabel="s" />,{" "}
+              <span className="math-notation__unit">мм</span>
+            </span>
             <input
               type="number"
               inputMode="numeric"
@@ -219,7 +240,8 @@ export function RebarAreaBarsCalculator() {
           {spacingSelection.bestMatch ? (
             <p>
               Найменший варіант у діапазоні: Ø{spacingSelection.bestMatch.diameter},
-              крок {spacingSelection.bestMatch.spacingMillimeters} мм, A ={" "}
+              крок {spacingSelection.bestMatch.spacingMillimeters} мм,{" "}
+              <MathNotation base="A" ariaLabel="A" /> ={" "}
               {formatRebarArea(spacingSelection.bestMatch.areaSquareMillimeters, unit)}{" "}
               {perMeterUnitLabel}, забезпечення{" "}
               {formatRebarUtilization(
@@ -245,8 +267,22 @@ export function RebarAreaBarsCalculator() {
               <tr>
                 <th scope="col">Діаметр</th>
                 {spacingColumns.map((spacing, index) => (
-                  <th key={`${index}:${spacing}`} scope="col">
-                    {index === spacingColumns.length - 1 ? `s = ${spacing} мм` : `${spacing} мм`}
+                  <th
+                    key={`${index}:${spacing}`}
+                    scope="col"
+                    aria-label={
+                      index === spacingColumns.length - 1
+                        ? `s = ${spacing} мм`
+                        : `${spacing} мм`
+                    }
+                  >
+                    {index === spacingColumns.length - 1 ? (
+                      <>
+                        <MathNotation base="s" ariaLabel="s" /> = {spacing} мм
+                      </>
+                    ) : (
+                      `${spacing} мм`
+                    )}
                   </th>
                 ))}
               </tr>

@@ -6,6 +6,17 @@ import { afterEach, describe, expect, it } from "vitest";
 import { CalculatorShell } from "@/components/calculator-shell";
 import { getCalculatorBySlug } from "@/lib/calculators";
 
+function expectMathSubscript(element: HTMLElement, base: string, subscript: string) {
+  expect(element.querySelector(".math-notation__base")).toHaveTextContent(base);
+  expect(element.querySelector(".math-notation sub")).toHaveTextContent(subscript);
+}
+
+function getSummaryText(text: string) {
+  return screen.getByText((_, element) => {
+    return element?.tagName.toLowerCase() === "p" && element.textContent?.includes(text);
+  });
+}
+
 describe("CalculatorShell", () => {
   afterEach(() => {
     cleanup();
@@ -120,7 +131,9 @@ describe("CalculatorShell", () => {
       "data-table-kind",
       "bars",
     );
-    expect(within(barsTable).getByRole("columnheader", { name: "n = 10" })).toBeInTheDocument();
+    const countHeader = within(barsTable).getByRole("columnheader", { name: "n = 10" });
+    expect(countHeader).toBeInTheDocument();
+    expect(countHeader.querySelector(".math-notation__base")).toHaveTextContent("n");
     expect(within(barsTable).getByRole("cell", { name: /5\.027 100\.5%/ })).toHaveAttribute(
       "data-best-match",
       "true",
@@ -148,6 +161,11 @@ describe("CalculatorShell", () => {
     expect(
       within(meterTable).getByRole("columnheader", { name: "s = 400 мм" }),
     ).toBeInTheDocument();
+    expect(
+      within(meterTable)
+        .getByRole("columnheader", { name: "s = 400 мм" })
+        .querySelector(".math-notation__base"),
+    ).toHaveTextContent("s");
     const meterBestCells = within(meterTable).getAllByRole("cell", {
       name: /5\.027 100\.5%/,
     });
@@ -250,7 +268,7 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("combobox", { name: "Клас арматури" })).toHaveValue(
       "A500C",
     );
-    expect(screen.getByText(/A500C: fyk = 500 МПа/)).toBeInTheDocument();
+    expect(getSummaryText("A500C: fyk = 500 МПа")).toBeInTheDocument();
 
     const table = screen.getByRole("table", {
       name: "Характеристики арматури за ДСТУ 3760:2006",
@@ -264,7 +282,9 @@ describe("CalculatorShell", () => {
       "true",
     );
     expect(within(table).getByRole("columnheader", { name: "A1000" })).toBeInTheDocument();
-    expect(within(table).getByRole("row", { name: /fyk, МПа/ })).toBeInTheDocument();
+    const fykRow = within(table).getByRole("row", { name: /fyk, МПа/ });
+    expect(fykRow).toBeInTheDocument();
+    expectMathSubscript(fykRow, "f", "yk");
     expect(within(table).getByRole("row", { name: /fyd, МПа/ })).toBeInTheDocument();
 
     await user.selectOptions(
@@ -272,7 +292,7 @@ describe("CalculatorShell", () => {
       "A400C",
     );
 
-    expect(screen.getByText(/A400C: fyk = 400 МПа/)).toBeInTheDocument();
+    expect(getSummaryText("A400C: fyk = 400 МПа")).toBeInTheDocument();
     expect(within(table).getByRole("columnheader", { name: "A400C" })).toHaveAttribute(
       "data-selected",
       "true",
@@ -299,7 +319,7 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("combobox", { name: "Клас бетону" })).toHaveValue(
       "C30/37",
     );
-    expect(screen.getByText(/C30\/37: fck = 30 МПа/)).toBeInTheDocument();
+    expect(getSummaryText("C30/37: fck = 30 МПа")).toBeInTheDocument();
 
     const table = screen.getByRole("table", {
       name: "Характеристики бетону за ДБН В.2.6-98:2009 та ДСТУ Б В.2.6-156:2010",
@@ -309,9 +329,15 @@ describe("CalculatorShell", () => {
       within(table).getByRole("columnheader", { name: "Характеристика" }),
     ).toBeInTheDocument();
     expect(within(table).getByRole("columnheader", { name: "C90/105" })).toBeInTheDocument();
-    expect(within(table).getByRole("row", { name: /fck, МПа/ })).toBeInTheDocument();
-    expect(within(table).getByRole("row", { name: /Ecm, ГПа/ })).toBeInTheDocument();
-    expect(within(table).getByRole("row", { name: /εcu3, ‰/ })).toBeInTheDocument();
+    const fckRow = within(table).getByRole("row", { name: /fck, МПа/ });
+    expect(fckRow).toBeInTheDocument();
+    expectMathSubscript(fckRow, "f", "ck");
+    const ecmRow = within(table).getByRole("row", { name: /Ecm, ГПа/ });
+    expect(ecmRow).toBeInTheDocument();
+    expectMathSubscript(ecmRow, "E", "cm");
+    const epsilonCu3Row = within(table).getByRole("row", { name: /εcu3, ‰/ });
+    expect(epsilonCu3Row).toBeInTheDocument();
+    expectMathSubscript(epsilonCu3Row, "ε", "cu3");
     expect(within(table).getByRole("columnheader", { name: "C30/37" })).toHaveAttribute(
       "data-selected",
       "true",
@@ -319,7 +345,7 @@ describe("CalculatorShell", () => {
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Клас бетону" }), "C40/50");
 
-    expect(screen.getByText(/C40\/50: fck = 40 МПа/)).toBeInTheDocument();
+    expect(getSummaryText("C40/50: fck = 40 МПа")).toBeInTheDocument();
     expect(within(table).getByRole("columnheader", { name: "C40/50" })).toHaveAttribute(
       "data-selected",
       "true",

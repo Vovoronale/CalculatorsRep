@@ -11,7 +11,19 @@ import {
   type RebarClassName,
 } from "@/lib/materials/rebar";
 
+import { MathNotation } from "./math-notation";
+
 const DEFAULT_REBAR_CLASS: RebarClassName = "A500C";
+
+type CharacteristicLabel = {
+  ariaLabel: string;
+  symbol?: {
+    base: string;
+    subscript?: string;
+  };
+  text?: string;
+  unit?: string;
+};
 
 function formatValue(value: number | null): string {
   if (value === null) {
@@ -33,65 +45,128 @@ function getDesignValuesFor(rebarClass: RebarClassCharacteristics) {
   );
 }
 
+function CharacteristicNotation({ label }: { label: CharacteristicLabel }) {
+  return (
+    <>
+      {label.symbol ? (
+        <MathNotation
+          base={label.symbol.base}
+          subscript={label.symbol.subscript}
+          ariaLabel={`${label.symbol.base}${label.symbol.subscript ?? ""}`}
+        />
+      ) : (
+        label.text
+      )}
+      {label.unit ? <span className="math-notation__unit">, {label.unit}</span> : null}
+    </>
+  );
+}
+
 function getRebarRows() {
   return [
     {
       key: "temperature",
-      label: "t, °C",
+      label: {
+        ariaLabel: "t, °C",
+        symbol: { base: "t" },
+        unit: "°C",
+      },
       getValue: (rebarClass: RebarClassCharacteristics) =>
         rebarClass.electroHeatingTemperatureC,
     },
     {
       key: "fyk",
-      label: "fyk, МПа",
+      label: {
+        ariaLabel: "fyk, МПа",
+        symbol: { base: "f", subscript: "yk" },
+        unit: "МПа",
+      },
       getValue: (rebarClass: RebarClassCharacteristics) =>
         rebarClass.yieldStrengthMPa,
     },
     {
       key: "ftk",
-      label: "ftk, МПа",
+      label: {
+        ariaLabel: "ftk, МПа",
+        symbol: { base: "f", subscript: "tk" },
+        unit: "МПа",
+      },
       getValue: (rebarClass: RebarClassCharacteristics) =>
         rebarClass.tensileStrengthMPa,
     },
     {
       key: "elongation",
-      label: "A, %",
+      label: {
+        ariaLabel: "A, %",
+        symbol: { base: "A" },
+        unit: "%",
+      },
       getValue: (rebarClass: RebarClassCharacteristics) =>
         rebarClass.elongationAfterRupturePercent,
     },
     {
       key: "uniformElongation",
-      label: "Ag, %",
+      label: {
+        ariaLabel: "Ag, %",
+        symbol: { base: "A", subscript: "g" },
+        unit: "%",
+      },
       getValue: (rebarClass: RebarClassCharacteristics) =>
         rebarClass.uniformElongationPercent,
     },
     {
       key: "totalElongation",
-      label: "Agt, %",
+      label: {
+        ariaLabel: "Agt, %",
+        symbol: { base: "A", subscript: "gt" },
+        unit: "%",
+      },
       getValue: (rebarClass: RebarClassCharacteristics) =>
         rebarClass.totalElongationAtMaximumLoadPercent,
     },
     {
       key: "bend",
-      label: "Згин, °",
+      label: {
+        ariaLabel: "Згин, °",
+        text: "Згин",
+        unit: "°",
+      },
       getValue: (rebarClass: RebarClassCharacteristics) =>
         rebarClass.bendAngleDegrees,
     },
     {
       key: "mandrel",
-      label: "Оправка",
+      label: {
+        ariaLabel: "Оправка",
+        text: "Оправка",
+      },
       getValue: (rebarClass: RebarClassCharacteristics) =>
-        `${formatValue(rebarClass.mandrelDiameterFactor)}dн`,
+        rebarClass.mandrelDiameterFactor === null ? (
+          "-"
+        ) : (
+          <>
+            {formatValue(rebarClass.mandrelDiameterFactor)}
+            <MathNotation base="d" subscript="н" ariaLabel="dн" />
+          </>
+        ),
     },
     {
       key: "elasticModulus",
-      label: "Es, ГПа",
+      label: {
+        ariaLabel: "Es, ГПа",
+        symbol: { base: "E", subscript: "s" },
+        unit: "ГПа",
+      },
       getValue: (rebarClass: RebarClassCharacteristics) =>
         rebarClass.elasticModulusGPa,
     },
     {
       key: "fyd",
-      label: "fyd, МПа",
+      label: {
+        ariaLabel: "fyd, МПа",
+        symbol: { base: "f", subscript: "yd" },
+        unit: "МПа",
+      },
       getValue: (rebarClass: RebarClassCharacteristics) =>
         formatDesignValue(getDesignValuesFor(rebarClass).fydMPa),
     },
@@ -133,9 +208,14 @@ export function RebarCharacteristicsCalculator() {
       {selectedRebar && selectedDesignValues ? (
         <div className="rebar-characteristics-summary" aria-live="polite">
           <p>
-            {selectedRebar.className}: fyk = {selectedRebar.yieldStrengthMPa} МПа,
-            ftk = {selectedRebar.tensileStrengthMPa} МПа, fyd ={" "}
-            {formatDesignValue(selectedDesignValues.fydMPa)} МПа, Es ={" "}
+            {selectedRebar.className}:{" "}
+            <MathNotation base="f" subscript="yk" ariaLabel="fyk" /> ={" "}
+            {selectedRebar.yieldStrengthMPa} МПа,{" "}
+            <MathNotation base="f" subscript="tk" ariaLabel="ftk" /> ={" "}
+            {selectedRebar.tensileStrengthMPa} МПа,{" "}
+            <MathNotation base="f" subscript="yd" ariaLabel="fyd" /> ={" "}
+            {formatDesignValue(selectedDesignValues.fydMPa)} МПа,{" "}
+            <MathNotation base="E" subscript="s" ariaLabel="Es" /> ={" "}
             {selectedRebar.elasticModulusGPa} ГПа.
           </p>
         </div>
@@ -164,7 +244,9 @@ export function RebarCharacteristicsCalculator() {
           <tbody>
             {rebarRows.map((row) => (
               <tr key={row.key}>
-                <th scope="row">{row.label}</th>
+                <th scope="row" aria-label={row.label.ariaLabel}>
+                  <CharacteristicNotation label={row.label} />
+                </th>
                 {rebarClasses.map((className) => {
                   const rebarClass = getRebarByClass(className);
                   const value = rebarClass ? row.getValue(rebarClass) : null;
