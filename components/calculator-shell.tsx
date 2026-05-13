@@ -4,7 +4,9 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { ConcreteCharacteristicsCalculator } from "@/components/calculators/concrete-characteristics-calculator";
 import { RebarAreaBarsCalculator } from "@/components/calculators/rebar-area-bars-calculator";
+import { RebarCharacteristicsCalculator } from "@/components/calculators/rebar-characteristics-calculator";
 import { CalculatorCard } from "@/components/calculator-card";
 import { CalculatorModal } from "@/components/calculator-modal";
 import { CategoryCard } from "@/components/category-card";
@@ -297,17 +299,6 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
         ) : null}
       </header>
 
-      {!showsIframe ? (
-        <ul
-          className="detail-use-cases"
-          aria-label={`Сценарії: ${calculator.title}`}
-        >
-          {calculator.useCases.map((useCase) => (
-            <li key={useCase}>{useCase}</li>
-          ))}
-        </ul>
-      ) : null}
-
       {showsIframe && calculator.embedUrl ? (
         <div className="detail-embed">
           <iframe
@@ -351,6 +342,17 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
         </div>
       )}
 
+      {!showsIframe ? (
+        <ul
+          className="detail-use-cases"
+          aria-label={`Сценарії: ${calculator.title}`}
+        >
+          {calculator.useCases.map((useCase) => (
+            <li key={useCase}>{useCase}</li>
+          ))}
+        </ul>
+      ) : null}
+
       {calculator.tags && calculator.tags.length > 0 ? (
         <ul className="detail-tags" aria-label={`Теги: ${calculator.title}`}>
           {calculator.tags.map((tag) => (
@@ -385,6 +387,10 @@ function NativeCalculator({ calculator }: { calculator: Calculator }) {
   switch (calculator.nativeCalculator) {
     case "rebar-area-bars":
       return <RebarAreaBarsCalculator />;
+    case "rebar-characteristics":
+      return <RebarCharacteristicsCalculator />;
+    case "concrete-characteristics":
+      return <ConcreteCharacteristicsCalculator />;
     default:
       return (
         <div className="detail-external">

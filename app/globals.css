@@ -1116,21 +1116,21 @@ textarea {
 }
 
 .detail-use-cases {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .detail-use-cases li {
-  padding: 14px 16px;
+  padding: 5px 9px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  font-size: 13px;
-  color: var(--text);
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
 .detail-embed {
@@ -1243,6 +1243,10 @@ textarea {
   gap: 12px;
 }
 
+.rebar-calculator__controls--compact {
+  gap: 8px;
+}
+
 .rebar-field {
   display: grid;
   gap: 6px;
@@ -1331,12 +1335,47 @@ textarea {
   margin: 0;
 }
 
+.rebar-calculator__subsection {
+  display: grid;
+  gap: 10px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.rebar-calculator__section-head {
+  display: grid;
+  gap: 3px;
+}
+
+.rebar-calculator__section-head h3 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rebar-calculator__section-head p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 .rebar-table-wrap {
   width: 100%;
-  overflow-x: auto;
+  overflow-x: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);
+}
+
+.rebar-table-wrap[data-table-kind="bars"] {
+  background: color-mix(in srgb, var(--accent) 3%, var(--bg));
+}
+
+.rebar-table-wrap[data-table-kind="meter"] {
+  border-color: color-mix(in srgb, var(--info) 22%, var(--border));
+  background: color-mix(in srgb, var(--info) 7%, var(--bg));
 }
 
 .rebar-table {
@@ -1356,6 +1395,15 @@ textarea {
   text-align: left;
   font-family: var(--font-sans), sans-serif;
   font-size: 12px;
+}
+
+.rebar-table-wrap[data-table-kind="bars"] .rebar-table caption {
+  background: color-mix(in srgb, var(--accent) 4%, var(--bg));
+}
+
+.rebar-table-wrap[data-table-kind="meter"] .rebar-table caption {
+  background: color-mix(in srgb, var(--info) 10%, var(--bg));
+  color: var(--text);
 }
 
 .rebar-table th,
@@ -1392,6 +1440,19 @@ textarea {
   color: var(--text);
 }
 
+.rebar-table-wrap[data-table-kind="bars"] .rebar-table td {
+  background: color-mix(in srgb, var(--accent) 2%, var(--bg));
+}
+
+.rebar-table-wrap[data-table-kind="meter"] .rebar-table td {
+  background: color-mix(in srgb, var(--info) 6%, var(--bg));
+}
+
+.rebar-table-wrap[data-table-kind="meter"] .rebar-table thead th,
+.rebar-table-wrap[data-table-kind="meter"] .rebar-table tbody th {
+  background: color-mix(in srgb, var(--info) 14%, var(--surface-2));
+}
+
 .rebar-table td[data-in-range="true"] {
   padding-top: 12px;
   padding-bottom: 4px;
@@ -1416,6 +1477,127 @@ textarea {
   font-size: 7px;
   font-weight: 700;
   line-height: 1;
+}
+
+.concrete-calculator,
+.rebar-characteristics-calculator {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--info) 24%, var(--border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--info) 5%, var(--surface));
+}
+
+.concrete-calculator__controls,
+.rebar-characteristics-calculator__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.concrete-field,
+.rebar-characteristics-field {
+  display: grid;
+  gap: 6px;
+  min-width: 220px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.concrete-field select,
+.rebar-characteristics-field select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 10px;
+}
+
+.concrete-summary,
+.rebar-characteristics-summary {
+  border: 1px solid color-mix(in srgb, var(--info) 20%, var(--border));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--info) 8%, var(--bg));
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 10px 12px;
+}
+
+.concrete-summary p,
+.rebar-characteristics-summary p {
+  margin: 0;
+}
+
+.concrete-table-wrap,
+.rebar-characteristics-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.concrete-table,
+.rebar-characteristics-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 11px;
+}
+
+.concrete-table caption,
+.rebar-characteristics-table caption {
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--info) 10%, var(--bg));
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: left;
+}
+
+.concrete-table th,
+.concrete-table td,
+.rebar-characteristics-table th,
+.rebar-characteristics-table td {
+  padding: 7px 6px;
+  border-right: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.concrete-table thead th,
+.concrete-table tbody th,
+.rebar-characteristics-table thead th,
+.rebar-characteristics-table tbody th {
+  background: color-mix(in srgb, var(--info) 10%, var(--surface-2));
+  color: var(--text);
+  font-weight: 800;
+}
+
+.concrete-table thead th:first-child,
+.concrete-table tbody th,
+.rebar-characteristics-table thead th:first-child,
+.rebar-characteristics-table tbody th {
+  text-align: left;
+}
+
+.concrete-table th[data-selected="true"],
+.concrete-table td[data-selected="true"],
+.rebar-characteristics-table th[data-selected="true"],
+.rebar-characteristics-table td[data-selected="true"] {
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+  color: var(--accent);
+  font-weight: 800;
 }
 
 /* CTA buttons */
@@ -2042,8 +2224,28 @@ textarea {
     width: 100%;
   }
 
+  .rebar-table-wrap {
+    overflow-x: auto;
+  }
+
   .rebar-table {
     min-width: 660px;
+    font-size: 10px;
+  }
+
+  .concrete-calculator,
+  .rebar-characteristics-calculator {
+    padding: 12px;
+  }
+
+  .concrete-field,
+  .rebar-characteristics-field {
+    min-width: 100%;
+  }
+
+  .concrete-table,
+  .rebar-characteristics-table {
+    min-width: 1120px;
     font-size: 10px;
   }
 

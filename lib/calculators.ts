@@ -27,7 +27,10 @@ export type Calculator = {
   mainCategory: CategorySlug;
   extraCategories: CategorySlug[];
   displayMode: DisplayMode;
-  nativeCalculator?: "rebar-area-bars";
+  nativeCalculator?:
+    | "rebar-area-bars"
+    | "rebar-characteristics"
+    | "concrete-characteristics";
   accessLabel: string;
   embedUrl?: string;
   openUrl: string;

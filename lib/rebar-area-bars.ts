@@ -1,8 +1,28 @@
 export type RebarAreaUnit = "mm2" | "cm2" | "m2";
 
+export {
+  REBAR_DIAMETERS,
+  REBAR_SPACINGS,
+  getRebarAreaPerMeterSquareMillimeters,
+  getRebarAreaSquareMillimeters,
+} from "@/lib/materials/rebar";
+
+import {
+  REBAR_DIAMETERS,
+  REBAR_SPACINGS,
+  getRebarAreaPerMeterSquareMillimeters,
+  getRebarAreaSquareMillimeters,
+} from "@/lib/materials/rebar";
+
 export type RebarCombination = {
   diameter: number;
   count: number;
+  areaSquareMillimeters: number;
+};
+
+export type RebarSpacingCombination = {
+  diameter: number;
+  spacingMillimeters: number;
   areaSquareMillimeters: number;
 };
 
@@ -11,9 +31,10 @@ export type RebarSelection = {
   eligibleKeys: Set<string>;
 };
 
-export const REBAR_DIAMETERS = [
-  4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 22, 25, 28, 32, 36, 40,
-] as const;
+export type RebarSpacingSelection = {
+  bestMatch: RebarSpacingCombination | null;
+  eligibleKeys: Set<string>;
+};
 
 export const REBAR_AREA_UNITS: Record<
   RebarAreaUnit,
@@ -46,15 +67,19 @@ export function clampRebarCount(count: number): number {
   return Math.max(1, Math.round(count));
 }
 
+export function clampRebarSpacing(spacingMillimeters: number): number {
+  if (!Number.isFinite(spacingMillimeters)) {
+    return 400;
+  }
+  return Math.max(1, Math.round(spacingMillimeters));
+}
+
 export function getRebarBarCounts(customCount: number): number[] {
   return [...BASE_BAR_COUNTS, clampRebarCount(customCount)];
 }
 
-export function getRebarAreaSquareMillimeters(
-  diameterMillimeters: number,
-  count: number,
-): number {
-  return count * (Math.PI * diameterMillimeters ** 2) / 4;
+export function getRebarSpacingColumns(customSpacingMillimeters: number): number[] {
+  return [...REBAR_SPACINGS, clampRebarSpacing(customSpacingMillimeters)];
 }
 
 export function convertAreaToSquareMillimeters(
@@ -100,11 +125,18 @@ export function formatRebarUtilization(
     return "";
   }
 
-  return `${((requiredAreaSquareMillimeters / actualAreaSquareMillimeters) * 100).toFixed(1)}%`;
+  return `${((actualAreaSquareMillimeters / requiredAreaSquareMillimeters) * 100).toFixed(1)}%`;
 }
 
 export function getRebarCombinationKey(diameter: number, count: number): string {
   return `${diameter}:${count}`;
+}
+
+export function getRebarSpacingCombinationKey(
+  diameter: number,
+  spacingMillimeters: number,
+): string {
+  return `${diameter}:${spacingMillimeters}`;
 }
 
 export function getRebarSelection({
@@ -158,6 +190,59 @@ export function getRebarSelection({
         bestMatch = {
           diameter,
           count,
+          areaSquareMillimeters,
+        };
+      }
+    }
+  }
+
+  return { bestMatch, eligibleKeys };
+}
+
+export function getRebarSpacingSelection({
+  requiredAreaSquareMillimeters,
+  customSpacingMillimeters = 400,
+}: {
+  requiredAreaSquareMillimeters: number;
+  customSpacingMillimeters?: number;
+}): RebarSpacingSelection {
+  const eligibleKeys = new Set<string>();
+
+  if (
+    !Number.isFinite(requiredAreaSquareMillimeters) ||
+    requiredAreaSquareMillimeters <= 0
+  ) {
+    return { bestMatch: null, eligibleKeys };
+  }
+
+  let bestMatch: RebarSpacingCombination | null = null;
+  const upperLimit = getRebarMaximumAreaSquareMillimeters(requiredAreaSquareMillimeters);
+
+  for (const diameter of REBAR_DIAMETERS) {
+    for (const spacingMillimeters of getRebarSpacingColumns(customSpacingMillimeters)) {
+      const areaSquareMillimeters = getRebarAreaPerMeterSquareMillimeters(
+        diameter,
+        spacingMillimeters,
+      );
+
+      if (
+        areaSquareMillimeters < requiredAreaSquareMillimeters ||
+        areaSquareMillimeters > upperLimit
+      ) {
+        continue;
+      }
+
+      eligibleKeys.add(getRebarSpacingCombinationKey(diameter, spacingMillimeters));
+
+      if (
+        !bestMatch ||
+        areaSquareMillimeters < bestMatch.areaSquareMillimeters ||
+        (areaSquareMillimeters === bestMatch.areaSquareMillimeters &&
+          diameter < bestMatch.diameter)
+      ) {
+        bestMatch = {
+          diameter,
+          spacingMillimeters,
           areaSquareMillimeters,
         };
       }
