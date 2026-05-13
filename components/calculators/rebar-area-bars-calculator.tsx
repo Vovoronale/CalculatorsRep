@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   REBAR_AREA_UNITS,
@@ -27,11 +28,72 @@ const UNIT_OPTIONS = Object.entries(REBAR_AREA_UNITS) as Array<
   [RebarAreaUnit, (typeof REBAR_AREA_UNITS)[RebarAreaUnit]]
 >;
 
+function getQueryPrefill():
+  | {
+      minimumArea: string;
+      unit: RebarAreaUnit;
+      returnTo?: string;
+      returnLabel?: string;
+    }
+  | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const minimumArea = params.get("minimumArea");
+  const unit = params.get("unit");
+
+  if (
+    !minimumArea ||
+    !unit ||
+    !(unit in REBAR_AREA_UNITS) ||
+    !Number.isFinite(Number.parseFloat(minimumArea.replace(",", ".")))
+  ) {
+    return null;
+  }
+
+  return {
+    minimumArea,
+    unit: unit as RebarAreaUnit,
+    returnTo: params.get("returnTo") ?? undefined,
+    returnLabel: params.get("returnLabel") ?? undefined,
+  };
+}
+
+function getReturnLink():
+  | {
+      href: string;
+      label: string;
+    }
+  | null {
+  const prefill = getQueryPrefill();
+
+  if (!prefill?.returnTo || !prefill.returnTo.startsWith("/calculator/")) {
+    return null;
+  }
+
+  return {
+    href: prefill.returnTo,
+    label: prefill.returnLabel || "Повернутися до попереднього розрахунку",
+  };
+}
+
 export function RebarAreaBarsCalculator() {
+  const returnLink = getReturnLink();
   const [minimumAreaInput, setMinimumAreaInput] = useState("5");
   const [unit, setUnit] = useState<RebarAreaUnit>("cm2");
   const [customCountInput, setCustomCountInput] = useState("10");
   const [customSpacingInput, setCustomSpacingInput] = useState("400");
+
+  useEffect(() => {
+    const prefill = getQueryPrefill();
+
+    if (prefill) {
+      setMinimumAreaInput(prefill.minimumArea);
+      setUnit(prefill.unit);
+    }
+  }, []);
 
   const minimumArea = Number.parseFloat(minimumAreaInput.replace(",", "."));
   const customCount = clampRebarCount(Number.parseFloat(customCountInput));
@@ -70,6 +132,12 @@ export function RebarAreaBarsCalculator() {
 
   return (
     <div className="rebar-calculator" aria-label="Калькулятор підбору арматури">
+      {returnLink ? (
+        <Link className="rebar-calculator__return-link" href={returnLink.href}>
+          {returnLink.label}
+        </Link>
+      ) : null}
+
       <div className="rebar-calculator__controls">
         <label className="rebar-field">
           <span>

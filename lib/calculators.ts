@@ -30,7 +30,8 @@ export type Calculator = {
   nativeCalculator?:
     | "rebar-area-bars"
     | "rebar-characteristics"
-    | "concrete-characteristics";
+    | "concrete-characteristics"
+    | "minimum-reinforcement-area";
   accessLabel: string;
   embedUrl?: string;
   openUrl: string;

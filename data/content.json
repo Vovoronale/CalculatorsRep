@@ -554,6 +554,26 @@
       "icon": "Ruler"
     },
     {
+      "slug": "minimum-reinforcement-area",
+      "title": "Мінімальна площа армування",
+      "shortDescription": "Покроковий розрахунок As,min для балки або плити за ДСТУ Б В.2.6-156:2010 та Eurocode 2.",
+      "description": "Калькулятор визначає мінімальну площу робочої арматури за класом бетону, класом арматури та геометрією перерізу. Звіт показує вихідні дані, матеріальні характеристики, перевірку Eurocode 2 і всі формули з нормативними посиланнями.",
+      "mainCategory": "konstruktsiyi",
+      "extraCategories": [],
+      "displayMode": "native",
+      "nativeCalculator": "minimum-reinforcement-area",
+      "accessLabel": "Вбудований розрахунок",
+      "openUrl": "/calculator/minimum-reinforcement-area",
+      "order": 21.45,
+      "seoTitle": "Мінімальна площа армування As,min",
+      "seoDescription": "Онлайн-розрахунок мінімальної площі армування балки або плити за ДСТУ Б В.2.6-156:2010 та Eurocode 2.",
+      "editorialLabel": "Новий",
+      "useCases": ["As,min для балки", "As,min для плити", "Покроковий звіт"],
+      "tags": ["армування", "As,min", "ДСТУ", "Eurocode 2"],
+      "tools": ["IVapps"],
+      "icon": "Ruler"
+    },
+    {
       "slug": "rebar-characteristics",
       "title": "Арматура",
       "shortDescription": "Таблиця характеристик арматури за ДСТУ 3760:2006.",

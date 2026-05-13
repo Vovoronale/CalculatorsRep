@@ -351,4 +351,92 @@ describe("CalculatorShell", () => {
       "true",
     );
   });
+
+  it("renders the native minimum reinforcement calculator with a step report", async () => {
+    const user = userEvent.setup();
+    const calculator = getCalculatorBySlug("minimum-reinforcement-area");
+
+    if (!calculator) {
+      throw new Error("Expected native minimum reinforcement calculator to exist");
+    }
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: "Мінімальна площа армування",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Калькулятор мінімальної площі армування"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Тип конструкції" })).toHaveValue(
+      "beam",
+    );
+    expect(screen.getByRole("combobox", { name: "Клас бетону" })).toHaveValue(
+      "C30/37",
+    );
+    expect(screen.getByRole("combobox", { name: "Клас арматури" })).toHaveValue(
+      "A500C",
+    );
+    expect(
+      screen.getByLabelText(
+        "As,min,2 = 0.0013 * bt * d = 0.0013 * 1000 * 450 = 585 мм² = 5.85 см²",
+      ),
+    ).toBeInTheDocument();
+    expect(document.querySelectorAll(".minimum-reinforcement-formula")).toHaveLength(0);
+    expect(document.querySelectorAll(".minimum-reinforcement-check")).toHaveLength(0);
+    expect(screen.getByLabelText("400 <= 500 <= 600 - умова виконується")).toHaveClass(
+      "minimum-reinforcement-equation",
+    );
+    expect(
+      screen.getByRole("img", { name: "Позначення величин для балки" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: "Позначення величин для плити" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Підібрати діаметр і кількість/ }),
+    ).toHaveAttribute(
+      "href",
+      "/calculator/rebar-area-bars?minimumArea=678.6&unit=mm2&returnTo=%2Fcalculator%2Fminimum-reinforcement-area&returnLabel=%D0%9F%D0%BE%D0%B2%D0%B5%D1%80%D0%BD%D1%83%D1%82%D0%B8%D1%81%D1%8F%20%D0%B4%D0%BE%20As%2Cmin",
+    );
+    expect(
+      screen.getByText(
+        "Рекомендований підбір: 9Ø10 = 706.9 мм² (104.2% від As,min).",
+      ),
+    ).toBeInTheDocument();
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Тип конструкції" }),
+      "slab",
+    );
+
+    expect(screen.getByLabelText("bt = 1000 мм")).toBeInTheDocument();
+  });
+
+  it("prefills the rebar selection calculator from query parameters", async () => {
+    window.history.pushState(
+      {},
+      "",
+      "/calculator/rebar-area-bars?minimumArea=678.6&unit=mm2&returnTo=%2Fcalculator%2Fminimum-reinforcement-area&returnLabel=%D0%9F%D0%BE%D0%B2%D0%B5%D1%80%D0%BD%D1%83%D1%82%D0%B8%D1%81%D1%8F%20%D0%B4%D0%BE%20As%2Cmin",
+    );
+    const calculator = getCalculatorBySlug("rebar-area-bars");
+
+    if (!calculator) {
+      throw new Error("Expected native rebar calculator to exist");
+    }
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(
+      await screen.findByRole("spinbutton", { name: "Мінімальна площа, мм²" }),
+    ).toHaveValue(678.6);
+    expect(screen.getByRole("radio", { name: "мм²" })).toBeChecked();
+    expect(screen.getByRole("link", { name: "Повернутися до As,min" })).toHaveAttribute(
+      "href",
+      "/calculator/minimum-reinforcement-area",
+    );
+  });
 });

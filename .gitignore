@@ -9,6 +9,7 @@ tsconfig.tsbuildinfo
 # Local agent / tooling artifacts
 .claude/
 .playwright-mcp/
+.local/*.log
 
 # Local dev screenshots (visual smoke testing)
 /*.png
