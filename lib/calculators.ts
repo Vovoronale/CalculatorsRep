@@ -2,6 +2,7 @@ import contentData from "@/data/content.json";
 
 export type CategorySlug =
   | "teplotekhnika"
+  | "fem-vuzly"
   | "normokontrol"
   | "konstruktsiyi"
   | "inzhenerni-merezhi"
@@ -14,6 +15,7 @@ export type EditorialLabel = "Новий" | "Популярний";
 
 export type CalculatorCategory = {
   slug: CategorySlug;
+  parentSlug?: CategorySlug;
   title: string;
   note: string;
   icon?: string;
@@ -69,4 +71,8 @@ export function getCalculatorsForCategory(categorySlug: CategorySlug): Calculato
 
 export function getCategoryBySlug(slug: CategorySlug): CalculatorCategory | undefined {
   return calculatorCategories.find((category) => category.slug === slug);
+}
+
+export function getChildCategories(parentSlug: CategorySlug): CalculatorCategory[] {
+  return calculatorCategories.filter((category) => category.parentSlug === parentSlug);
 }

@@ -11,6 +11,7 @@ describe("calculator data model", () => {
   it("builds the category navigation in the expected order", () => {
     expect(calculatorCategories.map((category) => category.slug)).toEqual([
       "teplotekhnika",
+      "fem-vuzly",
       "normokontrol",
       "konstruktsiyi",
       "inzhenerni-merezhi",
@@ -28,12 +29,24 @@ describe("calculator data model", () => {
     expect(slugs).toContain("cadee-dewpoint-temperature");
   });
 
-  it("includes FEM nodes under merged teplotekhnika", () => {
-    const slugs = getCalculatorsForCategory("teplotekhnika").map(
+  it("keeps FEM node calculators in a thermal subcategory", () => {
+    const parent = calculatorCategories.find(
+      (category) => category.slug === "teplotekhnika",
+    );
+    const femCategory = calculatorCategories.find(
+      (category) => category.slug === "fem-vuzly",
+    );
+    const thermalSlugs = getCalculatorsForCategory("teplotekhnika").map(
+      (calculator) => calculator.slug,
+    );
+    const femSlugs = getCalculatorsForCategory("fem-vuzly").map(
       (calculator) => calculator.slug,
     );
 
-    expect(slugs).toContain("cadee-bridge-homogeneous-wall-floor");
+    expect(parent?.parentSlug).toBeUndefined();
+    expect(femCategory?.parentSlug).toBe("teplotekhnika");
+    expect(thermalSlugs).not.toContain("cadee-bridge-homogeneous-wall-floor");
+    expect(femSlugs).toContain("cadee-bridge-homogeneous-wall-floor");
   });
 
   it("places each calculator in exactly one category", () => {
@@ -57,7 +70,9 @@ describe("calculator data model", () => {
   it("resolves a calculator by slug for detail routes", () => {
     const calculator = getCalculatorBySlug("cadee-external");
 
-    expect(calculator?.title).toBe("Огороджувальна конструкція");
+    expect(calculator?.title).toBe(
+      "Теплотехнічний розрахунок огороджувальної конструкції будівлі",
+    );
     expect(calculator?.mainCategory).toBe("teplotekhnika");
     expect(calculator?.accessLabel).toBe("Вбудований розрахунок");
     expect(calculator?.standard).toBe(
@@ -92,7 +107,9 @@ describe("calculator data model", () => {
   it("includes the CadEE air permeability calculator as an embedded thermal calculator", () => {
     const calculator = getCalculatorBySlug("cadee-air-permeability");
 
-    expect(calculator?.title).toBe("Повітропроникність конструкції");
+    expect(calculator?.title).toBe(
+      "Повітропроникність огороджувальної конструкції будівлі",
+    );
     expect(calculator?.mainCategory).toBe("teplotekhnika");
     expect(calculator?.displayMode).toBe("embed");
     expect(calculator?.embedUrl).toBe(

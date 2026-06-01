@@ -8,6 +8,7 @@ import { SearchInput } from "@/components/search-input";
 import { getCategoryIcon } from "@/lib/icons";
 import {
   calculatorCategories,
+  getChildCategories,
   getCalculatorsForCategory,
   type Calculator,
   type CalculatorCategory,
@@ -81,11 +82,14 @@ export function CatalogRail({
           {siteContent.workspace.railLabel}
         </p>
         <div className="rail-tree">
-          {calculatorCategories.map((category) => (
+          {calculatorCategories
+            .filter((category) => !category.parentSlug)
+            .map((category) => (
             <CategoryLink
               key={category.slug}
               category={category}
               isCurrent={currentCategory === category.slug}
+              currentCategory={currentCategory}
               isCollapsed={isCollapsed}
               onSelectCategory={onSelectCategory}
               onCloseMobile={onCloseMobile}
@@ -107,6 +111,7 @@ export function CatalogRail({
 type CategoryLinkProps = {
   category: CalculatorCategory;
   isCurrent: boolean;
+  currentCategory?: CategorySlug;
   isCollapsed: boolean;
   onSelectCategory?: (slug: CategorySlug) => void;
   onCloseMobile?: () => void;
@@ -115,12 +120,14 @@ type CategoryLinkProps = {
 function CategoryLink({
   category,
   isCurrent,
+  currentCategory,
   isCollapsed,
   onSelectCategory,
   onCloseMobile,
 }: CategoryLinkProps) {
   const Icon = getCategoryIcon(category.slug);
   const calcs = getCalculatorsForCategory(category.slug);
+  const childCategories = getChildCategories(category.slug);
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     onSelectCategory?.(category.slug);
     onCloseMobile?.();
@@ -145,6 +152,37 @@ function CategoryLink({
         <span className="rail-tree__title">{category.title}</span>
         <span className="rail-tree__count">{calcs.length}</span>
       </Link>
+      {childCategories.length > 0 ? (
+        <ul className="rail-tree__children">
+          {childCategories.map((child) => {
+            const childCalcs = getCalculatorsForCategory(child.slug);
+            const handleChildClick = (event: MouseEvent<HTMLAnchorElement>) => {
+              onSelectCategory?.(child.slug);
+              onCloseMobile?.();
+              if (onSelectCategory && window.location.pathname === "/") {
+                event.preventDefault();
+                window.history.replaceState(null, "", `/#${child.slug}`);
+              }
+            };
+
+            return (
+              <li key={child.slug}>
+                <Link
+                  href={`/#${child.slug}`}
+                  className={`rail-tree__leaf${
+                    currentCategory === child.slug ? " is-current" : ""
+                  }`}
+                  aria-current={currentCategory === child.slug ? "page" : undefined}
+                  onClick={handleChildClick}
+                >
+                  <span>{child.title}</span>
+                  <span className="rail-tree__leaf-badge">{childCalcs.length}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
     </div>
   );
 }

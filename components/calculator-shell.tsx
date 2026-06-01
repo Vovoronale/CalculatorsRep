@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ChevronDown, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { ConcreteCharacteristicsCalculator } from "@/components/calculators/concrete-characteristics-calculator";
@@ -230,11 +230,45 @@ type CalculatorCategoryTableProps = {
   onOpenModal: (calculator: Calculator) => void;
 };
 
+function CalculatorStandard({ standard }: { standard: string }) {
+  const [primaryStandard, ...secondaryStandards] = standard
+    .split(" / ")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return (
+    <span className="calculator-table__standards">
+      <span className="calculator-table__standard-primary">
+        {primaryStandard}
+      </span>
+      {secondaryStandards.length > 0 ? (
+        <span className="calculator-table__standard-secondary-list">
+          {secondaryStandards.map((item) => (
+            <span className="calculator-table__standard-secondary" key={item}>
+              {item}
+            </span>
+          ))}
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 function CalculatorCategoryTable({
   categoryTitle,
   calculators,
   onOpenModal,
 }: CalculatorCategoryTableProps) {
+  const [expandedDetails, setExpandedDetails] = useState<string[]>([]);
+
+  const toggleDetails = (slug: string) => {
+    setExpandedDetails((current) =>
+      current.includes(slug)
+        ? current.filter((item) => item !== slug)
+        : [...current, slug],
+    );
+  };
+
   return (
     <div className="calculator-table-wrap">
       <table
@@ -244,40 +278,65 @@ function CalculatorCategoryTable({
         <thead>
           <tr>
             <th scope="col">Розрахунок</th>
-            <th scope="col">Що рахується</th>
             <th scope="col">Норматив</th>
           </tr>
         </thead>
         <tbody>
-          {calculators.map((calculator) => (
-            <tr key={calculator.slug}>
-              <th scope="row">
-                {calculator.displayMode === "modal" ? (
-                  <button
-                    type="button"
-                    className="calculator-table__link"
-                    onClick={() => onOpenModal(calculator)}
-                  >
-                    {calculator.title}
-                  </button>
-                ) : (
-                  <Link
-                    href={`/calculator/${calculator.slug}`}
-                    className="calculator-table__link"
-                  >
-                    {calculator.title}
-                  </Link>
-                )}
-                {calculator.editorialLabel ? (
-                  <span className="calculator-table__badge">
-                    {calculator.editorialLabel}
-                  </span>
-                ) : null}
-              </th>
-              <td>{calculator.shortDescription}</td>
-              <td>{calculator.standard}</td>
-            </tr>
-          ))}
+          {calculators.map((calculator) => {
+            const detailsId = `calculator-details-${calculator.slug}`;
+            const isExpanded = expandedDetails.includes(calculator.slug);
+
+            return (
+              <tr key={calculator.slug}>
+                <th scope="row">
+                  <div className="calculator-table__title-row">
+                    <span className="calculator-table__title-main">
+                      {calculator.displayMode === "modal" ? (
+                        <button
+                          type="button"
+                          className="calculator-table__link"
+                          onClick={() => onOpenModal(calculator)}
+                        >
+                          {calculator.title}
+                        </button>
+                      ) : (
+                        <Link
+                          href={`/calculator/${calculator.slug}`}
+                          className="calculator-table__link"
+                        >
+                          {calculator.title}
+                        </Link>
+                      )}
+                      {calculator.editorialLabel ? (
+                        <span className="calculator-table__badge">
+                          {calculator.editorialLabel}
+                        </span>
+                      ) : null}
+                    </span>
+                    <button
+                      type="button"
+                      className="calculator-table__details-toggle"
+                      aria-expanded={isExpanded}
+                      aria-controls={detailsId}
+                      aria-label={`${isExpanded ? "Згорнути" : "Показати"} деталі: ${calculator.title}`}
+                      onClick={() => toggleDetails(calculator.slug)}
+                    >
+                      Деталі
+                      <ChevronDown size={14} aria-hidden />
+                    </button>
+                  </div>
+                  {isExpanded ? (
+                    <p className="calculator-table__details" id={detailsId}>
+                      {calculator.shortDescription}
+                    </p>
+                  ) : null}
+                </th>
+                <td>
+                  <CalculatorStandard standard={calculator.standard} />
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -390,17 +449,21 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
       ) : null}
 
       {related.length > 0 ? (
-        <section className="workspace-section" aria-labelledby="detail-related-title">
+        <section
+          className="workspace-section workspace-section--related"
+          aria-labelledby="detail-related-title"
+        >
           <div className="workspace-section__head">
             <h2 className="workspace-section__title" id="detail-related-title">
               Схожі калькулятори
             </h2>
           </div>
-          <div className="calc-grid">
+          <div className="calc-grid calc-grid--compact">
             {related.map((calc) => (
               <CalculatorCard
                 key={calc.slug}
                 calculator={calc}
+                className="calc-card--compact"
                 onOpenModal={onOpenModal}
               />
             ))}

@@ -28,7 +28,10 @@ describe("AuthorPage", () => {
       within(workspace).getByText(/head of ai r&d/i),
     ).toBeInTheDocument();
     expect(
-      within(workspace).getByText(/відповідаю за напрям ai r&d/i),
+      within(workspace).getByText(/окремий напрям моєї роботи — ai r&d/i),
+    ).toBeInTheDocument();
+    expect(
+      within(workspace).getByText(/виросли з практики проектування будівель у цілому/i),
     ).toBeInTheDocument();
     expect(within(workspace).getByRole("link", { name: "Facebook" })).toHaveAttribute(
       "href",

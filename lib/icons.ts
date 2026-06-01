@@ -49,6 +49,7 @@ export const iconRegistry: Record<string, LucideIcon> = {
 
 const FALLBACK_CATEGORY_ICONS: Record<CategorySlug, LucideIcon> = {
   teplotekhnika: Thermometer,
+  "fem-vuzly": Thermometer,
   normokontrol: ShieldCheck,
   konstruktsiyi: Triangle,
   "inzhenerni-merezhi": Zap,

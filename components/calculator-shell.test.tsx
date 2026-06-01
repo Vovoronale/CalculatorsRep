@@ -22,7 +22,7 @@ describe("CalculatorShell", () => {
     cleanup();
   });
 
-  it("renders category-only navigation and a standards table for the active category", () => {
+  it("renders category-only navigation and a standards table for the active category", async () => {
     render(<CalculatorShell />);
 
     const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
@@ -32,12 +32,17 @@ describe("CalculatorShell", () => {
     expect(workspace).toBeInTheDocument();
     expect(within(rail).getByText("Іванейко Володимир")).toBeInTheDocument();
     expect(within(rail).getByText("Напрями розрахунків")).toBeInTheDocument();
-    expect(within(rail).getByRole("link", { name: "Теплотехніка 20" })).toHaveAttribute(
+    expect(within(rail).getByRole("link", { name: "Теплотехніка 14" })).toHaveAttribute(
       "aria-current",
       "page",
     );
     expect(
-      within(rail).queryByRole("link", { name: "Огороджувальна конструкція" }),
+      within(rail).getByRole("link", { name: "FEM-розрахунки вузлів 6" }),
+    ).toBeInTheDocument();
+    expect(
+      within(rail).queryByRole("link", {
+        name: "Теплотехнічний розрахунок огороджувальної конструкції будівлі",
+      }),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "GitHub" })).not.toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Про автора" })).toHaveLength(2);
@@ -50,22 +55,51 @@ describe("CalculatorShell", () => {
       name: "Розрахунки категорії Теплотехніка",
     });
     expect(within(table).getByRole("columnheader", { name: "Розрахунок" })).toBeInTheDocument();
-    expect(within(table).getByRole("columnheader", { name: "Що рахується" })).toBeInTheDocument();
+    expect(
+      within(table).queryByRole("columnheader", { name: "Що рахується" }),
+    ).not.toBeInTheDocument();
     expect(within(table).getByRole("columnheader", { name: "Норматив" })).toBeInTheDocument();
     expect(
       within(table).queryByRole("columnheader", { name: "Застосування" }),
     ).not.toBeInTheDocument();
     expect(within(table).queryByRole("columnheader", { name: "Доступ" })).not.toBeInTheDocument();
     const externalEnvelopeRow = within(table).getByRole("row", {
-      name: /Огороджувальна конструкція/,
+      name: /Теплотехнічний розрахунок огороджувальної конструкції будівлі/,
     });
-    expect(within(externalEnvelopeRow).getByRole("link", { name: /Огороджувальна конструкція/ })).toHaveAttribute(
-      "href",
-      "/calculator/cadee-external",
-    );
-    expect(externalEnvelopeRow).toHaveTextContent(
-      "ДСТУ 9191:2022 / ДБН В.2.6-31:2021 / ДСТУ-Н Б В.2.6-192:2013",
-    );
+    expect(
+      within(externalEnvelopeRow).getByRole("link", {
+        name: /Теплотехнічний розрахунок огороджувальної конструкції будівлі/,
+      }),
+    ).toHaveAttribute("href", "/calculator/cadee-external");
+    expect(
+      within(externalEnvelopeRow).queryByText(
+        "Комплексний розрахунок стіни/перекриття/покрівлі до зовнішнього середовища.",
+      ),
+    ).not.toBeInTheDocument();
+    const detailsButton = within(externalEnvelopeRow).getByRole("button", {
+      name: /Показати деталі.*Теплотехнічний розрахунок огороджувальної конструкції будівлі/,
+    });
+    expect(detailsButton).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(detailsButton);
+    expect(detailsButton).toHaveAttribute("aria-expanded", "true");
+    expect(
+      within(externalEnvelopeRow).getByText(
+        "Комплексний розрахунок стіни/перекриття/покрівлі до зовнішнього середовища.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(externalEnvelopeRow).getByRole("button", {
+        name: /Згорнути деталі.*Теплотехнічний розрахунок огороджувальної конструкції будівлі/,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      externalEnvelopeRow.querySelector(".calculator-table__standard-primary"),
+    ).toHaveTextContent("ДСТУ 9191:2022");
+    expect(
+      externalEnvelopeRow.querySelectorAll(".calculator-table__standard-secondary"),
+    ).toHaveLength(2);
+    expect(externalEnvelopeRow).toHaveTextContent("ДБН В.2.6-31:2021");
+    expect(externalEnvelopeRow).toHaveTextContent("ДСТУ-Н Б В.2.6-192:2013");
     expect(
       within(workspace).queryByText("Вбудований розрахунок"),
     ).not.toBeInTheDocument();
@@ -91,9 +125,15 @@ describe("CalculatorShell", () => {
     const table = screen.getByRole("table", {
       name: "Розрахунки категорії Конструкції",
     });
-    expect(within(table).getByRole("row", { name: /Мінімальна площа армування/ })).toHaveTextContent(
-      "ДСТУ Б В.2.6-156:2010 / Eurocode 2",
-    );
+    const minimumReinforcementRow = within(table).getByRole("row", {
+      name: /Мінімальна площа армування залізобетонної балки або плити/,
+    });
+    expect(
+      minimumReinforcementRow.querySelector(".calculator-table__standard-primary"),
+    ).toHaveTextContent("ДСТУ Б В.2.6-156:2010");
+    expect(
+      minimumReinforcementRow.querySelector(".calculator-table__standard-secondary"),
+    ).toHaveTextContent("Eurocode 2");
     expect(within(table).queryByRole("row", { name: /Опір теплопередачі/ })).not.toBeInTheDocument();
   });
 
@@ -132,16 +172,23 @@ describe("CalculatorShell", () => {
     const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
 
     expect(
-      within(rail).getByRole("link", { name: "Теплотехніка 20" }),
+      within(rail).getByRole("link", { name: "Теплотехніка 14" }),
     ).toHaveAttribute("aria-current", "page");
     expect(
-      within(rail).queryByRole("link", { name: "Огороджувальна конструкція" }),
+      within(rail).queryByRole("link", {
+        name: "Теплотехнічний розрахунок огороджувальної конструкції будівлі",
+      }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "Огороджувальна конструкція" }),
+      screen.getByRole("heading", {
+        level: 2,
+        name: "Теплотехнічний розрахунок огороджувальної конструкції будівлі",
+      }),
     ).toBeInTheDocument();
     expect(screen.getAllByText("Вбудований розрахунок").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByTitle("Огороджувальна конструкція")).toBeInTheDocument();
+    expect(
+      screen.getByTitle("Теплотехнічний розрахунок огороджувальної конструкції будівлі"),
+    ).toBeInTheDocument();
     expect(
       screen.getAllByRole("link", { name: /Відкрити окремо/ })[0],
     ).toHaveAttribute("href", calculator.openUrl);
@@ -159,13 +206,15 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: "Сортамент арматури",
+        name: "Сортамент арматури. Підбір діаметра та кількості арматурних стрижнів за площею",
       }),
     ).toBeInTheDocument();
     expect(screen.queryByText(/Локальний/)).not.toBeInTheDocument();
     expect(screen.queryByTitle(calculator.title)).not.toBeInTheDocument();
     const calculatorRegion = screen.getByLabelText("Калькулятор підбору арматури");
-    const useCases = screen.getByLabelText("Сценарії: Сортамент арматури");
+    const useCases = screen.getByLabelText(
+      "Сценарії: Сортамент арматури. Підбір діаметра та кількості арматурних стрижнів за площею",
+    );
     expect(
       calculatorRegion.compareDocumentPosition(useCases) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
@@ -316,9 +365,14 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: "Арматура",
+        name: "Характеристики арматури для розрахунку залізобетонних конструкцій",
       }),
     ).toBeInTheDocument();
+    const relatedHeading = screen.getByRole("heading", { name: "Схожі калькулятори" });
+    const relatedSection = relatedHeading.closest("section");
+    expect(relatedSection).toHaveClass("workspace-section--related");
+    expect(relatedSection?.querySelector(".calc-grid")).toHaveClass("calc-grid--compact");
+    expect(relatedSection?.querySelector(".calc-card")).toHaveClass("calc-card--compact");
     expect(screen.queryByTitle(calculator.title)).not.toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Клас арматури" })).toHaveValue(
       "A500C",
@@ -367,7 +421,7 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: "Бетон",
+        name: "Характеристики бетону для розрахунку залізобетонних конструкцій",
       }),
     ).toBeInTheDocument();
     expect(screen.queryByTitle(calculator.title)).not.toBeInTheDocument();
@@ -420,7 +474,7 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: "Мінімальна площа армування",
+        name: "Мінімальна площа армування залізобетонної балки або плити",
       }),
     ).toBeInTheDocument();
     expect(
@@ -491,7 +545,7 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: "Анкерування стрижня фундаменту",
+        name: "Анкерування арматурного стрижня у залізобетонному фундаменті",
       }),
     ).toBeInTheDocument();
     expect(

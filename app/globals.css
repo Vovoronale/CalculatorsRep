@@ -806,6 +806,13 @@ textarea {
   gap: 20px;
 }
 
+.workspace-section--related {
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
 .workspace-section__head {
   display: flex;
   align-items: baseline;
@@ -828,6 +835,20 @@ textarea {
   color: var(--text-muted);
 }
 
+.workspace-section--related .workspace-section__head {
+  align-items: flex-start;
+}
+
+.workspace-section--related .workspace-section__title {
+  color: var(--text-muted);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
 /* =====================================================
    Cards (calculator + category)
    ===================================================== */
@@ -836,6 +857,10 @@ textarea {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+}
+
+.calc-grid--compact {
+  gap: 10px;
 }
 
 .category-grid {
@@ -865,6 +890,60 @@ textarea {
   border-color: var(--border-strong);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+}
+
+.calc-card--compact {
+  gap: 8px;
+  padding: 12px;
+  border-color: color-mix(in srgb, var(--border) 78%, transparent);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+
+.calc-card--compact:hover {
+  background: var(--surface);
+  border-color: var(--border);
+  transform: none;
+  box-shadow: none;
+}
+
+.calc-card--compact .calc-card__head {
+  gap: 6px;
+}
+
+.calc-card--compact .calc-card__icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+}
+
+.calc-card--compact .calc-card__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.calc-card--compact .calc-card__title {
+  color: color-mix(in srgb, var(--text) 86%, var(--text-muted));
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.calc-card--compact .calc-card__desc,
+.calc-card--compact .calc-card__cases,
+.calc-card--compact .calc-card__tags {
+  font-size: 12px;
+}
+
+.calc-card--compact .calc-card__cases {
+  gap: 2px;
+}
+
+.calc-card--compact .calc-card__tags {
+  gap: 4px;
+}
+
+.calc-card--compact .calc-card__meta {
+  padding-top: 8px;
+  font-size: 10px;
 }
 
 .calc-card__head {
@@ -1088,7 +1167,7 @@ textarea {
 }
 
 .calculator-table tbody th {
-  width: 24%;
+  width: 68%;
   font-weight: 600;
 }
 
@@ -1115,6 +1194,81 @@ textarea {
   color: var(--accent);
 }
 
+.calculator-table__title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.calculator-table__title-main {
+  min-width: 0;
+}
+
+.calculator-table__details-toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  margin-top: -2px;
+  padding: 4px 7px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface) 94%, #fff);
+  color: var(--text-subtle);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-1px);
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.calculator-table tbody tr:hover .calculator-table__details-toggle,
+.calculator-table tbody tr:focus-within .calculator-table__details-toggle {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.calculator-table__details-toggle:hover,
+.calculator-table__details-toggle:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+
+.calculator-table__details-toggle svg {
+  transition: transform 160ms ease;
+}
+
+.calculator-table__details-toggle[aria-expanded="true"] {
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  color: var(--accent);
+}
+
+.calculator-table__details-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.calculator-table__details {
+  margin: 10px 0 0;
+  padding: 9px 0 0;
+  border-top: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
 .calculator-table__badge {
   display: inline-flex;
   margin-left: 8px;
@@ -1128,6 +1282,29 @@ textarea {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   vertical-align: middle;
+}
+
+.calculator-table__standards {
+  display: grid;
+  gap: 4px;
+}
+
+.calculator-table__standard-primary {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.calculator-table__standard-secondary-list {
+  display: grid;
+  gap: 2px;
+}
+
+.calculator-table__standard-secondary {
+  color: var(--text-subtle);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 /* =====================================================
@@ -3134,6 +3311,15 @@ textarea {
     width: auto;
   }
 
+  .calculator-table__title-row {
+    gap: 10px;
+  }
+
+  .calculator-table__details-toggle {
+    opacity: 1;
+    transform: none;
+  }
+
   .calculator-table td::before {
     display: block;
     margin-bottom: 2px;
@@ -3146,14 +3332,6 @@ textarea {
   }
 
   .calculator-table td:nth-child(2)::before {
-    content: "Що рахується";
-  }
-
-  .calculator-table td:nth-child(3)::before {
-    content: "Застосування";
-  }
-
-  .calculator-table td:nth-child(4)::before {
     content: "Норматив";
   }
 

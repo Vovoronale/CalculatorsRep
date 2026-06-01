@@ -9,6 +9,7 @@ import { calculatorCategories, type Calculator } from "@/lib/calculators";
 
 type CalculatorCardProps = {
   calculator: Calculator;
+  className?: string;
   showCategoryBadge?: boolean;
   onOpenModal?: (calculator: Calculator) => void;
 };
@@ -29,6 +30,7 @@ function pickModeLabel(displayMode: Calculator["displayMode"]): string {
 
 export function CalculatorCard({
   calculator,
+  className,
   showCategoryBadge = false,
   onOpenModal,
 }: CalculatorCardProps) {
@@ -101,7 +103,7 @@ export function CalculatorCard({
     return (
       <button
         type="button"
-        className="calc-card calc-card--modal"
+        className={["calc-card calc-card--modal", className].filter(Boolean).join(" ")}
         onClick={handleModalClick}
         aria-label={calculator.title}
       >
@@ -113,7 +115,7 @@ export function CalculatorCard({
   return (
     <Link
       href={`/calculator/${calculator.slug}`}
-      className="calc-card"
+      className={["calc-card", className].filter(Boolean).join(" ")}
       aria-label={calculator.title}
     >
       {cardBody}
