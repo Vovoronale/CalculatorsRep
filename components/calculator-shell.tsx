@@ -207,7 +207,10 @@ function HomeView({ activeCategory, onOpenModal }: HomeViewProps) {
         />
       </section>
 
-      <section className="workspace-section" aria-labelledby="home-author-title">
+      <section
+        className="workspace-section workspace-section--author-cta"
+        aria-labelledby="home-author-title"
+      >
         <div className="workspace-section__head">
           <h2 className="workspace-section__title" id="home-author-title">
             {siteContent.workspace.authorCtaTitle}
