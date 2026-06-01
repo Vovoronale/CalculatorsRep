@@ -4,15 +4,15 @@
 
 :root,
 [data-theme="light"] {
-  --bg: #fffdfb;
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-2: #fff3ec;
-  --surface-3: #ffe5d7;
-  --border: #eadfd9;
-  --border-strong: #d8c6bd;
+  --surface-2: #f2f2f2;
+  --surface-3: #e8e8e8;
+  --border: #e2e2e2;
+  --border-strong: #adadad;
   --text: #111111;
-  --text-muted: #5f5a56;
-  --text-subtle: #8a837d;
+  --text-muted: #5e5e5e;
+  --text-subtle: #888888;
   --accent: #e95f2a;
   --accent-strong: #c94a18;
   --accent-soft: #fff0e8;
@@ -28,15 +28,15 @@
 }
 
 [data-theme="dark"] {
-  --bg: #181614;
-  --surface: #11100f;
-  --surface-2: #2a2420;
-  --surface-3: #3a302a;
-  --border: #342d29;
-  --border-strong: #4a3c35;
-  --text: #f4f0ec;
-  --text-muted: #aaa19a;
-  --text-subtle: #837871;
+  --bg: #181818;
+  --surface: #111111;
+  --surface-2: #252525;
+  --surface-3: #333333;
+  --border: #303030;
+  --border-strong: #4a4a4a;
+  --text: #f2f2f2;
+  --text-muted: #aaaaaa;
+  --text-subtle: #7f7f7f;
   --accent: #ff8750;
   --accent-strong: #ffa16f;
   --accent-soft: rgba(255, 135, 80, 0.14);
@@ -170,6 +170,7 @@ textarea {
   max-width: 1040px;
   margin: 0 auto;
   padding: 32px;
+  background: var(--surface);
   display: flex;
   flex-direction: column;
   gap: 64px;
@@ -1178,6 +1179,7 @@ textarea {
 
 .calculator-table thead th {
   background: var(--surface-2);
+  border-color: var(--border-strong);
   font-family: var(--font-mono), monospace;
   font-size: 11px;
   font-weight: 600;
