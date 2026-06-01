@@ -2778,6 +2778,30 @@ textarea {
   color: var(--accent);
 }
 
+.author-socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.author-social-link {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0 14px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.author-social-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* =====================================================
    Footer
    ===================================================== */

@@ -72,21 +72,18 @@ type Footer = {
   authorCta: string;
 };
 
+type AuthorSocialLink = {
+  label: string;
+  href: string;
+};
+
 type AuthorPage = {
   eyebrow: string;
   title: string;
   intro: string[];
-  directionsLabel: string;
-  directionsTitle: string;
-  directions: string[];
-  projectsLabel: string;
-  projectsTitle: string;
-  assistantsLabel: string;
-  assistantsTitle: string;
-  assistantsDescription: string;
-  closingLabel: string;
-  closingTitle: string;
-  closingDescription: string;
+  socialLinksLabel: string;
+  socialLinksTitle: string;
+  socialLinks: AuthorSocialLink[];
 };
 
 export type SiteContent = {

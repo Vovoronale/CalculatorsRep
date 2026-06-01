@@ -245,7 +245,6 @@ function CalculatorCategoryTable({
           <tr>
             <th scope="col">Розрахунок</th>
             <th scope="col">Що рахується</th>
-            <th scope="col">Застосування</th>
             <th scope="col">Норматив</th>
           </tr>
         </thead>
@@ -276,7 +275,6 @@ function CalculatorCategoryTable({
                 ) : null}
               </th>
               <td>{calculator.shortDescription}</td>
-              <td>{calculator.useCases.slice(0, 3).join(", ")}</td>
               <td>{calculator.standard}</td>
             </tr>
           ))}

@@ -60,9 +60,26 @@ describe("calculator data model", () => {
     expect(calculator?.title).toBe("Огороджувальна конструкція");
     expect(calculator?.mainCategory).toBe("teplotekhnika");
     expect(calculator?.accessLabel).toBe("Вбудований розрахунок");
-    expect(calculator?.standard).toBe("ДБН В.2.6-31:2021");
+    expect(calculator?.standard).toBe(
+      "ДСТУ 9191:2022 / ДБН В.2.6-31:2021 / ДСТУ-Н Б В.2.6-192:2013",
+    );
     expect(calculator?.embedUrl).toBe(
       "https://cadee.pro/?thermalcalc=external",
+    );
+  });
+
+  it("uses calculation-specific standard labels for thermal calculators", () => {
+    expect(getCalculatorBySlug("cadee-floor-heat-absorption")?.standard).toBe(
+      "ДСТУ-Н Б В.2.6-190:2013 / ДСТУ Б В.2.7-276",
+    );
+    expect(getCalculatorBySlug("cadee-heat-inertia")?.standard).toBe(
+      "ДСТУ-Н Б В.2.6-190:2013 / ДСТУ 9191:2022",
+    );
+    expect(getCalculatorBySlug("cadee-heat-humid-state")?.standard).toBe(
+      "ДСТУ-Н Б В.2.6-192:2013 / ДСТУ 9191:2022",
+    );
+    expect(getCalculatorBySlug("cadee-air-permeability")?.standard).toBe(
+      "ДСТУ-Н Б В.2.6-191:2013 / ДБН В.2.6-31:2021",
     );
   });
 

@@ -23,20 +23,34 @@ describe("AuthorPage", () => {
     expect(
       within(workspace).getByRole("heading", { level: 1, name: "Іванейко Володимир" }),
     ).toBeInTheDocument();
+    expect(within(workspace).getAllByText(/співзасновник logistruct/i).length).toBeGreaterThan(0);
     expect(
-      within(workspace).getByText(/засновник цифрових інженерних продуктів/i),
+      within(workspace).getByText(/head of ai r&d/i),
     ).toBeInTheDocument();
     expect(
-      within(workspace).getByRole("heading", { name: "Інженерні розрахунки" }),
+      within(workspace).getByText(/відповідаю за напрям ai r&d/i),
     ).toBeInTheDocument();
-    expect(within(workspace).getByRole("heading", { name: "ШІ-асистенти" })).toBeInTheDocument();
-    expect(within(workspace).getByRole("link", { name: "ДБН В.2.2-5:2023" })).toHaveAttribute(
+    expect(within(workspace).getByRole("link", { name: "Facebook" })).toHaveAttribute(
       "href",
-      "https://chatgpt.com/g/g-679fe1d48b6c8191a2b9b2dc0e38e431-dbn-v-2-2-5-2023",
+      "https://www.facebook.com/iv.mybox",
     );
-    expect(within(workspace).getByRole("link", { name: "ДБН В.2.5-67:2013" })).toHaveAttribute(
+    expect(within(workspace).getByRole("link", { name: "Instagram" })).toHaveAttribute(
       "href",
-      "https://chatgpt.com/g/g-67bb9c7d29e481919219dfe99e246a96-dbn-v-2-5-67-2013",
+      "https://www.instagram.com/ivolodumur/",
     );
+    expect(within(workspace).getByRole("link", { name: "Threads" })).toHaveAttribute(
+      "href",
+      "https://www.threads.com/@ivolodumur",
+    );
+    expect(within(workspace).getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
+      "href",
+      "https://www.linkedin.com/in/володимир-іванейко-607650254",
+    );
+    expect(
+      within(workspace).queryByRole("heading", { name: "Екосистема продуктів" }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(workspace).queryByRole("heading", { name: "ШІ-асистенти" }),
+    ).not.toBeInTheDocument();
   });
 });

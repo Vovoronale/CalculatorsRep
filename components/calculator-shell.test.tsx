@@ -51,8 +51,10 @@ describe("CalculatorShell", () => {
     });
     expect(within(table).getByRole("columnheader", { name: "Розрахунок" })).toBeInTheDocument();
     expect(within(table).getByRole("columnheader", { name: "Що рахується" })).toBeInTheDocument();
-    expect(within(table).getByRole("columnheader", { name: "Застосування" })).toBeInTheDocument();
     expect(within(table).getByRole("columnheader", { name: "Норматив" })).toBeInTheDocument();
+    expect(
+      within(table).queryByRole("columnheader", { name: "Застосування" }),
+    ).not.toBeInTheDocument();
     expect(within(table).queryByRole("columnheader", { name: "Доступ" })).not.toBeInTheDocument();
     const externalEnvelopeRow = within(table).getByRole("row", {
       name: /Огороджувальна конструкція/,
@@ -61,7 +63,9 @@ describe("CalculatorShell", () => {
       "href",
       "/calculator/cadee-external",
     );
-    expect(externalEnvelopeRow).toHaveTextContent("ДБН В.2.6-31:2021");
+    expect(externalEnvelopeRow).toHaveTextContent(
+      "ДСТУ 9191:2022 / ДБН В.2.6-31:2021 / ДСТУ-Н Б В.2.6-192:2013",
+    );
     expect(
       within(workspace).queryByText("Вбудований розрахунок"),
     ).not.toBeInTheDocument();

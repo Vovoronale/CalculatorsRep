@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CatalogRail } from "@/components/catalog-rail";
@@ -9,7 +7,6 @@ import { DrawerBackdrop } from "@/components/drawer-backdrop";
 import { MobileTopBar } from "@/components/mobile-top-bar";
 import { SiteFooter } from "@/components/site-footer";
 import { WorkspaceTopBar } from "@/components/workspace-top-bar";
-import { aiAssistants, projectCategories } from "@/lib/projects";
 import { siteContent } from "@/lib/site-content";
 
 function getInitials(fullName: string): string {
@@ -89,95 +86,24 @@ export function AuthorView() {
             </div>
           </section>
 
-          <section className="author-section" aria-labelledby="directions-heading">
+          <section className="author-section" aria-labelledby="author-socials-heading">
             <p className="author-section__label">
-              {siteContent.authorPage.directionsLabel}
+              {siteContent.authorPage.socialLinksLabel}
             </p>
-            <h2 id="directions-heading">{siteContent.authorPage.directionsTitle}</h2>
-            <ul className="author-directions">
-              {siteContent.authorPage.directions.map((direction) => (
-                <li key={direction}>{direction}</li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="author-section" aria-labelledby="author-projects-heading">
-            <p className="author-section__label">{siteContent.authorPage.projectsLabel}</p>
-            <h2 id="author-projects-heading">{siteContent.authorPage.projectsTitle}</h2>
-            <div className="author-projects">
-              {projectCategories.map((category) => (
-                <section
-                  key={category.slug}
-                  className="author-project-group"
-                  aria-labelledby={`author-project-category-${category.slug}`}
-                >
-                  <div className="author-project-group__head">
-                    <h3 id={`author-project-category-${category.slug}`}>
-                      {category.title}
-                    </h3>
-                    <p>{category.description}</p>
-                  </div>
-                  <div className="author-project-group__list">
-                    {category.projects.map((project) => (
-                      <Link
-                        key={project.slug}
-                        className="author-project-link"
-                        href={project.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={project.title}
-                      >
-                        <div className="author-project-link__body">
-                          <h4>{project.title}</h4>
-                          <p>{project.description}</p>
-                        </div>
-                        <span className="author-project-link__cta">
-                          <ExternalLink size={12} aria-hidden /> Відкрити
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
-          </section>
-
-          <section className="author-section" aria-labelledby="assistants-heading">
-            <p className="author-section__label">
-              {siteContent.authorPage.assistantsLabel}
-            </p>
-            <h2 id="assistants-heading">{siteContent.authorPage.assistantsTitle}</h2>
-            <p className="author-section__lead">
-              {siteContent.authorPage.assistantsDescription}
-            </p>
-            <div className="author-assistants">
-              {aiAssistants.map((assistant) => (
-                <Link
-                  key={assistant.slug}
-                  className="author-assistant-link"
-                  href={assistant.href}
+            <h2 id="author-socials-heading">{siteContent.authorPage.socialLinksTitle}</h2>
+            <div className="author-socials">
+              {siteContent.authorPage.socialLinks.map((link) => (
+                <a
+                  key={link.href}
+                  className="author-social-link"
+                  href={link.href}
                   target="_blank"
                   rel="noreferrer"
-                  aria-label={assistant.title}
                 >
-                  <h3>{assistant.title}</h3>
-                  <p>{assistant.description}</p>
-                  <span className="author-assistant-link__cta">
-                    <ExternalLink size={12} aria-hidden /> Відкрити асистента
-                  </span>
-                </Link>
+                  {link.label}
+                </a>
               ))}
             </div>
-          </section>
-
-          <section className="author-section" aria-labelledby="closing-heading">
-            <p className="author-section__label">
-              {siteContent.authorPage.closingLabel}
-            </p>
-            <h2 id="closing-heading">{siteContent.authorPage.closingTitle}</h2>
-            <p className="author-section__lead">
-              {siteContent.authorPage.closingDescription}
-            </p>
           </section>
         </div>
 

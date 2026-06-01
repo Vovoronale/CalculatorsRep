@@ -116,27 +116,32 @@
     },
     "authorPage": {
       "eyebrow": "Автор платформи",
-      "title": "CTO / Head of AI R&D, засновник цифрових інженерних продуктів для будівництва",
+      "title": "Співзасновник LogiStruct / Head of AI R&D / інженер-конструктор і автор цифрових інженерних продуктів",
       "intro": [
-        "Працюю на стику інженерного проектування, цифрових продуктів і прикладного AI для будівельної галузі.",
-        "Платформа інженерних розрахунків є частиною ширшої продуктової екосистеми: від нормативних сервісів і BIM-інструментів до спеціалізованих AI-рішень для технічних команд."
+        "Володимир Іванейко — співзасновник LogiStruct, інженер-конструктор із понад 15-річним досвідом проектування будівельних конструкцій, сертифікований енергоаудитор і автор цифрових інженерних продуктів.",
+        "Відповідаю за напрям AI R&D: перетворюю інженерну експертизу, нормативні вимоги й робочі сценарії проектних команд на прикладні AI-інструменти, розрахункові сервіси та автоматизацію для будівельної галузі.",
+        "Платформа інженерних розрахунків і CadEE.pro виросли з практичної роботи з енергоефективністю та теплотехнічними розрахунками огороджувальних конструкцій за українськими нормами. Мета цих продуктів — знімати рутину з інженерів і допомагати швидше приходити до якісних технічних рішень."
       ],
-      "directionsLabel": "Фокус роботи",
-      "directionsTitle": "Практика, з якої виростають розрахункові сервіси.",
-      "directions": [
-        "Інженерні цифрові продукти для проектних і технічних команд",
-        "AI та R&D для будівельних і проектних компаній",
-        "Нормативні та документні сервіси для підготовки рішень",
-        "BIM-інструменти і прикладна автоматизація в Revit"
-      ],
-      "projectsLabel": "Екосистема продуктів",
-      "projectsTitle": "Суміжні сервіси, що доповнюють платформу інженерних розрахунків.",
-      "assistantsLabel": "Нормативний AI-шар",
-      "assistantsTitle": "ШІ-асистенти",
-      "assistantsDescription": "Профільні AI-інструменти для швидкої навігації в будівельних нормах. DBN Assistant і спеціалізовані GPT-асистенти працюють як окремий нормативний шар для аналізу документів, вимог і технічних сценаріїв.",
-      "closingLabel": "Контекст платформи",
-      "closingTitle": "Платформа спирається на реальну проектну і продуктову практику.",
-      "closingDescription": "Калькулятори, нормативні сервіси, BIM-інструменти й AI-напрями будуються як робочі системи для щоденної інженерної роботи, а не як ізольовані демонстраційні продукти."
+      "socialLinksLabel": "Соціальні мережі",
+      "socialLinksTitle": "Профілі",
+      "socialLinks": [
+        {
+          "label": "Facebook",
+          "href": "https://www.facebook.com/iv.mybox"
+        },
+        {
+          "label": "Instagram",
+          "href": "https://www.instagram.com/ivolodumur/"
+        },
+        {
+          "label": "Threads",
+          "href": "https://www.threads.com/@ivolodumur"
+        },
+        {
+          "label": "LinkedIn",
+          "href": "https://www.linkedin.com/in/володимир-іванейко-607650254"
+        }
+      ]
     }
   },
   "categories": [
@@ -207,7 +212,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021 / ДСТУ-Н Б В.2.6-192:2013"
     },
     {
       "slug": "cadee-heated-basement",
@@ -236,7 +241,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-floor-techroom",
@@ -265,7 +270,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021 / ДСТУ 9190:2022"
     },
     {
       "slug": "cadee-floor-ground",
@@ -294,7 +299,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021 / ДСТУ 9190:2022"
     },
     {
       "slug": "cadee-floor-cold-basement",
@@ -323,7 +328,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021 / ДСТУ 9190:2022"
     },
     {
       "slug": "cadee-floor-heat-absorption",
@@ -353,7 +358,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ-Н Б В.2.6-190:2013 / ДСТУ Б В.2.7-276"
     },
     {
       "slug": "cadee-heat-transfer-resistance",
@@ -383,7 +388,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-heat-humid-state",
@@ -412,7 +417,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ-Н Б В.2.6-192:2013 / ДСТУ 9191:2022"
     },
     {
       "slug": "cadee-vapor-permeability-resistance",
@@ -441,7 +446,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ-Н Б В.2.6-192:2013 / ДСТУ 9191:2022"
     },
     {
       "slug": "cadee-heat-inertia",
@@ -470,7 +475,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ-Н Б В.2.6-190:2013 / ДСТУ 9191:2022"
     },
     {
       "slug": "cadee-summer-thermo-resistance",
@@ -499,7 +504,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ-Н Б В.2.6-190:2013 / ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-dewpoint-temperature",
@@ -529,7 +534,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ-Н Б В.2.6-192:2013 / ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-delta-surface-temperature",
@@ -558,7 +563,7 @@
         "CadEE.pro"
       ],
       "icon": "Thermometer",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДБН В.2.6-31:2021 / ДСТУ 9191:2022"
     },
     {
       "slug": "cadee-air-permeability",
@@ -589,7 +594,7 @@
         "CadEE.pro"
       ],
       "icon": "Wind",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ-Н Б В.2.6-191:2013 / ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-homogeneous-wall-floor",
@@ -620,7 +625,7 @@
         "CadEE.pro"
       ],
       "icon": "Grid3x3",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-homogeneous-wall-floor-balcony",
@@ -650,7 +655,7 @@
         "CadEE.pro"
       ],
       "icon": "Grid3x3",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-floor-inclusions",
@@ -679,7 +684,7 @@
         "CadEE.pro"
       ],
       "icon": "Grid3x3",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-wall-inclusions",
@@ -709,7 +714,7 @@
         "CadEE.pro"
       ],
       "icon": "Grid3x3",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-homogeneous-wall-corner",
@@ -739,7 +744,7 @@
         "CadEE.pro"
       ],
       "icon": "Grid3x3",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-two-wall-corner",
@@ -769,7 +774,7 @@
         "CadEE.pro"
       ],
       "icon": "Grid3x3",
-      "standard": "ДБН В.2.6-31:2021"
+      "standard": "ДСТУ 9191:2022 / ДБН В.2.6-31:2021"
     },
     {
       "slug": "normcontrol",
