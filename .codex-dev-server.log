@@ -1,0 +1,13 @@
+
+> construction-calculators-hub@0.1.0 dev
+> next dev -p 3003
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3003
+   - Network:      http://192.168.1.19:3003
+
+ ✓ Starting...
+ ✓ Ready in 2.4s
+ ○ Compiling / ...
+ ✓ Compiled / in 14.5s (795 modules)
+ GET / 200 in 9089ms
