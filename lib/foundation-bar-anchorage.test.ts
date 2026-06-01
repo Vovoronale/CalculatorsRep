@@ -12,7 +12,6 @@ const representativeBeamInput = {
   footingLengthMm: 3000,
   footingWidthMm: 2000,
   footingHeightMm: 600,
-  effectiveDepthMm: 550,
   pedestalWidthMm: 400,
   availableAnchorageLengthMm: 700,
   axialLoadKn: 1000,
@@ -21,8 +20,6 @@ const representativeBeamInput = {
   shearHeightM: 0.5,
   barDiameterMm: 16,
   barCount: 4,
-  hBondMm: 500,
-  aBottomMm: 200,
   barAngle: "horizontal" as const,
   slipForm: false,
   anchorageShape: "straight" as const,
@@ -51,16 +48,19 @@ describe("foundation bar anchorage calculator", () => {
       soilPressureAtXKPa: expect.closeTo(200, 2),
       soilResultantKn: expect.closeTo(122.5, 2),
       externalLeverArmMm: 60,
-      internalLeverArmMm: 495,
-      tensileForceKn: expect.closeTo(14.85, 2),
+      bondHeightMm: 600,
+      bottomBarAxisMm: 58,
+      effectiveDepthMm: 542,
+      internalLeverArmMm: 487.8,
+      tensileForceKn: expect.closeTo(15.07, 2),
       singleBarAreaMm2: expect.closeTo(201.06, 2),
       providedAreaMm2: expect.closeTo(804.25, 2),
-      steelStressMPa: expect.closeTo(18.46, 2),
+      steelStressMPa: expect.closeTo(18.74, 2),
       fctdMPa: expect.closeTo(1.33, 2),
       eta1: 1,
       eta2: 1,
       fbdMPa: 3,
-      basicRequiredAnchorageLengthMm: expect.closeTo(24.62, 2),
+      basicRequiredAnchorageLengthMm: expect.closeTo(24.98, 2),
       cdMm: 50,
       alpha1: 1,
       alpha2: 0.7,
@@ -68,7 +68,7 @@ describe("foundation bar anchorage calculator", () => {
       alpha4: 1,
       alpha5: 1,
       alpha235: 0.7,
-      designAnchorageLengthMm: expect.closeTo(17.23, 2),
+      designAnchorageLengthMm: expect.closeTo(17.49, 2),
       minimumAnchorageLengthMm: 160,
       requiredAnchorageLengthMm: 160,
       anchorageSufficient: true,
@@ -112,19 +112,31 @@ describe("foundation bar anchorage calculator", () => {
       "final-check",
     ]);
     expect(report.steps.find((step) => step.key === "tensile-force")?.formula).toBe(
-      "Fs = R * ze / zi = 122.5 * 60 / 495 = 14.85 кН",
+      "Fs = R * ze / zi = 122.5 * 60 / 487.8 = 15.07 кН",
+    );
+    expect(report.steps.find((step) => step.key === "internal-lever-arm")?.formula).toBe(
+      "aBottom = c + Ø / 2 = 50 + 16 / 2 = 58 мм; d = h - aBottom = 600 - 58 = 542 мм; zi = 0.9 * d = 0.9 * 542 = 487.8 мм",
     );
     expect(report.steps.find((step) => step.key === "alpha2")?.formula).toBe(
-      "alpha2 = min(max(1.0 - 0.15 * (cd - Ø) / Ø; 0.7); 1.0) = min(max(1.0 - 0.15 * (50 - 16) / 16; 0.7); 1.0) = 0.7",
+      "alpha2 = min(max(1.0 - 0.15 * (cd - Ø) / Ø; 0.7); 1.0) = min(max(1.0 - 0.15 * (50 - 16) / 16; 0.7); 1.0) = min(max(0.68; 0.7); 1.0) = min(0.7; 1.0) = 0.7",
+    );
+    expect(report.steps.find((step) => step.key === "cd")?.formula).toBe(
+      "cd = min(a / 2; c1; c) = min(150 / 2; 60; 50) = min(75; 60; 50) = 50 мм",
+    );
+    expect(report.steps.find((step) => step.key === "alpha3")?.formula).toBe(
+      "alpha3 = min(max(1.0 - K * lambda; 0.7); 1.0) = min(max(1.0 - 0.05 * 0.123; 0.7); 1.0) = min(max(0.99; 0.7); 1.0) = min(0.99; 1.0) = 0.99",
+    );
+    expect(report.steps.find((step) => step.key === "alpha5")?.formula).toBe(
+      "alpha5 = min(max(1.0 - 0.04 * p; 0.7); 1.0) = min(max(1.0 - 0.04 * 0; 0.7); 1.0) = min(max(1; 0.7); 1.0) = min(1; 1.0) = 1",
     );
     expect(report.steps.find((step) => step.key === "lbd")?.formula).toBe(
-      "lbd = alpha1 * alpha4 * alpha235 * lb,rqd = 1 * 1 * 0.7 * 24.62 = 17.23 мм",
+      "lbd = alpha1 * alpha4 * alpha235 * lb,rqd = 1 * 1 * 0.7 * 24.98 = 17.49 мм",
     );
     expect(report.steps.find((step) => step.key === "alpha235")?.formula).toBe(
       "alpha235 = max(alpha2 * alpha3 * alpha5; 0.7) = max(0.7 * 0.99 * 1; 0.7) = max(0.7; 0.7) = 0.7",
     );
     expect(report.steps.find((step) => step.key === "lb-min")?.formula).toBe(
-      "lb,min = max(0.3 * lb,rqd; 10 * Ø; 100) = max(0.3 * 24.62; 10 * 16; 100) = max(7.39; 160; 100) = 160 мм",
+      "lb,min = max(0.3 * lb,rqd; 10 * Ø; 100) = max(0.3 * 24.98; 10 * 16; 100) = max(7.49; 160; 100) = 160 мм",
     );
     expect(report.steps.find((step) => step.key === "final-check")?.formula).toBe(
       "lb >= lb,req => 700 >= 160 - умова виконується",

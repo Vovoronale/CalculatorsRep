@@ -11,26 +11,77 @@
     },
     "navigation": {
       "utilityLinks": [
-        { "label": "CadEE.pro", "href": "https://cadee.pro", "external": true },
-        { "label": "Про автора", "href": "/author", "external": false }
+        {
+          "label": "CadEE.pro",
+          "href": "https://cadee.pro",
+          "external": true
+        },
+        {
+          "label": "Про автора",
+          "href": "/author",
+          "external": false
+        }
       ]
     },
     "topbar": {
       "productsLabel": "Усі продукти",
       "products": [
-        { "label": "Калькулятори", "href": "/", "external": false, "active": true },
-        { "label": "CadEE.pro", "href": "https://cadee.pro", "external": true, "tagline": "Теплотехнічні розрахунки" },
-        { "label": "ArmCon", "href": "https://dbnassistant.com/products/armcon/", "external": true, "tagline": "Армування ЗБК" },
-        { "label": "LiveBeamCalculator", "href": "https://dbnassistant.com/products/livebeamcalculator/", "external": true, "tagline": "Розрахунок балок" },
-        { "label": "NormControl", "href": "https://nc.dbnassistant.com", "external": true, "tagline": "Перевірка нормативів" },
-        { "label": "DBN Assistant", "href": "https://dbnassistant.com/assistants", "external": true, "tagline": "AI-асистенти ДБН" },
-        { "label": "IV GeoJSON", "href": "https://gj.dbnassistant.com", "external": true, "tagline": "DXF → GeoJSON" }
+        {
+          "label": "Калькулятори",
+          "href": "/",
+          "external": false,
+          "active": true
+        },
+        {
+          "label": "CadEE.pro",
+          "href": "https://cadee.pro",
+          "external": true,
+          "tagline": "Теплотехнічні розрахунки"
+        },
+        {
+          "label": "ArmCon",
+          "href": "https://dbnassistant.com/products/armcon/",
+          "external": true,
+          "tagline": "Армування ЗБК"
+        },
+        {
+          "label": "LiveBeamCalculator",
+          "href": "https://dbnassistant.com/products/livebeamcalculator/",
+          "external": true,
+          "tagline": "Розрахунок балок"
+        },
+        {
+          "label": "NormControl",
+          "href": "https://nc.dbnassistant.com",
+          "external": true,
+          "tagline": "Перевірка нормативів"
+        },
+        {
+          "label": "DBN Assistant",
+          "href": "https://dbnassistant.com/assistants",
+          "external": true,
+          "tagline": "AI-асистенти ДБН"
+        },
+        {
+          "label": "IV GeoJSON",
+          "href": "https://gj.dbnassistant.com",
+          "external": true,
+          "tagline": "DXF → GeoJSON"
+        }
       ],
       "allProductsLabel": "Усі продукти автора →",
       "allProductsHref": "/author",
       "languages": [
-        { "code": "uk", "label": "UK", "available": true },
-        { "code": "en", "label": "EN", "available": false }
+        {
+          "code": "uk",
+          "label": "UK",
+          "available": true
+        },
+        {
+          "code": "en",
+          "label": "EN",
+          "available": false
+        }
       ],
       "cta": {
         "label": "Запропонувати калькулятор",
@@ -142,10 +193,21 @@
       "seoTitle": "Розрахунок огороджувальної конструкції — CadEE.pro",
       "seoDescription": "Комплексний теплотехнічний розрахунок огороджувальної конструкції до зовнішнього середовища.",
       "editorialLabel": "Популярний",
-      "useCases": ["Зовнішні стіни", "Перекриття", "Покрівлі"],
-      "tags": ["теплотехніка", "ДБН", "огороджувальна конструкція"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Зовнішні стіни",
+        "Перекриття",
+        "Покрівлі"
+      ],
+      "tags": [
+        "теплотехніка",
+        "ДБН",
+        "огороджувальна конструкція"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-heated-basement",
@@ -161,10 +223,20 @@
       "order": 2,
       "seoTitle": "Підлога над опалюваним підвалом — CadEE.pro",
       "seoDescription": "Розрахунок теплопередачі підлоги в опалюваному підвалі.",
-      "useCases": ["Підлога 1-го поверху", "Опалюваний підвал"],
-      "tags": ["теплотехніка", "підлога", "підвал"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Підлога 1-го поверху",
+        "Опалюваний підвал"
+      ],
+      "tags": [
+        "теплотехніка",
+        "підлога",
+        "підвал"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-floor-techroom",
@@ -180,10 +252,20 @@
       "order": 3,
       "seoTitle": "Підлога над техпідпіллям — CadEE.pro",
       "seoDescription": "Розрахунок теплопередачі підлоги над технічним підпіллям.",
-      "useCases": ["Перекриття над техпідпіллям", "Підлога 1-го поверху"],
-      "tags": ["теплотехніка", "підлога", "техпідпілля"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Перекриття над техпідпіллям",
+        "Підлога 1-го поверху"
+      ],
+      "tags": [
+        "теплотехніка",
+        "підлога",
+        "техпідпілля"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-floor-ground",
@@ -199,10 +281,20 @@
       "order": 4,
       "seoTitle": "Підлога по ґрунту — CadEE.pro",
       "seoDescription": "Розрахунок теплопередачі підлоги по ґрунту з урахуванням теплової інерції ґрунту.",
-      "useCases": ["Підлога 1-го поверху", "Конструкції на ґрунті"],
-      "tags": ["теплотехніка", "підлога", "ґрунт"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Підлога 1-го поверху",
+        "Конструкції на ґрунті"
+      ],
+      "tags": [
+        "теплотехніка",
+        "підлога",
+        "ґрунт"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-floor-cold-basement",
@@ -218,10 +310,20 @@
       "order": 5,
       "seoTitle": "Підлога над холодним підвалом — CadEE.pro",
       "seoDescription": "Розрахунок теплопередачі підлоги над неопалюваним підвалом.",
-      "useCases": ["Перекриття над холодним підвалом", "Підлога 1-го поверху"],
-      "tags": ["теплотехніка", "підлога", "холодний підвал"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Перекриття над холодним підвалом",
+        "Підлога 1-го поверху"
+      ],
+      "tags": [
+        "теплотехніка",
+        "підлога",
+        "холодний підвал"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-floor-heat-absorption",
@@ -237,10 +339,21 @@
       "order": 6,
       "seoTitle": "Теплозасвоєння підлоги — CadEE.pro",
       "seoDescription": "Розрахунок показника теплозасвоєння поверхні підлоги.",
-      "useCases": ["Тепловий комфорт", "Підбір покриттів"],
-      "tags": ["теплотехніка", "підлога", "теплозасвоєння", "комфорт"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Тепловий комфорт",
+        "Підбір покриттів"
+      ],
+      "tags": [
+        "теплотехніка",
+        "підлога",
+        "теплозасвоєння",
+        "комфорт"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-heat-transfer-resistance",
@@ -256,10 +369,21 @@
       "order": 7,
       "seoTitle": "Опір теплопередачі конструкції — CadEE.pro",
       "seoDescription": "Розрахунок R-value (опору теплопередачі) огороджувальної конструкції.",
-      "useCases": ["Стіни", "Перекриття", "Покрівлі"],
-      "tags": ["теплотехніка", "R-value", "опір теплопередачі"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Стіни",
+        "Перекриття",
+        "Покрівлі"
+      ],
+      "tags": [
+        "теплотехніка",
+        "R-value",
+        "опір теплопередачі"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-heat-humid-state",
@@ -275,10 +399,20 @@
       "order": 8,
       "seoTitle": "Тепловологісний стан конструкції — CadEE.pro",
       "seoDescription": "Оцінка тепловологісного стану та ризиків конденсації в конструкції.",
-      "useCases": ["Контроль конденсації", "Перевірка вологи в шарах"],
-      "tags": ["теплотехніка", "вологість", "конденсація"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Контроль конденсації",
+        "Перевірка вологи в шарах"
+      ],
+      "tags": [
+        "теплотехніка",
+        "вологість",
+        "конденсація"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-vapor-permeability-resistance",
@@ -294,10 +428,20 @@
       "order": 9,
       "seoTitle": "Опір паропроникненню — CadEE.pro",
       "seoDescription": "Розрахунок опору паропроникненню огороджувальної конструкції.",
-      "useCases": ["Захист від конденсації", "Підбір пароізоляції"],
-      "tags": ["теплотехніка", "паропроникність", "вологість"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Захист від конденсації",
+        "Підбір пароізоляції"
+      ],
+      "tags": [
+        "теплотехніка",
+        "паропроникність",
+        "вологість"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-heat-inertia",
@@ -313,10 +457,20 @@
       "order": 10,
       "seoTitle": "Теплова інерція конструкції — CadEE.pro",
       "seoDescription": "Розрахунок показника теплової інерції огороджувальної конструкції.",
-      "useCases": ["Стабільність температури", "Масивні конструкції"],
-      "tags": ["теплотехніка", "інерція", "теплоємність"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Стабільність температури",
+        "Масивні конструкції"
+      ],
+      "tags": [
+        "теплотехніка",
+        "інерція",
+        "теплоємність"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-summer-thermo-resistance",
@@ -332,10 +486,20 @@
       "order": 11,
       "seoTitle": "Літня теплостійкість конструкції — CadEE.pro",
       "seoDescription": "Оцінка теплостійкості огороджувальної конструкції в літній період.",
-      "useCases": ["Перегрів приміщень", "Літня експлуатація"],
-      "tags": ["теплотехніка", "теплостійкість", "літо"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Перегрів приміщень",
+        "Літня експлуатація"
+      ],
+      "tags": [
+        "теплотехніка",
+        "теплостійкість",
+        "літо"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-dewpoint-temperature",
@@ -352,10 +516,20 @@
       "seoTitle": "Температура точки роси — CadEE.pro",
       "seoDescription": "Розрахунок температури точки роси за параметрами повітря.",
       "editorialLabel": "Популярний",
-      "useCases": ["Перевірка конденсації", "Параметри мікроклімату"],
-      "tags": ["теплотехніка", "точка роси", "вологість"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Перевірка конденсації",
+        "Параметри мікроклімату"
+      ],
+      "tags": [
+        "теплотехніка",
+        "точка роси",
+        "вологість"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-delta-surface-temperature",
@@ -371,10 +545,51 @@
       "order": 13,
       "seoTitle": "Температура поверхні конструкції — CadEE.pro",
       "seoDescription": "Розрахунок температури внутрішньої поверхні огороджувальної конструкції.",
-      "useCases": ["Контроль конденсації", "Тепловий комфорт"],
-      "tags": ["теплотехніка", "температура поверхні", "комфорт"],
-      "tools": ["CadEE.pro"],
-      "icon": "Thermometer"
+      "useCases": [
+        "Контроль конденсації",
+        "Тепловий комфорт"
+      ],
+      "tags": [
+        "теплотехніка",
+        "температура поверхні",
+        "комфорт"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Thermometer",
+      "standard": "ДБН В.2.6-31:2021"
+    },
+    {
+      "slug": "cadee-air-permeability",
+      "title": "Повітропроникність конструкції",
+      "shortDescription": "Розрахунок повітропроникності огороджувальної конструкції.",
+      "description": "Розрахунок повітропроникності огороджувальної конструкції з урахуванням типу будівлі, типу конструкції, кліматичних даних, висоти будівлі та типу місцевості.",
+      "mainCategory": "teplotekhnika",
+      "extraCategories": [],
+      "displayMode": "embed",
+      "accessLabel": "Вбудований розрахунок",
+      "embedUrl": "https://cadee.pro/?thermalcalc=air-permeability",
+      "openUrl": "https://cadee.pro/?thermalcalc=air-permeability",
+      "order": 13.5,
+      "seoTitle": "Повітропроникність конструкції — CadEE.pro",
+      "seoDescription": "Онлайн-розрахунок повітропроникності огороджувальної конструкції в CadEE.pro.",
+      "editorialLabel": "Новий",
+      "useCases": [
+        "Повітропроникність",
+        "Огороджувальні конструкції",
+        "Перевірка інфільтрації"
+      ],
+      "tags": [
+        "теплотехніка",
+        "повітропроникність",
+        "інфільтрація"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Wind",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-homogeneous-wall-floor",
@@ -391,10 +606,21 @@
       "seoTitle": "Вузол: стіна та перекриття — CadEE.pro",
       "seoDescription": "FEM-розрахунок теплового вузла «однорідна стіна та перекриття».",
       "editorialLabel": "Популярний",
-      "useCases": ["Стик стіни і перекриття", "ψ-коефіцієнт"],
-      "tags": ["FEM", "вузол", "стіна", "перекриття"],
-      "tools": ["CadEE.pro"],
-      "icon": "Grid3x3"
+      "useCases": [
+        "Стик стіни і перекриття",
+        "ψ-коефіцієнт"
+      ],
+      "tags": [
+        "FEM",
+        "вузол",
+        "стіна",
+        "перекриття"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Grid3x3",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-homogeneous-wall-floor-balcony",
@@ -410,10 +636,21 @@
       "order": 15,
       "seoTitle": "Вузол: стіна, перекриття та балкон — CadEE.pro",
       "seoDescription": "FEM-розрахунок вузла стику стіни, перекриття та балкона.",
-      "useCases": ["Балконні плити", "Місток холоду"],
-      "tags": ["FEM", "вузол", "балкон", "місток холоду"],
-      "tools": ["CadEE.pro"],
-      "icon": "Grid3x3"
+      "useCases": [
+        "Балконні плити",
+        "Місток холоду"
+      ],
+      "tags": [
+        "FEM",
+        "вузол",
+        "балкон",
+        "місток холоду"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Grid3x3",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-floor-inclusions",
@@ -429,10 +666,20 @@
       "order": 16,
       "seoTitle": "Вузол: перекриття з термовключеннями — CadEE.pro",
       "seoDescription": "FEM-розрахунок перекриття з термовключеннями.",
-      "useCases": ["Металеві кріплення", "Ребра жорсткості"],
-      "tags": ["FEM", "вузол", "термовключення"],
-      "tools": ["CadEE.pro"],
-      "icon": "Grid3x3"
+      "useCases": [
+        "Металеві кріплення",
+        "Ребра жорсткості"
+      ],
+      "tags": [
+        "FEM",
+        "вузол",
+        "термовключення"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Grid3x3",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-wall-inclusions",
@@ -448,10 +695,21 @@
       "order": 17,
       "seoTitle": "Вузол: стіна з термовключеннями — CadEE.pro",
       "seoDescription": "FEM-розрахунок стіни з термовключеннями.",
-      "useCases": ["Перемички", "Металеві кріплення в стіні"],
-      "tags": ["FEM", "вузол", "термовключення", "стіна"],
-      "tools": ["CadEE.pro"],
-      "icon": "Grid3x3"
+      "useCases": [
+        "Перемички",
+        "Металеві кріплення в стіні"
+      ],
+      "tags": [
+        "FEM",
+        "вузол",
+        "термовключення",
+        "стіна"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Grid3x3",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-homogeneous-wall-corner",
@@ -467,10 +725,21 @@
       "order": 18,
       "seoTitle": "Вузол: кут стіни — CadEE.pro",
       "seoDescription": "FEM-розрахунок кута однорідної стіни.",
-      "useCases": ["Кутові зони", "Перевірка конденсації"],
-      "tags": ["FEM", "вузол", "кут", "стіна"],
-      "tools": ["CadEE.pro"],
-      "icon": "Grid3x3"
+      "useCases": [
+        "Кутові зони",
+        "Перевірка конденсації"
+      ],
+      "tags": [
+        "FEM",
+        "вузол",
+        "кут",
+        "стіна"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Grid3x3",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "cadee-bridge-two-wall-corner",
@@ -486,10 +755,21 @@
       "order": 19,
       "seoTitle": "Вузол: кут двох стін — CadEE.pro",
       "seoDescription": "FEM-розрахунок зовнішнього кута двох стін різного типу.",
-      "useCases": ["Кутові з'єднання", "Стіни різного типу"],
-      "tags": ["FEM", "вузол", "кут", "стіна"],
-      "tools": ["CadEE.pro"],
-      "icon": "Grid3x3"
+      "useCases": [
+        "Кутові з'єднання",
+        "Стіни різного типу"
+      ],
+      "tags": [
+        "FEM",
+        "вузол",
+        "кут",
+        "стіна"
+      ],
+      "tools": [
+        "CadEE.pro"
+      ],
+      "icon": "Grid3x3",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "normcontrol",
@@ -511,9 +791,17 @@
         "Підготовка нормативних обґрунтувань",
         "Аудит проектних рішень"
       ],
-      "tags": ["нормоконтроль", "ДБН", "перевірка", "відповідність"],
-      "tools": ["NormControl"],
-      "icon": "ShieldCheck"
+      "tags": [
+        "нормоконтроль",
+        "ДБН",
+        "перевірка",
+        "відповідність"
+      ],
+      "tools": [
+        "NormControl"
+      ],
+      "icon": "ShieldCheck",
+      "standard": "ДБН / чинні нормативи"
     },
     {
       "slug": "armcon",
@@ -528,10 +816,22 @@
       "order": 21,
       "seoTitle": "ArmCon — розрахунок армування ЗБК",
       "seoDescription": "Розрахунок армування залізобетонних конструкцій за Єврокодами та українськими нормами.",
-      "useCases": ["Балки і плити", "Колони", "Перевірка армування"],
-      "tags": ["армування", "ЗБК", "Єврокод", "ДБН"],
-      "tools": ["ArmCon"],
-      "icon": "Triangle"
+      "useCases": [
+        "Балки і плити",
+        "Колони",
+        "Перевірка армування"
+      ],
+      "tags": [
+        "армування",
+        "ЗБК",
+        "Єврокод",
+        "ДБН"
+      ],
+      "tools": [
+        "ArmCon"
+      ],
+      "icon": "Triangle",
+      "standard": "ДБН / Eurocode 2"
     },
     {
       "slug": "rebar-area-bars",
@@ -548,10 +848,21 @@
       "seoTitle": "Сортамент арматури",
       "seoDescription": "Онлайн-калькулятор для підбору кількості стержнів, кроку арматури і площі на 1 м.п. за потрібною площею As.",
       "editorialLabel": "Новий",
-      "useCases": ["Підбір As", "Таблиця Ø4–Ø40", "Площа на 1 м.п."],
-      "tags": ["арматура", "площа", "ЗБК"],
-      "tools": ["IVapps"],
-      "icon": "Ruler"
+      "useCases": [
+        "Підбір As",
+        "Таблиця Ø4–Ø40",
+        "Площа на 1 м.п."
+      ],
+      "tags": [
+        "арматура",
+        "площа",
+        "ЗБК"
+      ],
+      "tools": [
+        "IVapps"
+      ],
+      "icon": "Ruler",
+      "standard": "ДСТУ 3760:2006"
     },
     {
       "slug": "minimum-reinforcement-area",
@@ -568,10 +879,22 @@
       "seoTitle": "Мінімальна площа армування As,min",
       "seoDescription": "Онлайн-розрахунок мінімальної площі армування балки або плити за ДСТУ Б В.2.6-156:2010 та Eurocode 2.",
       "editorialLabel": "Новий",
-      "useCases": ["As,min для балки", "As,min для плити", "Покроковий звіт"],
-      "tags": ["армування", "As,min", "ДСТУ", "Eurocode 2"],
-      "tools": ["IVapps"],
-      "icon": "Ruler"
+      "useCases": [
+        "As,min для балки",
+        "As,min для плити",
+        "Покроковий звіт"
+      ],
+      "tags": [
+        "армування",
+        "As,min",
+        "ДСТУ",
+        "Eurocode 2"
+      ],
+      "tools": [
+        "IVapps"
+      ],
+      "icon": "Ruler",
+      "standard": "ДСТУ Б В.2.6-156:2010 / Eurocode 2"
     },
     {
       "slug": "foundation-bar-anchorage",
@@ -588,10 +911,22 @@
       "seoTitle": "Анкерування стрижня фундаменту",
       "seoDescription": "Онлайн-перевірка довжини анкерування кінця стрижня фундаменту за ДСТУ Б В.2.6-156:2010 з покроковим звітом.",
       "editorialLabel": "Новий",
-      "useCases": ["Анкерування фундаменту", "ДСТУ 8.8.2.6", "Покроковий звіт"],
-      "tags": ["анкерування", "фундамент", "арматура", "ДСТУ"],
-      "tools": ["IVapps"],
-      "icon": "Ruler"
+      "useCases": [
+        "Анкерування фундаменту",
+        "ДСТУ 8.8.2.6",
+        "Покроковий звіт"
+      ],
+      "tags": [
+        "анкерування",
+        "фундамент",
+        "арматура",
+        "ДСТУ"
+      ],
+      "tools": [
+        "IVapps"
+      ],
+      "icon": "Ruler",
+      "standard": "ДСТУ Б В.2.6-156:2010"
     },
     {
       "slug": "rebar-characteristics",
@@ -608,10 +943,21 @@
       "seoTitle": "Арматура",
       "seoDescription": "Довідкова таблиця характеристик арматури за ДСТУ 3760:2006 з класами A240C-A1000 і розрахунковим значенням fyd.",
       "editorialLabel": "Новий",
-      "useCases": ["Клас арматури", "Механічні характеристики", "fyd"],
-      "tags": ["арматура", "ДСТУ", "характеристики"],
-      "tools": ["IVapps"],
-      "icon": "Ruler"
+      "useCases": [
+        "Клас арматури",
+        "Механічні характеристики",
+        "fyd"
+      ],
+      "tags": [
+        "арматура",
+        "ДСТУ",
+        "характеристики"
+      ],
+      "tools": [
+        "IVapps"
+      ],
+      "icon": "Ruler",
+      "standard": "ДСТУ 3760:2006"
     },
     {
       "slug": "concrete-characteristics",
@@ -628,10 +974,22 @@
       "seoTitle": "Бетон",
       "seoDescription": "Довідкова таблиця характеристик бетону за ДБН В.2.6-98:2009 та ДСТУ Б В.2.6-156:2010 з розрахунковими значеннями fcd і fctd.",
       "editorialLabel": "Новий",
-      "useCases": ["Клас бетону", "Характеристики", "fcd і fctd"],
-      "tags": ["бетон", "ДБН", "ДСТУ", "характеристики"],
-      "tools": ["IVapps"],
-      "icon": "Box"
+      "useCases": [
+        "Клас бетону",
+        "Характеристики",
+        "fcd і fctd"
+      ],
+      "tags": [
+        "бетон",
+        "ДБН",
+        "ДСТУ",
+        "характеристики"
+      ],
+      "tools": [
+        "IVapps"
+      ],
+      "icon": "Box",
+      "standard": "ДБН В.2.6-98:2009 / ДСТУ Б В.2.6-156:2010"
     },
     {
       "slug": "livebeamcalculator",
@@ -646,10 +1004,21 @@
       "order": 22,
       "seoTitle": "LiveBeamCalculator — онлайн-розрахунок балок",
       "seoDescription": "Онлайн-калькулятор балок для оцінки згинальних моментів, поперечних сил і прогинів.",
-      "useCases": ["Згинальні моменти", "Поперечні сили", "Прогини"],
-      "tags": ["балки", "механіка", "конструкції"],
-      "tools": ["LiveBeamCalculator"],
-      "icon": "Triangle"
+      "useCases": [
+        "Згинальні моменти",
+        "Поперечні сили",
+        "Прогини"
+      ],
+      "tags": [
+        "балки",
+        "механіка",
+        "конструкції"
+      ],
+      "tools": [
+        "LiveBeamCalculator"
+      ],
+      "icon": "Triangle",
+      "standard": "ДБН / Eurocode 2"
     },
     {
       "slug": "power-calculator",
@@ -665,10 +1034,21 @@
       "order": 23,
       "seoTitle": "Розрахунок електричних навантажень будівель",
       "seoDescription": "Онлайн-розрахунок електричних навантажень житлових і громадських будівель за ДБН В.2.5-23:2025.",
-      "useCases": ["Житлові будинки", "Громадські будівлі", "Підбір живлення"],
-      "tags": ["електрика", "навантаження", "ДБН В.2.5-23"],
-      "tools": ["pc.dbnassistant.com"],
-      "icon": "Zap"
+      "useCases": [
+        "Житлові будинки",
+        "Громадські будівлі",
+        "Підбір живлення"
+      ],
+      "tags": [
+        "електрика",
+        "навантаження",
+        "ДБН В.2.5-23"
+      ],
+      "tools": [
+        "pc.dbnassistant.com"
+      ],
+      "icon": "Zap",
+      "standard": "ДБН В.2.5-23:2025"
     },
     {
       "slug": "consequence-class",
@@ -684,10 +1064,21 @@
       "order": 24,
       "seoTitle": "Розрахунок класу наслідків — ДСТУ 8855",
       "seoDescription": "Вебкалькулятор класу наслідків об'єкта будівництва за ДСТУ 8855:2019.",
-      "useCases": ["Клас СС1/СС2/СС3", "Експорт у PDF/DOCX", "Журнал дій"],
-      "tags": ["клас наслідків", "ДСТУ 8855", "відповідальність"],
-      "tools": ["cc.dbnassistant.com"],
-      "icon": "ShieldCheck"
+      "useCases": [
+        "Клас СС1/СС2/СС3",
+        "Експорт у PDF/DOCX",
+        "Журнал дій"
+      ],
+      "tags": [
+        "клас наслідків",
+        "ДСТУ 8855",
+        "відповідальність"
+      ],
+      "tools": [
+        "cc.dbnassistant.com"
+      ],
+      "icon": "ShieldCheck",
+      "standard": "ДСТУ 8855:2019"
     },
     {
       "slug": "iv-geojson",
@@ -703,10 +1094,22 @@
       "order": 25,
       "seoTitle": "IV GeoJSON — конвертер DXF у GeoJSON",
       "seoDescription": "Онлайн-конвертер DXF у GeoJSON з геоприв'язкою для GIS та державних сервісів.",
-      "useCases": ["Конвертація DXF→GeoJSON", "Підготовка для GIS", "Геоприв'язка"],
-      "tags": ["DXF", "GeoJSON", "GIS", "конвертер"],
-      "tools": ["IV GeoJSON"],
-      "icon": "Wrench"
+      "useCases": [
+        "Конвертація DXF→GeoJSON",
+        "Підготовка для GIS",
+        "Геоприв'язка"
+      ],
+      "tags": [
+        "DXF",
+        "GeoJSON",
+        "GIS",
+        "конвертер"
+      ],
+      "tools": [
+        "IV GeoJSON"
+      ],
+      "icon": "Wrench",
+      "standard": "GIS / GeoJSON"
     },
     {
       "slug": "dbn-assistant",
@@ -721,10 +1124,22 @@
       "order": 26,
       "seoTitle": "DBN Assistant — AI-асистенти будівельних норм",
       "seoDescription": "AI-асистенти на базі ChatGPT для аналізу ДБН та інших будівельних норм України.",
-      "useCases": ["Аналіз ДБН", "Швидкі консультації", "Профільні GPT-асистенти"],
-      "tags": ["AI", "ChatGPT", "ДБН", "консультації"],
-      "tools": ["DBN Assistant"],
-      "icon": "Bot"
+      "useCases": [
+        "Аналіз ДБН",
+        "Швидкі консультації",
+        "Профільні GPT-асистенти"
+      ],
+      "tags": [
+        "AI",
+        "ChatGPT",
+        "ДБН",
+        "консультації"
+      ],
+      "tools": [
+        "DBN Assistant"
+      ],
+      "icon": "Bot",
+      "standard": "ДБН / профільні GPT"
     },
     {
       "slug": "ai-dbn-v-2-2-5-2023",
@@ -739,10 +1154,21 @@
       "order": 27,
       "seoTitle": "AI-асистент ДБН В.2.2-5:2023 — захисні споруди",
       "seoDescription": "GPT-асистент на базі ChatGPT для ДБН В.2.2-5:2023 — захисні споруди цивільного захисту.",
-      "useCases": ["Захисні споруди", "Цивільний захист", "Швидкі консультації"],
-      "tags": ["AI", "ChatGPT", "ДБН В.2.2-5"],
-      "tools": ["ChatGPT"],
-      "icon": "Bot"
+      "useCases": [
+        "Захисні споруди",
+        "Цивільний захист",
+        "Швидкі консультації"
+      ],
+      "tags": [
+        "AI",
+        "ChatGPT",
+        "ДБН В.2.2-5"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "icon": "Bot",
+      "standard": "ДБН В.2.2-5:2023"
     },
     {
       "slug": "ai-dbn-v-2-6-31-2021",
@@ -757,10 +1183,22 @@
       "order": 28,
       "seoTitle": "AI-асистент ДБН В.2.6-31:2021 — теплова ізоляція",
       "seoDescription": "GPT-асистент для ДБН В.2.6-31:2021 — теплова ізоляція та енергоефективність будівель.",
-      "useCases": ["Теплова ізоляція", "Енергоефективність", "Перевірка R-value"],
-      "tags": ["AI", "ChatGPT", "ДБН В.2.6-31", "теплоізоляція"],
-      "tools": ["ChatGPT"],
-      "icon": "Bot"
+      "useCases": [
+        "Теплова ізоляція",
+        "Енергоефективність",
+        "Перевірка R-value"
+      ],
+      "tags": [
+        "AI",
+        "ChatGPT",
+        "ДБН В.2.6-31",
+        "теплоізоляція"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "icon": "Bot",
+      "standard": "ДБН В.2.6-31:2021"
     },
     {
       "slug": "ai-dbn-v-1-1-7-2016",
@@ -775,10 +1213,22 @@
       "order": 29,
       "seoTitle": "AI-асистент ДБН В.1.1-7:2016 — пожежна безпека",
       "seoDescription": "GPT-асистент для ДБН В.1.1-7:2016 — пожежна безпека об'єктів будівництва.",
-      "useCases": ["Пожежна безпека", "Протипожежні вимоги", "Перевірка проектів"],
-      "tags": ["AI", "ChatGPT", "ДБН В.1.1-7", "пожежна безпека"],
-      "tools": ["ChatGPT"],
-      "icon": "Bot"
+      "useCases": [
+        "Пожежна безпека",
+        "Протипожежні вимоги",
+        "Перевірка проектів"
+      ],
+      "tags": [
+        "AI",
+        "ChatGPT",
+        "ДБН В.1.1-7",
+        "пожежна безпека"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "icon": "Bot",
+      "standard": "ДБН В.1.1-7:2016"
     },
     {
       "slug": "ai-dbn-v-2-2-15-2019",
@@ -793,10 +1243,22 @@
       "order": 30,
       "seoTitle": "AI-асистент ДБН В.2.2-15:2019 — житлові будинки",
       "seoDescription": "GPT-асистент для ДБН В.2.2-15:2019 — житлові будинки, основні положення.",
-      "useCases": ["Житлові будинки", "Основні положення", "Параметри житла"],
-      "tags": ["AI", "ChatGPT", "ДБН В.2.2-15", "житлові будинки"],
-      "tools": ["ChatGPT"],
-      "icon": "Bot"
+      "useCases": [
+        "Житлові будинки",
+        "Основні положення",
+        "Параметри житла"
+      ],
+      "tags": [
+        "AI",
+        "ChatGPT",
+        "ДБН В.2.2-15",
+        "житлові будинки"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "icon": "Bot",
+      "standard": "ДБН В.2.2-15:2019"
     },
     {
       "slug": "ai-dbn-v-2-5-67-2013",
@@ -811,10 +1273,22 @@
       "order": 31,
       "seoTitle": "AI-асистент ДБН В.2.5-67:2013 — ОВК",
       "seoDescription": "GPT-асистент для ДБН В.2.5-67:2013 — опалення, вентиляція та кондиціонування.",
-      "useCases": ["Опалення", "Вентиляція", "Кондиціонування"],
-      "tags": ["AI", "ChatGPT", "ДБН В.2.5-67", "ОВК"],
-      "tools": ["ChatGPT"],
-      "icon": "Bot"
+      "useCases": [
+        "Опалення",
+        "Вентиляція",
+        "Кондиціонування"
+      ],
+      "tags": [
+        "AI",
+        "ChatGPT",
+        "ДБН В.2.5-67",
+        "ОВК"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "icon": "Bot",
+      "standard": "ДБН В.2.5-67:2013"
     }
   ],
   "projectCategories": [

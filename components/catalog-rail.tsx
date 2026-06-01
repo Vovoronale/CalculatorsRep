@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, User, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import type { MouseEvent } from "react";
 
 import { SearchInput } from "@/components/search-input";
 import { getCategoryIcon } from "@/lib/icons";
@@ -17,96 +17,24 @@ import { siteContent } from "@/lib/site-content";
 
 type CatalogRailProps = {
   selectedCalculator?: Calculator;
-  syncWithHash?: boolean;
+  activeCategory?: CategorySlug;
+  onSelectCategory?: (slug: CategorySlug) => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   isMobileOpen?: boolean;
   onCloseMobile?: () => void;
 };
 
-function resolveHashCategory(): CategorySlug | null {
-  if (typeof window === "undefined") return null;
-  const raw = window.location.hash.replace("#", "") as CategorySlug;
-  return calculatorCategories.some((c) => c.slug === raw) ? raw : null;
-}
-
 export function CatalogRail({
   selectedCalculator,
-  syncWithHash = false,
+  activeCategory,
+  onSelectCategory,
   isCollapsed = false,
   onToggleCollapse,
   isMobileOpen = false,
   onCloseMobile,
 }: CatalogRailProps) {
-  const [expanded, setExpanded] = useState<Set<CategorySlug>>(() => {
-    const initial = new Set<CategorySlug>();
-    if (selectedCalculator) initial.add(selectedCalculator.mainCategory);
-    if (typeof window !== "undefined") {
-      const hashCat = resolveHashCategory();
-      if (hashCat) initial.add(hashCat);
-    }
-    return initial;
-  });
-
-  useEffect(() => {
-    const expand = (slug: CategorySlug | null) => {
-      if (!slug) return;
-      setExpanded((prev) => {
-        if (prev.has(slug)) return prev;
-        const next = new Set(prev);
-        next.add(slug);
-        return next;
-      });
-      requestAnimationFrame(() => {
-        document
-          .querySelector<HTMLElement>(`[data-category-node="${slug}"]`)
-          ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      });
-    };
-
-    const onHash = () => expand(resolveHashCategory());
-    const onRailEvent = (event: Event) => {
-      const detail = (event as CustomEvent<{ slug?: string }>).detail;
-      const slug = detail?.slug;
-      if (!slug) return;
-      if (calculatorCategories.some((c) => c.slug === slug)) {
-        expand(slug as CategorySlug);
-      }
-    };
-
-    window.addEventListener("hashchange", onHash);
-    window.addEventListener("rail:expand", onRailEvent);
-    return () => {
-      window.removeEventListener("hashchange", onHash);
-      window.removeEventListener("rail:expand", onRailEvent);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!selectedCalculator) return;
-    setExpanded((prev) => {
-      if (prev.has(selectedCalculator.mainCategory)) return prev;
-      const next = new Set(prev);
-      next.add(selectedCalculator.mainCategory);
-      return next;
-    });
-  }, [selectedCalculator]);
-
-  const toggle = (slug: CategorySlug) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(slug)) next.delete(slug);
-      else next.add(slug);
-      return next;
-    });
-    if (syncWithHash && typeof window !== "undefined" && window.location.hash) {
-      window.history.replaceState(
-        null,
-        "",
-        window.location.pathname + window.location.search,
-      );
-    }
-  };
+  const currentCategory = selectedCalculator?.mainCategory ?? activeCategory;
 
   return (
     <aside
@@ -154,14 +82,13 @@ export function CatalogRail({
         </p>
         <div className="rail-tree">
           {calculatorCategories.map((category) => (
-            <CategoryNode
+            <CategoryLink
               key={category.slug}
               category={category}
-              isOpen={expanded.has(category.slug)}
+              isCurrent={currentCategory === category.slug}
               isCollapsed={isCollapsed}
-              currentCalcSlug={selectedCalculator?.slug}
-              onToggle={toggle}
-              onLeafClick={onCloseMobile}
+              onSelectCategory={onSelectCategory}
+              onCloseMobile={onCloseMobile}
             />
           ))}
         </div>
@@ -177,85 +104,47 @@ export function CatalogRail({
   );
 }
 
-type CategoryNodeProps = {
+type CategoryLinkProps = {
   category: CalculatorCategory;
-  isOpen: boolean;
+  isCurrent: boolean;
   isCollapsed: boolean;
-  currentCalcSlug?: string;
-  onToggle: (slug: CategorySlug) => void;
-  onLeafClick?: () => void;
+  onSelectCategory?: (slug: CategorySlug) => void;
+  onCloseMobile?: () => void;
 };
 
-function CategoryNode({
+function CategoryLink({
   category,
-  isOpen,
+  isCurrent,
   isCollapsed,
-  currentCalcSlug,
-  onToggle,
-  onLeafClick,
-}: CategoryNodeProps) {
+  onSelectCategory,
+  onCloseMobile,
+}: CategoryLinkProps) {
   const Icon = getCategoryIcon(category.slug);
   const calcs = getCalculatorsForCategory(category.slug);
-  const showChildren = isOpen && !isCollapsed;
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    onSelectCategory?.(category.slug);
+    onCloseMobile?.();
+    if (onSelectCategory && window.location.pathname === "/") {
+      event.preventDefault();
+      window.history.replaceState(null, "", `/#${category.slug}`);
+    }
+  };
 
   return (
-    <div
-      className="rail-tree__node"
-      data-category-node={category.slug}
-      data-open={isOpen ? "true" : "false"}
-    >
-      <button
-        type="button"
+    <div className="rail-tree__node" data-category-node={category.slug}>
+      <Link
+        href={`/#${category.slug}`}
         className="rail-tree__row"
-        aria-expanded={isOpen}
-        aria-controls={`rail-tree-children-${category.slug}`}
-        aria-label={category.title}
+        aria-current={isCurrent ? "page" : undefined}
         title={isCollapsed ? category.title : undefined}
-        onClick={() => onToggle(category.slug)}
+        onClick={handleClick}
       >
-        <ChevronRight
-          size={14}
-          className="rail-tree__chevron"
-          data-open={isOpen ? "true" : "false"}
-          aria-hidden
-        />
         <span className="rail-tree__icon" aria-hidden>
           <Icon size={16} />
         </span>
         <span className="rail-tree__title">{category.title}</span>
-        <span className="rail-tree__count" aria-hidden>{calcs.length}</span>
-      </button>
-      {showChildren ? (
-        <ul
-          className="rail-tree__children"
-          id={`rail-tree-children-${category.slug}`}
-        >
-          {calcs.map((calc) => {
-            const isCurrent = currentCalcSlug === calc.slug;
-            return (
-              <li key={calc.slug}>
-                <Link
-                  href={`/calculator/${calc.slug}`}
-                  className={`rail-tree__leaf${isCurrent ? " is-current" : ""}`}
-                  aria-label={calc.title}
-                  aria-current={isCurrent ? "page" : undefined}
-                  onClick={onLeafClick}
-                >
-                  <span>{calc.title}</span>
-                  {calc.editorialLabel ? (
-                    <span
-                      className="rail-tree__leaf-badge"
-                      aria-hidden
-                    >
-                      {calc.editorialLabel}
-                    </span>
-                  ) : null}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
+        <span className="rail-tree__count">{calcs.length}</span>
+      </Link>
     </div>
   );
 }

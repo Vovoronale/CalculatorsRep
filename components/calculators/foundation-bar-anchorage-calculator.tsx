@@ -287,6 +287,15 @@ function NumberField({
   );
 }
 
+function DerivedField({ label, value }: { label: ReactNode; value: string }) {
+  return (
+    <div className="foundation-anchorage-field foundation-anchorage-field--derived">
+      <span>{label}</span>
+      <output>{value}</output>
+    </div>
+  );
+}
+
 function FoundationGeometryDiagram({
   footingLength,
   footingHeight,
@@ -415,7 +424,6 @@ export function FoundationBarAnchorageCalculator() {
   const [footingLength, setFootingLength] = useState("3000");
   const [footingWidth, setFootingWidth] = useState("2000");
   const [footingHeight, setFootingHeight] = useState("600");
-  const [effectiveDepth, setEffectiveDepth] = useState("550");
   const [pedestalWidth, setPedestalWidth] = useState("400");
   const [availableAnchorageLength, setAvailableAnchorageLength] = useState("700");
   const [axialLoad, setAxialLoad] = useState("1000");
@@ -425,8 +433,6 @@ export function FoundationBarAnchorageCalculator() {
   const [barDiameter, setBarDiameter] = useState("16");
   const [barCount, setBarCount] = useState("4");
   const [barSpacingForArea, setBarSpacingForArea] = useState("150");
-  const [hBond, setHBond] = useState("500");
-  const [aBottom, setABottom] = useState("200");
   const [barAngle, setBarAngle] = useState<FoundationAnchorageBarAngle>("horizontal");
   const [slipForm, setSlipForm] = useState(false);
   const [anchorageShape, setAnchorageShape] =
@@ -438,6 +444,13 @@ export function FoundationBarAnchorageCalculator() {
   const [kScheme, setKScheme] = useState<FoundationAnchorageKScheme>("0.05");
   const [weldedTransverseRebar, setWeldedTransverseRebar] = useState(false);
   const [transversePressure, setTransversePressure] = useState("0");
+  const computedBottomBarAxis =
+    parseNumberInput(coverBottom) + parseNumberInput(barDiameter) / 2;
+  const computedEffectiveDepth =
+    parseNumberInput(footingHeight) - computedBottomBarAxis;
+  const computedBondHeight = parseNumberInput(footingHeight);
+  const barSpacingForCd =
+    structureType === "slab" ? parseNumberInput(barSpacingForArea) : parseNumberInput(barSpacing);
 
   const report = useMemo(
     () =>
@@ -448,7 +461,6 @@ export function FoundationBarAnchorageCalculator() {
         footingLengthMm: parseNumberInput(footingLength),
         footingWidthMm: parseNumberInput(footingWidth),
         footingHeightMm: parseNumberInput(footingHeight),
-        effectiveDepthMm: parseNumberInput(effectiveDepth),
         pedestalWidthMm: parseNumberInput(pedestalWidth),
         availableAnchorageLengthMm: parseNumberInput(availableAnchorageLength),
         axialLoadKn: parseNumberInput(axialLoad),
@@ -458,21 +470,18 @@ export function FoundationBarAnchorageCalculator() {
         barDiameterMm: parseNumberInput(barDiameter),
         barCount: parseNumberInput(barCount),
         barSpacingForAreaMm: parseNumberInput(barSpacingForArea),
-        hBondMm: parseNumberInput(hBond),
-        aBottomMm: parseNumberInput(aBottom),
         barAngle,
         slipForm,
         anchorageShape,
         coverBottomMm: parseNumberInput(coverBottom),
         coverSideMm: parseNumberInput(coverSide),
-        barSpacingMm: parseNumberInput(barSpacing),
+        barSpacingMm: barSpacingForCd,
         transverseRebarAreaMm2: parseNumberInput(transverseRebarArea),
         kScheme,
         weldedTransverseRebar,
         transversePressureMPa: parseNumberInput(transversePressure),
       }),
     [
-      aBottom,
       anchorageShape,
       availableAnchorageLength,
       axialLoad,
@@ -484,11 +493,9 @@ export function FoundationBarAnchorageCalculator() {
       concreteClass,
       coverBottom,
       coverSide,
-      effectiveDepth,
       footingHeight,
       footingLength,
       footingWidth,
-      hBond,
       kScheme,
       moment,
       pedestalWidth,
@@ -625,17 +632,16 @@ export function FoundationBarAnchorageCalculator() {
             value={footingHeight}
             onChange={setFootingHeight}
           />
-          <NumberField
+          <DerivedField
             label={
               <FieldLabel
                 symbol="d, мм"
-                description="робоча висота для zi = 0.9d"
+                description="робоча висота, обчислена як h - c - Ø / 2"
                 href="#norm-dstu-8-8-2-6"
                 norm="п. 8.8.2.6"
               />
             }
-            value={effectiveDepth}
-            onChange={setEffectiveDepth}
+            value={`${formatFoundationAnchorageNumber(computedEffectiveDepth)} мм`}
           />
           <NumberField
             label={
@@ -724,7 +730,7 @@ export function FoundationBarAnchorageCalculator() {
             <FoundationGeometryDiagram
               footingLength={footingLength}
               footingHeight={footingHeight}
-              effectiveDepth={effectiveDepth}
+              effectiveDepth={formatFoundationAnchorageNumber(computedEffectiveDepth)}
               pedestalWidth={pedestalWidth}
               availableAnchorageLength={availableAnchorageLength}
               axialLoad={axialLoad}
@@ -786,29 +792,27 @@ export function FoundationBarAnchorageCalculator() {
             href="#norm-dstu-7-2-2-2"
             norm="п. 7.2.2.2"
           />
-          <NumberField
+          <DerivedField
             label={
               <FieldLabel
                 symbol="h бетонування, мм"
-                description="висота бетонування для умов зчеплення"
+                description="прийнята рівною висоті фундаменту h"
                 href="#norm-dstu-7-2-2-2"
                 norm="п. 7.2.2.2"
               />
             }
-            value={hBond}
-            onChange={setHBond}
+            value={`${formatFoundationAnchorageNumber(computedBondHeight)} мм`}
           />
-          <NumberField
+          <DerivedField
             label={
               <FieldLabel
                 symbol="a від низу, мм"
-                description="відстань осі стрижня від нижньої грані"
+                description="обчислена як c + Ø / 2"
                 href="#norm-dstu-7-2-2-2"
                 norm="п. 7.2.2.2"
               />
             }
-            value={aBottom}
-            onChange={setABottom}
+            value={`${formatFoundationAnchorageNumber(computedBottomBarAxis)} мм`}
           />
           <label className="foundation-anchorage-field">
             <FieldLabel
@@ -888,18 +892,32 @@ export function FoundationBarAnchorageCalculator() {
             value={coverSide}
             onChange={setCoverSide}
           />
-          <NumberField
-            label={
-              <FieldLabel
-                symbol="a, мм"
-                description="відстань між стрижнями для cd за рис. 7.3"
-                href="#norm-dstu-fig-7-3"
-                norm="рис. 7.3"
-              />
-            }
-            value={barSpacing}
-            onChange={setBarSpacing}
-          />
+          {structureType === "beam" ? (
+            <NumberField
+              label={
+                <FieldLabel
+                  symbol="a, мм"
+                  description="відстань між стрижнями для cd за рис. 7.3"
+                  href="#norm-dstu-fig-7-3"
+                  norm="рис. 7.3"
+                />
+              }
+              value={barSpacing}
+              onChange={setBarSpacing}
+            />
+          ) : (
+            <DerivedField
+              label={
+                <FieldLabel
+                  symbol="a, мм"
+                  description="для плити прийнято рівним кроку s"
+                  href="#norm-dstu-fig-7-3"
+                  norm="рис. 7.3"
+                />
+              }
+              value={`${formatFoundationAnchorageNumber(barSpacingForCd)} мм`}
+            />
+          )}
           </fieldset>
 
           <fieldset className="foundation-anchorage-group">

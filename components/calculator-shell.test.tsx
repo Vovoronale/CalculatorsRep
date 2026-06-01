@@ -22,7 +22,7 @@ describe("CalculatorShell", () => {
     cleanup();
   });
 
-  it("renders the engineering shell with a left catalog rail on the homepage", () => {
+  it("renders category-only navigation and a standards table for the active category", () => {
     render(<CalculatorShell />);
 
     const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
@@ -30,17 +30,11 @@ describe("CalculatorShell", () => {
 
     expect(rail).toBeInTheDocument();
     expect(workspace).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", {
-        level: 1,
-        name: "Інженерні розрахунки для проектування",
-      }),
-    ).toBeInTheDocument();
     expect(within(rail).getByText("Іванейко Володимир")).toBeInTheDocument();
     expect(within(rail).getByText("Напрями розрахунків")).toBeInTheDocument();
-    expect(within(rail).getByRole("button", { name: "Теплотехніка" })).toHaveAttribute(
-      "aria-expanded",
-      "false",
+    expect(within(rail).getByRole("link", { name: "Теплотехніка 20" })).toHaveAttribute(
+      "aria-current",
+      "page",
     );
     expect(
       within(rail).queryByRole("link", { name: "Огороджувальна конструкція" }),
@@ -51,12 +45,26 @@ describe("CalculatorShell", () => {
       "href",
       "/author",
     );
+    expect(within(workspace).getByRole("heading", { name: "Теплотехніка" })).toBeInTheDocument();
+    const table = within(workspace).getByRole("table", {
+      name: "Розрахунки категорії Теплотехніка",
+    });
+    expect(within(table).getByRole("columnheader", { name: "Розрахунок" })).toBeInTheDocument();
+    expect(within(table).getByRole("columnheader", { name: "Що рахується" })).toBeInTheDocument();
+    expect(within(table).getByRole("columnheader", { name: "Застосування" })).toBeInTheDocument();
+    expect(within(table).getByRole("columnheader", { name: "Норматив" })).toBeInTheDocument();
+    expect(within(table).queryByRole("columnheader", { name: "Доступ" })).not.toBeInTheDocument();
+    const externalEnvelopeRow = within(table).getByRole("row", {
+      name: /Огороджувальна конструкція/,
+    });
+    expect(within(externalEnvelopeRow).getByRole("link", { name: /Огороджувальна конструкція/ })).toHaveAttribute(
+      "href",
+      "/calculator/cadee-external",
+    );
+    expect(externalEnvelopeRow).toHaveTextContent("ДБН В.2.6-31:2021");
     expect(
-      within(workspace).getAllByRole("link", { name: "Огороджувальна конструкція" }).length,
-    ).toBeGreaterThanOrEqual(1);
-    expect(
-      within(workspace).getAllByText("Вбудований розрахунок").length,
-    ).toBeGreaterThanOrEqual(1);
+      within(workspace).queryByText("Вбудований розрахунок"),
+    ).not.toBeInTheDocument();
     expect(
       within(workspace).getByRole("link", { name: "Про автора" }),
     ).toHaveAttribute("href", "/author");
@@ -66,6 +74,46 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("contentinfo")).toHaveTextContent(
       "Платформа виросла з практики проектування, нормативної роботи та прикладних цифрових сервісів.",
     );
+  });
+
+  it("switches the homepage table when a category is selected", async () => {
+    const user = userEvent.setup();
+
+    render(<CalculatorShell />);
+
+    await user.click(screen.getByRole("link", { name: "Конструкції 7" }));
+
+    expect(screen.getByRole("heading", { name: "Конструкції" })).toBeInTheDocument();
+    const table = screen.getByRole("table", {
+      name: "Розрахунки категорії Конструкції",
+    });
+    expect(within(table).getByRole("row", { name: /Мінімальна площа армування/ })).toHaveTextContent(
+      "ДСТУ Б В.2.6-156:2010 / Eurocode 2",
+    );
+    expect(within(table).queryByRole("row", { name: /Опір теплопередачі/ })).not.toBeInTheDocument();
+  });
+
+  it("does not open the mobile drawer for direct category hash navigation", () => {
+    const originalMatchMedia = window.matchMedia;
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: () => ({ matches: true }),
+    });
+
+    render(<CalculatorShell />);
+
+    window.location.hash = "#konstruktsiyi";
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+
+    expect(screen.getByRole("complementary", { name: "Каталог калькуляторів" })).toHaveAttribute(
+      "data-mobile-open",
+      "false",
+    );
+
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: originalMatchMedia,
+    });
   });
 
   it("keeps the left rail visible and renders an iframe for embedded calculators", () => {
@@ -80,8 +128,11 @@ describe("CalculatorShell", () => {
     const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
 
     expect(
-      within(rail).getByRole("link", { name: "Огороджувальна конструкція" }),
+      within(rail).getByRole("link", { name: "Теплотехніка 20" }),
     ).toHaveAttribute("aria-current", "page");
+    expect(
+      within(rail).queryByRole("link", { name: "Огороджувальна конструкція" }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole("heading", { level: 2, name: "Огороджувальна конструкція" }),
     ).toBeInTheDocument();
@@ -462,7 +513,7 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("img", { name: "Фрагмент п. 8.8.2.5 ДСТУ Б В.2.6-156:2010, формула (8.13)" }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Fs = R * ze / zi = 122.5 * 60 / 495 = 14.85 кН")).toBeInTheDocument();
+    expect(screen.getByLabelText("Fs = R * ze / zi = 122.5 * 60 / 487.8 = 15.07 кН")).toBeInTheDocument();
     expect(screen.getByText(/Анкерування достатнє/)).toBeInTheDocument();
 
     const dstuLink = screen.getAllByRole("link", { name: "п. 8.8.2.5" })[0];

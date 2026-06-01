@@ -276,7 +276,7 @@ textarea {
 
 .rail-tree__row {
   display: grid;
-  grid-template-columns: 14px 16px 1fr auto;
+  grid-template-columns: 16px 1fr auto;
   align-items: center;
   gap: 10px;
   width: 100%;
@@ -288,6 +288,7 @@ textarea {
   color: var(--text);
   font-size: 14px;
   font-weight: 500;
+  text-decoration: none;
   cursor: pointer;
   transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1);
 }
@@ -301,18 +302,9 @@ textarea {
   outline-offset: -2px;
 }
 
-.rail-tree__node[data-open="true"] > .rail-tree__row {
+.rail-tree__row[aria-current="page"] {
   color: var(--text);
   background: var(--surface-2);
-}
-
-.rail-tree__chevron {
-  color: var(--text-muted);
-  transition: transform 150ms cubic-bezier(0.2, 0, 0, 1);
-}
-
-.rail-tree__chevron[data-open="true"] {
-  transform: rotate(90deg);
 }
 
 .rail-tree__icon {
@@ -322,7 +314,7 @@ textarea {
   color: var(--text-muted);
 }
 
-.rail-tree__node[data-open="true"] .rail-tree__icon {
+.rail-tree__row[aria-current="page"] .rail-tree__icon {
   color: var(--accent);
 }
 
@@ -345,7 +337,7 @@ textarea {
   line-height: 1.4;
 }
 
-.rail-tree__node[data-open="true"] .rail-tree__count {
+.rail-tree__row[aria-current="page"] .rail-tree__count {
   background: var(--accent-soft);
   color: var(--accent);
 }
@@ -439,7 +431,6 @@ textarea {
 
 .site-shell[data-collapsed="true"] .catalog-rail__brand,
 .site-shell[data-collapsed="true"] .catalog-rail__section-label,
-.site-shell[data-collapsed="true"] .rail-tree__chevron,
 .site-shell[data-collapsed="true"] .rail-tree__title,
 .site-shell[data-collapsed="true"] .rail-tree__count,
 .site-shell[data-collapsed="true"] .rail-tree__children,
@@ -1050,6 +1041,93 @@ textarea {
   font-family: var(--font-mono), monospace;
   font-size: 11px;
   color: var(--text-subtle);
+}
+
+/* Category calculator table */
+
+.calculator-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.calculator-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+  color: var(--text);
+}
+
+.calculator-table th,
+.calculator-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.calculator-table thead th {
+  background: var(--surface-2);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.calculator-table tbody tr:last-child th,
+.calculator-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.calculator-table tbody tr:hover {
+  background: var(--bg);
+}
+
+.calculator-table tbody th {
+  width: 24%;
+  font-weight: 600;
+}
+
+.calculator-table tbody td {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.calculator-table__link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.calculator-table__link:hover {
+  color: var(--accent);
+}
+
+.calculator-table__badge {
+  display: inline-flex;
+  margin-left: 8px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
 }
 
 /* =====================================================
@@ -1959,7 +2037,8 @@ textarea {
 }
 
 .foundation-anchorage-field select,
-.foundation-anchorage-field input {
+.foundation-anchorage-field input,
+.foundation-anchorage-field output {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--border);
@@ -1972,8 +2051,14 @@ textarea {
   padding: 9px 10px;
 }
 
-.foundation-anchorage-field input {
+.foundation-anchorage-field input,
+.foundation-anchorage-field output {
   font-family: var(--font-mono), monospace;
+}
+
+.foundation-anchorage-field output {
+  min-height: 38px;
+  border-style: dashed;
 }
 
 .foundation-anchorage-field__help {
@@ -2890,7 +2975,6 @@ textarea {
 
   .site-shell:not([data-collapsed="true"]) .catalog-rail__brand,
   .site-shell:not([data-collapsed="true"]) .catalog-rail__section-label,
-  .site-shell:not([data-collapsed="true"]) .rail-tree__chevron,
   .site-shell:not([data-collapsed="true"]) .rail-tree__title,
   .site-shell:not([data-collapsed="true"]) .rail-tree__count,
   .site-shell:not([data-collapsed="true"]) .rail-tree__children,
@@ -2973,6 +3057,80 @@ textarea {
   .calc-grid,
   .category-grid {
     grid-template-columns: 1fr;
+  }
+
+  .calculator-table-wrap {
+    overflow-x: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .calculator-table {
+    min-width: 0;
+  }
+
+  .calculator-table,
+  .calculator-table thead,
+  .calculator-table tbody,
+  .calculator-table tr,
+  .calculator-table th,
+  .calculator-table td {
+    display: block;
+  }
+
+  .calculator-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .calculator-table tbody {
+    display: grid;
+    gap: 12px;
+  }
+
+  .calculator-table tbody tr {
+    display: grid;
+    gap: 8px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+
+  .calculator-table th,
+  .calculator-table td {
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .calculator-table tbody th {
+    width: auto;
+  }
+
+  .calculator-table td::before {
+    display: block;
+    margin-bottom: 2px;
+    font-family: var(--font-mono), monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  .calculator-table td:nth-child(2)::before {
+    content: "Що рахується";
+  }
+
+  .calculator-table td:nth-child(3)::before {
+    content: "Застосування";
+  }
+
+  .calculator-table td:nth-child(4)::before {
+    content: "Норматив";
   }
 
   .detail-use-cases {

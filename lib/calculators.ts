@@ -39,6 +39,7 @@ export type Calculator = {
   order: number;
   seoTitle: string;
   seoDescription: string;
+  standard: string;
   editorialLabel?: EditorialLabel;
   useCases: string[];
   tags?: string[];

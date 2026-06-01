@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   calculatorCategories,
+  calculators,
   getCalculatorBySlug,
   getCalculatorsForCategory,
 } from "@/lib/calculators";
@@ -59,8 +60,29 @@ describe("calculator data model", () => {
     expect(calculator?.title).toBe("Огороджувальна конструкція");
     expect(calculator?.mainCategory).toBe("teplotekhnika");
     expect(calculator?.accessLabel).toBe("Вбудований розрахунок");
+    expect(calculator?.standard).toBe("ДБН В.2.6-31:2021");
     expect(calculator?.embedUrl).toBe(
       "https://cadee.pro/?thermalcalc=external",
+    );
+  });
+
+  it("every calculator has a standard label for the category table", () => {
+    for (const calculator of calculators) {
+      expect(calculator.standard, calculator.slug).toBeTruthy();
+    }
+  });
+
+  it("includes the CadEE air permeability calculator as an embedded thermal calculator", () => {
+    const calculator = getCalculatorBySlug("cadee-air-permeability");
+
+    expect(calculator?.title).toBe("Повітропроникність конструкції");
+    expect(calculator?.mainCategory).toBe("teplotekhnika");
+    expect(calculator?.displayMode).toBe("embed");
+    expect(calculator?.embedUrl).toBe(
+      "https://cadee.pro/?thermalcalc=air-permeability",
+    );
+    expect(calculator?.openUrl).toBe(
+      "https://cadee.pro/?thermalcalc=air-permeability",
     );
   });
 });

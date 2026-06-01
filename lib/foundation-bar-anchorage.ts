@@ -151,7 +151,6 @@ export type FoundationBarAnchorageInput = {
   footingLengthMm: number;
   footingWidthMm: number;
   footingHeightMm: number;
-  effectiveDepthMm: number;
   pedestalWidthMm: number;
   availableAnchorageLengthMm: number;
   axialLoadKn: number;
@@ -161,8 +160,6 @@ export type FoundationBarAnchorageInput = {
   barDiameterMm: number;
   barCount?: number;
   barSpacingForAreaMm?: number;
-  hBondMm: number;
-  aBottomMm: number;
   barAngle: FoundationAnchorageBarAngle;
   slipForm: boolean;
   anchorageShape: FoundationAnchorageShape;
@@ -186,6 +183,9 @@ export type FoundationBarAnchorageValues = {
   soilPressureAtXKPa: number;
   soilResultantKn: number;
   externalLeverArmMm: number;
+  bondHeightMm: number;
+  bottomBarAxisMm: number;
+  effectiveDepthMm: number;
   internalLeverArmMm: number;
   tensileForceKn: number;
   singleBarAreaMm2: number;
@@ -266,8 +266,11 @@ export type FoundationBarAnchorageReport = {
 
 export type GoodBondConditionInput = Pick<
   FoundationBarAnchorageInput,
-  "hBondMm" | "aBottomMm" | "barAngle" | "slipForm"
->;
+  "barAngle" | "slipForm"
+> & {
+  hBondMm: number;
+  aBottomMm: number;
+};
 
 const ALPHA_CT = 1;
 const GAMMA_C = 1.5;
@@ -312,7 +315,6 @@ function getInputItems(input: FoundationBarAnchorageInput): string[] {
     `L = ${formatFormulaNumber(input.footingLengthMm)} мм`,
     `B = ${formatFormulaNumber(input.footingWidthMm)} мм`,
     `h = ${formatFormulaNumber(input.footingHeightMm)} мм`,
-    `d = ${formatFormulaNumber(input.effectiveDepthMm)} мм`,
     `b = ${formatFormulaNumber(input.pedestalWidthMm)} мм`,
     `lb = ${formatFormulaNumber(input.availableAnchorageLengthMm)} мм`,
     `N = ${formatFormulaNumber(input.axialLoadKn)} кН`,
@@ -330,7 +332,6 @@ function getValidationErrors(input: FoundationBarAnchorageInput): string[] {
   if (!isPositiveFinite(input.footingLengthMm)) errors.push("L має бути більше 0.");
   if (!isPositiveFinite(input.footingWidthMm)) errors.push("B має бути більше 0.");
   if (!isPositiveFinite(input.footingHeightMm)) errors.push("h має бути більше 0.");
-  if (!isPositiveFinite(input.effectiveDepthMm)) errors.push("d має бути більше 0.");
   if (!isPositiveFinite(input.pedestalWidthMm)) errors.push("b має бути більше 0.");
   if (!isPositiveFinite(input.availableAnchorageLengthMm)) {
     errors.push("lb має бути більше 0.");
@@ -349,15 +350,6 @@ function getValidationErrors(input: FoundationBarAnchorageInput): string[] {
   ) {
     errors.push("s має бути більше 0.");
   }
-  if (!isPositiveFinite(input.hBondMm)) errors.push("hBond має бути більше 0.");
-  if (!isNonNegativeFinite(input.aBottomMm)) errors.push("aBottom має бути не менше 0.");
-  if (
-    isNonNegativeFinite(input.aBottomMm) &&
-    isPositiveFinite(input.hBondMm) &&
-    input.aBottomMm > input.hBondMm
-  ) {
-    errors.push("aBottom має бути не більше hBond.");
-  }
   if (!isPositiveFinite(input.coverBottomMm)) errors.push("c має бути більше 0.");
   if (!isPositiveFinite(input.coverSideMm)) errors.push("c1 має бути більше 0.");
   if (!isPositiveFinite(input.barSpacingMm)) errors.push("a має бути більше 0.");
@@ -366,6 +358,14 @@ function getValidationErrors(input: FoundationBarAnchorageInput): string[] {
   }
   if (!isNonNegativeFinite(input.transversePressureMPa)) {
     errors.push("p має бути не менше 0.");
+  }
+  if (
+    isPositiveFinite(input.footingHeightMm) &&
+    isPositiveFinite(input.coverBottomMm) &&
+    isPositiveFinite(input.barDiameterMm) &&
+    input.coverBottomMm + input.barDiameterMm / 2 >= input.footingHeightMm
+  ) {
+    errors.push("c + Ø / 2 має бути менше h, щоб обчислити робочу висоту d.");
   }
   if (!getConcreteByClass(input.concreteClass)) {
     errors.push("Оберіть клас бетону з довідника.");
@@ -497,7 +497,10 @@ export function getFoundationBarAnchorageReport(
     (footingWidthM * criticalDistanceM * (maximumSoilPressureKPa + soilPressureAtXKPa)) /
     2;
   const externalLeverArmMm = 0.15 * input.pedestalWidthMm;
-  const internalLeverArmMm = 0.9 * input.effectiveDepthMm;
+  const bondHeightMm = input.footingHeightMm;
+  const bottomBarAxisMm = input.coverBottomMm + input.barDiameterMm / 2;
+  const effectiveDepthMm = input.footingHeightMm - bottomBarAxisMm;
+  const internalLeverArmMm = 0.9 * effectiveDepthMm;
   const tensileForceKn = (soilResultantKn * externalLeverArmMm) / internalLeverArmMm;
   const singleBarAreaMm2 = getRebarAreaSquareMillimeters(input.barDiameterMm);
   const providedAreaMm2 =
@@ -506,22 +509,39 @@ export function getFoundationBarAnchorageReport(
       : (singleBarAreaMm2 * 1000) / (input.barSpacingForAreaMm ?? 1);
   const steelStressMPa = (tensileForceKn * 1000) / providedAreaMm2;
   const fctdMPa = (ALPHA_CT * concrete.fctk005MPa) / GAMMA_C;
-  const eta1 = getGoodBondCondition(input) ? 1 : 0.7;
+  const eta1 = getGoodBondCondition({
+    hBondMm: bondHeightMm,
+    aBottomMm: bottomBarAxisMm,
+    barAngle: input.barAngle,
+    slipForm: input.slipForm,
+  })
+    ? 1
+    : 0.7;
   const eta2 = getEta2(input.barDiameterMm);
   const fbdMPa = 2.25 * eta1 * eta2 * fctdMPa;
   const basicRequiredAnchorageLengthMm =
     (input.barDiameterMm / 4) * (steelStressMPa / fbdMPa);
+  const halfBarSpacingMm = input.barSpacingMm / 2;
   const cdMm = getCdMm(input);
   const alpha1 = getAlpha1(input, cdMm);
-  const alpha2 = getAlpha2(input, cdMm);
+  const alpha2OffsetMm =
+    input.anchorageShape === "straight" ? input.barDiameterMm : 3 * input.barDiameterMm;
+  const alpha2Raw =
+    1 - (0.15 * (cdMm - alpha2OffsetMm)) / input.barDiameterMm;
+  const alpha2AfterLowerLimit = Math.max(alpha2Raw, 0.7);
+  const alpha2 = Math.min(alpha2AfterLowerLimit, 1);
   const transverseRebarMinimumAreaMm2 =
     input.structureType === "beam" ? 0.25 * providedAreaMm2 : 0;
   const lambda =
     (input.transverseRebarAreaMm2 - transverseRebarMinimumAreaMm2) / providedAreaMm2;
   const k = getKValue(input.kScheme);
-  const alpha3 = clamp(1 - k * lambda, 0.7, 1);
+  const alpha3Raw = 1 - k * lambda;
+  const alpha3AfterLowerLimit = Math.max(alpha3Raw, 0.7);
+  const alpha3 = Math.min(alpha3AfterLowerLimit, 1);
   const alpha4 = input.weldedTransverseRebar ? 0.7 : 1;
-  const alpha5 = clamp(1 - 0.04 * input.transversePressureMPa, 0.7, 1);
+  const alpha5Raw = 1 - 0.04 * input.transversePressureMPa;
+  const alpha5AfterLowerLimit = Math.max(alpha5Raw, 0.7);
+  const alpha5 = Math.min(alpha5AfterLowerLimit, 1);
   const alpha235Raw = alpha2 * alpha3 * alpha5;
   const alpha235 = Math.max(alpha235Raw, 0.7);
   const designAnchorageLengthMm = alpha1 * alpha4 * alpha235 * basicRequiredAnchorageLengthMm;
@@ -547,6 +567,9 @@ export function getFoundationBarAnchorageReport(
     soilPressureAtXKPa,
     soilResultantKn,
     externalLeverArmMm,
+    bondHeightMm,
+    bottomBarAxisMm,
+    effectiveDepthMm,
     internalLeverArmMm,
     tensileForceKn,
     singleBarAreaMm2,
@@ -624,14 +647,26 @@ export function getFoundationBarAnchorageReport(
           cdMm,
         )} - ${formatFormulaNumber(
           input.barDiameterMm,
-        )}) / ${formatFormulaNumber(input.barDiameterMm)}; 0.7); 1.0) = ${formatFormulaNumber(
+        )}) / ${formatFormulaNumber(
+          input.barDiameterMm,
+        )}; 0.7); 1.0) = min(max(${formatFormulaNumber(
+          alpha2Raw,
+        )}; 0.7); 1.0) = min(${formatFormulaNumber(
+          alpha2AfterLowerLimit,
+        )}; 1.0) = ${formatFormulaNumber(
           alpha2,
         )}`
       : `alpha2 = min(max(1.0 - 0.15 * (cd - 3Ø) / Ø; 0.7); 1.0) = min(max(1.0 - 0.15 * (${formatFormulaNumber(
           cdMm,
         )} - 3 * ${formatFormulaNumber(
           input.barDiameterMm,
-        )}) / ${formatFormulaNumber(input.barDiameterMm)}; 0.7); 1.0) = ${formatFormulaNumber(
+        )}) / ${formatFormulaNumber(
+          input.barDiameterMm,
+        )}; 0.7); 1.0) = min(max(${formatFormulaNumber(
+          alpha2Raw,
+        )}; 0.7); 1.0) = min(${formatFormulaNumber(
+          alpha2AfterLowerLimit,
+        )}; 1.0) = ${formatFormulaNumber(
           alpha2,
         )}`;
   const steps: FoundationBarAnchorageReportStep[] = [
@@ -728,9 +763,17 @@ export function getFoundationBarAnchorageReport(
     {
       key: "internal-lever-arm",
       caption:
-        "Визначення внутрішнього плеча пари zi за спрощеним припущенням п. 8.8.2.6 ДСТУ Б В.2.6-156:2010:",
-      formula: `zi = 0.9 * d = 0.9 * ${formatFormulaNumber(
-        input.effectiveDepthMm,
+        "Обчислення робочої висоти d та внутрішнього плеча zi за спрощеним припущенням п. 8.8.2.6 ДСТУ Б В.2.6-156:2010:",
+      formula: `aBottom = c + Ø / 2 = ${formatFormulaNumber(
+        input.coverBottomMm,
+      )} + ${formatFormulaNumber(input.barDiameterMm)} / 2 = ${formatFormulaNumber(
+        bottomBarAxisMm,
+      )} мм; d = h - aBottom = ${formatFormulaNumber(
+        input.footingHeightMm,
+      )} - ${formatFormulaNumber(bottomBarAxisMm)} = ${formatFormulaNumber(
+        effectiveDepthMm,
+      )} мм; zi = 0.9 * d = 0.9 * ${formatFormulaNumber(
+        effectiveDepthMm,
       )} = ${formatFormulaNumber(internalLeverArmMm)} мм`,
     },
     {
@@ -782,14 +825,14 @@ export function getFoundationBarAnchorageReport(
       formula:
         eta1 === 1
           ? `eta1 = 1.0, оскільки hBond = ${formatFormulaNumber(
-              input.hBondMm,
+              bondHeightMm,
             )} мм, aBottom = ${formatFormulaNumber(
-              input.aBottomMm,
+              bottomBarAxisMm,
             )} мм і стрижень знаходиться в зоні добрих умов зчеплення`
           : `eta1 = 0.7, оскільки hBond = ${formatFormulaNumber(
-              input.hBondMm,
+              bondHeightMm,
             )} мм, aBottom = ${formatFormulaNumber(
-              input.aBottomMm,
+              bottomBarAxisMm,
             )} мм і стрижень знаходиться поза зоною добрих умов зчеплення`,
     },
     {
@@ -833,10 +876,16 @@ export function getFoundationBarAnchorageReport(
               input.barSpacingMm,
             )} / 2; ${formatFormulaNumber(input.coverSideMm)}; ${formatFormulaNumber(
               input.coverBottomMm,
-            )}) = ${formatFormulaNumber(cdMm)} мм`
+            )}) = min(${formatFormulaNumber(halfBarSpacingMm)}; ${formatFormulaNumber(
+              input.coverSideMm,
+            )}; ${formatFormulaNumber(input.coverBottomMm)}) = ${formatFormulaNumber(
+              cdMm,
+            )} мм`
           : `cd = min(a / 2; c1) = min(${formatFormulaNumber(
               input.barSpacingMm,
-            )} / 2; ${formatFormulaNumber(input.coverSideMm)}) = ${formatFormulaNumber(
+            )} / 2; ${formatFormulaNumber(input.coverSideMm)}) = min(${formatFormulaNumber(
+              halfBarSpacingMm,
+            )}; ${formatFormulaNumber(input.coverSideMm)}) = ${formatFormulaNumber(
               cdMm,
             )} мм`,
     },
@@ -888,7 +937,11 @@ export function getFoundationBarAnchorageReport(
         "Визначення коефіцієнта alpha3 впливу поперечної арматури, не привареної до основної, згідно з табл. 7.2 ДСТУ Б В.2.6-156:2010:",
       formula: `alpha3 = min(max(1.0 - K * lambda; 0.7); 1.0) = min(max(1.0 - ${formatFormulaNumber(
         k,
-      )} * ${formatFormulaNumber(lambda, 3)}; 0.7); 1.0) = ${formatFormulaNumber(
+      )} * ${formatFormulaNumber(lambda, 3)}; 0.7); 1.0) = min(max(${formatFormulaNumber(
+        alpha3Raw,
+      )}; 0.7); 1.0) = min(${formatFormulaNumber(
+        alpha3AfterLowerLimit,
+      )}; 1.0) = ${formatFormulaNumber(
         alpha3,
       )}`,
     },
@@ -906,7 +959,11 @@ export function getFoundationBarAnchorageReport(
         "Визначення коефіцієнта alpha5 впливу поперечного тиску згідно з табл. 7.2 ДСТУ Б В.2.6-156:2010:",
       formula: `alpha5 = min(max(1.0 - 0.04 * p; 0.7); 1.0) = min(max(1.0 - 0.04 * ${formatFormulaNumber(
         input.transversePressureMPa,
-      )}; 0.7); 1.0) = ${formatFormulaNumber(alpha5)}`,
+      )}; 0.7); 1.0) = min(max(${formatFormulaNumber(
+        alpha5Raw,
+      )}; 0.7); 1.0) = min(${formatFormulaNumber(
+        alpha5AfterLowerLimit,
+      )}; 1.0) = ${formatFormulaNumber(alpha5)}`,
     },
     {
       key: "alpha235",
