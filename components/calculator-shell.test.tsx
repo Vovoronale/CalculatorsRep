@@ -612,7 +612,7 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("spinbutton", { name: "q, кН/м²" })).toHaveValue(10);
     expect(
       screen.getByRole("img", {
-        name: "Схема розподілу навантаження q між напрямами lk і ld",
+        name: "Книжкова схема розподілу навантаження q між напрямами lk і ld за рисунком VII.40",
       }),
     ).toBeInTheDocument();
     expect(
@@ -620,6 +620,12 @@ describe("CalculatorShell", () => {
         "qk = c1 * q = 0.9412 * 10 = 9.41 кН/м²; qd = c2 * q = 0.0588 * 10 = 0.59 кН/м²",
       ),
     ).toBeInTheDocument();
+    const coefficientsEquation = screen.getByLabelText(
+      "c1 = ld^4 / (lk^4 + ld^4) = 6^4 / (3^4 + 6^4) = 0.9412; c2 = lk^4 / (lk^4 + ld^4) = 3^4 / (3^4 + 6^4) = 0.0588",
+    );
+    expect(
+      coefficientsEquation.querySelectorAll(".cassoon-load-equation__line"),
+    ).toHaveLength(2);
     expect(
       screen.getAllByText((_, element) =>
         Boolean(
@@ -629,6 +635,11 @@ describe("CalculatorShell", () => {
         ),
       ).length,
     ).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("link", {
+        name: "Линович Л.Е. Расчет и конструирование частей гражданских зданий. Изд. 8-е, перераб. и доп. К.: Будівельник, 1972. 664 с.",
+      }),
+    ).toHaveAttribute("href", "https://koha.tntu.edu.ua/bib/134803");
 
     await user.clear(screen.getByRole("spinbutton", { name: "ld, м" }));
     await user.type(screen.getByRole("spinbutton", { name: "ld, м" }), "6.3");

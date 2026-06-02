@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import {
+  CASSOON_LOAD_DISTRIBUTION_SOURCE,
   formatCassoonLoadDistributionNumber,
   getCassoonLoadDistributionReport,
   type CassoonLoadDistributionReportStep,
@@ -106,13 +107,25 @@ function ReportStepFormula({ step }: { step: CassoonLoadDistributionReportStep }
     return null;
   }
 
+  const formulaLines = step.formula.split("; ");
+
   return (
     <div
       className="cassoon-load-equation"
       aria-label={step.formula}
       title={step.formula}
     >
-      <FormulaText text={step.formula} />
+      {formulaLines.map((line, index) => (
+        <span className="cassoon-load-equation__line" key={`${step.key}:${line}`}>
+          <FormulaText
+            text={
+              index < formulaLines.length - 1 && !line.endsWith(";")
+                ? `${line};`
+                : line
+            }
+          />
+        </span>
+      ))}
     </div>
   );
 }
@@ -122,62 +135,120 @@ function LoadDistributionDiagram() {
     <figure className="cassoon-load-diagram">
       <svg
         role="img"
-        aria-label="Схема розподілу навантаження q між напрямами lk і ld"
-        viewBox="0 0 420 260"
+        aria-label="Книжкова схема розподілу навантаження q між напрямами lk і ld за рисунком VII.40"
+        viewBox="0 0 565 285"
       >
         <defs>
           <marker
             id="cassoon-arrow"
-            viewBox="0 0 8 8"
-            refX="4"
+            viewBox="0 0 10 8"
+            refX="5"
             refY="4"
-            markerWidth="6"
-            markerHeight="6"
+            markerWidth="7"
+            markerHeight="7"
             orient="auto-start-reverse"
           >
-            <path d="M0 0 L8 4 L0 8 Z" />
+            <path d="M0 0 L10 4 L0 8 Z" />
           </marker>
           <pattern
             id="cassoon-hatch"
-            width="8"
-            height="8"
+            width="6"
+            height="6"
             patternUnits="userSpaceOnUse"
             patternTransform="rotate(90)"
           >
-            <path d="M0 0 H8" />
+            <path d="M0 0 H6" />
+          </pattern>
+          <pattern
+            id="cassoon-diagonal-hatch"
+            width="7"
+            height="7"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <path d="M0 0 H7" />
+          </pattern>
+          <pattern
+            id="cassoon-horizontal-hatch"
+            width="6"
+            height="6"
+            patternUnits="userSpaceOnUse"
+          >
+            <path d="M0 0 H6" />
           </pattern>
         </defs>
 
-        <rect x="108" y="54" width="210" height="130" rx="4" className="cassoon-load-diagram__slab" />
-        <rect x="108" y="54" width="210" height="130" rx="4" className="cassoon-load-diagram__load-fill" />
-        <path d="M108 54 L318 184 M318 54 L108 184" className="cassoon-load-diagram__diagonal" />
+        <g className="cassoon-load-diagram__book">
+          <g transform="translate(34 34)">
+            <rect x="18" y="32" width="126" height="82" className="cassoon-load-diagram__slab" />
+            <rect x="18" y="67" width="126" height="15" className="cassoon-load-diagram__load-fill" />
+            <rect x="74" y="32" width="15" height="82" className="cassoon-load-diagram__load-fill" />
+            <line x1="18" y1="24" x2="144" y2="24" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
+            <line x1="10" y1="32" x2="10" y2="114" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
+            <rect x="72" y="8" width="18" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="81" y="18" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">ld</text>
+            <rect x="-5" y="68" width="18" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="4" y="78" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">lk</text>
+            <text x="79" y="142" className="cassoon-load-diagram__caption">а</text>
+            <text x="52" y="161" className="cassoon-load-diagram__caption">ld/lk ≤ 2</text>
+          </g>
 
-        <g className="cassoon-load-diagram__loads">
-          <line x1="132" y1="30" x2="132" y2="54" markerEnd="url(#cassoon-arrow)" />
-          <line x1="168" y1="30" x2="168" y2="54" markerEnd="url(#cassoon-arrow)" />
-          <line x1="204" y1="30" x2="204" y2="54" markerEnd="url(#cassoon-arrow)" />
-          <line x1="240" y1="30" x2="240" y2="54" markerEnd="url(#cassoon-arrow)" />
-          <line x1="276" y1="30" x2="276" y2="54" markerEnd="url(#cassoon-arrow)" />
-          <text x="318" y="38">q</text>
-        </g>
+          <g transform="translate(203 34)">
+            <rect x="18" y="32" width="126" height="82" className="cassoon-load-diagram__slab" />
+            <rect x="18" y="10" width="126" height="17" className="cassoon-load-diagram__load-fill" />
+            <rect x="18" y="67" width="126" height="15" className="cassoon-load-diagram__load-fill" />
+            <line x1="18" y1="2" x2="144" y2="2" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
+            <line x1="10" y1="32" x2="10" y2="114" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
+            <rect x="72" y="-17" width="18" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="81" y="-7" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">ld</text>
+            <rect x="-5" y="68" width="18" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="4" y="78" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">lk</text>
+            <rect x="146" y="14" width="13" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="152" y="24" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">q</text>
+            <text x="79" y="142" className="cassoon-load-diagram__caption">б</text>
+            <text x="52" y="161" className="cassoon-load-diagram__caption">ld/lk &gt; 2</text>
+          </g>
 
-        <g className="cassoon-load-diagram__dimension">
-          <line x1="108" y1="216" x2="318" y2="216" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" />
-          <text x="204" y="238">ld</text>
-          <line x1="70" y1="54" x2="70" y2="184" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" />
-          <text x="44" y="123">lk</text>
-        </g>
+          <g transform="translate(392 34)">
+            <rect x="18" y="32" width="126" height="82" className="cassoon-load-diagram__slab" />
+            <path d="M36 12 H126 L144 32 H18 Z" className="cassoon-load-diagram__load-zone cassoon-load-diagram__load-zone--vertical" />
+            <path d="M18 32 L-24 73 L18 114 Z" className="cassoon-load-diagram__load-zone cassoon-load-diagram__load-zone--horizontal" />
+            <line x1="18" y1="-5" x2="18" y2="10" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__load-arrow" />
+            <line x1="-42" y1="73" x2="-26" y2="73" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__load-arrow" />
+            <line x1="18" y1="32" x2="59" y2="73" className="cassoon-load-diagram__guide" />
+            <line x1="18" y1="114" x2="59" y2="73" className="cassoon-load-diagram__guide" />
+            <line x1="144" y1="32" x2="103" y2="73" className="cassoon-load-diagram__guide" />
+            <line x1="144" y1="114" x2="103" y2="73" className="cassoon-load-diagram__guide" />
+            <line x1="59" y1="73" x2="103" y2="73" className="cassoon-load-diagram__guide" />
+            <line x1="46" y1="56" x2="132" y2="56" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
+            <line x1="27" y1="42" x2="27" y2="104" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
+            <rect x="80" y="42" width="18" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="89" y="52" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">ld</text>
+            <rect x="31" y="68" width="18" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="40" y="78" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">lk</text>
+            <rect x="73" y="18" width="22" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="84" y="28" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">qk</text>
+            <rect x="-20" y="66" width="22" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="-9" y="76" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">qd</text>
+            <rect x="22" y="-6" width="13" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="28" y="4" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">q</text>
+            <rect x="-39" y="58" width="13" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="-33" y="68" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">q</text>
+            <rect x="149" y="68" width="13" height="13" className="cassoon-load-diagram__label-bg" />
+            <text x="155" y="78" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">q</text>
+            <text x="79" y="142" className="cassoon-load-diagram__caption">в</text>
+            <text x="52" y="161" className="cassoon-load-diagram__caption">ld/lk &lt; 2</text>
+          </g>
 
-        <g className="cassoon-load-diagram__direction">
-          <line x1="150" y1="104" x2="276" y2="104" markerEnd="url(#cassoon-arrow)" />
-          <text x="190" y="96">qd</text>
-          <line x1="210" y1="166" x2="210" y2="78" markerEnd="url(#cassoon-arrow)" />
-          <text x="220" y="126">qk</text>
+          <text x="282" y="264" className="cassoon-load-diagram__figure-title">
+            Рис. VII.40. Розподіл навантаження за напрямами lk і ld
+          </text>
         </g>
       </svg>
       <figcaption>
-        Схема позначень: lk - короткий проліт, ld - довгий проліт, q - повне
-        рівномірне навантаження.
+        Схема стилізована під книжкове креслення: а - двонапрямний розподіл;
+        б - балкова схема при ld/lk &gt; 2; в - розподіл по трапеціях і
+        трикутниках.
       </figcaption>
     </figure>
   );
@@ -283,6 +354,17 @@ export function CassoonLoadDistributionCalculator() {
           </p>
         </div>
       ) : null}
+
+      <p className="cassoon-load-source">
+        Джерело:{" "}
+        <a
+          href={CASSOON_LOAD_DISTRIBUTION_SOURCE.url}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {CASSOON_LOAD_DISTRIBUTION_SOURCE.label}
+        </a>
+      </p>
 
       {report.errors.length > 0 ? (
         <div className="cassoon-load-errors" role="alert">

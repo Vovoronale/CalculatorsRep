@@ -9,6 +9,12 @@ export const CASSOON_LOAD_DISTRIBUTION_NOTATION = {
   spanRatio: "ld/lk",
 } as const;
 
+export const CASSOON_LOAD_DISTRIBUTION_SOURCE = {
+  label:
+    "Линович Л.Е. Расчет и конструирование частей гражданских зданий. Изд. 8-е, перераб. и доп. К.: Будівельник, 1972. 664 с.",
+  url: "https://koha.tntu.edu.ua/bib/134803",
+} as const;
+
 export type CassoonLoadDistributionInput = {
   shortSpanM: number;
   longSpanM: number;
@@ -121,10 +127,9 @@ export function getCassoonLoadDistributionReport(
   const baseSteps: CassoonLoadDistributionReportStep[] = [
     {
       key: "source",
-      caption:
-        "Методика розподілу навантаження між напрямами lk і ld для кесонних перекриттів за Ліновічем:",
+      caption: `Методика розподілу навантаження між напрямами lk і ld для кесонних перекриттів за джерелом: ${CASSOON_LOAD_DISTRIBUTION_SOURCE.label}`,
       items: [
-        "У книзі «Розрахунок та конструювання частин будівель» навантаження q розкладається між двома взаємно перпендикулярними напрямами пропорційно четвертим степеням протилежних прольотів.",
+        "У книзі «Расчет и конструирование частей гражданских зданий» навантаження q розкладається між двома взаємно перпендикулярними напрямами пропорційно четвертим степеням протилежних прольотів.",
         "Для співвідношення ld/lk до 2 плита працює у двох напрямах; коли ld/lk більше 2, її зазвичай розглядають як балкову плиту з передачею навантаження в короткому напрямі.",
       ],
     },

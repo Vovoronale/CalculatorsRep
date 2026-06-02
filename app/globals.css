@@ -2203,10 +2203,12 @@ textarea {
 .cassoon-load-diagram svg {
   width: 100%;
   height: auto;
+  border: 1px solid color-mix(in srgb, var(--text) 18%, var(--border));
+  background: color-mix(in srgb, var(--surface) 94%, #f5efd8);
   color: var(--text);
-  font-family: var(--font-mono), monospace;
-  font-size: 13px;
-  font-weight: 700;
+  font-family: "Times New Roman", Georgia, serif;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .cassoon-load-diagram figcaption {
@@ -2217,51 +2219,88 @@ textarea {
 }
 
 .cassoon-load-diagram__slab {
-  fill: color-mix(in srgb, var(--info) 9%, var(--surface));
-  stroke: color-mix(in srgb, var(--info) 42%, var(--border-strong));
-  stroke-width: 2;
+  fill: color-mix(in srgb, var(--surface) 98%, #fff);
+  stroke: currentColor;
+  stroke-width: 1.5;
 }
 
 .cassoon-load-diagram__load-fill {
   fill: url("#cassoon-hatch");
-  stroke: transparent;
+  stroke: currentColor;
+  stroke-width: 1;
 }
 
-.cassoon-load-diagram__load-fill + path,
+.cassoon-load-diagram__load-zone {
+  stroke: currentColor;
+  stroke-linejoin: round;
+  stroke-width: 1;
+}
+
+.cassoon-load-diagram__load-zone--vertical {
+  fill: url("#cassoon-hatch");
+}
+
+.cassoon-load-diagram__load-zone--horizontal {
+  fill: url("#cassoon-horizontal-hatch");
+}
+
 .cassoon-load-diagram pattern path {
-  stroke: color-mix(in srgb, var(--accent) 42%, var(--border));
+  stroke: currentColor;
+  stroke-width: 0.8;
+}
+
+.cassoon-load-diagram__guide,
+.cassoon-load-diagram__dimension,
+.cassoon-load-diagram__load-arrow {
+  fill: none;
+  stroke: currentColor;
+}
+
+.cassoon-load-diagram__guide {
+  stroke-width: 0.9;
+}
+
+.cassoon-load-diagram__dimension {
+  stroke-width: 1;
+}
+
+.cassoon-load-diagram__load-arrow {
   stroke-width: 1.2;
 }
 
-.cassoon-load-diagram__diagonal {
-  fill: none;
-  stroke: color-mix(in srgb, var(--text-muted) 64%, transparent);
-  stroke-width: 1.4;
-  stroke-dasharray: 5 5;
-}
-
-.cassoon-load-diagram__loads,
-.cassoon-load-diagram__dimension,
-.cassoon-load-diagram__direction {
-  fill: var(--text);
-  stroke: var(--text-muted);
-  stroke-width: 1.7;
-}
-
-.cassoon-load-diagram__loads line,
-.cassoon-load-diagram__dimension line,
-.cassoon-load-diagram__direction line {
-  fill: none;
-}
-
-.cassoon-load-diagram__loads text,
-.cassoon-load-diagram__dimension text,
-.cassoon-load-diagram__direction text {
+.cassoon-load-diagram__label,
+.cassoon-load-diagram__caption,
+.cassoon-load-diagram__figure-title {
+  fill: currentColor;
   stroke: none;
 }
 
+.cassoon-load-diagram__label-bg {
+  fill: color-mix(in srgb, var(--surface) 98%, #f5efd8);
+  stroke: none;
+}
+
+.cassoon-load-diagram__label {
+  font-size: 14px;
+  font-style: italic;
+}
+
+.cassoon-load-diagram__label--middle {
+  dominant-baseline: middle;
+  text-anchor: middle;
+}
+
+.cassoon-load-diagram__caption {
+  font-size: 13px;
+}
+
+.cassoon-load-diagram__figure-title {
+  font-size: 14px;
+  text-anchor: middle;
+}
+
 .cassoon-load-diagram marker path {
-  fill: var(--text-muted);
+  fill: currentColor;
 }
 
 .cassoon-load-summary,
@@ -2297,6 +2336,20 @@ textarea {
 .cassoon-load-warning p,
 .cassoon-load-errors ul {
   margin: 0;
+}
+
+.cassoon-load-source {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.cassoon-load-source a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .cassoon-load-errors ul {
@@ -2371,12 +2424,19 @@ textarea {
 }
 
 .cassoon-load-equation {
-  width: 100%;
-  overflow-x: auto;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
   color: var(--text);
   font-family: var(--font-mono), monospace;
   font-size: 13px;
   line-height: 1.7;
+}
+
+.cassoon-load-equation__line {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
   white-space: nowrap;
 }
 
