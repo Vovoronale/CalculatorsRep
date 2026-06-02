@@ -1,4 +1,5 @@
 import React from "react";
+import { readFileSync } from "node:fs";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
@@ -659,6 +660,14 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByLabelText("ld/lk = 2.1 > 2, тому приймаємо c1 = 1; c2 = 0"),
     ).toBeInTheDocument();
+  });
+
+  it("stacks native cassoon load input fields vertically", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+
+    expect(css).toMatch(
+      /\.cassoon-load-controls\s*{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\);/,
+    );
   });
 
   it("updates cassoon load units and normalizes reversed spans", async () => {

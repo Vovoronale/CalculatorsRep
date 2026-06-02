@@ -2148,7 +2148,7 @@ textarea {
 
 .cassoon-load-controls {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   min-width: 0;
 }
@@ -2162,7 +2162,7 @@ textarea {
   font-weight: 700;
 }
 
-.cassoon-load-field > span {
+.cassoon-load-field > span:not(.cassoon-load-input-group) {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 4px;
@@ -2170,7 +2170,7 @@ textarea {
   min-width: 0;
 }
 
-.cassoon-load-input-group {
+.cassoon-load-field > .cassoon-load-input-group {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(72px, auto);
   gap: 6px;
