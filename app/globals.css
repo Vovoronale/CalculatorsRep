@@ -2170,6 +2170,13 @@ textarea {
   min-width: 0;
 }
 
+.cassoon-load-input-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(72px, auto);
+  gap: 6px;
+  align-items: stretch;
+}
+
 .cassoon-load-field input,
 .cassoon-load-field select {
   width: 100%;
@@ -2183,6 +2190,11 @@ textarea {
   font-size: 14px;
   font-weight: 600;
   padding: 9px 10px;
+}
+
+.cassoon-load-input-group select {
+  width: auto;
+  min-width: 72px;
 }
 
 .cassoon-load-field input:focus,

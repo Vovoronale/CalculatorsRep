@@ -607,10 +607,18 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByLabelText("Калькулятор коефіцієнтів c1 і c2 для розподілу навантаження"),
     ).toBeInTheDocument();
-    expect(screen.getByRole("spinbutton", { name: "lk, м" })).toHaveValue(3);
-    expect(screen.getByRole("spinbutton", { name: "ld, м" })).toHaveValue(6);
-    expect(screen.getByRole("spinbutton", { name: "q, кН/м²" })).toHaveValue(10);
+    expect(screen.getByRole("spinbutton", { name: "lk" })).toHaveValue(3);
+    expect(screen.getByRole("spinbutton", { name: "ld" })).toHaveValue(6);
+    expect(screen.getByRole("spinbutton", { name: "q" })).toHaveValue(10);
+    expect(screen.queryByRole("spinbutton", { name: "lk, м" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("spinbutton", { name: "ld, м" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("spinbutton", { name: "q, кН/м²" })).not.toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Одиниця lk" })).toHaveValue("m");
+    expect(screen.getByRole("combobox", { name: "Одиниця ld" })).toHaveValue("m");
     expect(screen.getByRole("combobox", { name: "Одиниця q" })).toHaveValue("kn-m2");
+    expect(screen.getByRole("spinbutton", { name: "q" }).closest("label")).toContainElement(
+      screen.getByRole("combobox", { name: "Одиниця q" }),
+    );
     expect(
       screen.getByRole("img", {
         name: "Книжкова схема розподілу навантаження q між напрямами lk і ld за рисунком VII.40",
@@ -642,8 +650,8 @@ describe("CalculatorShell", () => {
       }),
     ).toHaveAttribute("href", "https://koha.tntu.edu.ua/bib/134803");
 
-    await user.clear(screen.getByRole("spinbutton", { name: "ld, м" }));
-    await user.type(screen.getByRole("spinbutton", { name: "ld, м" }), "6.3");
+    await user.clear(screen.getByRole("spinbutton", { name: "ld" }));
+    await user.type(screen.getByRole("spinbutton", { name: "ld" }), "6.3");
 
     expect(
       screen.getByText(/ld\/lk більше 2: за приміткою Ліновіча/),
@@ -664,20 +672,33 @@ describe("CalculatorShell", () => {
     render(<CalculatorShell selectedCalculator={calculator} />);
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця q" }), "n-m2");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця lk" }), "cm");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця ld" }), "mm");
 
-    expect(screen.getByRole("spinbutton", { name: "q, Н/м²" })).toHaveValue(10);
+    expect(screen.getByRole("spinbutton", { name: "q" })).toHaveValue(10);
+    expect(screen.queryByRole("spinbutton", { name: "q, Н/м²" })).not.toBeInTheDocument();
 
-    await user.clear(screen.getByRole("spinbutton", { name: "q, Н/м²" }));
-    await user.type(screen.getByRole("spinbutton", { name: "q, Н/м²" }), "10000");
-    await user.clear(screen.getByRole("spinbutton", { name: "lk, м" }));
-    await user.type(screen.getByRole("spinbutton", { name: "lk, м" }), "6");
-    await user.clear(screen.getByRole("spinbutton", { name: "ld, м" }));
-    await user.type(screen.getByRole("spinbutton", { name: "ld, м" }), "3");
+    await user.clear(screen.getByRole("spinbutton", { name: "q" }));
+    await user.type(screen.getByRole("spinbutton", { name: "q" }), "10000");
+    await user.clear(screen.getByRole("spinbutton", { name: "lk" }));
+    await user.type(screen.getByRole("spinbutton", { name: "lk" }), "600");
+    await user.clear(screen.getByRole("spinbutton", { name: "ld" }));
+    await user.type(screen.getByRole("spinbutton", { name: "ld" }), "3000");
 
     expect(screen.queryByText("ld має бути не менше lk.")).not.toBeInTheDocument();
     expect(
       screen.getAllByText((_, element) =>
         Boolean(element?.textContent?.includes("прийнято lk = 3 м; ld = 6 м")),
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText((_, element) =>
+        Boolean(element?.textContent?.includes("введено l1 = 600 см")),
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText((_, element) =>
+        Boolean(element?.textContent?.includes("введено l2 = 3000 мм")),
       ).length,
     ).toBeGreaterThan(0);
     expect(

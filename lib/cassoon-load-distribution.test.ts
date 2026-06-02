@@ -94,6 +94,36 @@ describe("cassoon load distribution calculator", () => {
     );
   });
 
+  it("keeps user-selected length units in input items while calculating in meters", () => {
+    const report = getCassoonLoadDistributionReport({
+      shortSpanM: 3,
+      longSpanM: 6,
+      shortSpanDisplayValue: 300,
+      shortSpanUnit: "cm",
+      longSpanDisplayValue: 6000,
+      longSpanUnit: "mm",
+      totalLoadKnM2: 10,
+    });
+
+    expect(report.valid).toBe(true);
+    expect(report.values).toMatchObject({
+      spanRatio: 2,
+      c1: expect.closeTo(0.941176, 5),
+      c2: expect.closeTo(0.058824, 5),
+      shortDirectionLoadKnM2: expect.closeTo(9.4118, 4),
+      longDirectionLoadKnM2: expect.closeTo(0.5882, 4),
+    });
+    expect(report.steps.find((step) => step.key === "inputs")?.items).toEqual([
+      "введено l1 = 300 см",
+      "введено l2 = 6000 мм",
+      "прийнято lk = 3 м; ld = 6 м",
+      "q = 10 кН/м²",
+    ]);
+    expect(report.steps.find((step) => step.key === "span-ratio")?.formula).toBe(
+      "ld/lk = 6 / 3 = 2",
+    );
+  });
+
   it("validates positive spans and positive load", () => {
     const report = getCassoonLoadDistributionReport({
       shortSpanM: 6,

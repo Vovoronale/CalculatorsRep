@@ -41,9 +41,34 @@ export const CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS = {
 export type CassoonLoadDistributionLoadUnit =
   keyof typeof CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS;
 
+export const CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS = {
+  m: {
+    label: "м",
+    factorToM: 1,
+    fractionDigits: 3,
+  },
+  cm: {
+    label: "см",
+    factorToM: 0.01,
+    fractionDigits: 1,
+  },
+  mm: {
+    label: "мм",
+    factorToM: 0.001,
+    fractionDigits: 0,
+  },
+} as const;
+
+export type CassoonLoadDistributionLengthUnit =
+  keyof typeof CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS;
+
 export type CassoonLoadDistributionInput = {
   shortSpanM: number;
   longSpanM: number;
+  shortSpanDisplayValue?: number;
+  shortSpanUnit?: CassoonLoadDistributionLengthUnit;
+  longSpanDisplayValue?: number;
+  longSpanUnit?: CassoonLoadDistributionLengthUnit;
   totalLoadKnM2: number;
   loadUnit?: CassoonLoadDistributionLoadUnit;
 };
@@ -119,6 +144,24 @@ function getLoadUnit(input: CassoonLoadDistributionInput) {
   return CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS[input.loadUnit ?? "kn-m2"];
 }
 
+function getLengthUnit(unit: CassoonLoadDistributionLengthUnit | undefined) {
+  return CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS[unit ?? "m"];
+}
+
+function formatLengthInputValue(
+  fallbackValueM: number,
+  displayValue: number | undefined,
+  unit: CassoonLoadDistributionLengthUnit | undefined,
+): string {
+  const lengthUnit = getLengthUnit(unit);
+  const value = displayValue ?? fallbackValueM / lengthUnit.factorToM;
+
+  return `${formatCassoonLoadDistributionNumber(
+    value,
+    lengthUnit.fractionDigits,
+  )} ${lengthUnit.label}`;
+}
+
 function formatLoadValue(valueKnM2: number, input: CassoonLoadDistributionInput): string {
   const unit = getLoadUnit(input);
 
@@ -161,8 +204,16 @@ function getInputItems(input: CassoonLoadDistributionInput): string[] {
   const unit = getLoadUnit(input);
 
   return [
-    `введено l1 = ${formatCassoonLoadDistributionNumber(input.shortSpanM)} м`,
-    `введено l2 = ${formatCassoonLoadDistributionNumber(input.longSpanM)} м`,
+    `введено l1 = ${formatLengthInputValue(
+      input.shortSpanM,
+      input.shortSpanDisplayValue,
+      input.shortSpanUnit,
+    )}`,
+    `введено l2 = ${formatLengthInputValue(
+      input.longSpanM,
+      input.longSpanDisplayValue,
+      input.longSpanUnit,
+    )}`,
     `прийнято lk = ${formatCassoonLoadDistributionNumber(
       spans.shortSpanM,
     )} м; ld = ${formatCassoonLoadDistributionNumber(spans.longSpanM)} м`,

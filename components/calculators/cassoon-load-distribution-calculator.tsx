@@ -3,10 +3,12 @@
 import { useMemo, useState } from "react";
 
 import {
+  CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS,
   CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS,
   CASSOON_LOAD_DISTRIBUTION_SOURCE,
   formatCassoonLoadDistributionNumber,
   getCassoonLoadDistributionReport,
+  type CassoonLoadDistributionLengthUnit,
   type CassoonLoadDistributionLoadUnit,
   type CassoonLoadDistributionReportStep,
 } from "@/lib/cassoon-load-distribution";
@@ -40,6 +42,10 @@ function parseNumberInput(value: string): number {
 
 function getDisplayLoadValue(valueKnM2: number, unit: CassoonLoadDistributionLoadUnit): number {
   return valueKnM2 / CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS[unit].factorToKnM2;
+}
+
+function getBaseLengthValue(value: number, unit: CassoonLoadDistributionLengthUnit): number {
+  return value * CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS[unit].factorToM;
 }
 
 function isFormulaBoundary(value: string | undefined): boolean {
@@ -264,21 +270,39 @@ export function CassoonLoadDistributionCalculator() {
   const [shortSpanInput, setShortSpanInput] = useState("3");
   const [longSpanInput, setLongSpanInput] = useState("6");
   const [totalLoadInput, setTotalLoadInput] = useState("10");
+  const [shortSpanUnit, setShortSpanUnit] =
+    useState<CassoonLoadDistributionLengthUnit>("m");
+  const [longSpanUnit, setLongSpanUnit] =
+    useState<CassoonLoadDistributionLengthUnit>("m");
   const [loadUnit, setLoadUnit] = useState<CassoonLoadDistributionLoadUnit>("kn-m2");
   const selectedLoadUnit = CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS[loadUnit];
 
   const report = useMemo(
     () => {
+      const shortSpan = parseNumberInput(shortSpanInput);
+      const longSpan = parseNumberInput(longSpanInput);
       const totalLoad = parseNumberInput(totalLoadInput);
 
       return getCassoonLoadDistributionReport({
-        shortSpanM: parseNumberInput(shortSpanInput),
-        longSpanM: parseNumberInput(longSpanInput),
+        shortSpanM: getBaseLengthValue(shortSpan, shortSpanUnit),
+        longSpanM: getBaseLengthValue(longSpan, longSpanUnit),
+        shortSpanDisplayValue: shortSpan,
+        shortSpanUnit,
+        longSpanDisplayValue: longSpan,
+        longSpanUnit,
         totalLoadKnM2: totalLoad * selectedLoadUnit.factorToKnM2,
         loadUnit,
       });
     },
-    [loadUnit, longSpanInput, selectedLoadUnit.factorToKnM2, shortSpanInput, totalLoadInput],
+    [
+      loadUnit,
+      longSpanInput,
+      longSpanUnit,
+      selectedLoadUnit.factorToKnM2,
+      shortSpanInput,
+      shortSpanUnit,
+      totalLoadInput,
+    ],
   );
 
   return (
@@ -291,68 +315,97 @@ export function CassoonLoadDistributionCalculator() {
           <label className="cassoon-load-field">
             <span>
               <MathNotation base="l" subscript="k" ariaLabel="lk" />
-              <span className="math-notation__unit">, м</span>
             </span>
-            <input
-              type="number"
-              inputMode="decimal"
-              min="0"
-              step="0.1"
-              value={shortSpanInput}
-              onChange={(event) => setShortSpanInput(event.target.value)}
-              aria-label="lk, м"
-            />
+            <span className="cassoon-load-input-group">
+              <input
+                type="number"
+                inputMode="decimal"
+                min="0"
+                step="0.1"
+                value={shortSpanInput}
+                onChange={(event) => setShortSpanInput(event.target.value)}
+                aria-label="lk"
+              />
+              <select
+                value={shortSpanUnit}
+                onChange={(event) =>
+                  setShortSpanUnit(event.target.value as CassoonLoadDistributionLengthUnit)
+                }
+                aria-label="Одиниця lk"
+              >
+                {Object.entries(CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS).map(
+                  ([value, unit]) => (
+                    <option key={value} value={value}>
+                      {unit.label}
+                    </option>
+                  ),
+                )}
+              </select>
+            </span>
           </label>
 
           <label className="cassoon-load-field">
             <span>
               <MathNotation base="l" subscript="d" ariaLabel="ld" />
-              <span className="math-notation__unit">, м</span>
             </span>
-            <input
-              type="number"
-              inputMode="decimal"
-              min="0"
-              step="0.1"
-              value={longSpanInput}
-              onChange={(event) => setLongSpanInput(event.target.value)}
-              aria-label="ld, м"
-            />
+            <span className="cassoon-load-input-group">
+              <input
+                type="number"
+                inputMode="decimal"
+                min="0"
+                step="0.1"
+                value={longSpanInput}
+                onChange={(event) => setLongSpanInput(event.target.value)}
+                aria-label="ld"
+              />
+              <select
+                value={longSpanUnit}
+                onChange={(event) =>
+                  setLongSpanUnit(event.target.value as CassoonLoadDistributionLengthUnit)
+                }
+                aria-label="Одиниця ld"
+              >
+                {Object.entries(CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS).map(
+                  ([value, unit]) => (
+                    <option key={value} value={value}>
+                      {unit.label}
+                    </option>
+                  ),
+                )}
+              </select>
+            </span>
           </label>
 
           <label className="cassoon-load-field">
             <span>
               <MathNotation base="q" ariaLabel="q" />
-              <span className="math-notation__unit">, {selectedLoadUnit.label}</span>
             </span>
-            <input
-              type="number"
-              inputMode="decimal"
-              min="0"
-              step="0.1"
-              value={totalLoadInput}
-              onChange={(event) => setTotalLoadInput(event.target.value)}
-              aria-label={`q, ${selectedLoadUnit.label}`}
-            />
-          </label>
-
-          <label className="cassoon-load-field">
-            <span>Одиниця q</span>
-            <select
-              value={loadUnit}
-              onChange={(event) =>
-                setLoadUnit(event.target.value as CassoonLoadDistributionLoadUnit)
-              }
-              aria-label="Одиниця q"
-            >
-              {Object.entries(CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS).map(
-                ([value, unit]) => (
-                  <option key={value} value={value}>
-                    {unit.label}
-                  </option>
-                ),
-              )}
-            </select>
+            <span className="cassoon-load-input-group">
+              <input
+                type="number"
+                inputMode="decimal"
+                min="0"
+                step="0.1"
+                value={totalLoadInput}
+                onChange={(event) => setTotalLoadInput(event.target.value)}
+                aria-label="q"
+              />
+              <select
+                value={loadUnit}
+                onChange={(event) =>
+                  setLoadUnit(event.target.value as CassoonLoadDistributionLoadUnit)
+                }
+                aria-label="Одиниця q"
+              >
+                {Object.entries(CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS).map(
+                  ([value, unit]) => (
+                    <option key={value} value={value}>
+                      {unit.label}
+                    </option>
+                  ),
+                )}
+              </select>
+            </span>
           </label>
         </div>
 
