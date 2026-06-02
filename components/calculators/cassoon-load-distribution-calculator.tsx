@@ -3,9 +3,11 @@
 import { useMemo, useState } from "react";
 
 import {
+  CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS,
   CASSOON_LOAD_DISTRIBUTION_SOURCE,
   formatCassoonLoadDistributionNumber,
   getCassoonLoadDistributionReport,
+  type CassoonLoadDistributionLoadUnit,
   type CassoonLoadDistributionReportStep,
 } from "@/lib/cassoon-load-distribution";
 
@@ -34,6 +36,10 @@ const SYMBOL_PATTERN = new RegExp(
 
 function parseNumberInput(value: string): number {
   return Number.parseFloat(value.replace(",", "."));
+}
+
+function getDisplayLoadValue(valueKnM2: number, unit: CassoonLoadDistributionLoadUnit): number {
+  return valueKnM2 / CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS[unit].factorToKnM2;
 }
 
 function isFormulaBoundary(value: string | undefined): boolean {
@@ -258,15 +264,21 @@ export function CassoonLoadDistributionCalculator() {
   const [shortSpanInput, setShortSpanInput] = useState("3");
   const [longSpanInput, setLongSpanInput] = useState("6");
   const [totalLoadInput, setTotalLoadInput] = useState("10");
+  const [loadUnit, setLoadUnit] = useState<CassoonLoadDistributionLoadUnit>("kn-m2");
+  const selectedLoadUnit = CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS[loadUnit];
 
   const report = useMemo(
-    () =>
-      getCassoonLoadDistributionReport({
+    () => {
+      const totalLoad = parseNumberInput(totalLoadInput);
+
+      return getCassoonLoadDistributionReport({
         shortSpanM: parseNumberInput(shortSpanInput),
         longSpanM: parseNumberInput(longSpanInput),
-        totalLoadKnM2: parseNumberInput(totalLoadInput),
-      }),
-    [longSpanInput, shortSpanInput, totalLoadInput],
+        totalLoadKnM2: totalLoad * selectedLoadUnit.factorToKnM2,
+        loadUnit,
+      });
+    },
+    [loadUnit, longSpanInput, selectedLoadUnit.factorToKnM2, shortSpanInput, totalLoadInput],
   );
 
   return (
@@ -311,7 +323,7 @@ export function CassoonLoadDistributionCalculator() {
           <label className="cassoon-load-field">
             <span>
               <MathNotation base="q" ariaLabel="q" />
-              <span className="math-notation__unit">, кН/м²</span>
+              <span className="math-notation__unit">, {selectedLoadUnit.label}</span>
             </span>
             <input
               type="number"
@@ -320,8 +332,27 @@ export function CassoonLoadDistributionCalculator() {
               step="0.1"
               value={totalLoadInput}
               onChange={(event) => setTotalLoadInput(event.target.value)}
-              aria-label="q, кН/м²"
+              aria-label={`q, ${selectedLoadUnit.label}`}
             />
+          </label>
+
+          <label className="cassoon-load-field">
+            <span>Одиниця q</span>
+            <select
+              value={loadUnit}
+              onChange={(event) =>
+                setLoadUnit(event.target.value as CassoonLoadDistributionLoadUnit)
+              }
+              aria-label="Одиниця q"
+            >
+              {Object.entries(CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS).map(
+                ([value, unit]) => (
+                  <option key={value} value={value}>
+                    {unit.label}
+                  </option>
+                ),
+              )}
+            </select>
           </label>
         </div>
 
@@ -342,15 +373,16 @@ export function CassoonLoadDistributionCalculator() {
           <p>
             <MathNotation base="q" subscript="k" ariaLabel="qk" /> ={" "}
             {formatCassoonLoadDistributionNumber(
-              report.values.shortDirectionLoadKnM2,
-              2,
+              getDisplayLoadValue(report.values.shortDirectionLoadKnM2, loadUnit),
+              selectedLoadUnit.fractionDigits,
             )}{" "}
-            кН/м²; <MathNotation base="q" subscript="d" ariaLabel="qd" /> ={" "}
+            {selectedLoadUnit.label};{" "}
+            <MathNotation base="q" subscript="d" ariaLabel="qd" /> ={" "}
             {formatCassoonLoadDistributionNumber(
-              report.values.longDirectionLoadKnM2,
-              2,
+              getDisplayLoadValue(report.values.longDirectionLoadKnM2, loadUnit),
+              selectedLoadUnit.fractionDigits,
             )}{" "}
-            кН/м².
+            {selectedLoadUnit.label}.
           </p>
         </div>
       ) : null}

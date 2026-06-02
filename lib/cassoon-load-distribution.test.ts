@@ -67,7 +67,34 @@ describe("cassoon load distribution calculator", () => {
     );
   });
 
-  it("validates positive spans, positive load, and long span order", () => {
+  it("normalizes reversed span inputs before calculating the report", () => {
+    const report = getCassoonLoadDistributionReport({
+      shortSpanM: 6,
+      longSpanM: 3,
+      totalLoadKnM2: 10,
+    });
+
+    expect(report.valid).toBe(true);
+    expect(report.values).toMatchObject({
+      spanRatio: 2,
+      c1: expect.closeTo(0.941176, 5),
+      c2: expect.closeTo(0.058824, 5),
+      shortDirectionLoadKnM2: expect.closeTo(9.4118, 4),
+      longDirectionLoadKnM2: expect.closeTo(0.5882, 4),
+      isOneWay: false,
+    });
+    expect(report.steps.find((step) => step.key === "inputs")?.items).toEqual([
+      "введено l1 = 6 м",
+      "введено l2 = 3 м",
+      "прийнято lk = 3 м; ld = 6 м",
+      "q = 10 кН/м²",
+    ]);
+    expect(report.steps.find((step) => step.key === "span-ratio")?.formula).toBe(
+      "ld/lk = 6 / 3 = 2",
+    );
+  });
+
+  it("validates positive spans and positive load", () => {
     const report = getCassoonLoadDistributionReport({
       shortSpanM: 6,
       longSpanM: 3,
@@ -75,9 +102,6 @@ describe("cassoon load distribution calculator", () => {
     });
 
     expect(report.valid).toBe(false);
-    expect(report.errors).toEqual([
-      "q має бути більше 0.",
-      "ld має бути не менше lk.",
-    ]);
+    expect(report.errors).toEqual(["q має бути більше 0."]);
   });
 });

@@ -601,7 +601,7 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: "Коефіцієнти c1 і c2 для розподілу навантаження в кесонному перекритті",
+        name: "Розподіл навантаження в кесонному перекритті",
       }),
     ).toBeInTheDocument();
     expect(
@@ -610,6 +610,7 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("spinbutton", { name: "lk, м" })).toHaveValue(3);
     expect(screen.getByRole("spinbutton", { name: "ld, м" })).toHaveValue(6);
     expect(screen.getByRole("spinbutton", { name: "q, кН/м²" })).toHaveValue(10);
+    expect(screen.getByRole("combobox", { name: "Одиниця q" })).toHaveValue("kn-m2");
     expect(
       screen.getByRole("img", {
         name: "Книжкова схема розподілу навантаження q між напрямами lk і ld за рисунком VII.40",
@@ -649,6 +650,40 @@ describe("CalculatorShell", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByLabelText("ld/lk = 2.1 > 2, тому приймаємо c1 = 1; c2 = 0"),
+    ).toBeInTheDocument();
+  });
+
+  it("updates cassoon load units and normalizes reversed spans", async () => {
+    const user = userEvent.setup();
+    const calculator = getCalculatorBySlug("cassoon-load-distribution");
+
+    if (!calculator) {
+      throw new Error("Expected native cassoon load distribution calculator to exist");
+    }
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця q" }), "n-m2");
+
+    expect(screen.getByRole("spinbutton", { name: "q, Н/м²" })).toHaveValue(10);
+
+    await user.clear(screen.getByRole("spinbutton", { name: "q, Н/м²" }));
+    await user.type(screen.getByRole("spinbutton", { name: "q, Н/м²" }), "10000");
+    await user.clear(screen.getByRole("spinbutton", { name: "lk, м" }));
+    await user.type(screen.getByRole("spinbutton", { name: "lk, м" }), "6");
+    await user.clear(screen.getByRole("spinbutton", { name: "ld, м" }));
+    await user.type(screen.getByRole("spinbutton", { name: "ld, м" }), "3");
+
+    expect(screen.queryByText("ld має бути не менше lk.")).not.toBeInTheDocument();
+    expect(
+      screen.getAllByText((_, element) =>
+        Boolean(element?.textContent?.includes("прийнято lk = 3 м; ld = 6 м")),
+      ).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getByLabelText(
+        "qk = c1 * q = 0.9412 * 10000 = 9411.76 Н/м²; qd = c2 * q = 0.0588 * 10000 = 588.24 Н/м²",
+      ),
     ).toBeInTheDocument();
   });
 

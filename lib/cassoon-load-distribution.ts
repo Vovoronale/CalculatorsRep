@@ -15,13 +15,42 @@ export const CASSOON_LOAD_DISTRIBUTION_SOURCE = {
   url: "https://koha.tntu.edu.ua/bib/134803",
 } as const;
 
+export const CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS = {
+  "kn-m2": {
+    label: "кН/м²",
+    factorToKnM2: 1,
+    fractionDigits: 2,
+  },
+  "n-m2": {
+    label: "Н/м²",
+    factorToKnM2: 0.001,
+    fractionDigits: 2,
+  },
+  "kgf-m2": {
+    label: "кгс/м²",
+    factorToKnM2: 0.00980665,
+    fractionDigits: 2,
+  },
+  "tf-m2": {
+    label: "тс/м²",
+    factorToKnM2: 9.80665,
+    fractionDigits: 3,
+  },
+} as const;
+
+export type CassoonLoadDistributionLoadUnit =
+  keyof typeof CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS;
+
 export type CassoonLoadDistributionInput = {
   shortSpanM: number;
   longSpanM: number;
   totalLoadKnM2: number;
+  loadUnit?: CassoonLoadDistributionLoadUnit;
 };
 
 export type CassoonLoadDistributionValues = {
+  shortSpanM: number;
+  longSpanM: number;
   spanRatio: number;
   elasticC1: number;
   elasticC2: number;
@@ -86,6 +115,29 @@ export function getCassoonLoadDistributionCoefficients(
   };
 }
 
+function getLoadUnit(input: CassoonLoadDistributionInput) {
+  return CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS[input.loadUnit ?? "kn-m2"];
+}
+
+function formatLoadValue(valueKnM2: number, input: CassoonLoadDistributionInput): string {
+  const unit = getLoadUnit(input);
+
+  return formatCassoonLoadDistributionNumber(
+    valueKnM2 / unit.factorToKnM2,
+    unit.fractionDigits,
+  );
+}
+
+function getNormalizedSpans(input: CassoonLoadDistributionInput): {
+  shortSpanM: number;
+  longSpanM: number;
+} {
+  return {
+    shortSpanM: Math.min(input.shortSpanM, input.longSpanM),
+    longSpanM: Math.max(input.shortSpanM, input.longSpanM),
+  };
+}
+
 function getValidationErrors(input: CassoonLoadDistributionInput): string[] {
   const errors: string[] = [];
 
@@ -101,22 +153,20 @@ function getValidationErrors(input: CassoonLoadDistributionInput): string[] {
     errors.push("q має бути більше 0.");
   }
 
-  if (
-    isPositiveFinite(input.shortSpanM) &&
-    isPositiveFinite(input.longSpanM) &&
-    input.longSpanM < input.shortSpanM
-  ) {
-    errors.push("ld має бути не менше lk.");
-  }
-
   return errors;
 }
 
 function getInputItems(input: CassoonLoadDistributionInput): string[] {
+  const spans = getNormalizedSpans(input);
+  const unit = getLoadUnit(input);
+
   return [
-    `lk = ${formatCassoonLoadDistributionNumber(input.shortSpanM)} м`,
-    `ld = ${formatCassoonLoadDistributionNumber(input.longSpanM)} м`,
-    `q = ${formatCassoonLoadDistributionNumber(input.totalLoadKnM2)} кН/м²`,
+    `введено l1 = ${formatCassoonLoadDistributionNumber(input.shortSpanM)} м`,
+    `введено l2 = ${formatCassoonLoadDistributionNumber(input.longSpanM)} м`,
+    `прийнято lk = ${formatCassoonLoadDistributionNumber(
+      spans.shortSpanM,
+    )} м; ld = ${formatCassoonLoadDistributionNumber(spans.longSpanM)} м`,
+    `q = ${formatLoadValue(input.totalLoadKnM2, input)} ${unit.label}`,
   ];
 }
 
@@ -151,9 +201,14 @@ export function getCassoonLoadDistributionReport(
     };
   }
 
-  const spanRatio = input.longSpanM / input.shortSpanM;
+  const normalizedSpans = getNormalizedSpans(input);
+  const loadUnit = getLoadUnit(input);
+  const spanRatio = normalizedSpans.longSpanM / normalizedSpans.shortSpanM;
   const { c1: elasticC1, c2: elasticC2 } =
-    getCassoonLoadDistributionCoefficients(input.shortSpanM, input.longSpanM);
+    getCassoonLoadDistributionCoefficients(
+      normalizedSpans.shortSpanM,
+      normalizedSpans.longSpanM,
+    );
   const isOneWay = spanRatio > 2;
   const c1 = isOneWay ? 1 : elasticC1;
   const c2 = isOneWay ? 0 : elasticC2;
@@ -162,6 +217,8 @@ export function getCassoonLoadDistributionReport(
   const shortDirectionLoadKnM2 = c1 * input.totalLoadKnM2;
   const longDirectionLoadKnM2 = c2 * input.totalLoadKnM2;
   const values: CassoonLoadDistributionValues = {
+    shortSpanM: normalizedSpans.shortSpanM,
+    longSpanM: normalizedSpans.longSpanM,
     spanRatio,
     elasticC1,
     elasticC2,
@@ -186,9 +243,9 @@ export function getCassoonLoadDistributionReport(
       caption:
         "Визначення відношення сторін для вибору розрахункової схеми (Ліновіч, розділ про кесонні перекриття, рис. VII.40):",
       formula: `ld/lk = ${formatCassoonLoadDistributionNumber(
-        input.longSpanM,
+        normalizedSpans.longSpanM,
       )} / ${formatCassoonLoadDistributionNumber(
-        input.shortSpanM,
+        normalizedSpans.shortSpanM,
       )} = ${formatCassoonLoadDistributionNumber(spanRatio, 3)}`,
     },
     {
@@ -196,20 +253,20 @@ export function getCassoonLoadDistributionReport(
       caption:
         "Визначення коефіцієнтів пропорційності c1 і c2 за четвертими степенями прольотів (Ліновіч, формули розподілу qk і qd):",
       formula: `c1 = ld^4 / (lk^4 + ld^4) = ${formatCassoonLoadDistributionNumber(
-        input.longSpanM,
+        normalizedSpans.longSpanM,
       )}^4 / (${formatCassoonLoadDistributionNumber(
-        input.shortSpanM,
+        normalizedSpans.shortSpanM,
       )}^4 + ${formatCassoonLoadDistributionNumber(
-        input.longSpanM,
+        normalizedSpans.longSpanM,
       )}^4) = ${formatCassoonLoadDistributionNumber(
         elasticC1,
         4,
       )}; c2 = lk^4 / (lk^4 + ld^4) = ${formatCassoonLoadDistributionNumber(
-        input.shortSpanM,
+        normalizedSpans.shortSpanM,
       )}^4 / (${formatCassoonLoadDistributionNumber(
-        input.shortSpanM,
+        normalizedSpans.shortSpanM,
       )}^4 + ${formatCassoonLoadDistributionNumber(
-        input.longSpanM,
+        normalizedSpans.longSpanM,
       )}^4) = ${formatCassoonLoadDistributionNumber(elasticC2, 4)}`,
     },
   ];
@@ -234,34 +291,30 @@ export function getCassoonLoadDistributionReport(
       formula: `qk = c1 * q = ${formatCassoonLoadDistributionNumber(
         c1,
         4,
-      )} * ${formatCassoonLoadDistributionNumber(
-        input.totalLoadKnM2,
-      )} = ${formatCassoonLoadDistributionNumber(
+      )} * ${formatLoadValue(input.totalLoadKnM2, input)} = ${formatLoadValue(
         shortDirectionLoadKnM2,
-        2,
-      )} кН/м²; qd = c2 * q = ${formatCassoonLoadDistributionNumber(
+        input,
+      )} ${loadUnit.label}; qd = c2 * q = ${formatCassoonLoadDistributionNumber(
         c2,
         4,
-      )} * ${formatCassoonLoadDistributionNumber(
-        input.totalLoadKnM2,
-      )} = ${formatCassoonLoadDistributionNumber(
+      )} * ${formatLoadValue(input.totalLoadKnM2, input)} = ${formatLoadValue(
         longDirectionLoadKnM2,
-        2,
-      )} кН/м²`,
+        input,
+      )} ${loadUnit.label}`,
     },
     {
       key: "check-sum",
       caption: "Контроль суми розподілених навантажень:",
-      formula: `qk + qd = ${formatCassoonLoadDistributionNumber(
+      formula: `qk + qd = ${formatLoadValue(
         shortDirectionLoadKnM2,
-        2,
-      )} + ${formatCassoonLoadDistributionNumber(
+        input,
+      )} + ${formatLoadValue(
         longDirectionLoadKnM2,
-        2,
-      )} = ${formatCassoonLoadDistributionNumber(
+        input,
+      )} = ${formatLoadValue(
         shortDirectionLoadKnM2 + longDirectionLoadKnM2,
-        2,
-      )} кН/м²`,
+        input,
+      )} ${loadUnit.label}`,
     },
   );
 

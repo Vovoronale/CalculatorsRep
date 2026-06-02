@@ -2170,7 +2170,8 @@ textarea {
   min-width: 0;
 }
 
-.cassoon-load-field input {
+.cassoon-load-field input,
+.cassoon-load-field select {
   width: 100%;
   min-width: 0;
   border: 1px solid var(--border);
@@ -2184,7 +2185,8 @@ textarea {
   padding: 9px 10px;
 }
 
-.cassoon-load-field input:focus {
+.cassoon-load-field input:focus,
+.cassoon-load-field select:focus {
   border-color: var(--accent);
   outline: none;
 }
