@@ -34,7 +34,8 @@ export type Calculator = {
     | "rebar-characteristics"
     | "concrete-characteristics"
     | "minimum-reinforcement-area"
-    | "foundation-bar-anchorage";
+    | "foundation-bar-anchorage"
+    | "cassoon-load-distribution";
   accessLabel: string;
   embedUrl?: string;
   openUrl: string;

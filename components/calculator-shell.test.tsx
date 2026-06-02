@@ -119,7 +119,7 @@ describe("CalculatorShell", () => {
 
     render(<CalculatorShell />);
 
-    await user.click(screen.getByRole("link", { name: "Конструкції 7" }));
+    await user.click(screen.getByRole("link", { name: "Конструкції 8" }));
 
     expect(screen.getByRole("heading", { name: "Конструкції" })).toBeInTheDocument();
     const table = screen.getByRole("table", {
@@ -586,6 +586,59 @@ describe("CalculatorShell", () => {
     expect(
       screen.getAllByText(/Сила розтягу для анкерування визначається як Fs = R \* ze \/ zi/).length,
     ).toBeGreaterThan(0);
+  });
+
+  it("renders the native cassoon load distribution calculator with a step report", async () => {
+    const user = userEvent.setup();
+    const calculator = getCalculatorBySlug("cassoon-load-distribution");
+
+    if (!calculator) {
+      throw new Error("Expected native cassoon load distribution calculator to exist");
+    }
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: "Коефіцієнти c1 і c2 для розподілу навантаження в кесонному перекритті",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Калькулятор коефіцієнтів c1 і c2 для розподілу навантаження"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("spinbutton", { name: "lk, м" })).toHaveValue(3);
+    expect(screen.getByRole("spinbutton", { name: "ld, м" })).toHaveValue(6);
+    expect(screen.getByRole("spinbutton", { name: "q, кН/м²" })).toHaveValue(10);
+    expect(
+      screen.getByRole("img", {
+        name: "Схема розподілу навантаження q між напрямами lk і ld",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(
+        "qk = c1 * q = 0.9412 * 10 = 9.41 кН/м²; qd = c2 * q = 0.0588 * 10 = 0.59 кН/м²",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText((_, element) =>
+        Boolean(
+          element?.textContent?.includes(
+            "навантаження q розкладається між двома взаємно перпендикулярними напрямами",
+          ),
+        ),
+      ).length,
+    ).toBeGreaterThan(0);
+
+    await user.clear(screen.getByRole("spinbutton", { name: "ld, м" }));
+    await user.type(screen.getByRole("spinbutton", { name: "ld, м" }), "6.3");
+
+    expect(
+      screen.getByText(/ld\/lk більше 2: за приміткою Ліновіча/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("ld/lk = 2.1 > 2, тому приймаємо c1 = 1; c2 = 0"),
+    ).toBeInTheDocument();
   });
 
   it("prefills the rebar selection calculator from query parameters", async () => {

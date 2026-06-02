@@ -2129,6 +2129,276 @@ textarea {
   font-size: 1.05em;
 }
 
+.cassoon-load-calculator {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 4%, var(--surface));
+}
+
+.cassoon-load-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
+  gap: 12px;
+  align-items: start;
+}
+
+.cassoon-load-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.cassoon-load-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cassoon-load-field > span {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.cassoon-load-field input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 10px;
+}
+
+.cassoon-load-field input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.cassoon-load-diagram {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  padding: 10px;
+}
+
+.cassoon-load-diagram svg {
+  width: 100%;
+  height: auto;
+  color: var(--text);
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cassoon-load-diagram figcaption {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.cassoon-load-diagram__slab {
+  fill: color-mix(in srgb, var(--info) 9%, var(--surface));
+  stroke: color-mix(in srgb, var(--info) 42%, var(--border-strong));
+  stroke-width: 2;
+}
+
+.cassoon-load-diagram__load-fill {
+  fill: url("#cassoon-hatch");
+  stroke: transparent;
+}
+
+.cassoon-load-diagram__load-fill + path,
+.cassoon-load-diagram pattern path {
+  stroke: color-mix(in srgb, var(--accent) 42%, var(--border));
+  stroke-width: 1.2;
+}
+
+.cassoon-load-diagram__diagonal {
+  fill: none;
+  stroke: color-mix(in srgb, var(--text-muted) 64%, transparent);
+  stroke-width: 1.4;
+  stroke-dasharray: 5 5;
+}
+
+.cassoon-load-diagram__loads,
+.cassoon-load-diagram__dimension,
+.cassoon-load-diagram__direction {
+  fill: var(--text);
+  stroke: var(--text-muted);
+  stroke-width: 1.7;
+}
+
+.cassoon-load-diagram__loads line,
+.cassoon-load-diagram__dimension line,
+.cassoon-load-diagram__direction line {
+  fill: none;
+}
+
+.cassoon-load-diagram__loads text,
+.cassoon-load-diagram__dimension text,
+.cassoon-load-diagram__direction text {
+  stroke: none;
+}
+
+.cassoon-load-diagram marker path {
+  fill: var(--text-muted);
+}
+
+.cassoon-load-summary,
+.cassoon-load-warning,
+.cassoon-load-errors {
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 10px 12px;
+}
+
+.cassoon-load-summary {
+  display: grid;
+  gap: 4px;
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+  color: var(--text);
+}
+
+.cassoon-load-warning {
+  border: 1px solid color-mix(in srgb, #f97316 34%, var(--border));
+  background: color-mix(in srgb, #f97316 10%, var(--bg));
+  color: var(--text);
+}
+
+.cassoon-load-errors {
+  border: 1px solid color-mix(in srgb, #b91c1c 34%, var(--border));
+  background: color-mix(in srgb, #b91c1c 9%, var(--bg));
+  color: var(--text);
+}
+
+.cassoon-load-summary p,
+.cassoon-load-warning p,
+.cassoon-load-errors ul {
+  margin: 0;
+}
+
+.cassoon-load-errors ul {
+  padding-left: 18px;
+}
+
+.cassoon-load-report {
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.cassoon-load-report__head {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--accent) 7%, var(--bg));
+}
+
+.cassoon-load-report__head h3 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.cassoon-load-report__steps {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cassoon-load-report__step {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  counter-increment: report-step;
+}
+
+.cassoon-load-report__step:last-child {
+  border-bottom: 0;
+}
+
+.cassoon-load-report__caption {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.cassoon-load-report__caption::before {
+  content: counter(report-step) ". ";
+  color: var(--accent);
+  font-family: var(--font-mono), monospace;
+}
+
+.cassoon-load-report__items {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.cassoon-load-equation {
+  width: 100%;
+  overflow-x: auto;
+  color: var(--text);
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+
+.cassoon-load-equation .math-notation,
+.cassoon-load-report__caption .math-notation,
+.cassoon-load-report__items .math-notation,
+.cassoon-load-summary .math-notation {
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.05em;
+}
+
+.cassoon-formula-symbol {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+@media (max-width: 980px) {
+  .cassoon-load-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 .foundation-anchorage-calculator {
   display: flex;
   flex-direction: column;
