@@ -1992,7 +1992,6 @@ textarea {
 
 .minimum-reinforcement-diagrams__grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -2006,9 +2005,18 @@ textarea {
 .minimum-reinforcement-diagram__svg {
   width: 100%;
   height: auto;
+  display: block;
   border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
   border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--accent) 3%, var(--surface));
+}
+
+.minimum-reinforcement-diagram--parametric {
+  max-width: 720px;
+}
+
+.minimum-reinforcement-diagram__canvas {
+  min-width: 0;
 }
 
 .minimum-reinforcement-diagram figcaption {

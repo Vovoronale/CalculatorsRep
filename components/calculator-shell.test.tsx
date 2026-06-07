@@ -500,12 +500,28 @@ describe("CalculatorShell", () => {
     expect(screen.getByLabelText("400 <= 500 <= 600 - умова виконується")).toHaveClass(
       "minimum-reinforcement-equation",
     );
+    const initialSectionDiagram = screen.getByRole("img", {
+      name: "Параметричний залізобетонний переріз bt 1000 мм, h 500 мм",
+    });
+
+    expect(initialSectionDiagram).toBeInTheDocument();
+    expect(initialSectionDiagram.textContent).toContain("As,min = 678.6 мм²");
+    expect(initialSectionDiagram.textContent).toContain("1000");
+    expect(initialSectionDiagram.textContent).toContain("500");
+    expect(initialSectionDiagram.textContent).toContain("16");
+    expect(initialSectionDiagram.textContent).not.toContain("A's");
     expect(
-      screen.getByRole("img", { name: "Позначення величин для балки" }),
-    ).toBeInTheDocument();
+      initialSectionDiagram.querySelectorAll('rect[fill="url(#section_body-hatch)"]'),
+    ).toHaveLength(1);
+    expect(initialSectionDiagram.querySelectorAll('rect[fill="#d8c4ff"]')).toHaveLength(
+      1,
+    );
     expect(
-      screen.getByRole("img", { name: "Позначення величин для плити" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("img", { name: "Позначення величин для балки" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("img", { name: "Позначення величин для плити" }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /Підібрати діаметр і кількість/ }),
     ).toHaveAttribute(
@@ -523,7 +539,11 @@ describe("CalculatorShell", () => {
       "slab",
     );
 
-    expect(screen.getByLabelText("bt = 1000 мм")).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", {
+        name: "Параметричний залізобетонний переріз bt 1000 мм, h 500 мм",
+      }),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(
         "Рекомендований підбір на 1 м.п.: Ø12 крок 150 мм = 754 мм²/м.п. (111.1% від As,min).",
@@ -532,6 +552,20 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("link", { name: /Підібрати діаметр і крок/ }),
     ).toBeInTheDocument();
+
+    await user.clear(screen.getByRole("spinbutton", { name: "h, мм" }));
+    await user.type(screen.getByRole("spinbutton", { name: "h, мм" }), "300");
+    await user.clear(screen.getByRole("spinbutton", { name: "bt, мм" }));
+    await user.type(screen.getByRole("spinbutton", { name: "bt, мм" }), "1200");
+
+    const updatedSectionDiagram = screen.getByRole("img", {
+      name: "Параметричний залізобетонний переріз bt 1200 мм, h 300 мм",
+    });
+
+    expect(updatedSectionDiagram).toBeInTheDocument();
+    expect(updatedSectionDiagram.textContent).toContain("1200");
+    expect(updatedSectionDiagram.textContent).toContain("300");
+    expect(updatedSectionDiagram.textContent).toContain("As,min = 452.4 мм²");
   });
 
   it("renders the native foundation bar anchorage calculator with report links", () => {

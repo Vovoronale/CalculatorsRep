@@ -12,6 +12,11 @@ import {
 import { getConcreteClasses, type ConcreteClassName } from "@/lib/materials/concrete";
 import { getRebarClasses, type RebarClassName } from "@/lib/materials/rebar";
 import { getRebarSelection, getRebarSpacingSelection } from "@/lib/rebar-area-bars";
+import {
+  buildScene,
+  createDefaultRegistry,
+  type SceneDefinition,
+} from "@/lib/vendor/svgparametric";
 
 import { MathNotation } from "./math-notation";
 
@@ -113,130 +118,131 @@ function ReportStepFormula({ step }: { step: MinimumReinforcementReportStep }) {
   );
 }
 
-function DimensionArrow({
-  x1,
-  y1,
-  x2,
-  y2,
-  markerId,
-}: {
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  markerId: string;
-}) {
-  return (
-    <line
-      x1={x1}
-      y1={y1}
-      x2={x2}
-      y2={y2}
-      markerStart={`url(#${markerId})`}
-      markerEnd={`url(#${markerId})`}
-    />
-  );
+const SVG_PARAMETRIC_REGISTRY = createDefaultRegistry();
+const SECTION_DIAGRAM_MARGIN_LEFT = 120;
+const SECTION_DIAGRAM_MARGIN_TOP = 70;
+const SECTION_DIAGRAM_MARGIN_RIGHT = 180;
+const SECTION_DIAGRAM_MARGIN_BOTTOM = 95;
+
+function sanitizeDiagramDimension(value: number): number {
+  return Number.isFinite(value) && value > 0 ? value : 1;
 }
 
-function NotationDiagram({
-  type,
-  title,
+function formatDiagramDimension(value: number): string {
+  return Number.isFinite(value) && value > 0
+    ? formatMinimumReinforcementNumber(value, 1)
+    : "0";
+}
+
+function getReinforcedConcreteSectionScene({
+  widthMm,
+  heightMm,
+  reinforcementCentroidDistanceMm,
+  rebarDiameterMm,
+  minimumAreaMm2,
 }: {
-  type: MinimumReinforcementStructureType;
-  title: string;
+  widthMm: number;
+  heightMm: number;
+  reinforcementCentroidDistanceMm: number;
+  rebarDiameterMm: number;
+  minimumAreaMm2?: number;
+}): SceneDefinition {
+  const safeWidthMm = sanitizeDiagramDimension(widthMm);
+  const safeHeightMm = sanitizeDiagramDimension(heightMm);
+  const safeRebarDiameterMm = sanitizeDiagramDimension(rebarDiameterMm);
+  const safeCentroidDistanceMm = Math.max(
+    safeRebarDiameterMm / 2,
+    sanitizeDiagramDimension(reinforcementCentroidDistanceMm),
+  );
+  const bottomCoverMm = Math.max(0, safeCentroidDistanceMm - safeRebarDiameterMm / 2);
+  const sceneWidth = Math.ceil(
+    SECTION_DIAGRAM_MARGIN_LEFT + safeWidthMm + SECTION_DIAGRAM_MARGIN_RIGHT,
+  );
+  const sceneHeight = Math.ceil(
+    SECTION_DIAGRAM_MARGIN_TOP + safeHeightMm + SECTION_DIAGRAM_MARGIN_BOTTOM,
+  );
+  const bottomAreaLabel =
+    minimumAreaMm2 && Number.isFinite(minimumAreaMm2) && minimumAreaMm2 > 0
+      ? `As,min = ${formatMinimumReinforcementNumber(minimumAreaMm2, 1)} мм²`
+      : "As,min";
+
+  return {
+    scene: {
+      width: sceneWidth,
+      height: sceneHeight,
+      mode: "detailed",
+    },
+    objects: {
+      section: {
+        type: "ReinforcedConcreteSection",
+        params: {
+          x: SECTION_DIAGRAM_MARGIN_LEFT,
+          y: SECTION_DIAGRAM_MARGIN_TOP,
+          width: safeWidthMm,
+          height: safeHeightMm,
+          showTopRebar: false,
+          showBottomRebar: true,
+          topDiameter: safeRebarDiameterMm,
+          bottomDiameter: safeRebarDiameterMm,
+          topCover: bottomCoverMm,
+          bottomCover: bottomCoverMm,
+          topAreaLabel: "A's",
+          bottomAreaLabel,
+          showLeftCenterDimensions: true,
+          showRightRebarDimensions: true,
+          showTotalHeightDimension: true,
+          showWidthDimension: true,
+          bodyFill: "#f8fafc",
+          rebarFill: "#d8c4ff",
+          rebarColor: "#7a3ea0",
+          dimensionColor: "#1f2937",
+          calloutColor: "#e95a0c",
+          color: "#1f2937",
+          strokeWidth: 1.5,
+          lineType: "solid",
+        },
+      },
+    },
+  };
+}
+
+function ParametricSectionDiagram({
+  widthMm,
+  heightMm,
+  reinforcementCentroidDistanceMm,
+  rebarDiameterMm,
+  minimumAreaMm2,
+}: {
+  widthMm: number;
+  heightMm: number;
+  reinforcementCentroidDistanceMm: number;
+  rebarDiameterMm: number;
+  minimumAreaMm2?: number;
 }) {
-  const isBeam = type === "beam";
-  const markerId = `dimension-arrow-${type}`;
+  const title = `Параметричний залізобетонний переріз bt ${formatDiagramDimension(
+    widthMm,
+  )} мм, h ${formatDiagramDimension(heightMm)} мм`;
+  const svg = buildScene(
+    getReinforcedConcreteSectionScene({
+      widthMm,
+      heightMm,
+      reinforcementCentroidDistanceMm,
+      rebarDiameterMm,
+      minimumAreaMm2,
+    }),
+    SVG_PARAMETRIC_REGISTRY,
+  ).svg.replace(
+    "<svg ",
+    `<svg role="img" aria-label="${title}" class="minimum-reinforcement-diagram__svg" `,
+  );
 
   return (
-    <figure className="minimum-reinforcement-diagram">
-      <svg
-        role="img"
-        aria-label={title}
-        viewBox="0 0 360 220"
-        className="minimum-reinforcement-diagram__svg"
-      >
-        <defs>
-          <marker
-            id={markerId}
-            viewBox="0 0 8 8"
-            refX="4"
-            refY="4"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto-start-reverse"
-          >
-            <path d="M0 0 L8 4 L0 8 Z" />
-          </marker>
-        </defs>
-        <rect
-          x={isBeam ? 118 : 72}
-          y={isBeam ? 28 : 72}
-          width={isBeam ? 126 : 220}
-          height={isBeam ? 156 : 76}
-          rx="4"
-          className="minimum-reinforcement-diagram__concrete"
-        />
-        <circle
-          cx={isBeam ? 181 : 182}
-          cy={isBeam ? 146 : 126}
-          r={isBeam ? 10 : 7}
-          className="minimum-reinforcement-diagram__bar"
-        />
-        <g className="minimum-reinforcement-diagram__dimension">
-          <DimensionArrow
-            markerId={markerId}
-            x1={isBeam ? 96 : 48}
-            y1={isBeam ? 28 : 72}
-            x2={isBeam ? 96 : 48}
-            y2={isBeam ? 184 : 148}
-          />
-          <text x={isBeam ? 78 : 30} y={isBeam ? 110 : 114}>
-            h
-          </text>
-          <DimensionArrow
-            markerId={markerId}
-            x1={isBeam ? 304 : 318}
-            y1={isBeam ? 146 : 126}
-            x2={isBeam ? 304 : 318}
-            y2={isBeam ? 184 : 148}
-          />
-          <text x={isBeam ? 314 : 328} y={isBeam ? 170 : 141}>
-            a_s
-          </text>
-          <DimensionArrow
-            markerId={markerId}
-            x1={isBeam ? 118 : 72}
-            y1={isBeam ? 198 : 52}
-            x2={isBeam ? 244 : 292}
-            y2={isBeam ? 198 : 52}
-          />
-          <text x={isBeam ? 176 : 174} y={isBeam ? 214 : 44}>
-            bt
-          </text>
-          <DimensionArrow
-            markerId={markerId}
-            x1={isBeam ? 274 : 318}
-            y1={isBeam ? 28 : 72}
-            x2={isBeam ? 274 : 318}
-            y2={isBeam ? 146 : 126}
-          />
-          <text x={isBeam ? 284 : 328} y={isBeam ? 90 : 104}>
-            d
-          </text>
-          <DimensionArrow
-            markerId={markerId}
-            x1={isBeam ? 171 : 175}
-            y1={isBeam ? 124 : 108}
-            x2={isBeam ? 191 : 189}
-            y2={isBeam ? 124 : 108}
-          />
-          <text x={isBeam ? 166 : 167} y={isBeam ? 118 : 102}>
-            Øs
-          </text>
-        </g>
-      </svg>
-      <figcaption>{title}</figcaption>
+    <figure className="minimum-reinforcement-diagram minimum-reinforcement-diagram--parametric">
+      <div
+        className="minimum-reinforcement-diagram__canvas"
+        dangerouslySetInnerHTML={{ __html: svg }}
+      />
+      <figcaption>Параметричний залізобетонний переріз</figcaption>
     </figure>
   );
 }
@@ -501,8 +507,17 @@ export function MinimumReinforcementCalculator() {
       >
         <h3 id="minimum-diagrams-title">Позначення величин</h3>
         <div className="minimum-reinforcement-diagrams__grid">
-          <NotationDiagram type="beam" title="Позначення величин для балки" />
-          <NotationDiagram type="slab" title="Позначення величин для плити" />
+          <ParametricSectionDiagram
+            widthMm={parseNumberInput(tensileZoneWidthInput)}
+            heightMm={parseNumberInput(sectionHeightInput)}
+            reinforcementCentroidDistanceMm={parseNumberInput(
+              reinforcementCentroidDistanceInput,
+            )}
+            rebarDiameterMm={parseNumberInput(rebarDiameterInput)}
+            minimumAreaMm2={
+              report.valid && report.values ? report.values.minimumAreaMm2 : undefined
+            }
+          />
         </div>
       </section>
 
