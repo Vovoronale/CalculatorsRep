@@ -151,6 +151,96 @@ export class Callout extends BaseAnnotation {
   }
 }
 
+export class DistributedLoad extends BaseAnnotation {
+  build(_context: BuildContext): ResolvedObject {
+    const x1 = numberParam(this.params, "x1", 0);
+    const y1 = numberParam(this.params, "y1", 0);
+    const x2 = numberParam(this.params, "x2", 100);
+    const y2 = numberParam(this.params, "y2", 0);
+    const offset = numberParam(this.params, "offset", -30);
+    const explicitHeight = typeof this.params.height === "number" ? this.params.height : undefined;
+    const arrowSpacing = numberParam(this.params, "arrowSpacing", 40);
+    const arrowSize = numberParam(this.params, "arrowSize", 10);
+    const textOffset = numberParam(this.params, "textOffset", 16);
+    const fontSize = numberParam(this.params, "fontSize", 14);
+    const fontFamily = stringParam(this.params, "fontFamily", "ISOCPEUR, ISOCP, 'Arial Narrow', Arial, sans-serif");
+    const prefix = stringParam(this.params, "prefix", "");
+    const suffix = stringParam(this.params, "suffix", "");
+    const value = displayValue(this.params.value);
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const length = Math.hypot(dx, dy);
+    const direction = length === 0 ? { x: 1, y: 0 } : { x: dx / length, y: dy / length };
+    const normal = { x: -direction.y, y: direction.x };
+    const heightDirection = offset === 0 ? -1 : Math.sign(offset);
+    const tipOffset = explicitHeight === undefined ? 0 : offset;
+    const loadOffset = explicitHeight === undefined ? offset : offset + explicitHeight * heightDirection;
+    const tipStart = point(x1 + normal.x * tipOffset, y1 + normal.y * tipOffset);
+    const tipEnd = point(x2 + normal.x * tipOffset, y2 + normal.y * tipOffset);
+    const loadStart = point(x1 + normal.x * loadOffset, y1 + normal.y * loadOffset);
+    const loadEnd = point(x2 + normal.x * loadOffset, y2 + normal.y * loadOffset);
+    const arrowLength = Math.hypot(tipStart.x - loadStart.x, tipStart.y - loadStart.y);
+    const arrowDirection =
+      arrowLength < 0.000001
+        ? normal
+        : normalize({ x: tipStart.x - loadStart.x, y: tipStart.y - loadStart.y });
+    const labelPoint = point((loadStart.x + loadEnd.x) / 2 - arrowDirection.x * textOffset, (loadStart.y + loadEnd.y) / 2 - arrowDirection.y * textOffset);
+    const attrs = lineVisualAttrs(this.params, { color: "black", strokeWidth: 0.6 });
+    const color = stringParam(this.params, "color", "black");
+    const segmentCount = length === 0 ? 0 : Math.max(1, Math.ceil(length / Math.max(arrowSpacing, 1)));
+    const arrows = [];
+
+    for (let index = 0; index <= segmentCount; index += 1) {
+      const t = segmentCount === 0 ? 0 : index / segmentCount;
+      const shaftStart = point(loadStart.x + (loadEnd.x - loadStart.x) * t, loadStart.y + (loadEnd.y - loadStart.y) * t);
+      const tip = point(tipStart.x + (tipEnd.x - tipStart.x) * t, tipStart.y + (tipEnd.y - tipStart.y) * t);
+      const headBack = point(tip.x - arrowDirection.x * arrowSize, tip.y - arrowDirection.y * arrowSize);
+      const headHalfWidth = arrowSize / 2;
+      const firstHead = point(headBack.x + direction.x * headHalfWidth, headBack.y + direction.y * headHalfWidth);
+      const secondHead = point(headBack.x - direction.x * headHalfWidth, headBack.y - direction.y * headHalfWidth);
+
+      if (arrowLength >= 0.000001) {
+        arrows.push(
+          svgElement("line", { x1: shaftStart.x, y1: shaftStart.y, x2: tip.x, y2: tip.y, ...attrs }),
+          svgElement("line", { x1: firstHead.x, y1: firstHead.y, x2: tip.x, y2: tip.y, ...attrs }),
+          svgElement("line", { x1: secondHead.x, y1: secondHead.y, x2: tip.x, y2: tip.y, ...attrs })
+        );
+      }
+    }
+
+    const anchors = {
+      start: { x: x1, y: y1 },
+      end: { x: x2, y: y2 },
+      loadStart,
+      loadEnd,
+      label: labelPoint
+    };
+    const lineAngle = roundSvg(Math.atan2(direction.y, direction.x) * (180 / Math.PI));
+    const node = svgElement("g", {}, [
+      ...(arrowLength >= 0.000001
+        ? [svgElement("line", { x1: loadStart.x, y1: loadStart.y, x2: loadEnd.x, y2: loadEnd.y, ...attrs })]
+        : []),
+      ...arrows,
+      svgElement(
+        "text",
+        {
+          x: labelPoint.x,
+          y: labelPoint.y,
+          fill: color,
+          "text-anchor": "middle",
+          "dominant-baseline": "middle",
+          "font-family": fontFamily,
+          "font-size": fontSize,
+          transform: `rotate(${formatNumber(lineAngle)} ${formatNumber(labelPoint.x)} ${formatNumber(labelPoint.y)})`
+        },
+        [`${prefix}${value}${suffix}`]
+      )
+    ]);
+
+    return { id: this.id, type: this.type, params: this.params, style: this.style, anchors, children: [], node };
+  }
+}
+
 function automaticShelfLength(firstLine: string, fontSize: number, textInset: number, textWidthFactor: number): number {
   return roundSvg(textInset + firstLine.length * fontSize * textWidthFactor + 6);
 }
@@ -198,6 +288,12 @@ function formatDimensionValue(value: number): string {
   const rounded = roundSvg(value);
   if (Math.abs(rounded - Math.round(rounded)) < 0.000001) return String(Math.round(rounded));
   return formatNumber(rounded);
+}
+
+function displayValue(value: ParamMap[string]): string {
+  if (typeof value === "number") return formatDimensionValue(value);
+  if (typeof value === "string") return value;
+  return "";
 }
 
 function formatNumber(value: number): string {

@@ -18,6 +18,16 @@ function getSummaryText(text: string) {
   });
 }
 
+function getNumericAttribute(element: Element, name: string): number {
+  const value = element.getAttribute(name);
+
+  if (value === null) {
+    throw new Error(`Missing SVG attribute ${name}`);
+  }
+
+  return Number.parseFloat(value);
+}
+
 describe("CalculatorShell", () => {
   afterEach(() => {
     cleanup();
@@ -654,11 +664,35 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("spinbutton", { name: "q" }).closest("label")).toContainElement(
       screen.getByRole("combobox", { name: "Одиниця q" }),
     );
-    expect(
-      screen.getByRole("img", {
-        name: "Книжкова схема розподілу навантаження q між напрямами lk і ld за рисунком VII.40",
-      }),
-    ).toBeInTheDocument();
+    const initialLoadDiagram = screen.getByRole("img", {
+      name: "Параметрична схема розподілу навантаження q між напрямами lk і ld: lk 3 м, ld 6 м",
+    });
+
+    expect(initialLoadDiagram).toBeInTheDocument();
+    expect(initialLoadDiagram.textContent).toContain("ld = 6 м");
+    expect(initialLoadDiagram.textContent).toContain("lk = 3 м");
+    expect(initialLoadDiagram.textContent).toContain("qk = 9.41 кН/м²");
+    expect(initialLoadDiagram.textContent).toContain("qd = 0.59 кН/м²");
+    expect(initialLoadDiagram.textContent?.match(/1 м/g) ?? []).toHaveLength(2);
+    expect(initialLoadDiagram.textContent).not.toContain("l1 = 3 м");
+    const svgLines = [...initialLoadDiagram.querySelectorAll("line")];
+    const topLoadLine = svgLines.find(
+      (line) => Math.abs(getNumericAttribute(line, "x2") - getNumericAttribute(line, "x1")) > 250
+        && getNumericAttribute(line, "y1") < 118,
+    );
+    const leftLoadLine = svgLines.find(
+      (line) => Math.abs(getNumericAttribute(line, "y2") - getNumericAttribute(line, "y1")) > 120
+        && getNumericAttribute(line, "x1") < 80,
+    );
+
+    expect(topLoadLine).toBeDefined();
+    expect(leftLoadLine).toBeDefined();
+    const topLoadHeight = 110 - getNumericAttribute(topLoadLine!, "y1");
+    const leftLoadHeight = 120 - getNumericAttribute(leftLoadLine!, "x1");
+
+    expect(topLoadHeight).toBeGreaterThanOrEqual(12);
+    expect(topLoadHeight).toBeLessThan(leftLoadHeight);
+    expect(leftLoadHeight).toBeGreaterThan(40);
     expect(
       screen.getByLabelText(
         "qk = c1 * q = 0.9412 * 10 = 9.41 кН/м²; qd = c2 * q = 0.0588 * 10 = 0.59 кН/м²",
@@ -694,6 +728,19 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByLabelText("ld/lk = 2.1 > 2, тому приймаємо c1 = 1; c2 = 0"),
     ).toBeInTheDocument();
+    const updatedLoadDiagram = screen.getByRole("img", {
+      name: "Параметрична схема розподілу навантаження q між напрямами lk і ld: lk 3 м, ld 6.3 м",
+    });
+
+    expect(updatedLoadDiagram.textContent).toContain("ld = 6.3 м");
+    expect(updatedLoadDiagram.textContent).toContain("qk = 10 кН/м²");
+    expect(updatedLoadDiagram.textContent).toContain("qd = 0 кН/м²");
+    const updatedTopLoadLines = [...updatedLoadDiagram.querySelectorAll("line")].filter(
+      (line) => Math.abs(getNumericAttribute(line, "x2") - getNumericAttribute(line, "x1")) > 250
+        && getNumericAttribute(line, "y1") < 118,
+    );
+
+    expect(updatedTopLoadLines).toHaveLength(0);
   });
 
   it("stacks native cassoon load input fields vertically", () => {

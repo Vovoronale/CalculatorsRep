@@ -11,7 +11,13 @@ import {
   type CassoonLoadDistributionLengthUnit,
   type CassoonLoadDistributionLoadUnit,
   type CassoonLoadDistributionReportStep,
+  type CassoonLoadDistributionValues,
 } from "@/lib/cassoon-load-distribution";
+import {
+  buildScene,
+  createDefaultRegistry,
+  type SceneDefinition,
+} from "@/lib/vendor/svgparametric";
 
 import { MathNotation } from "./math-notation";
 
@@ -142,125 +148,312 @@ function ReportStepFormula({ step }: { step: CassoonLoadDistributionReportStep }
   );
 }
 
-function LoadDistributionDiagram() {
+const SVG_PARAMETRIC_REGISTRY = createDefaultRegistry();
+const CASSOON_DIAGRAM_WIDTH = 570;
+const CASSOON_DIAGRAM_HEIGHT = 360;
+const CASSOON_SLAB_HEIGHT = 170;
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function sanitizeDiagramValue(value: number, fallback: number): number {
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function formatDiagramMeterValue(value: number): string {
+  return formatCassoonLoadDistributionNumber(value, 3);
+}
+
+function formatDiagramLoadValue(
+  valueKnM2: number,
+  unit: CassoonLoadDistributionLoadUnit,
+): string {
+  const selectedUnit = CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS[unit];
+
+  return `${formatCassoonLoadDistributionNumber(
+    getDisplayLoadValue(valueKnM2, unit),
+    selectedUnit.fractionDigits,
+  )} ${selectedUnit.label}`;
+}
+
+function escapeSvgAttribute(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;");
+}
+
+function getCassoonLoadDistributionScene({
+  shortSpanM,
+  longSpanM,
+  shortDirectionLoadLabel,
+  longDirectionLoadLabel,
+  totalLoadLabel,
+  shortDirectionLoadShare,
+  longDirectionLoadShare,
+}: {
+  shortSpanM: number;
+  longSpanM: number;
+  shortDirectionLoadLabel: string;
+  longDirectionLoadLabel: string;
+  totalLoadLabel: string;
+  shortDirectionLoadShare: number;
+  longDirectionLoadShare: number;
+}): SceneDefinition {
+  const safeShortSpanM = sanitizeDiagramValue(shortSpanM, 3);
+  const safeLongSpanM = Math.max(
+    safeShortSpanM,
+    sanitizeDiagramValue(longSpanM, safeShortSpanM * 2),
+  );
+  const spanRatio = safeLongSpanM / safeShortSpanM;
+  const slabWidth = clamp(CASSOON_SLAB_HEIGHT * spanRatio, 270, 390);
+  const slabHeight = CASSOON_SLAB_HEIGHT;
+  const slabX = Math.round((CASSOON_DIAGRAM_WIDTH - slabWidth) / 2 + 10);
+  const slabY = 118;
+  const centerX = slabX + slabWidth / 2;
+  const centerY = slabY + slabHeight / 2;
+  const horizontalBandHeight = slabHeight / safeShortSpanM;
+  const verticalBandWidth = slabWidth / safeLongSpanM;
+  const maxLoadHeight = 46;
+  const minVisibleLoadHeight = 12;
+  const getLoadHeight = (share: number) => {
+    const clampedShare = clamp(share, 0, 1);
+
+    return clampedShare <= 0 ? 0 : Math.max(minVisibleLoadHeight, maxLoadHeight * clampedShare);
+  };
+  const shortDirectionLoadHeight = getLoadHeight(shortDirectionLoadShare);
+  const longDirectionLoadHeight = getLoadHeight(longDirectionLoadShare);
+  const loadColor = "#0b78de";
+  const lineColor = "#111827";
+  const fillColor = "#fff7ed";
+  const hatchColor = "#111827";
+
+  return {
+    scene: {
+      width: CASSOON_DIAGRAM_WIDTH,
+      height: CASSOON_DIAGRAM_HEIGHT,
+    },
+    objects: {
+      slab: {
+        type: "RectBlock",
+        params: {
+          x: slabX,
+          y: slabY,
+          width: slabWidth,
+          height: slabHeight,
+          fill: "#ffffff",
+          color: lineColor,
+          strokeWidth: 2,
+        },
+      },
+      horizontalLoadStrip: {
+        type: "RectBlock",
+        params: {
+          x: slabX,
+          y: centerY - horizontalBandHeight / 2,
+          width: slabWidth,
+          height: horizontalBandHeight,
+          fill: fillColor,
+          hatch: {
+            type: "diagonal",
+            spacing: 9,
+            color: hatchColor,
+            strokeWidth: 1.2,
+          },
+          color: lineColor,
+          strokeWidth: 1.4,
+        },
+      },
+      verticalLoadStrip: {
+        type: "RectBlock",
+        params: {
+          x: centerX - verticalBandWidth / 2,
+          y: slabY,
+          width: verticalBandWidth,
+          height: slabHeight,
+          fill: fillColor,
+          hatch: {
+            type: "diagonal",
+            spacing: 9,
+            color: hatchColor,
+            strokeWidth: 1.2,
+          },
+          color: lineColor,
+          strokeWidth: 1.4,
+        },
+      },
+      longDirectionLoad: {
+        type: "DistributedLoad",
+        params: {
+          x1: "${objects.slab.anchors.topLeft.x}",
+          y1: "${objects.slab.anchors.topLeft.y}",
+          x2: "${objects.slab.anchors.topRight.x}",
+          y2: "${objects.slab.anchors.topRight.y}",
+          offset: -8,
+          height: longDirectionLoadHeight,
+          arrowSpacing: 42,
+          arrowSize: 8,
+          value: longDirectionLoadLabel,
+          prefix: "qd = ",
+          color: loadColor,
+          strokeWidth: 1.6,
+          fontSize: 17,
+        },
+      },
+      shortDirectionLoad: {
+        type: "DistributedLoad",
+        params: {
+          x1: "${objects.slab.anchors.bottomLeft.x}",
+          y1: "${objects.slab.anchors.bottomLeft.y}",
+          x2: "${objects.slab.anchors.topLeft.x}",
+          y2: "${objects.slab.anchors.topLeft.y}",
+          offset: -8,
+          height: shortDirectionLoadHeight,
+          arrowSpacing: 42,
+          arrowSize: 8,
+          value: shortDirectionLoadLabel,
+          prefix: "qk = ",
+          textOffset: 22,
+          color: loadColor,
+          strokeWidth: 1.6,
+          fontSize: 17,
+        },
+      },
+      longSpanDimension: {
+        type: "Dimension",
+        params: {
+          x1: "${objects.slab.anchors.bottomLeft.x}",
+          y1: "${objects.slab.anchors.bottomLeft.y}",
+          x2: "${objects.slab.anchors.bottomRight.x}",
+          y2: "${objects.slab.anchors.bottomRight.y}",
+          offset: 54,
+          scale: safeLongSpanM / slabWidth,
+          prefix: "ld = ",
+          suffix: " м",
+          color: lineColor,
+          strokeWidth: 1,
+          fontSize: 16,
+        },
+      },
+      shortSpanDimension: {
+        type: "Dimension",
+        params: {
+          x1: "${objects.slab.anchors.topRight.x}",
+          y1: "${objects.slab.anchors.topRight.y}",
+          x2: "${objects.slab.anchors.bottomRight.x}",
+          y2: "${objects.slab.anchors.bottomRight.y}",
+          offset: -48,
+          scale: safeShortSpanM / slabHeight,
+          prefix: "lk = ",
+          suffix: " м",
+          color: lineColor,
+          strokeWidth: 1,
+          fontSize: 16,
+        },
+      },
+      stripDimension: {
+        type: "Dimension",
+        params: {
+          x1: centerX - verticalBandWidth / 2,
+          y1: "${objects.slab.anchors.bottom.y}",
+          x2: centerX + verticalBandWidth / 2,
+          y2: "${objects.slab.anchors.bottom.y}",
+          offset: 25,
+          scale: 1 / verticalBandWidth,
+          prefix: "",
+          suffix: " м",
+          color: loadColor,
+          strokeWidth: 1,
+          fontSize: 14,
+        },
+      },
+      horizontalStripDimension: {
+        type: "Dimension",
+        params: {
+          x1: "${objects.slab.anchors.right.x}",
+          y1: centerY - horizontalBandHeight / 2,
+          x2: "${objects.slab.anchors.right.x}",
+          y2: centerY + horizontalBandHeight / 2,
+          offset: -24,
+          scale: 1 / horizontalBandHeight,
+          prefix: "",
+          suffix: " м",
+          color: loadColor,
+          strokeWidth: 1,
+          fontSize: 14,
+        },
+      },
+      totalLoadLabel: {
+        type: "TextLabel",
+        params: {
+          x: centerX + slabWidth * 0.22,
+          y: centerY + 41,
+          text: `q = ${totalLoadLabel}`,
+          color: lineColor,
+          fontSize: 16,
+          fontFamily: "Arial, sans-serif",
+          textAnchor: "middle",
+        },
+      },
+    },
+  };
+}
+
+function ParametricLoadDistributionDiagram({
+  values,
+  totalLoadKnM2,
+  loadUnit,
+}: {
+  values: CassoonLoadDistributionValues | null;
+  totalLoadKnM2: number;
+  loadUnit: CassoonLoadDistributionLoadUnit;
+}) {
+  const shortSpanM = values?.shortSpanM ?? 3;
+  const longSpanM = values?.longSpanM ?? 6;
+  const shortDirectionLoadKnM2 = values?.shortDirectionLoadKnM2 ?? 0;
+  const longDirectionLoadKnM2 = values?.longDirectionLoadKnM2 ?? 0;
+  const totalLoadLabel = Number.isFinite(totalLoadKnM2) && totalLoadKnM2 > 0
+    ? formatDiagramLoadValue(totalLoadKnM2, loadUnit)
+    : "q";
+  const shortDirectionLoadLabel = values
+    ? formatDiagramLoadValue(shortDirectionLoadKnM2, loadUnit)
+    : "";
+  const longDirectionLoadLabel = values
+    ? formatDiagramLoadValue(longDirectionLoadKnM2, loadUnit)
+    : "";
+  const title = `Параметрична схема розподілу навантаження q між напрямами lk і ld: lk ${formatDiagramMeterValue(
+    shortSpanM,
+  )} м, ld ${formatDiagramMeterValue(longSpanM)} м`;
+  const svg = buildScene(
+    getCassoonLoadDistributionScene({
+      shortSpanM,
+      longSpanM,
+      shortDirectionLoadLabel,
+      longDirectionLoadLabel,
+      totalLoadLabel,
+      shortDirectionLoadShare:
+        totalLoadKnM2 > 0 ? shortDirectionLoadKnM2 / totalLoadKnM2 : 0,
+      longDirectionLoadShare:
+        totalLoadKnM2 > 0 ? longDirectionLoadKnM2 / totalLoadKnM2 : 0,
+    }),
+    SVG_PARAMETRIC_REGISTRY,
+  ).svg.replace(
+    "<svg ",
+    `<svg role="img" aria-label="${escapeSvgAttribute(title)}" class="cassoon-load-diagram__svg" `,
+  );
+
   return (
     <figure className="cassoon-load-diagram">
-      <svg
-        role="img"
-        aria-label="Книжкова схема розподілу навантаження q між напрямами lk і ld за рисунком VII.40"
-        viewBox="0 0 565 285"
-      >
-        <defs>
-          <marker
-            id="cassoon-arrow"
-            viewBox="0 0 10 8"
-            refX="5"
-            refY="4"
-            markerWidth="7"
-            markerHeight="7"
-            orient="auto-start-reverse"
-          >
-            <path d="M0 0 L10 4 L0 8 Z" />
-          </marker>
-          <pattern
-            id="cassoon-hatch"
-            width="6"
-            height="6"
-            patternUnits="userSpaceOnUse"
-            patternTransform="rotate(90)"
-          >
-            <path d="M0 0 H6" />
-          </pattern>
-          <pattern
-            id="cassoon-diagonal-hatch"
-            width="7"
-            height="7"
-            patternUnits="userSpaceOnUse"
-            patternTransform="rotate(45)"
-          >
-            <path d="M0 0 H7" />
-          </pattern>
-          <pattern
-            id="cassoon-horizontal-hatch"
-            width="6"
-            height="6"
-            patternUnits="userSpaceOnUse"
-          >
-            <path d="M0 0 H6" />
-          </pattern>
-        </defs>
-
-        <g className="cassoon-load-diagram__book">
-          <g transform="translate(34 34)">
-            <rect x="18" y="32" width="126" height="82" className="cassoon-load-diagram__slab" />
-            <rect x="18" y="67" width="126" height="15" className="cassoon-load-diagram__load-fill" />
-            <rect x="74" y="32" width="15" height="82" className="cassoon-load-diagram__load-fill" />
-            <line x1="18" y1="24" x2="144" y2="24" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
-            <line x1="10" y1="32" x2="10" y2="114" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
-            <rect x="72" y="8" width="18" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="81" y="18" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">ld</text>
-            <rect x="-5" y="68" width="18" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="4" y="78" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">lk</text>
-            <text x="79" y="142" className="cassoon-load-diagram__caption">а</text>
-            <text x="52" y="161" className="cassoon-load-diagram__caption">ld/lk ≤ 2</text>
-          </g>
-
-          <g transform="translate(203 34)">
-            <rect x="18" y="32" width="126" height="82" className="cassoon-load-diagram__slab" />
-            <rect x="18" y="10" width="126" height="17" className="cassoon-load-diagram__load-fill" />
-            <rect x="18" y="67" width="126" height="15" className="cassoon-load-diagram__load-fill" />
-            <line x1="18" y1="2" x2="144" y2="2" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
-            <line x1="10" y1="32" x2="10" y2="114" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
-            <rect x="72" y="-17" width="18" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="81" y="-7" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">ld</text>
-            <rect x="-5" y="68" width="18" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="4" y="78" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">lk</text>
-            <rect x="146" y="14" width="13" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="152" y="24" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">q</text>
-            <text x="79" y="142" className="cassoon-load-diagram__caption">б</text>
-            <text x="52" y="161" className="cassoon-load-diagram__caption">ld/lk &gt; 2</text>
-          </g>
-
-          <g transform="translate(392 34)">
-            <rect x="18" y="32" width="126" height="82" className="cassoon-load-diagram__slab" />
-            <path d="M36 12 H126 L144 32 H18 Z" className="cassoon-load-diagram__load-zone cassoon-load-diagram__load-zone--vertical" />
-            <path d="M18 32 L-24 73 L18 114 Z" className="cassoon-load-diagram__load-zone cassoon-load-diagram__load-zone--horizontal" />
-            <line x1="18" y1="-5" x2="18" y2="10" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__load-arrow" />
-            <line x1="-42" y1="73" x2="-26" y2="73" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__load-arrow" />
-            <line x1="18" y1="32" x2="59" y2="73" className="cassoon-load-diagram__guide" />
-            <line x1="18" y1="114" x2="59" y2="73" className="cassoon-load-diagram__guide" />
-            <line x1="144" y1="32" x2="103" y2="73" className="cassoon-load-diagram__guide" />
-            <line x1="144" y1="114" x2="103" y2="73" className="cassoon-load-diagram__guide" />
-            <line x1="59" y1="73" x2="103" y2="73" className="cassoon-load-diagram__guide" />
-            <line x1="46" y1="56" x2="132" y2="56" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
-            <line x1="27" y1="42" x2="27" y2="104" markerStart="url(#cassoon-arrow)" markerEnd="url(#cassoon-arrow)" className="cassoon-load-diagram__dimension" />
-            <rect x="80" y="42" width="18" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="89" y="52" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">ld</text>
-            <rect x="31" y="68" width="18" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="40" y="78" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">lk</text>
-            <rect x="73" y="18" width="22" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="84" y="28" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">qk</text>
-            <rect x="-20" y="66" width="22" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="-9" y="76" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">qd</text>
-            <rect x="22" y="-6" width="13" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="28" y="4" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">q</text>
-            <rect x="-39" y="58" width="13" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="-33" y="68" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">q</text>
-            <rect x="149" y="68" width="13" height="13" className="cassoon-load-diagram__label-bg" />
-            <text x="155" y="78" className="cassoon-load-diagram__label cassoon-load-diagram__label--middle">q</text>
-            <text x="79" y="142" className="cassoon-load-diagram__caption">в</text>
-            <text x="52" y="161" className="cassoon-load-diagram__caption">ld/lk &lt; 2</text>
-          </g>
-
-          <text x="282" y="264" className="cassoon-load-diagram__figure-title">
-            Рис. VII.40. Розподіл навантаження за напрямами lk і ld
-          </text>
-        </g>
-      </svg>
+      <div
+        className="cassoon-load-diagram__canvas"
+        dangerouslySetInnerHTML={{ __html: svg }}
+      />
       <figcaption>
-        Схема стилізована під книжкове креслення: а - двонапрямний розподіл;
-        б - балкова схема при ld/lk &gt; 2; в - розподіл по трапеціях і
-        трикутниках.
+        Параметрична схема: прямокутник плити масштабується за ld/lk,
+        заштриховані смуги показують передачу навантаження, а qk і qd
+        оновлюються з результатів розрахунку.
       </figcaption>
     </figure>
   );
@@ -409,7 +602,11 @@ export function CassoonLoadDistributionCalculator() {
           </label>
         </div>
 
-        <LoadDistributionDiagram />
+        <ParametricLoadDistributionDiagram
+          values={report.values}
+          totalLoadKnM2={report.input.totalLoadKnM2}
+          loadUnit={loadUnit}
+        />
       </div>
 
       {report.valid && report.values ? (
