@@ -20,6 +20,8 @@ import { WorkspaceTopBar, type Breadcrumb } from "@/components/workspace-top-bar
 import {
   calculators,
   calculatorCategories,
+  getCalculatorsForCategory,
+  getCategoryTrail,
   type Calculator,
   type CategorySlug,
 } from "@/lib/calculators";
@@ -34,11 +36,9 @@ export function CalculatorShell({
   selectedCategory,
   selectedCalculator,
 }: CalculatorShellProps) {
-  const detailCategory = selectedCalculator
-    ? calculatorCategories.find(
-        (c) => c.slug === selectedCalculator.mainCategory,
-      ) ?? calculatorCategories[0]
-    : null;
+  const detailCategoryTrail = selectedCalculator
+    ? getCategoryTrail(selectedCalculator.mainCategory)
+    : [];
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -93,13 +93,13 @@ export function CalculatorShell({
   };
 
   const detailBreadcrumbs: Breadcrumb[] | null =
-    selectedCalculator && detailCategory
+    selectedCalculator && detailCategoryTrail.length > 0
       ? [
           { label: "Каталог", href: "/" },
-          {
-            label: detailCategory.title,
-            href: `/#${detailCategory.slug}`,
-          },
+          ...detailCategoryTrail.map((category) => ({
+            label: category.title,
+            href: `/#${category.slug}`,
+          })),
           { label: selectedCalculator.title },
         ]
       : null;
@@ -184,11 +184,7 @@ function HomeView({ activeCategory, onOpenModal }: HomeViewProps) {
   const category =
     calculatorCategories.find((item) => item.slug === activeCategory) ??
     calculatorCategories[0];
-  const categoryCalculators = calculators.filter(
-    (calculator) =>
-      calculator.mainCategory === category.slug ||
-      calculator.extraCategories.includes(category.slug),
-  );
+  const categoryCalculators = getCalculatorsForCategory(category.slug);
 
   return (
     <>
@@ -356,14 +352,24 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
   const showsIframe =
     calculator.displayMode === "embed" && Boolean(calculator.embedUrl);
   const showsNative = calculator.displayMode === "native";
-  const related = calculators
+  const directRelated = calculators
     .filter(
       (c) =>
         c.slug !== calculator.slug &&
         (c.mainCategory === calculator.mainCategory ||
           c.extraCategories.includes(calculator.mainCategory)),
-    )
-    .slice(0, 3);
+    );
+  const relatedCategoryTrail = getCategoryTrail(calculator.mainCategory);
+  const parentCategory = relatedCategoryTrail.at(-2);
+  const parentRelated = parentCategory
+    ? getCalculatorsForCategory(parentCategory.slug).filter(
+        (c) => c.slug !== calculator.slug,
+      )
+    : [];
+  const related = (directRelated.length > 0 ? directRelated : parentRelated).slice(
+    0,
+    3,
+  );
 
   return (
     <section className="detail-section" aria-labelledby="detail-title">

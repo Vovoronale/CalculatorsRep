@@ -308,6 +308,10 @@ textarea {
   background: var(--surface-2);
 }
 
+.rail-tree__row[data-count-state="empty"] {
+  color: var(--text-muted);
+}
+
 .rail-tree__icon {
   display: inline-flex;
   align-items: center;
@@ -368,6 +372,15 @@ textarea {
   transition: background-color 150ms, color 150ms;
 }
 
+.rail-tree__leaf[data-count-state="filled"] {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.rail-tree__leaf[data-count-state="empty"] {
+  color: var(--text-subtle);
+}
+
 .rail-tree__leaf:hover {
   background: var(--surface-2);
   color: var(--text);
@@ -397,6 +410,11 @@ textarea {
   font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.rail-tree__leaf[data-count-state="empty"] .rail-tree__leaf-badge {
+  background: var(--surface);
+  color: var(--text-subtle);
 }
 
 .catalog-rail__footer {

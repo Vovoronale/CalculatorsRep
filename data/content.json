@@ -146,47 +146,291 @@
   },
   "categories": [
     {
-      "slug": "teplotekhnika",
+      "slug": "energoefektyvnist-teplotekhnika",
       "title": "Теплотехніка",
-      "note": "Теплотехнічний розрахунок огороджувальних конструкцій, опір теплопередачі, точка роси та повітропроникність.",
+      "note": "Розрахунки теплової ізоляції, енергоефективності, вологи, температурних режимів і повітропроникності огороджувальних конструкцій.",
       "icon": "Thermometer"
     },
     {
-      "slug": "fem-vuzly",
-      "parentSlug": "teplotekhnika",
-      "title": "FEM-розрахунки вузлів",
-      "note": "Двовимірний FEM-аналіз теплових вузлів, містків холоду, кутів і термовключень.",
-      "icon": "Thermometer"
+      "slug": "ogorodzhuvalni-konstruktsiyi",
+      "parentSlug": "energoefektyvnist-teplotekhnika",
+      "title": "Огороджувальні конструкції",
+      "note": "Опір теплопередачі та комплексні перевірки зовнішніх стін, покрівель і перекриттів.",
+      "icon": "BrickWall"
+    },
+    {
+      "slug": "pidlohy",
+      "parentSlug": "energoefektyvnist-teplotekhnika",
+      "title": "Підлоги",
+      "note": "Теплопередача та теплозасвоєння підлог над підвалами, техпідпіллями і по ґрунту.",
+      "icon": "Layers"
+    },
+    {
+      "slug": "voloha-tochka-rosy",
+      "parentSlug": "energoefektyvnist-teplotekhnika",
+      "title": "Волога і точка роси",
+      "note": "Тепловологісний стан, паропроникність і температура точки роси.",
+      "icon": "Droplets"
+    },
+    {
+      "slug": "temperatura-poverkhni",
+      "parentSlug": "energoefektyvnist-teplotekhnika",
+      "title": "Температура поверхні",
+      "note": "Температурні перепади та перевірки внутрішньої поверхні огороджувальних конструкцій.",
+      "icon": "Gauge"
+    },
+    {
+      "slug": "teplova-inertsiya",
+      "parentSlug": "energoefektyvnist-teplotekhnika",
+      "title": "Теплова інерція",
+      "note": "Теплова інерція і теплостійкість конструкцій у сезонних режимах.",
+      "icon": "Activity"
+    },
+    {
+      "slug": "teplovi-mistky-fem",
+      "parentSlug": "energoefektyvnist-teplotekhnika",
+      "title": "Теплові містки / FEM",
+      "note": "Двовимірний FEM-аналіз вузлів, кутів, термовключень і теплових містків.",
+      "icon": "Network"
+    },
+    {
+      "slug": "povitropronyknist",
+      "parentSlug": "energoefektyvnist-teplotekhnika",
+      "title": "Повітропроникність",
+      "note": "Перевірка повітропроникності огороджувальних конструкцій.",
+      "icon": "Wind"
+    },
+    {
+      "slug": "konstruktsiyi",
+      "title": "Конструкції",
+      "note": "Розрахунки залізобетону, арматури, балок, плит, фундаментів і анкерування.",
+      "icon": "Triangle"
+    },
+    {
+      "slug": "zalizobeton",
+      "parentSlug": "konstruktsiyi",
+      "title": "Залізобетон",
+      "note": "Загальні інструменти для розрахунку залізобетонних конструкцій.",
+      "icon": "Building"
+    },
+    {
+      "slug": "armatura",
+      "parentSlug": "konstruktsiyi",
+      "title": "Арматура",
+      "note": "Підбір і перевірка площі армування для залізобетонних елементів.",
+      "icon": "Drill"
+    },
+    {
+      "slug": "beton",
+      "parentSlug": "konstruktsiyi",
+      "title": "Бетон",
+      "note": "Розрахункові інструменти для бетонних елементів і параметрів.",
+      "icon": "Box"
+    },
+    {
+      "slug": "balky-plyty",
+      "parentSlug": "konstruktsiyi",
+      "title": "Балки і плити",
+      "note": "Розрахунки балок, плит, перекриттів, зусиль, прогинів і розподілу навантажень.",
+      "icon": "Ruler"
+    },
+    {
+      "slug": "fundamenty",
+      "parentSlug": "konstruktsiyi",
+      "title": "Фундаменти",
+      "note": "Інструменти для перевірки фундаментів і фундаментних вузлів.",
+      "icon": "Home"
+    },
+    {
+      "slug": "ankeruvannya",
+      "parentSlug": "konstruktsiyi",
+      "title": "Анкерування",
+      "note": "Перевірки анкерування арматурних стрижнів у залізобетоні.",
+      "icon": "Pickaxe"
+    },
+    {
+      "slug": "dovidkovi-tablytsi",
+      "parentSlug": "konstruktsiyi",
+      "title": "Довідкові таблиці",
+      "note": "Конструктивні таблиці для швидких перевірок і підборів.",
+      "icon": "Table2"
+    },
+    {
+      "slug": "normy-perevirky",
+      "title": "Норми та перевірки",
+      "note": "Нормоконтроль, класи наслідків, перевірка ДБН і нормативні обґрунтування.",
+      "icon": "ShieldCheck"
     },
     {
       "slug": "normokontrol",
+      "parentSlug": "normy-perevirky",
       "title": "Нормоконтроль",
       "note": "Перевірка проектних рішень на відповідність ДБН і чинним нормативам.",
       "icon": "ShieldCheck"
     },
     {
-      "slug": "konstruktsiyi",
-      "title": "Конструкції",
-      "note": "Армування ЗБК, балки та основні конструктивні розрахунки.",
-      "icon": "Triangle"
+      "slug": "klas-naslidkiv",
+      "parentSlug": "normy-perevirky",
+      "title": "Клас наслідків",
+      "note": "Визначення класу наслідків та відповідальності об’єкта будівництва.",
+      "icon": "BadgeCheck"
+    },
+    {
+      "slug": "perevirka-dbn",
+      "parentSlug": "normy-perevirky",
+      "title": "Перевірка ДБН",
+      "note": "Майбутні інструменти для перевірки вимог ДБН у проектних рішеннях.",
+      "icon": "FileCheck2"
+    },
+    {
+      "slug": "normatyvni-obgruntuvannya",
+      "parentSlug": "normy-perevirky",
+      "title": "Нормативні обґрунтування",
+      "note": "Підготовка нормативних пояснень і посилань для розрахунків та рішень.",
+      "icon": "BookOpenCheck"
+    },
+    {
+      "slug": "ai-asystenty-z-norm",
+      "parentSlug": "normy-perevirky",
+      "title": "AI-асистенти з норм",
+      "note": "Підготовлений розділ для нормативних AI-інструментів у межах нормоконтролю.",
+      "icon": "Bot"
     },
     {
       "slug": "inzhenerni-merezhi",
       "title": "Інженерні мережі",
-      "note": "Електричні навантаження та інші розрахунки інженерних мереж будівель.",
+      "note": "Розрахунки електрики, опалення, вентиляції, водопостачання та енергоспоживання.",
       "icon": "Zap"
     },
     {
-      "slug": "instrumenty",
-      "title": "Утиліти",
-      "note": "Конвертери, обробка даних та допоміжні інженерні інструменти.",
-      "icon": "Wrench"
+      "slug": "elektryka",
+      "parentSlug": "inzhenerni-merezhi",
+      "title": "Електрика",
+      "note": "Електричні навантаження та живлення будівель.",
+      "icon": "Zap"
     },
     {
-      "slug": "ai-asystenty",
-      "title": "AI-асистенти",
-      "note": "Профільні AI-сервіси для нормативної аналітики та консультацій.",
+      "slug": "opalennya",
+      "parentSlug": "inzhenerni-merezhi",
+      "title": "Опалення",
+      "note": "Майбутні розрахунки систем опалення.",
+      "icon": "Flame"
+    },
+    {
+      "slug": "ventylyatsiya",
+      "parentSlug": "inzhenerni-merezhi",
+      "title": "Вентиляція",
+      "note": "Майбутні розрахунки вентиляції та повітрообміну.",
+      "icon": "Fan"
+    },
+    {
+      "slug": "vodopostachannya",
+      "parentSlug": "inzhenerni-merezhi",
+      "title": "Водопостачання",
+      "note": "Майбутні інструменти для водопостачання та водовідведення.",
+      "icon": "Droplets"
+    },
+    {
+      "slug": "enerhospozhyvannya",
+      "parentSlug": "inzhenerni-merezhi",
+      "title": "Енергоспоживання",
+      "note": "Майбутні оцінки споживання енергії інженерними системами.",
+      "icon": "Gauge"
+    },
+    {
+      "slug": "cad-gis-dani",
+      "title": "CAD / GIS / Дані",
+      "note": "Конвертери, геометрія, імпорт, експорт і підготовка CAD/GIS-даних.",
+      "icon": "Map"
+    },
+    {
+      "slug": "dxf-geojson",
+      "parentSlug": "cad-gis-dani",
+      "title": "DXF / GeoJSON",
+      "note": "Конвертація DXF у GeoJSON і підготовка геоданих.",
+      "icon": "Map"
+    },
+    {
+      "slug": "konvertery",
+      "parentSlug": "cad-gis-dani",
+      "title": "Конвертери",
+      "note": "Майбутні конвертери інженерних форматів і даних.",
+      "icon": "Replace"
+    },
+    {
+      "slug": "heometriya",
+      "parentSlug": "cad-gis-dani",
+      "title": "Геометрія",
+      "note": "Майбутні геометричні утиліти для розрахунків і даних.",
+      "icon": "Shapes"
+    },
+    {
+      "slug": "import-eksport",
+      "parentSlug": "cad-gis-dani",
+      "title": "Імпорт / експорт",
+      "note": "Майбутні інструменти імпорту й експорту проектних даних.",
+      "icon": "ArrowLeftRight"
+    },
+    {
+      "slug": "dovidnyky",
+      "title": "Довідники",
+      "note": "Довідкові характеристики бетону, арматури, матеріалів і нормативних параметрів.",
+      "icon": "BookOpen"
+    },
+    {
+      "slug": "dovidnyk-beton",
+      "parentSlug": "dovidnyky",
+      "title": "Бетон",
+      "note": "Довідкові характеристики бетону для розрахунків.",
+      "icon": "Box"
+    },
+    {
+      "slug": "dovidnyk-armatura",
+      "parentSlug": "dovidnyky",
+      "title": "Арматура",
+      "note": "Довідкові характеристики арматури та класів сталі.",
+      "icon": "Drill"
+    },
+    {
+      "slug": "materialy",
+      "parentSlug": "dovidnyky",
+      "title": "Матеріали",
+      "note": "Майбутні довідники матеріалів для інженерних розрахунків.",
+      "icon": "Layers"
+    },
+    {
+      "slug": "normatyvni-kharakterystyky",
+      "parentSlug": "dovidnyky",
+      "title": "Нормативні характеристики",
+      "note": "Майбутні таблиці нормативних характеристик і параметрів.",
+      "icon": "Table2"
+    },
+    {
+      "slug": "ai-instrumenty",
+      "title": "AI-інструменти",
+      "note": "AI-асистенти для ДБН, перевірки рішень і підготовки технічних пояснень.",
       "icon": "Bot"
+    },
+    {
+      "slug": "asystenty-dbn",
+      "parentSlug": "ai-instrumenty",
+      "title": "Асистенти з ДБН",
+      "note": "Профільні GPT-асистенти для роботи з будівельними нормами України.",
+      "icon": "Bot"
+    },
+    {
+      "slug": "asystenty-perevirky-rishen",
+      "parentSlug": "ai-instrumenty",
+      "title": "Асистенти з перевірки рішень",
+      "note": "Майбутні AI-інструменти для перевірки проектних і розрахункових рішень.",
+      "icon": "ScanSearch"
+    },
+    {
+      "slug": "asystenty-pidhotovky-poyasnen",
+      "parentSlug": "ai-instrumenty",
+      "title": "Асистенти з підготовки пояснень",
+      "note": "Майбутні AI-інструменти для пояснювальних записок і технічних обґрунтувань.",
+      "icon": "FileText"
     }
   ],
   "calculators": [
@@ -195,7 +439,7 @@
       "title": "Теплотехнічний розрахунок огороджувальної конструкції будівлі",
       "shortDescription": "Комплексний розрахунок стіни/перекриття/покрівлі до зовнішнього середовища.",
       "description": "Комплексний теплотехнічний розрахунок огороджувальної конструкції до зовнішнього середовища: опір теплопередачі, тепловологісний стан, перевірка нормативних вимог за ДБН В.2.6-31.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "ogorodzhuvalni-konstruktsiyi",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -226,7 +470,7 @@
       "title": "Теплопередача підлоги над опалюваним підвалом",
       "shortDescription": "Комплексний розрахунок теплопередачі підлоги в опалюваному підвалі.",
       "description": "Теплотехнічний розрахунок підлоги над опалюваним підвалом з урахуванням теплових потоків між опалюваними зонами.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "pidlohy",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -255,7 +499,7 @@
       "title": "Теплопередача підлоги над технічним підпіллям",
       "shortDescription": "Комплексний розрахунок підлоги над технічним підпіллям.",
       "description": "Теплотехнічний розрахунок підлоги над технічним підпіллям з урахуванням слабко опалюваного простору під перекриттям.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "pidlohy",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -284,7 +528,7 @@
       "title": "Теплопередача підлоги по ґрунту",
       "shortDescription": "Комплексний розрахунок теплопередачі підлоги по ґрунту.",
       "description": "Теплотехнічний розрахунок підлоги, що укладається безпосередньо на ґрунт, з урахуванням теплової інерції ґрунту і периметра контакту.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "pidlohy",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -313,7 +557,7 @@
       "title": "Теплопередача підлоги над неопалюваним підвалом",
       "shortDescription": "Комплексний розрахунок підлоги над неопалюваним підвалом.",
       "description": "Теплотехнічний розрахунок підлоги над холодним (неопалюваним) підвалом з урахуванням теплового опору неопалюваного простору.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "pidlohy",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -342,7 +586,7 @@
       "title": "Теплозасвоєння поверхні підлоги будівлі",
       "shortDescription": "Розрахунок показника теплозасвоєння поверхнею підлоги.",
       "description": "Розрахунок показника теплозасвоєння поверхні підлоги — критерій теплового комфорту дотику стопи до покриття згідно з ДБН.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "pidlohy",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -372,7 +616,7 @@
       "title": "Опір теплопередачі огороджувальної конструкції будівлі",
       "shortDescription": "Розрахунок опору теплопередачі огороджувальної конструкції.",
       "description": "Класичний розрахунок R-value (приведеного опору теплопередачі) огороджувальної конструкції за пошарової структурою.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "ogorodzhuvalni-konstruktsiyi",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -402,7 +646,7 @@
       "title": "Тепловологісний стан огороджувальної конструкції будівлі",
       "shortDescription": "Оцінка тепловологісного стану конструкції — конденсація і накопичення вологи.",
       "description": "Оцінка тепловологісного стану конструкції з виявленням ризиків конденсації, накопичення вологи в шарах і періодичних режимів роботи.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "voloha-tochka-rosy",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -431,7 +675,7 @@
       "title": "Опір паропроникненню огороджувальної конструкції будівлі",
       "shortDescription": "Розрахунок опору паропроникненню конструкції.",
       "description": "Розрахунок опору паропроникненню огороджувальної конструкції — критерій захисту від накопичення вологи внаслідок дифузії пари.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "voloha-tochka-rosy",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -460,7 +704,7 @@
       "title": "Теплова інерція огороджувальної конструкції будівлі",
       "shortDescription": "Розрахунок показника теплової інерції конструкції.",
       "description": "Розрахунок показника теплової інерції огороджувальної конструкції — критерій теплової стабільності у зимовий і літній періоди.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "teplova-inertsiya",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -489,7 +733,7 @@
       "title": "Теплостійкість огороджувальної конструкції в літній період",
       "shortDescription": "Оцінка теплостійкості конструкції в літній період.",
       "description": "Оцінка теплостійкості огороджувальної конструкції в літній період — стійкість до перегріву внутрішніх приміщень.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "teplova-inertsiya",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -518,7 +762,7 @@
       "title": "Температура точки роси повітря",
       "shortDescription": "Розрахунок температури точки роси за параметрами повітря.",
       "description": "Розрахунок температури точки роси для заданих параметрів повітря — використовується для перевірки ризику конденсації на поверхнях.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "voloha-tochka-rosy",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -548,7 +792,7 @@
       "title": "Температура внутрішньої поверхні огороджувальної конструкції",
       "shortDescription": "Розрахунок температури поверхні конструкції з боку приміщення.",
       "description": "Розрахунок температури внутрішньої поверхні огороджувальної конструкції — використовується для перевірки відсутності конденсації та теплового комфорту.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "temperatura-poverkhni",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -577,7 +821,7 @@
       "title": "Повітропроникність огороджувальної конструкції будівлі",
       "shortDescription": "Розрахунок повітропроникності огороджувальної конструкції.",
       "description": "Розрахунок повітропроникності огороджувальної конструкції з урахуванням типу будівлі, типу конструкції, кліматичних даних, висоти будівлі та типу місцевості.",
-      "mainCategory": "teplotekhnika",
+      "mainCategory": "povitropronyknist",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -608,7 +852,7 @@
       "title": "Розрахунок коефіцієнтів теплопровідного включення вузла стику однорідної стіни та перекриття",
       "shortDescription": "FEM-розрахунок вузла однорідної стіни та перекриття.",
       "description": "Двовимірний FEM-розрахунок теплового вузла «однорідна стіна та перекриття» — оцінка лінійного коефіцієнта теплопередачі ψ і температур поверхні.",
-      "mainCategory": "fem-vuzly",
+      "mainCategory": "teplovi-mistky-fem",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -639,7 +883,7 @@
       "title": "Розрахунок коефіцієнтів теплопровідного включення вузла стику стіни, перекриття та балконної плити",
       "shortDescription": "FEM-розрахунок вузла стику стіни, перекриття та балконної плити.",
       "description": "Двовимірний FEM-розрахунок теплового вузла стику стіни, перекриття та балконної плити — оцінка містка холоду через виносну плиту.",
-      "mainCategory": "fem-vuzly",
+      "mainCategory": "teplovi-mistky-fem",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -669,7 +913,7 @@
       "title": "Розрахунок коефіцієнтів теплопровідного включення перекриття з термовключеннями",
       "shortDescription": "FEM-розрахунок перекриття з термовключеннями.",
       "description": "Двовимірний FEM-розрахунок перекриття з термовключеннями (металеві елементи, ребра, кріплення) — оцінка впливу включень на теплопередачу.",
-      "mainCategory": "fem-vuzly",
+      "mainCategory": "teplovi-mistky-fem",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -698,7 +942,7 @@
       "title": "Розрахунок коефіцієнтів теплопровідного включення стіни з термовключеннями",
       "shortDescription": "FEM-розрахунок стіни з термовключеннями.",
       "description": "Двовимірний FEM-розрахунок стіни з термовключеннями (металеві кріплення, перемички, армування) — оцінка впливу на середній опір.",
-      "mainCategory": "fem-vuzly",
+      "mainCategory": "teplovi-mistky-fem",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -728,7 +972,7 @@
       "title": "Розрахунок коефіцієнтів теплопровідного включення зовнішнього кута однорідної стіни",
       "shortDescription": "FEM-розрахунок кута однорідної стіни.",
       "description": "Двовимірний FEM-розрахунок кута однорідної стіни — оцінка зниження температури внутрішньої поверхні в кутовій зоні.",
-      "mainCategory": "fem-vuzly",
+      "mainCategory": "teplovi-mistky-fem",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -758,7 +1002,7 @@
       "title": "Розрахунок коефіцієнтів теплопровідного включення зовнішнього кута двох стін",
       "shortDescription": "FEM-розрахунок кута двох стін різного типу.",
       "description": "Двовимірний FEM-розрахунок зовнішнього кута двох стін різного типу — оцінка лінійного теплового потоку у кутовому стику.",
-      "mainCategory": "fem-vuzly",
+      "mainCategory": "teplovi-mistky-fem",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -820,7 +1064,7 @@
       "title": "ArmCon — розрахунок армування залізобетонних конструкцій",
       "shortDescription": "Розрахунок армування залізобетонних конструкцій за Єврокодами і ДБН.",
       "description": "ArmCon — інженерний сервіс для розрахунку армування залізобетонних конструкцій (балки, плити, колони) за Єврокодами та українськими нормами.",
-      "mainCategory": "konstruktsiyi",
+      "mainCategory": "zalizobeton",
       "extraCategories": [],
       "displayMode": "external",
       "accessLabel": "Окремий інструмент",
@@ -850,7 +1094,7 @@
       "title": "Сортамент арматури. Підбір діаметра та кількості арматурних стрижнів за площею",
       "shortDescription": "Табличний підбір арматури за потрібною площею As.",
       "description": "Підбір кількості стержнів і кроку арматури за заданою площею. Показує площу для діаметрів Ø4–Ø40, кількості стержнів 1–9 плюс користувацьке n, а також площу на 1 м.п.",
-      "mainCategory": "konstruktsiyi",
+      "mainCategory": "armatura",
       "extraCategories": [],
       "displayMode": "native",
       "nativeCalculator": "rebar-area-bars",
@@ -881,7 +1125,7 @@
       "title": "Мінімальна площа армування залізобетонної балки або плити",
       "shortDescription": "Покроковий розрахунок As,min для балки або плити за ДСТУ Б В.2.6-156:2010 та Eurocode 2.",
       "description": "Калькулятор визначає мінімальну площу робочої арматури за класом бетону, класом арматури та геометрією перерізу. Звіт показує вихідні дані, матеріальні характеристики, перевірку Eurocode 2 і всі формули з нормативними посиланнями.",
-      "mainCategory": "konstruktsiyi",
+      "mainCategory": "armatura",
       "extraCategories": [],
       "displayMode": "native",
       "nativeCalculator": "minimum-reinforcement-area",
@@ -913,7 +1157,7 @@
       "title": "Анкерування арматурного стрижня у залізобетонному фундаменті",
       "shortDescription": "Покрокова перевірка довжини анкерування кінця стрижня фундаменту за ДСТУ Б В.2.6-156:2010.",
       "description": "Калькулятор визначає силу розтягу в арматурі фундаменту за моделлю п. 8.8.2.5-8.8.2.8 ДСТУ, розраховує довжину анкерування за п. 7.2.2-7.2.4 і формує звіт із клікабельними нормативними посиланнями.",
-      "mainCategory": "konstruktsiyi",
+      "mainCategory": "ankeruvannya",
       "extraCategories": [],
       "displayMode": "native",
       "nativeCalculator": "foundation-bar-anchorage",
@@ -945,7 +1189,7 @@
       "title": "Розподіл навантаження в кесонному перекритті",
       "shortDescription": "Покроковий розрахунок c1, c2, qk і qd за прольотами lk, ld та повним навантаженням q.",
       "description": "Калькулятор розподіляє рівномірне навантаження q між коротким і довгим напрямами кесонного перекриття за формулами з книги Л.Е. Линовича «Расчет и конструирование частей гражданских зданий» (8-е вид., К.: Будівельник, 1972). У звіті показано коефіцієнти c1 і c2, частки навантаження qk і qd, перевірку ld/lk та примітку для балкової схеми при ld/lk > 2.",
-      "mainCategory": "konstruktsiyi",
+      "mainCategory": "balky-plyty",
       "extraCategories": [],
       "displayMode": "native",
       "nativeCalculator": "cassoon-load-distribution",
@@ -977,7 +1221,7 @@
       "title": "Характеристики арматури для розрахунку залізобетонних конструкцій",
       "shortDescription": "Таблиця характеристик арматури за ДСТУ 3760:2006.",
       "description": "Довідкова таблиця класів арматурного прокату з механічними характеристиками, модулем пружності та розрахунковим опором.",
-      "mainCategory": "konstruktsiyi",
+      "mainCategory": "dovidnyk-armatura",
       "extraCategories": [],
       "displayMode": "native",
       "nativeCalculator": "rebar-characteristics",
@@ -1008,7 +1252,7 @@
       "title": "Характеристики бетону для розрахунку залізобетонних конструкцій",
       "shortDescription": "Таблиця характеристик бетону за ДБН В.2.6-98:2009 та ДСТУ Б В.2.6-156:2010.",
       "description": "Довідкова таблиця класів бетону C8/10–C90/105 з міцнісними, деформаційними та розрахунковими характеристиками.",
-      "mainCategory": "konstruktsiyi",
+      "mainCategory": "dovidnyk-beton",
       "extraCategories": [],
       "displayMode": "native",
       "nativeCalculator": "concrete-characteristics",
@@ -1040,7 +1284,7 @@
       "title": "LiveBeamCalculator — розрахунок залізобетонних балок, зусиль і прогинів",
       "shortDescription": "Онлайн-калькулятор балок: моменти, поперечні сили, прогини.",
       "description": "LiveBeamCalculator — онлайн-калькулятор балок для оцінки згинальних моментів, поперечних сил і прогинів за різних схем навантажень і опор.",
-      "mainCategory": "konstruktsiyi",
+      "mainCategory": "balky-plyty",
       "extraCategories": [],
       "displayMode": "external",
       "accessLabel": "Окремий інструмент",
@@ -1069,7 +1313,7 @@
       "title": "Розрахунок електричних навантажень будівель",
       "shortDescription": "Розрахунок електричних навантажень житлових і громадських будівель за ДБН В.2.5-23:2025.",
       "description": "Сервіс для розрахунку електричних навантажень житлових і громадських будівель за ДБН В.2.5-23:2025. Допомагає підбирати потужність живлення та обґрунтовувати проектні рішення з електропостачання.",
-      "mainCategory": "inzhenerni-merezhi",
+      "mainCategory": "elektryka",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -1099,7 +1343,7 @@
       "title": "Визначення класу наслідків об’єкта за ДСТУ 8855",
       "shortDescription": "Вебкалькулятор класу наслідків об'єкта за ДСТУ 8855:2019 з експортом результатів.",
       "description": "Вебкалькулятор для визначення класу наслідків (відповідальності) об'єкта будівництва за ДСТУ 8855:2019. Покроковий журнал дій і експорт результатів у PDF/DOCX.",
-      "mainCategory": "normokontrol",
+      "mainCategory": "klas-naslidkiv",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований розрахунок",
@@ -1129,7 +1373,7 @@
       "title": "IV GeoJSON — конвертація DXF у GeoJSON",
       "shortDescription": "Конвертація DXF-файлів у GeoJSON з геоприв'язкою до карти.",
       "description": "IV GeoJSON — конвертер DXF у GeoJSON з геоприв'язкою. Зручно для підготовки даних для GIS, державних сервісів і веб-карт.",
-      "mainCategory": "instrumenty",
+      "mainCategory": "dxf-geojson",
       "extraCategories": [],
       "displayMode": "embed",
       "accessLabel": "Вбудований інструмент",
@@ -1160,7 +1404,7 @@
       "title": "DBN Assistant — AI-асистенти з будівельних норм",
       "shortDescription": "Набір AI-асистентів на базі ChatGPT для аналізу будівельних норм.",
       "description": "DBN Assistant — набір профільних AI-асистентів на базі OpenAI/ChatGPT для аналізу будівельних норм України та відповідей на технічні запити.",
-      "mainCategory": "ai-asystenty",
+      "mainCategory": "asystenty-dbn",
       "extraCategories": [],
       "displayMode": "external",
       "accessLabel": "Окремий інструмент",
@@ -1190,7 +1434,7 @@
       "title": "AI-асистент з ДБН В.2.2-5:2023 — захисні споруди",
       "shortDescription": "AI-асистент із захисних споруд цивільного захисту (ДБН В.2.2-5:2023).",
       "description": "Профільний GPT-асистент на базі ChatGPT для роботи з ДБН В.2.2-5:2023 «Захисні споруди цивільного захисту». Допомагає швидко знаходити вимоги, перевіряти рішення й готувати посилання.",
-      "mainCategory": "ai-asystenty",
+      "mainCategory": "asystenty-dbn",
       "extraCategories": [],
       "displayMode": "external",
       "accessLabel": "AI-асистент",
@@ -1219,7 +1463,7 @@
       "title": "AI-асистент з ДБН В.2.6-31:2021 — теплова ізоляція будівель",
       "shortDescription": "AI-асистент із теплової ізоляції та енергоефективності будівель.",
       "description": "Профільний GPT-асистент для роботи з ДБН В.2.6-31:2021 «Теплова ізоляція та енергоефективність будівель». Допомагає звіряти параметри та готувати обґрунтування.",
-      "mainCategory": "ai-asystenty",
+      "mainCategory": "asystenty-dbn",
       "extraCategories": [],
       "displayMode": "external",
       "accessLabel": "AI-асистент",
@@ -1249,7 +1493,7 @@
       "title": "AI-асистент з ДБН В.1.1-7:2016 — пожежна безпека",
       "shortDescription": "AI-асистент із пожежної безпеки об'єктів будівництва.",
       "description": "Профільний GPT-асистент для роботи з ДБН В.1.1-7:2016 «Пожежна безпека об'єктів будівництва». Швидкі консультації з протипожежних вимог.",
-      "mainCategory": "ai-asystenty",
+      "mainCategory": "asystenty-dbn",
       "extraCategories": [],
       "displayMode": "external",
       "accessLabel": "AI-асистент",
@@ -1279,7 +1523,7 @@
       "title": "AI-асистент з ДБН В.2.2-15:2019 — житлові будинки",
       "shortDescription": "AI-асистент із житлових будинків (основні положення).",
       "description": "Профільний GPT-асистент для роботи з ДБН В.2.2-15:2019 «Житлові будинки. Основні положення». Допомагає з вимогами до планування і параметрами житла.",
-      "mainCategory": "ai-asystenty",
+      "mainCategory": "asystenty-dbn",
       "extraCategories": [],
       "displayMode": "external",
       "accessLabel": "AI-асистент",
@@ -1309,7 +1553,7 @@
       "title": "AI-асистент з ДБН В.2.5-67:2013 — опалення та вентиляція",
       "shortDescription": "AI-асистент із опалення, вентиляції та кондиціонування.",
       "description": "Профільний GPT-асистент для роботи з ДБН В.2.5-67:2013 «Опалення, вентиляція та кондиціонування». Швидкі відповіді з параметрів і вимог ОВК.",
-      "mainCategory": "ai-asystenty",
+      "mainCategory": "asystenty-dbn",
       "extraCategories": [],
       "displayMode": "external",
       "accessLabel": "AI-асистент",

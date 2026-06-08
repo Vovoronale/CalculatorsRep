@@ -128,6 +128,7 @@ function CategoryLink({
   const Icon = getCategoryIcon(category.slug);
   const calcs = getCalculatorsForCategory(category.slug);
   const childCategories = getChildCategories(category.slug);
+  const countState = calcs.length > 0 ? "filled" : "empty";
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     onSelectCategory?.(category.slug);
     onCloseMobile?.();
@@ -143,6 +144,7 @@ function CategoryLink({
         href={`/#${category.slug}`}
         className="rail-tree__row"
         aria-current={isCurrent ? "page" : undefined}
+        data-count-state={countState}
         title={isCollapsed ? category.title : undefined}
         onClick={handleClick}
       >
@@ -156,6 +158,7 @@ function CategoryLink({
         <ul className="rail-tree__children">
           {childCategories.map((child) => {
             const childCalcs = getCalculatorsForCategory(child.slug);
+            const childCountState = childCalcs.length > 0 ? "filled" : "empty";
             const handleChildClick = (event: MouseEvent<HTMLAnchorElement>) => {
               onSelectCategory?.(child.slug);
               onCloseMobile?.();
@@ -173,6 +176,7 @@ function CategoryLink({
                     currentCategory === child.slug ? " is-current" : ""
                   }`}
                   aria-current={currentCategory === child.slug ? "page" : undefined}
+                  data-count-state={childCountState}
                   onClick={handleChildClick}
                 >
                   <span>{child.title}</span>

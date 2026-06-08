@@ -94,30 +94,42 @@
 1. Додай запис у `categories[]` у [`data/content.json`](../data/content.json):
    ```json
    {
-     "slug": "teplotekhnika",
+     "slug": "energoefektyvnist-teplotekhnika",
      "title": "Теплотехніка",
      "note": "Тепловий розрахунок огороджувальних конструкцій.",
      "icon": "Thermometer"
    }
    ```
-2. Додай новий `slug` у union `CategorySlug` у [`lib/calculators.ts`](../lib/calculators.ts):
+2. Для підкатегорії додай `parentSlug` із slug батьківського напряму:
+   ```json
+   {
+     "slug": "pidlohy",
+     "parentSlug": "energoefektyvnist-teplotekhnika",
+     "title": "Підлоги",
+     "note": "Теплопередача та теплозасвоєння підлог.",
+     "icon": "Layers"
+   }
+   ```
+3. Додай новий `slug` у union `CategorySlug` у [`lib/calculators.ts`](../lib/calculators.ts):
    ```ts
    export type CategorySlug =
-     | "beton"
+     | "pidlohy"
      | ...
-     | "teplotekhnika";
+     | "energoefektyvnist-teplotekhnika";
    ```
    TypeScript типізує JSON суворо — без цього кроку білд впаде.
-3. Додай fallback-іконку у `FALLBACK_CATEGORY_ICONS` у [`lib/icons.ts`](../lib/icons.ts):
+4. Додай fallback-іконку у `FALLBACK_CATEGORY_ICONS` у [`lib/icons.ts`](../lib/icons.ts):
    ```ts
    const FALLBACK_CATEGORY_ICONS: Record<CategorySlug, LucideIcon> = {
      ...
-     teplotekhnika: Thermometer,
+     pidlohy: Layers,
    };
    ```
    Це резервна іконка, якщо `icon` у JSON не задано або не знайдено в `iconRegistry`.
 
-`categories[]` без жодного калькулятора показується як порожній розділ у бічній панелі — це нормально, поки наповнення не з'явилось.
+Батьківські категорії агрегують калькулятори всіх дочірніх підкатегорій через `getCalculatorsForCategory()`. Наприклад, `energoefektyvnist-teplotekhnika` показує всі розрахунки з `pidlohy`, `teplovi-mistky-fem`, `povitropronyknist` тощо. Leaf-категорія показує тільки власні калькулятори.
+
+`categories[]` без жодного калькулятора показується як порожній клікабельний розділ у бічній панелі — це нормально, поки наповнення не з'явилось.
 
 ---
 

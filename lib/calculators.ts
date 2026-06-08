@@ -1,13 +1,48 @@
 import contentData from "@/data/content.json";
 
 export type CategorySlug =
-  | "teplotekhnika"
-  | "fem-vuzly"
-  | "normokontrol"
+  | "energoefektyvnist-teplotekhnika"
+  | "ogorodzhuvalni-konstruktsiyi"
+  | "pidlohy"
+  | "voloha-tochka-rosy"
+  | "temperatura-poverkhni"
+  | "teplova-inertsiya"
+  | "teplovi-mistky-fem"
+  | "povitropronyknist"
   | "konstruktsiyi"
+  | "zalizobeton"
+  | "armatura"
+  | "beton"
+  | "balky-plyty"
+  | "fundamenty"
+  | "ankeruvannya"
+  | "dovidkovi-tablytsi"
+  | "normy-perevirky"
+  | "normokontrol"
+  | "klas-naslidkiv"
+  | "perevirka-dbn"
+  | "normatyvni-obgruntuvannya"
+  | "ai-asystenty-z-norm"
   | "inzhenerni-merezhi"
-  | "instrumenty"
-  | "ai-asystenty";
+  | "elektryka"
+  | "opalennya"
+  | "ventylyatsiya"
+  | "vodopostachannya"
+  | "enerhospozhyvannya"
+  | "cad-gis-dani"
+  | "dxf-geojson"
+  | "konvertery"
+  | "heometriya"
+  | "import-eksport"
+  | "dovidnyky"
+  | "dovidnyk-beton"
+  | "dovidnyk-armatura"
+  | "materialy"
+  | "normatyvni-kharakterystyky"
+  | "ai-instrumenty"
+  | "asystenty-dbn"
+  | "asystenty-perevirky-rishen"
+  | "asystenty-pidhotovky-poyasnen";
 
 export type DisplayMode = "embed" | "external" | "modal" | "native";
 
@@ -60,12 +95,38 @@ export function getCalculatorBySlug(slug: string): Calculator | undefined {
   return calculators.find((calculator) => calculator.slug === slug);
 }
 
-export function getCalculatorsForCategory(categorySlug: CategorySlug): Calculator[] {
+export function getDirectCalculatorsForCategory(categorySlug: CategorySlug): Calculator[] {
   return calculators
     .filter(
       (calculator) =>
         calculator.mainCategory === categorySlug ||
         calculator.extraCategories.includes(categorySlug),
+    )
+    .sort((left, right) => left.order - right.order);
+}
+
+export function getDescendantCategorySlugs(categorySlug: CategorySlug): CategorySlug[] {
+  const children = getChildCategories(categorySlug);
+
+  return children.flatMap((child) => [
+    child.slug,
+    ...getDescendantCategorySlugs(child.slug),
+  ]);
+}
+
+export function getCalculatorsForCategory(categorySlug: CategorySlug): Calculator[] {
+  const categorySlugs = new Set([
+    categorySlug,
+    ...getDescendantCategorySlugs(categorySlug),
+  ]);
+
+  return calculators
+    .filter(
+      (calculator) =>
+        categorySlugs.has(calculator.mainCategory) ||
+        calculator.extraCategories.some((extraCategory) =>
+          categorySlugs.has(extraCategory),
+        ),
     )
     .sort((left, right) => left.order - right.order);
 }
@@ -76,4 +137,11 @@ export function getCategoryBySlug(slug: CategorySlug): CalculatorCategory | unde
 
 export function getChildCategories(parentSlug: CategorySlug): CalculatorCategory[] {
   return calculatorCategories.filter((category) => category.parentSlug === parentSlug);
+}
+
+export function getCategoryTrail(slug: CategorySlug): CalculatorCategory[] {
+  const category = getCategoryBySlug(slug);
+  if (!category) return [];
+  if (!category.parentSlug) return [category];
+  return [...getCategoryTrail(category.parentSlug), category];
 }

@@ -43,13 +43,20 @@ describe("CalculatorShell", () => {
     expect(workspace).toBeInTheDocument();
     expect(within(rail).getByText("Іванейко Володимир")).toBeInTheDocument();
     expect(within(rail).getByText("Напрями розрахунків")).toBeInTheDocument();
-    expect(within(rail).getByRole("link", { name: "Теплотехніка 14" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
     expect(
-      within(rail).getByRole("link", { name: "FEM-розрахунки вузлів 6" }),
+      within(rail).getByRole("link", { name: "Теплотехніка 20" }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(
+      within(rail).getByRole("link", { name: "Теплові містки / FEM 6" }),
     ).toBeInTheDocument();
+    expect(within(rail).getByRole("link", { name: "Арматура 2" })).toHaveAttribute(
+      "data-count-state",
+      "filled",
+    );
+    expect(within(rail).getByRole("link", { name: "Бетон 0" })).toHaveAttribute(
+      "data-count-state",
+      "empty",
+    );
     expect(
       within(rail).queryByRole("link", {
         name: "Теплотехнічний розрахунок огороджувальної конструкції будівлі",
@@ -61,7 +68,11 @@ describe("CalculatorShell", () => {
       "href",
       "/author",
     );
-    expect(within(workspace).getByRole("heading", { name: "Теплотехніка" })).toBeInTheDocument();
+    expect(
+      within(workspace).getByRole("heading", {
+        name: "Теплотехніка",
+      }),
+    ).toBeInTheDocument();
     const table = within(workspace).getByRole("table", {
       name: "Розрахунки категорії Теплотехніка",
     });
@@ -111,6 +122,7 @@ describe("CalculatorShell", () => {
     ).toHaveLength(2);
     expect(externalEnvelopeRow).toHaveTextContent("ДБН В.2.6-31:2021");
     expect(externalEnvelopeRow).toHaveTextContent("ДСТУ-Н Б В.2.6-192:2013");
+    expect(within(table).getByRole("row", { name: /Розрахунок коефіцієнтів теплопровідного включення вузла стику однорідної стіни та перекриття/ })).toBeInTheDocument();
     expect(
       within(workspace).queryByText("Вбудований розрахунок"),
     ).not.toBeInTheDocument();
@@ -130,7 +142,7 @@ describe("CalculatorShell", () => {
 
     render(<CalculatorShell />);
 
-    await user.click(screen.getByRole("link", { name: "Конструкції 8" }));
+    await user.click(screen.getByRole("link", { name: "Конструкції 6" }));
 
     expect(screen.getByRole("heading", { name: "Конструкції" })).toBeInTheDocument();
     const table = screen.getByRole("table", {
@@ -148,6 +160,31 @@ describe("CalculatorShell", () => {
     expect(within(table).queryByRole("row", { name: /Опір теплопередачі/ })).not.toBeInTheDocument();
   });
 
+  it("switches the homepage table to leaf-only calculators when a subcategory is selected", async () => {
+    const user = userEvent.setup();
+
+    render(<CalculatorShell />);
+
+    await user.click(screen.getByRole("link", { name: "Підлоги 5" }));
+
+    expect(screen.getByRole("heading", { name: "Підлоги" })).toBeInTheDocument();
+    const table = screen.getByRole("table", {
+      name: "Розрахунки категорії Підлоги",
+    });
+
+    expect(within(table).getByRole("row", { name: /Теплопередача підлоги по ґрунту/ })).toBeInTheDocument();
+    expect(
+      within(table).queryByRole("row", {
+        name: /Опір теплопередачі огороджувальної конструкції/,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(table).queryByRole("row", {
+        name: /Розрахунок коефіцієнтів теплопровідного включення/,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
   it("does not open the mobile drawer for direct category hash navigation", () => {
     const originalMatchMedia = window.matchMedia;
     Object.defineProperty(window, "matchMedia", {
@@ -157,7 +194,7 @@ describe("CalculatorShell", () => {
 
     render(<CalculatorShell />);
 
-    window.location.hash = "#konstruktsiyi";
+    window.location.hash = "#armatura";
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
     expect(screen.getByRole("complementary", { name: "Каталог калькуляторів" })).toHaveAttribute(
@@ -183,7 +220,10 @@ describe("CalculatorShell", () => {
     const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
 
     expect(
-      within(rail).getByRole("link", { name: "Теплотехніка 14" }),
+      within(rail).getByRole("link", { name: "Теплотехніка 20" }),
+    ).not.toHaveAttribute("aria-current");
+    expect(
+      within(rail).getByRole("link", { name: "Огороджувальні конструкції 2" }),
     ).toHaveAttribute("aria-current", "page");
     expect(
       within(rail).queryByRole("link", {
@@ -203,6 +243,13 @@ describe("CalculatorShell", () => {
     expect(
       screen.getAllByRole("link", { name: /Відкрити окремо/ })[0],
     ).toHaveAttribute("href", calculator.openUrl);
+    expect(screen.getByRole("link", { name: "Каталог" })).toHaveAttribute("href", "/");
+    expect(
+      screen.getByRole("link", { name: "Теплотехніка" }),
+    ).toHaveAttribute("href", "/#energoefektyvnist-teplotekhnika");
+    expect(
+      screen.getByRole("link", { name: "Огороджувальні конструкції" }),
+    ).toHaveAttribute("href", "/#ogorodzhuvalni-konstruktsiyi");
   });
 
   it("renders the native rebar area calculator without an iframe", () => {
@@ -675,6 +722,12 @@ describe("CalculatorShell", () => {
     expect(initialLoadDiagram.textContent).toContain("qd = 0.59 кН/м²");
     expect(initialLoadDiagram.textContent?.match(/1 м/g) ?? []).toHaveLength(2);
     expect(initialLoadDiagram.textContent).not.toContain("l1 = 3 м");
+    expect(
+      screen.getByText(
+        "На схемі показано, як повне навантаження q розподіляється між коротким напрямом qk та довгим напрямом qd. Заштриховані смуги відповідають ділянкам шириною 1 м, для яких наведено розміри lk і ld.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Параметрична схема:/)).not.toBeInTheDocument();
     const svgLines = [...initialLoadDiagram.querySelectorAll("line")];
     const topLoadLine = svgLines.find(
       (line) => Math.abs(getNumericAttribute(line, "x2") - getNumericAttribute(line, "x1")) > 250
