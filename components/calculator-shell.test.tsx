@@ -31,6 +31,7 @@ function getNumericAttribute(element: Element, name: string): number {
 describe("CalculatorShell", () => {
   afterEach(() => {
     cleanup();
+    window.history.replaceState(null, "", "/");
   });
 
   it("renders category-only navigation and a standards table for the active category", async () => {
@@ -49,14 +50,10 @@ describe("CalculatorShell", () => {
     expect(
       within(rail).getByRole("link", { name: "Теплові містки / FEM 6" }),
     ).toBeInTheDocument();
-    expect(within(rail).getByRole("link", { name: "Арматура 2" })).toHaveAttribute(
-      "data-count-state",
-      "filled",
-    );
-    expect(within(rail).getByRole("link", { name: "Бетон 0" })).toHaveAttribute(
-      "data-count-state",
-      "empty",
-    );
+    expect(within(rail).queryByRole("link", { name: "Арматура 2" })).not.toBeInTheDocument();
+    expect(
+      within(rail).getByRole("button", { name: "Розгорнути Конструкції" }),
+    ).toHaveAttribute("aria-expanded", "false");
     expect(
       within(rail).queryByRole("link", {
         name: "Теплотехнічний розрахунок огороджувальної конструкції будівлі",
@@ -142,6 +139,7 @@ describe("CalculatorShell", () => {
 
     render(<CalculatorShell />);
 
+    await user.click(screen.getByRole("button", { name: "Розгорнути Конструкції" }));
     await user.click(screen.getByRole("link", { name: "Конструкції 6" }));
 
     expect(screen.getByRole("heading", { name: "Конструкції" })).toBeInTheDocument();
@@ -158,6 +156,43 @@ describe("CalculatorShell", () => {
       minimumReinforcementRow.querySelector(".calculator-table__standard-secondary"),
     ).toHaveTextContent("Eurocode 2");
     expect(within(table).queryByRole("row", { name: /Опір теплопередачі/ })).not.toBeInTheDocument();
+  });
+
+  it("collapses inactive category groups and toggles them from the rail", async () => {
+    const user = userEvent.setup();
+
+    render(<CalculatorShell selectedCategory="inzhenerni-merezhi" />);
+
+    const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
+    const engineeringToggle = within(rail).getByRole("button", {
+      name: "Згорнути Інженерні мережі",
+    });
+    const cadToggle = within(rail).getByRole("button", {
+      name: "Розгорнути CAD / GIS / Дані",
+    });
+
+    expect(engineeringToggle).toHaveAttribute("aria-expanded", "true");
+    expect(within(rail).getByRole("link", { name: "Електрика 1" })).toBeInTheDocument();
+    expect(cadToggle).toHaveAttribute("aria-expanded", "false");
+    expect(within(rail).queryByRole("link", { name: "DXF / GeoJSON 1" })).not.toBeInTheDocument();
+
+    await user.click(cadToggle);
+
+    expect(cadToggle).toHaveAttribute("aria-expanded", "true");
+    expect(within(rail).getByRole("link", { name: "DXF / GeoJSON 1" })).toBeInTheDocument();
+    expect(within(rail).getByRole("link", { name: "Конвертери 0" })).toHaveAttribute(
+      "data-count-state",
+      "empty",
+    );
+    expect(within(rail).getByRole("link", { name: "DXF / GeoJSON 1" })).toHaveAttribute(
+      "data-count-state",
+      "filled",
+    );
+
+    await user.click(cadToggle);
+
+    expect(cadToggle).toHaveAttribute("aria-expanded", "false");
+    expect(within(rail).queryByRole("link", { name: "DXF / GeoJSON 1" })).not.toBeInTheDocument();
   });
 
   it("switches the homepage table to leaf-only calculators when a subcategory is selected", async () => {

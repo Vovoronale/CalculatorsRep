@@ -58,6 +58,8 @@ export function CalculatorShell({
   }, []);
 
   useEffect(() => {
+    if (selectedCategory || selectedCalculator) return undefined;
+
     const resolveHashCategory = (): CategorySlug | null => {
       if (typeof window === "undefined") return null;
       const raw = window.location.hash.replace("#", "") as CategorySlug;
@@ -74,7 +76,7 @@ export function CalculatorShell({
     return () => {
       window.removeEventListener("hashchange", syncCategoryFromHash);
     };
-  }, []);
+  }, [selectedCalculator, selectedCategory]);
 
   useEffect(() => {
     if (selectedCalculator) setActiveCategory(selectedCalculator.mainCategory);

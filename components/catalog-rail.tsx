@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, User, X } from "lucide-react";
-import type { MouseEvent } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight, User, X } from "lucide-react";
+import { useEffect, useState, type MouseEvent } from "react";
 
 import { SearchInput } from "@/components/search-input";
 import { getCategoryIcon } from "@/lib/icons";
@@ -10,6 +10,7 @@ import {
   calculatorCategories,
   getChildCategories,
   getCalculatorsForCategory,
+  getCategoryTrail,
   type Calculator,
   type CalculatorCategory,
   type CategorySlug,
@@ -36,6 +37,22 @@ export function CatalogRail({
   onCloseMobile,
 }: CatalogRailProps) {
   const currentCategory = selectedCalculator?.mainCategory ?? activeCategory;
+  const [expandedCategories, setExpandedCategories] = useState<CategorySlug[]>(
+    () => getOpenCategorySlugs(currentCategory),
+  );
+
+  useEffect(() => {
+    const openSlugs = getOpenCategorySlugs(currentCategory);
+    setExpandedCategories(openSlugs);
+  }, [currentCategory]);
+
+  const toggleExpandedCategory = (slug: CategorySlug) => {
+    setExpandedCategories((current) =>
+      current.includes(slug)
+        ? current.filter((item) => item !== slug)
+        : [...current, slug],
+    );
+  };
 
   return (
     <aside
@@ -90,6 +107,8 @@ export function CatalogRail({
               category={category}
               isCurrent={currentCategory === category.slug}
               currentCategory={currentCategory}
+              isExpanded={expandedCategories.includes(category.slug)}
+              onToggleExpanded={toggleExpandedCategory}
               isCollapsed={isCollapsed}
               onSelectCategory={onSelectCategory}
               onCloseMobile={onCloseMobile}
@@ -108,10 +127,18 @@ export function CatalogRail({
   );
 }
 
+function getOpenCategorySlugs(categorySlug?: CategorySlug): CategorySlug[] {
+  if (!categorySlug) return [];
+  const [topLevelCategory] = getCategoryTrail(categorySlug);
+  return topLevelCategory ? [topLevelCategory.slug] : [];
+}
+
 type CategoryLinkProps = {
   category: CalculatorCategory;
   isCurrent: boolean;
   currentCategory?: CategorySlug;
+  isExpanded: boolean;
+  onToggleExpanded: (slug: CategorySlug) => void;
   isCollapsed: boolean;
   onSelectCategory?: (slug: CategorySlug) => void;
   onCloseMobile?: () => void;
@@ -121,6 +148,8 @@ function CategoryLink({
   category,
   isCurrent,
   currentCategory,
+  isExpanded,
+  onToggleExpanded,
   isCollapsed,
   onSelectCategory,
   onCloseMobile,
@@ -129,9 +158,12 @@ function CategoryLink({
   const calcs = getCalculatorsForCategory(category.slug);
   const childCategories = getChildCategories(category.slug);
   const countState = calcs.length > 0 ? "filled" : "empty";
+  const hasChildren = childCategories.length > 0;
+  const childrenId = `rail-children-${category.slug}`;
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     onSelectCategory?.(category.slug);
     onCloseMobile?.();
+    if (hasChildren && !isExpanded) onToggleExpanded(category.slug);
     if (onSelectCategory && window.location.pathname === "/") {
       event.preventDefault();
       window.history.replaceState(null, "", `/#${category.slug}`);
@@ -139,23 +171,46 @@ function CategoryLink({
   };
 
   return (
-    <div className="rail-tree__node" data-category-node={category.slug}>
-      <Link
-        href={`/#${category.slug}`}
-        className="rail-tree__row"
-        aria-current={isCurrent ? "page" : undefined}
-        data-count-state={countState}
-        title={isCollapsed ? category.title : undefined}
-        onClick={handleClick}
-      >
-        <span className="rail-tree__icon" aria-hidden>
-          <Icon size={16} />
-        </span>
-        <span className="rail-tree__title">{category.title}</span>
-        <span className="rail-tree__count">{calcs.length}</span>
-      </Link>
-      {childCategories.length > 0 ? (
-        <ul className="rail-tree__children">
+    <div
+      className="rail-tree__node"
+      data-category-node={category.slug}
+      data-expanded={isExpanded ? "true" : "false"}
+    >
+      <div className="rail-tree__branch">
+        <Link
+          href={`/#${category.slug}`}
+          className="rail-tree__row"
+          aria-current={isCurrent ? "page" : undefined}
+          data-count-state={countState}
+          title={isCollapsed ? category.title : undefined}
+          onClick={handleClick}
+        >
+          <span className="rail-tree__icon" aria-hidden>
+            <Icon size={16} />
+          </span>
+          <span className="rail-tree__title">{category.title}</span>
+          <span className="rail-tree__count">{calcs.length}</span>
+        </Link>
+        {hasChildren ? (
+          <button
+            type="button"
+            className="rail-tree__toggle"
+            aria-expanded={isExpanded}
+            aria-controls={childrenId}
+            aria-label={`${isExpanded ? "Згорнути" : "Розгорнути"} ${category.title}`}
+            title={isExpanded ? "Згорнути" : "Розгорнути"}
+            onClick={() => onToggleExpanded(category.slug)}
+          >
+            {isExpanded ? (
+              <ChevronDown size={14} aria-hidden />
+            ) : (
+              <ChevronRight size={14} aria-hidden />
+            )}
+          </button>
+        ) : null}
+      </div>
+      {hasChildren && isExpanded ? (
+        <ul className="rail-tree__children" id={childrenId}>
           {childCategories.map((child) => {
             const childCalcs = getCalculatorsForCategory(child.slug);
             const childCountState = childCalcs.length > 0 ? "filled" : "empty";
