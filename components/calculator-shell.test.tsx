@@ -715,6 +715,57 @@ describe("CalculatorShell", () => {
     ).toBeGreaterThan(0);
   });
 
+  it("renders the native soil design resistance calculator with a DBN report", async () => {
+    const user = userEvent.setup();
+    const calculator = getCalculatorBySlug("soil-design-resistance");
+
+    if (!calculator) {
+      throw new Error("Expected native soil design resistance calculator to exist");
+    }
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: "Розрахунковий опір ґрунту основи",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Калькулятор розрахункового опору ґрунту основи"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Спосіб розрахунку" })).toHaveValue(
+      "manual-e7",
+    );
+    expect(screen.getByRole("spinbutton", { name: "γc1" })).toHaveValue(1);
+    expect(screen.getByRole("spinbutton", { name: "γc2" })).toHaveValue(1);
+    expect(screen.queryByRole("combobox", { name: "Тип ґрунту" })).not.toBeInTheDocument();
+    expect(getSummaryText("R = 162.82 кПа = 16.3 т/м² = 1.6 кг/см²")).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(
+        "R = γc1 * γc2 / k * [Mγ * kz * b * γ11 + Mq * d1 * γ′11 + (Mq - 1) * db * γ′11 + Mc * c11] = 1 * 1 / 1 * [1.15 * 1 * 1 * 17.1 + 5.59 * 1.2 * 16.6 + (5.59 - 1) * 0 * 16.6 + 7.95 * 4] = 162.82 кПа",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: "формула (Е.1)" }).some(
+        (link) => link.getAttribute("href") === "#soil-norm-e1",
+      ),
+    ).toBe(true);
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Спосіб розрахунку" }),
+      "automatic",
+    );
+
+    expect(screen.queryByRole("spinbutton", { name: "γc1" })).not.toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Тип ґрунту" })).toHaveValue(
+      "medium-sand",
+    );
+    expect(screen.getByRole("spinbutton", { name: "L, м" })).toHaveValue(8.25);
+    expect(screen.getByRole("spinbutton", { name: "H, м" })).toHaveValue(3);
+    expect(screen.getByLabelText("L/H = L / H = 8.25 / 3 = 2.75")).toBeInTheDocument();
+  });
+
   it("renders the native cassoon load distribution calculator with a step report", async () => {
     const user = userEvent.setup();
     const calculator = getCalculatorBySlug("cassoon-load-distribution");

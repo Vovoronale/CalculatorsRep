@@ -10,6 +10,7 @@ import { FoundationBarAnchorageCalculator } from "@/components/calculators/found
 import { MinimumReinforcementCalculator } from "@/components/calculators/minimum-reinforcement-calculator";
 import { RebarAreaBarsCalculator } from "@/components/calculators/rebar-area-bars-calculator";
 import { RebarCharacteristicsCalculator } from "@/components/calculators/rebar-characteristics-calculator";
+import { SoilDesignResistanceCalculator } from "@/components/calculators/soil-design-resistance-calculator";
 import { CalculatorCard } from "@/components/calculator-card";
 import { CalculatorModal } from "@/components/calculator-modal";
 import { CatalogRail } from "@/components/catalog-rail";
@@ -500,6 +501,8 @@ function NativeCalculator({ calculator }: { calculator: Calculator }) {
       return <FoundationBarAnchorageCalculator />;
     case "cassoon-load-distribution":
       return <CassoonLoadDistributionCalculator />;
+    case "soil-design-resistance":
+      return <SoilDesignResistanceCalculator />;
     default:
       return (
         <div className="detail-external">
