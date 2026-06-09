@@ -6,6 +6,7 @@ import {
   getKz,
   getLinearInterpolation,
   getMGammaMqMc,
+  getSoilDesignResistanceReport,
   getTableE7Coefficients,
   type SoilDesignResistanceInput,
 } from "@/lib/soil-design-resistance";
@@ -146,5 +147,109 @@ describe("soil design resistance table helpers", () => {
   it("computes kz from foundation width", () => {
     expect(getKz(9.99)).toEqual({ kz: 1, source: "narrow" });
     expect(getKz(20)).toEqual({ kz: 0.6, source: "wide" });
+  });
+});
+
+describe("soil design resistance report", () => {
+  it("reproduces the MQN default example", () => {
+    const report = getSoilDesignResistanceReport(baseInput);
+
+    expect(report.valid).toBe(true);
+    expect(report.values?.soilDesignResistanceKPa).toBeCloseTo(162.82, 2);
+    expect(report.values?.soilDesignResistanceTonM2).toBeCloseTo(16.282, 3);
+    expect(report.values?.soilDesignResistanceKgCm2).toBeCloseTo(1.6282, 4);
+    expect(report.steps.map((step) => step.key)).toEqual([
+      "inputs",
+      "gamma-c",
+      "k",
+      "m-coefficients",
+      "kz",
+      "d1",
+      "d1-check",
+      "r",
+      "unit-conversion",
+    ]);
+    expect(report.steps.find((step) => step.key === "r")?.formula).toBe(
+      "R = γc1 * γc2 / k * [Mγ * kz * b * γ11 + Mq * d1 * γ′11 + (Mq - 1) * db * γ′11 + Mc * c11] = 1 * 1 / 1 * [1.15 * 1 * 1 * 17.1 + 5.59 * 1.2 * 16.6 + (5.59 - 1) * 0 * 16.6 + 7.95 * 4] = 162.82 кПа",
+    );
+    expect(report.steps.find((step) => step.key === "unit-conversion")?.formula).toBe(
+      "R = 162.82 кПа = 16.3 т/м² = 1.6 кг/см²",
+    );
+  });
+
+  it("builds automatic rigid interpolation report steps", () => {
+    const report = getSoilDesignResistanceReport({
+      ...baseInput,
+      calculationMode: "automatic",
+      structuralScheme: "rigid",
+      soilType: "small-sand",
+      buildingLengthM: 8.25,
+      buildingHeightM: 3,
+    });
+
+    expect(report.steps.map((step) => step.key).slice(0, 4)).toEqual([
+      "inputs",
+      "length-height-ratio",
+      "structural-scheme",
+      "gamma-c",
+    ]);
+    expect(report.steps.find((step) => step.key === "length-height-ratio")?.formula).toBe(
+      "L/H = L / H = 8.25 / 3 = 2.75",
+    );
+    expect(report.steps.find((step) => step.key === "structural-scheme")?.formula).toBe(
+      "Конструктивна схема: жорстка; для ґрунту \"Пісок дрібний\", L/H = 2.75 коефіцієнт γc2 визначаємо інтерполяцією згідно з приміткою 3 до табл. Е.7; γc2 = γc2,1.5 + (γc2,4 - γc2,1.5) * (L/H - 1.5) / (4 - 1.5) = 1.3 + (1.1 - 1.3) * (2.75 - 1.5) / 2.5 = 1.2",
+    );
+  });
+
+  it("builds basement d1 and db steps", () => {
+    const report = getSoilDesignResistanceReport({
+      ...baseInput,
+      hasBasement: true,
+      soilLayerAboveFootingHsM: 0.4,
+      basementFloorThicknessHcfM: 0.2,
+      basementFloorUnitWeightGammaCfKnM3: 22,
+      gammaPrime11KnM3: 16,
+      basementDepthInputM: 2.6,
+      foundationDepthM: 1.2,
+    });
+
+    expect(report.steps.find((step) => step.key === "d1")?.formula).toBe(
+      "d1 = hs + hcf * γcf / γ′11 = 0.4 + 0.2 * 22 / 16 = 0.68 м",
+    );
+    expect(report.steps.find((step) => step.key === "db")?.formula).toBe(
+      "db = min(db,input; 2.0) = min(2.6; 2.0) = 2.0 м",
+    );
+  });
+
+  it("applies note 6 when d1 is greater than d", () => {
+    const report = getSoilDesignResistanceReport({
+      ...baseInput,
+      foundationDepthM: 1,
+      embedmentDepthD1M: 1.5,
+    });
+
+    expect(report.warnings).toContain(
+      "Оскільки d1 > d, у формулі (Е.1) прийнято d1 = d і db = 0 згідно з приміткою 6 до п. Е.4 ДБН В.2.1-10-2009.",
+    );
+    expect(report.steps.find((step) => step.key === "d1-check")?.formula).toBe(
+      "d1 > d => 1.5 > 1; у формулі (Е.1) приймаємо d1 = d = 1 м, db = 0 м",
+    );
+  });
+
+  it("returns stable invalid report without NaN formulas", () => {
+    const report = getSoilDesignResistanceReport({
+      ...baseInput,
+      phi11Deg: 46,
+      foundationWidthM: 0,
+    });
+
+    expect(report.valid).toBe(false);
+    expect(report.values).toBeNull();
+    expect(report.errors).toContain(
+      "φ11 має бути в межах 0...45°, оскільки табл. Е.8 ДБН В.2.1-10-2009 містить значення тільки для цього діапазону.",
+    );
+    expect(report.errors).toContain("b має бути більше 0.");
+    expect(report.steps).toHaveLength(1);
+    expect(JSON.stringify(report.steps)).not.toContain("NaN");
   });
 });

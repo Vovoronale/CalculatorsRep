@@ -70,7 +70,8 @@ export type Calculator = {
     | "concrete-characteristics"
     | "minimum-reinforcement-area"
     | "foundation-bar-anchorage"
-    | "cassoon-load-distribution";
+    | "cassoon-load-distribution"
+    | "soil-design-resistance";
   accessLabel: string;
   embedUrl?: string;
   openUrl: string;

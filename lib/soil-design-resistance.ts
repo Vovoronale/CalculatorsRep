@@ -379,3 +379,498 @@ export function getKz(foundationWidthM: number) {
     source: "wide" as const,
   };
 }
+
+export type SoilDesignResistanceValues = {
+  lengthHeightRatio: number;
+  gammaC1: number;
+  gammaC2: number;
+  k: number;
+  mGamma: number;
+  mQ: number;
+  mC: number;
+  kz: number;
+  embedmentDepthRawD1M: number;
+  basementDepthRawDbM: number;
+  embedmentDepthCalcD1M: number;
+  basementDepthCalcDbM: number;
+  soilDesignResistanceKPa: number;
+  soilDesignResistanceTonM2: number;
+  soilDesignResistanceKgCm2: number;
+};
+
+export type SoilDesignResistanceReportStep = {
+  key:
+    | "inputs"
+    | "length-height-ratio"
+    | "structural-scheme"
+    | "gamma-c"
+    | "k"
+    | "m-coefficients"
+    | "kz"
+    | "d1"
+    | "d1-check"
+    | "db"
+    | "r"
+    | "unit-conversion";
+  caption: string;
+  formula?: string;
+  items?: string[];
+};
+
+export type SoilDesignResistanceReport = {
+  input: SoilDesignResistanceInput;
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  values: SoilDesignResistanceValues | null;
+  steps: SoilDesignResistanceReportStep[];
+};
+
+function isPositiveFinite(value: number): boolean {
+  return Number.isFinite(value) && value > 0;
+}
+
+function isNonNegativeFinite(value: number): boolean {
+  return Number.isFinite(value) && value >= 0;
+}
+
+function soilUsesLiquidityIndex(soilType: SoilType): boolean {
+  return soilType === "coarse-with-clayey-fill" || soilType === "clayey-soil";
+}
+
+function getValidationErrors(input: SoilDesignResistanceInput): string[] {
+  const errors: string[] = [];
+
+  if (!Number.isFinite(input.phi11Deg) || input.phi11Deg < 0 || input.phi11Deg > 45) {
+    errors.push(
+      "φ11 має бути в межах 0...45°, оскільки табл. Е.8 ДБН В.2.1-10-2009 містить значення тільки для цього діапазону.",
+    );
+  }
+  if (!isPositiveFinite(input.foundationWidthM)) errors.push("b має бути більше 0.");
+  if (!isPositiveFinite(input.foundationDepthM)) errors.push("d має бути більше 0.");
+  if (!isPositiveFinite(input.gamma11KnM3)) errors.push("γ11 має бути більше 0.");
+  if (!isPositiveFinite(input.gammaPrime11KnM3)) errors.push("γ′11 має бути більше 0.");
+  if (!isNonNegativeFinite(input.c11KPa)) errors.push("c11 має бути не менше 0.");
+
+  if (input.calculationMode === "automatic" && input.structuralScheme === "rigid") {
+    if (!isPositiveFinite(input.buildingLengthM)) errors.push("L має бути більше 0.");
+    if (!isPositiveFinite(input.buildingHeightM)) errors.push("H має бути більше 0.");
+  }
+  if (
+    input.calculationMode === "automatic" &&
+    soilUsesLiquidityIndex(input.soilType) &&
+    !Number.isFinite(input.liquidityIndex)
+  ) {
+    errors.push("IL має бути числом.");
+  }
+  if (input.calculationMode === "manual-e7") {
+    if (!isPositiveFinite(input.gammaC1Manual ?? Number.NaN)) {
+      errors.push("γc1 має бути більше 0.");
+    }
+    if (!isPositiveFinite(input.gammaC2Manual ?? Number.NaN)) {
+      errors.push("γc2 має бути більше 0.");
+    }
+  }
+  if (!input.hasBasement && !isPositiveFinite(input.embedmentDepthD1M)) {
+    errors.push("d1 має бути більше 0.");
+  }
+  if (input.hasBasement) {
+    if (!isNonNegativeFinite(input.basementDepthInputM)) {
+      errors.push("db,input має бути не менше 0.");
+    }
+    if (!isNonNegativeFinite(input.soilLayerAboveFootingHsM)) {
+      errors.push("hs має бути не менше 0.");
+    }
+    if (!isNonNegativeFinite(input.basementFloorThicknessHcfM)) {
+      errors.push("hcf має бути не менше 0.");
+    }
+    if (!isNonNegativeFinite(input.basementFloorUnitWeightGammaCfKnM3)) {
+      errors.push("γcf має бути не менше 0.");
+    }
+    if (
+      input.basementFloorThicknessHcfM > 0 &&
+      !isPositiveFinite(input.basementFloorUnitWeightGammaCfKnM3)
+    ) {
+      errors.push("γcf має бути більше 0, якщо задано hcf > 0.");
+    }
+    if (
+      input.basementFloorUnitWeightGammaCfKnM3 > 0 &&
+      !isPositiveFinite(input.basementFloorThicknessHcfM)
+    ) {
+      errors.push("hcf має бути більше 0, якщо задано γcf > 0.");
+    }
+  }
+
+  return errors;
+}
+
+function format(value: number, digits = 2): string {
+  return formatSoilDesignResistanceNumber(value, digits);
+}
+
+function getInputItems(input: SoilDesignResistanceInput): string[] {
+  const items = [
+    `Спосіб розрахунку: ${
+      input.calculationMode === "manual-e7"
+        ? "вручну за табл. Е.7"
+        : "автоматично за характеристиками ґрунту"
+    }`,
+    `Конструктивна схема споруди: ${
+      input.structuralScheme === "rigid" ? "жорстка" : "гнучка"
+    }`,
+    `L = ${format(input.buildingLengthM)} м`,
+    `H = ${format(input.buildingHeightM)} м`,
+    `Тип ґрунту: ${SOIL_TYPE_LABELS[input.soilType]}`,
+  ];
+
+  if (soilUsesLiquidityIndex(input.soilType)) {
+    items.push(`IL = ${format(input.liquidityIndex)}`);
+  }
+
+  items.push(
+    `φ11 = ${format(input.phi11Deg)}°`,
+    `γ11 = ${format(input.gamma11KnM3)} кН/м³`,
+    `γ′11 = ${format(input.gammaPrime11KnM3)} кН/м³`,
+    `c11 = ${format(input.c11KPa)} кПа`,
+    `Спосіб визначення φ11 і c11: ${
+      input.strengthSource === "direct-testing"
+        ? "визначені безпосередніми випробуваннями"
+        : "прийняті за таблицями В.1-В.2"
+    }`,
+    `b = ${format(input.foundationWidthM)} м`,
+    `d = ${format(input.foundationDepthM)} м`,
+    `Підвал: ${input.hasBasement ? "є підвал" : "немає підвалу"}`,
+  );
+
+  if (input.hasBasement) {
+    items.push(
+      `db,input = ${format(input.basementDepthInputM)} м`,
+      `hs = ${format(input.soilLayerAboveFootingHsM)} м`,
+      `hcf = ${format(input.basementFloorThicknessHcfM)} м`,
+      `γcf = ${format(input.basementFloorUnitWeightGammaCfKnM3)} кН/м³`,
+    );
+  } else {
+    items.push(`d1 = ${format(input.embedmentDepthD1M)} м`);
+  }
+
+  if (input.calculationMode === "manual-e7") {
+    items.push(`γc1 = ${format(input.gammaC1Manual ?? 0)}`);
+    items.push(`γc2 = ${format(input.gammaC2Manual ?? 0)}`);
+  }
+
+  return items;
+}
+
+function getK(input: SoilDesignResistanceInput): number {
+  return input.strengthSource === "direct-testing" ? 1 : 1.1;
+}
+
+function getBasementDepthRaw(input: SoilDesignResistanceInput): number {
+  return input.hasBasement ? Math.min(input.basementDepthInputM, 2) : 0;
+}
+
+function getEmbedmentDepthRaw(input: SoilDesignResistanceInput): number {
+  if (!input.hasBasement) return input.embedmentDepthD1M;
+  return (
+    input.soilLayerAboveFootingHsM +
+    (input.basementFloorThicknessHcfM *
+      input.basementFloorUnitWeightGammaCfKnM3) /
+      input.gammaPrime11KnM3
+  );
+}
+
+export function getSoilDesignResistanceReport(
+  input: SoilDesignResistanceInput,
+): SoilDesignResistanceReport {
+  const baseSteps: SoilDesignResistanceReportStep[] = [
+    {
+      key: "inputs",
+      caption: "Вихідні дані, задані користувачем:",
+      items: getInputItems(input),
+    },
+  ];
+  const errors = getValidationErrors(input);
+
+  if (errors.length > 0) {
+    return {
+      input,
+      valid: false,
+      errors,
+      warnings: [],
+      values: null,
+      steps: baseSteps,
+    };
+  }
+
+  const tableE7 = getTableE7Coefficients(input);
+  const m = getMGammaMqMc(input.phi11Deg);
+  const kz = getKz(input.foundationWidthM);
+  const k = getK(input);
+  const embedmentDepthRawD1M = getEmbedmentDepthRaw(input);
+  const basementDepthRawDbM = getBasementDepthRaw(input);
+  const note6Applies = embedmentDepthRawD1M > input.foundationDepthM;
+  const embedmentDepthCalcD1M = note6Applies
+    ? input.foundationDepthM
+    : embedmentDepthRawD1M;
+  const basementDepthCalcDbM = note6Applies ? 0 : basementDepthRawDbM;
+  const soilDesignResistanceKPa =
+    (tableE7.gammaC1 * tableE7.gammaC2) /
+    k *
+    (m.mGamma * kz.kz * input.foundationWidthM * input.gamma11KnM3 +
+      m.mQ * embedmentDepthCalcD1M * input.gammaPrime11KnM3 +
+      (m.mQ - 1) * basementDepthCalcDbM * input.gammaPrime11KnM3 +
+      m.mC * input.c11KPa);
+  const values: SoilDesignResistanceValues = {
+    lengthHeightRatio: tableE7.lengthHeightRatio,
+    gammaC1: tableE7.gammaC1,
+    gammaC2: tableE7.gammaC2,
+    k,
+    mGamma: m.mGamma,
+    mQ: m.mQ,
+    mC: m.mC,
+    kz: kz.kz,
+    embedmentDepthRawD1M,
+    basementDepthRawDbM,
+    embedmentDepthCalcD1M,
+    basementDepthCalcDbM,
+    soilDesignResistanceKPa,
+    soilDesignResistanceTonM2: soilDesignResistanceKPa / 10,
+    soilDesignResistanceKgCm2: soilDesignResistanceKPa / 100,
+  };
+  const warnings: string[] = [];
+
+  if (input.soilType === "loose-sand") {
+    warnings.push(
+      "Для пухких пісків значення R, знайдене за формулою (Е.1) при γc1 = 1.0 та γc2 = 1.0, повинно уточнюватись за результатами випробувань штампами згідно з приміткою 7 до п. Е.4 ДБН В.2.1-10-2009.",
+    );
+  }
+  if (input.calculationMode === "manual-e7") {
+    warnings.push(
+      "γc1 і γc2 прийняті користувачем вручну за табл. Е.7; перевірте відповідність обраних значень фактичному типу ґрунту, конструктивній схемі та L/H.",
+    );
+  }
+  if (note6Applies) {
+    warnings.push(
+      "Оскільки d1 > d, у формулі (Е.1) прийнято d1 = d і db = 0 згідно з приміткою 6 до п. Е.4 ДБН В.2.1-10-2009.",
+    );
+  }
+
+  const steps: SoilDesignResistanceReportStep[] = [...baseSteps];
+
+  if (input.calculationMode === "automatic" && input.structuralScheme === "rigid") {
+    steps.push({
+      key: "length-height-ratio",
+      caption:
+        "Визначення відношення довжини споруди або її відсіку до висоти для табл. Е.7 ДБН В.2.1-10-2009:",
+      formula: `L/H = L / H = ${format(input.buildingLengthM)} / ${format(
+        input.buildingHeightM,
+      )} = ${format(values.lengthHeightRatio)}`,
+    });
+  }
+
+  if (input.calculationMode === "automatic") {
+    const soilLabel = SOIL_TYPE_LABELS[input.soilType];
+    const ilText = soilUsesLiquidityIndex(input.soilType)
+      ? `, IL = ${format(input.liquidityIndex)}`
+      : "";
+    let structuralFormula =
+      "Конструктивна схема: гнучка; γc2 = 1.0 згідно з приміткою 2 до табл. Е.7";
+
+    if (input.structuralScheme === "rigid" && tableE7.gammaC2Source === "rigid-small") {
+      structuralFormula = `Конструктивна схема: жорстка; для ґрунту "${soilLabel}"${ilText}, L/H = ${format(
+        values.lengthHeightRatio,
+      )} <= 1.5 приймаємо γc2 = ${format(
+        values.gammaC2,
+      )} за графою "1,5 і менше" табл. Е.7`;
+    }
+    if (input.structuralScheme === "rigid" && tableE7.gammaC2Source === "rigid-large") {
+      structuralFormula = `Конструктивна схема: жорстка; для ґрунту "${soilLabel}"${ilText}, L/H = ${format(
+        values.lengthHeightRatio,
+      )} >= 4 приймаємо γc2 = ${format(
+        values.gammaC2,
+      )} за графою "4 і більше" табл. Е.7`;
+    }
+    if (
+      input.structuralScheme === "rigid" &&
+      tableE7.gammaC2Source === "rigid-interpolated"
+    ) {
+      structuralFormula = `Конструктивна схема: жорстка; для ґрунту "${soilLabel}"${ilText}, L/H = ${format(
+        values.lengthHeightRatio,
+      )} коефіцієнт γc2 визначаємо інтерполяцією згідно з приміткою 3 до табл. Е.7; γc2 = γc2,1.5 + (γc2,4 - γc2,1.5) * (L/H - 1.5) / (4 - 1.5) = ${format(
+        tableE7.gammaC2AtRatio15 ?? 0,
+      )} + (${format(tableE7.gammaC2AtRatio4 ?? 0)} - ${format(
+        tableE7.gammaC2AtRatio15 ?? 0,
+      )}) * (${format(values.lengthHeightRatio)} - 1.5) / 2.5 = ${format(
+        values.gammaC2,
+      )}`;
+    }
+
+    steps.push({
+      key: "structural-scheme",
+      caption:
+        "Конструктивна схема споруди згідно з примітками 1-3 до табл. Е.7 ДБН В.2.1-10-2009:",
+      formula: structuralFormula,
+    });
+  }
+
+  steps.push({
+    key: "gamma-c",
+    caption:
+      input.calculationMode === "manual-e7"
+        ? "Прийняття коефіцієнтів умов роботи γc1 і γc2 користувачем за табл. Е.7 ДБН В.2.1-10-2009:"
+        : "Визначення коефіцієнтів умов роботи γc1 і γc2 за фактичним типом ґрунту згідно з табл. Е.7 ДБН В.2.1-10-2009:",
+    formula:
+      input.calculationMode === "manual-e7"
+        ? `γc1 = ${format(values.gammaC1)}; γc2 = ${format(values.gammaC2)}`
+        : `Для ґрунту "${SOIL_TYPE_LABELS[input.soilType]}"${
+            soilUsesLiquidityIndex(input.soilType)
+              ? `, IL = ${format(input.liquidityIndex)}`
+              : ""
+          }, за рядком "${tableE7.tableRow}" приймаємо γc1 = ${format(
+            values.gammaC1,
+          )}; γc2 = ${format(
+            values.gammaC2,
+          )} за результатом пункту "Конструктивна схема споруди"`,
+  });
+
+  steps.push({
+    key: "k",
+    caption:
+      "Визначення коефіцієнта k за способом визначення φ11 і c11 згідно з п. Е.4 ДБН В.2.1-10-2009:",
+    formula:
+      input.strengthSource === "direct-testing"
+        ? "k = 1.0, оскільки φ11 і c11 визначені безпосередніми випробуваннями"
+        : "k = 1.1, оскільки φ11 і c11 прийняті за таблицями В.1-В.2",
+  });
+
+  steps.push({
+    key: "m-coefficients",
+    caption:
+      "Визначення коефіцієнтів Mγ, Mq, Mc за кутом внутрішнього тертя φ11 згідно з табл. Е.8 ДБН В.2.1-10-2009:",
+    formula: m.exact
+      ? `φ11 = ${format(input.phi11Deg)}°; за табл. Е.8 приймаємо Mγ = ${format(
+          values.mGamma,
+        )}; Mq = ${format(values.mQ)}; Mc = ${format(values.mC)}`
+      : `φ11 = ${format(input.phi11Deg)}° знаходиться між φa = ${
+          m.phiA
+        }° і φb = ${
+          m.phiB
+        }°; коефіцієнти визначаємо лінійною інтерполяцією за табл. Е.8; Mγ = Mγ,a + (Mγ,b - Mγ,a) * (φ11 - φa) / (φb - φa) = ${format(
+          DBN_E8_COEFFICIENTS[m.phiA].mGamma,
+        )} + (${format(DBN_E8_COEFFICIENTS[m.phiB].mGamma)} - ${format(
+          DBN_E8_COEFFICIENTS[m.phiA].mGamma,
+        )}) * (${format(input.phi11Deg)} - ${m.phiA}) / (${m.phiB} - ${
+          m.phiA
+        }) = ${format(
+          values.mGamma,
+        )}; Mq = Mq,a + (Mq,b - Mq,a) * (φ11 - φa) / (φb - φa) = ${format(
+          DBN_E8_COEFFICIENTS[m.phiA].mQ,
+        )} + (${format(DBN_E8_COEFFICIENTS[m.phiB].mQ)} - ${format(
+          DBN_E8_COEFFICIENTS[m.phiA].mQ,
+        )}) * (${format(input.phi11Deg)} - ${m.phiA}) / (${m.phiB} - ${
+          m.phiA
+        }) = ${format(
+          values.mQ,
+        )}; Mc = Mc,a + (Mc,b - Mc,a) * (φ11 - φa) / (φb - φa) = ${format(
+          DBN_E8_COEFFICIENTS[m.phiA].mC,
+        )} + (${format(DBN_E8_COEFFICIENTS[m.phiB].mC)} - ${format(
+          DBN_E8_COEFFICIENTS[m.phiA].mC,
+        )}) * (${format(input.phi11Deg)} - ${m.phiA}) / (${m.phiB} - ${
+          m.phiA
+        }) = ${format(values.mC)}`,
+  });
+
+  steps.push({
+    key: "kz",
+    caption:
+      "Визначення коефіцієнта kz за шириною підошви фундаменту b згідно з п. Е.4 ДБН В.2.1-10-2009:",
+    formula:
+      kz.source === "narrow"
+        ? `b = ${format(input.foundationWidthM)} м < 10 м; kz = 1.0`
+        : `kz = z0 / b + 0.2 = 8 / ${format(input.foundationWidthM)} + 0.2 = ${format(
+            values.kz,
+          )}`,
+  });
+
+  steps.push({
+    key: "d1",
+    caption: input.hasBasement
+      ? "Визначення приведеної глибини закладання d1 для споруди з підвалом згідно з формулою (Е.2) ДБН В.2.1-10-2009:"
+      : "Глибина закладання d1 для безпідвальної споруди згідно з п. Е.4 ДБН В.2.1-10-2009:",
+    formula: input.hasBasement
+      ? `d1 = hs + hcf * γcf / γ′11 = ${format(
+          input.soilLayerAboveFootingHsM,
+        )} + ${format(input.basementFloorThicknessHcfM)} * ${format(
+          input.basementFloorUnitWeightGammaCfKnM3,
+        )} / ${format(input.gammaPrime11KnM3)} = ${format(embedmentDepthRawD1M)} м`
+      : `d1 = ${format(embedmentDepthRawD1M)} м`,
+  });
+
+  steps.push({
+    key: "d1-check",
+    caption:
+      "Перевірка умови d1 <= d згідно з приміткою 6 до п. Е.4 ДБН В.2.1-10-2009:",
+    formula: note6Applies
+      ? `d1 > d => ${format(embedmentDepthRawD1M)} > ${format(
+          input.foundationDepthM,
+        )}; у формулі (Е.1) приймаємо d1 = d = ${format(
+          embedmentDepthCalcD1M,
+        )} м, db = 0 м`
+      : `d1 <= d => ${format(embedmentDepthRawD1M)} <= ${format(
+          input.foundationDepthM,
+        )} - умова виконується; у формулі (Е.1) приймаємо d1 = ${format(
+          embedmentDepthCalcD1M,
+        )} м, db = ${format(basementDepthCalcDbM)} м`,
+  });
+
+  if (input.hasBasement && !note6Applies) {
+    steps.push({
+      key: "db",
+      caption:
+        "Визначення розрахункової глибини підвалу db згідно з п. Е.4 ДБН В.2.1-10-2009:",
+      formula:
+        input.basementDepthInputM <= 2
+          ? `db = ${format(basementDepthCalcDbM)} м`
+          : `db = min(db,input; 2.0) = min(${format(
+              input.basementDepthInputM,
+            )}; 2.0) = 2.0 м`,
+    });
+  }
+
+  steps.push({
+    key: "r",
+    caption:
+      "Визначення розрахункового опору ґрунту основи R згідно з п. Е.4, формула (Е.1) ДБН В.2.1-10-2009:",
+    formula: `R = γc1 * γc2 / k * [Mγ * kz * b * γ11 + Mq * d1 * γ′11 + (Mq - 1) * db * γ′11 + Mc * c11] = ${format(
+      values.gammaC1,
+    )} * ${format(values.gammaC2)} / ${format(values.k)} * [${format(
+      values.mGamma,
+    )} * ${format(values.kz)} * ${format(input.foundationWidthM)} * ${format(
+      input.gamma11KnM3,
+    )} + ${format(values.mQ)} * ${format(values.embedmentDepthCalcD1M)} * ${format(
+      input.gammaPrime11KnM3,
+    )} + (${format(values.mQ)} - 1) * ${format(
+      values.basementDepthCalcDbM,
+    )} * ${format(input.gammaPrime11KnM3)} + ${format(values.mC)} * ${format(
+      input.c11KPa,
+    )}] = ${format(values.soilDesignResistanceKPa)} кПа`,
+  });
+
+  steps.push({
+    key: "unit-conversion",
+    caption: "Переведення розрахункового опору R у додаткові одиниці:",
+    formula: `R = ${format(values.soilDesignResistanceKPa)} кПа = ${format(
+      values.soilDesignResistanceTonM2,
+      1,
+    )} т/м² = ${format(values.soilDesignResistanceKgCm2, 1)} кг/см²`,
+  });
+
+  return {
+    input,
+    valid: true,
+    errors,
+    warnings,
+    values,
+    steps,
+  };
+}

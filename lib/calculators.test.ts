@@ -104,13 +104,29 @@ describe("calculator data model", () => {
     ).toEqual(["rebar-characteristics", "concrete-characteristics"]);
   });
 
-  it("places each calculator in exactly one primary category without extra category duplication", () => {
+  it("places each calculator in a primary category and limits extra category duplication", () => {
     const categorySlugs = new Set(calculatorCategories.map((category) => category.slug));
 
     for (const calculator of calculators) {
       expect(categorySlugs.has(calculator.mainCategory), calculator.slug).toBe(true);
-      expect(calculator.extraCategories).toHaveLength(0);
+      for (const extraCategory of calculator.extraCategories) {
+        expect(categorySlugs.has(extraCategory), calculator.slug).toBe(true);
+      }
     }
+
+    expect(
+      calculators
+        .filter((calculator) => calculator.extraCategories.length > 0)
+        .map((calculator) => ({
+          slug: calculator.slug,
+          extraCategories: calculator.extraCategories,
+        })),
+    ).toEqual([
+      {
+        slug: "soil-design-resistance",
+        extraCategories: ["perevirka-dbn", "normatyvni-obgruntuvannya"],
+      },
+    ]);
   });
 
   it("allows empty prepared subcategories while keeping top-level categories populated", () => {
@@ -120,8 +136,26 @@ describe("calculator data model", () => {
       expect(getCalculatorsForCategory(category.slug).length, category.slug).toBeGreaterThan(0);
     }
 
-    expect(getCalculatorsForCategory("perevirka-dbn")).toHaveLength(0);
+    expect(getCalculatorsForCategory("perevirka-dbn").map((calculator) => calculator.slug)).toEqual([
+      "soil-design-resistance",
+    ]);
     expect(getCalculatorsForCategory("asystenty-pidhotovky-poyasnen")).toHaveLength(0);
+  });
+
+  it("registers the soil design resistance calculator as a native foundation calculator", () => {
+    const calculator = getCalculatorBySlug("soil-design-resistance");
+
+    expect(calculator).toMatchObject({
+      title: "Розрахунковий опір ґрунту основи",
+      shortDescription:
+        "Обчислення розрахункового опору ґрунту основи R за додатком Е ДБН В.2.1-10-2009.",
+      mainCategory: "fundamenty",
+      extraCategories: ["perevirka-dbn", "normatyvni-obgruntuvannya"],
+      displayMode: "native",
+      nativeCalculator: "soil-design-resistance",
+      icon: "Layers",
+      standard: "ДБН В.2.1-10-2009, додаток Е",
+    });
   });
 
   it("resolves a calculator by slug for detail routes", () => {
