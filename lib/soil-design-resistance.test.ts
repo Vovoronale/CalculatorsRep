@@ -35,11 +35,46 @@ const baseInput: SoilDesignResistanceInput = {
   basementFloorUnitWeightGammaCfKnM3: 0,
 };
 
+function getReportStep(
+  report: ReturnType<typeof getSoilDesignResistanceReport>,
+  key: string,
+) {
+  const step = report.steps.find((item) => item.key === key);
+
+  if (!step) {
+    throw new Error(`Expected report step ${key}`);
+  }
+
+  return step;
+}
+
+function expectFormulaTextOnlyMath(...formulas: Array<string | undefined>) {
+  const forbiddenPhrases = [
+    "згідно",
+    "табл.",
+    "прийма",
+    "визнача",
+    "знаходиться",
+    "оскільки",
+    "умова",
+    "у формулі",
+    "для ґрунту",
+  ];
+
+  for (const formula of formulas) {
+    expect(formula).toBeTruthy();
+    for (const phrase of forbiddenPhrases) {
+      expect(formula?.toLocaleLowerCase("uk-UA")).not.toContain(phrase);
+    }
+  }
+}
+
 describe("soil design resistance table helpers", () => {
   it("formats numbers with stable engineering output", () => {
     expect(formatSoilDesignResistanceNumber(162.82, 1)).toBe("162.8");
     expect(formatSoilDesignResistanceNumber(16.282, 1)).toBe("16.3");
     expect(formatSoilDesignResistanceNumber(1.6282, 1)).toBe("1.6");
+    expect(formatSoilDesignResistanceNumber(1.195, 2)).toBe("1.2");
   });
 
   it("interpolates linearly", () => {
@@ -196,9 +231,75 @@ describe("soil design resistance report", () => {
     expect(report.steps.find((step) => step.key === "length-height-ratio")?.formula).toBe(
       "L/H = L / H = 8.25 / 3 = 2.75",
     );
-    expect(report.steps.find((step) => step.key === "structural-scheme")?.formula).toBe(
-      "Конструктивна схема: жорстка; для ґрунту \"Пісок дрібний\", L/H = 2.75 коефіцієнт γc2 визначаємо інтерполяцією згідно з приміткою 3 до табл. Е.7; γc2 = γc2,1.5 + (γc2,4 - γc2,1.5) * (L/H - 1.5) / (4 - 1.5) = 1.3 + (1.1 - 1.3) * (2.75 - 1.5) / 2.5 = 1.2",
+    const structuralStep = getReportStep(report, "structural-scheme");
+
+    expect(structuralStep.notes).toEqual([
+      "Конструктивна схема: жорстка. Для ґрунту \"Пісок дрібний\", L/H = 2.75 коефіцієнт γc2 визначається інтерполяцією згідно з приміткою 3 до табл. Е.7.",
+    ]);
+    expect(structuralStep.formula).toBe(
+      "γc2 = γc2,1.5 + (γc2,4 - γc2,1.5) * (L/H - 1.5) / (4 - 1.5) = 1.3 + (1.1 - 1.3) * (2.75 - 1.5) / 2.5 = 1.2",
     );
+    expectFormulaTextOnlyMath(structuralStep.formula);
+  });
+
+  it("keeps automatic gamma and k explanations outside formulas", () => {
+    const report = getSoilDesignResistanceReport({
+      ...baseInput,
+      calculationMode: "automatic",
+      soilType: "medium-sand",
+      strengthSource: "appendix-b-tables",
+    });
+    const gammaStep = getReportStep(report, "gamma-c");
+    const kStep = getReportStep(report, "k");
+
+    expect(gammaStep.notes).toEqual([
+      "Для ґрунту \"Пісок середньої крупності\" використовується рядок табл. Е.7: \"Великоуламкові з піщаним заповнювачем і піщані, крім дрібних і пилуватих\". Коефіцієнт γc2 приймається за результатом блоку \"Конструктивна схема споруди\".",
+    ]);
+    expect(gammaStep.formula).toBe("γc1 = 1.4; γc2 = 1.2");
+    expect(kStep.notes).toEqual([
+      "φ11 і c11 прийняті за таблицями В.1-В.2, тому згідно з п. Е.4 ДБН В.2.1-10-2009 приймається k = 1.1.",
+    ]);
+    expect(kStep.formula).toBe("k = 1.1");
+    expectFormulaTextOnlyMath(gammaStep.formula, kStep.formula);
+  });
+
+  it("keeps table E8 interpolation explanations outside formulas", () => {
+    const report = getSoilDesignResistanceReport({
+      ...baseInput,
+      phi11Deg: 30.5,
+    });
+    const step = getReportStep(report, "m-coefficients");
+
+    expect(step.notes).toEqual([
+      "φ11 = 30.5° знаходиться між φa = 30° і φb = 31°. Коефіцієнти Mγ, Mq, Mc визначаються лінійною інтерполяцією за табл. Е.8 ДБН В.2.1-10-2009.",
+    ]);
+    expect(step.formula).toBeUndefined();
+    expect(step.formulas).toEqual([
+      "Mγ = Mγ,a + (Mγ,b - Mγ,a) * (φ11 - φa) / (φb - φa) = 1.15 + (1.24 - 1.15) * (30.5 - 30) / (31 - 30) = 1.2",
+      "Mq = Mq,a + (Mq,b - Mq,a) * (φ11 - φa) / (φb - φa) = 5.59 + (5.95 - 5.59) * (30.5 - 30) / (31 - 30) = 5.77",
+      "Mc = Mc,a + (Mc,b - Mc,a) * (φ11 - φa) / (φb - φa) = 7.95 + (8.24 - 7.95) * (30.5 - 30) / (31 - 30) = 8.1",
+    ]);
+    expectFormulaTextOnlyMath(...(step.formulas ?? []));
+  });
+
+  it("keeps kz explanations outside formulas", () => {
+    const narrowReport = getSoilDesignResistanceReport(baseInput);
+    const wideReport = getSoilDesignResistanceReport({
+      ...baseInput,
+      foundationWidthM: 20,
+    });
+    const narrowStep = getReportStep(narrowReport, "kz");
+    const wideStep = getReportStep(wideReport, "kz");
+
+    expect(narrowStep.notes).toEqual([
+      "Оскільки b = 1 м < 10 м, згідно з п. Е.4 ДБН В.2.1-10-2009 приймається kz = 1.0.",
+    ]);
+    expect(narrowStep.formula).toBe("kz = 1.0");
+    expect(wideStep.notes).toEqual([
+      "Оскільки b = 20 м >= 10 м, коефіцієнт kz визначається за залежністю з п. Е.4 ДБН В.2.1-10-2009.",
+    ]);
+    expect(wideStep.formula).toBe("kz = z0 / b + 0.2 = 8 / 20 + 0.2 = 0.6");
+    expectFormulaTextOnlyMath(narrowStep.formula, wideStep.formula);
   });
 
   it("builds basement d1 and db steps", () => {
@@ -231,9 +332,15 @@ describe("soil design resistance report", () => {
     expect(report.warnings).toContain(
       "Оскільки d1 > d, у формулі (Е.1) прийнято d1 = d і db = 0 згідно з приміткою 6 до п. Е.4 ДБН В.2.1-10-2009.",
     );
-    expect(report.steps.find((step) => step.key === "d1-check")?.formula).toBe(
-      "d1 > d => 1.5 > 1; у формулі (Е.1) приймаємо d1 = d = 1 м, db = 0 м",
+    const d1CheckStep = getReportStep(report, "d1-check");
+
+    expect(d1CheckStep.notes).toEqual([
+      "Умова d1 <= d не виконується. Згідно з приміткою 6 до п. Е.4 ДБН В.2.1-10-2009 для подальшого розрахунку за формулою (Е.1) приймаються d1 = d = 1 м і db = 0 м.",
+    ]);
+    expect(d1CheckStep.formula).toBe(
+      "d1 > d => 1.5 > 1",
     );
+    expectFormulaTextOnlyMath(d1CheckStep.formula);
   });
 
   it("returns stable invalid report without NaN formulas", () => {

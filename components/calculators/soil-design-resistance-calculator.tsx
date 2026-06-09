@@ -147,13 +147,22 @@ function RichText({ text }: { text: string }) {
   return <>{nodes}</>;
 }
 
-function ReportStepFormula({ step }: { step: SoilDesignResistanceReportStep }) {
-  if (!step.formula) return null;
+function ReportStepFormulas({ step }: { step: SoilDesignResistanceReportStep }) {
+  const formulas = [
+    ...(step.formula ? [step.formula] : []),
+    ...(step.formulas ?? []),
+  ];
+
+  if (formulas.length === 0) return null;
 
   return (
-    <div className="soil-resistance-equation" aria-label={step.formula} title={step.formula}>
-      <RichText text={step.formula} />
-    </div>
+    <>
+      {formulas.map((formula) => (
+        <div key={formula} className="soil-resistance-equation" aria-label={formula} title={formula}>
+          <RichText text={formula} />
+        </div>
+      ))}
+    </>
   );
 }
 
@@ -555,7 +564,16 @@ export function SoilDesignResistanceCalculator() {
                   ))}
                 </ul>
               ) : null}
-              <ReportStepFormula step={step} />
+              {step.notes ? (
+                <div className="soil-resistance-report__notes">
+                  {step.notes.map((note) => (
+                    <p key={note}>
+                      <RichText text={note} />
+                    </p>
+                  ))}
+                </div>
+              ) : null}
+              <ReportStepFormulas step={step} />
             </li>
           ))}
         </ol>

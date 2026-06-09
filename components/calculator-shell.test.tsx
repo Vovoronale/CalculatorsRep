@@ -764,6 +764,21 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("spinbutton", { name: "L, м" })).toHaveValue(8.25);
     expect(screen.getByRole("spinbutton", { name: "H, м" })).toHaveValue(3);
     expect(screen.getByLabelText("L/H = L / H = 8.25 / 3 = 2.75")).toBeInTheDocument();
+    expect(
+      screen.getByText((_, element) =>
+        Boolean(
+          element?.tagName.toLowerCase() === "p" &&
+            element.textContent?.includes(
+              "Конструктивна схема: жорстка. Для ґрунту \"Пісок середньої крупності\", L/H = 2.75 коефіцієнт γc2 визначається інтерполяцією згідно з приміткою 3 до табл. Е.7.",
+            ),
+        ),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(
+        "γc2 = γc2,1.5 + (γc2,4 - γc2,1.5) * (L/H - 1.5) / (4 - 1.5) = 1.4 + (1.2 - 1.4) * (2.75 - 1.5) / 2.5 = 1.3",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("renders the native cassoon load distribution calculator with a step report", async () => {

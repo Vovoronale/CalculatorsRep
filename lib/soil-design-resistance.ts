@@ -221,11 +221,13 @@ export function formatSoilDesignResistanceNumber(
   value: number,
   maximumFractionDigits = 2,
 ): string {
+  const displayValue = Number.isFinite(value) ? value + Number.EPSILON : value;
+
   return new Intl.NumberFormat("en-US", {
     maximumFractionDigits,
     minimumFractionDigits: 0,
     useGrouping: false,
-  }).format(value);
+  }).format(displayValue);
 }
 
 export function getLinearInterpolation(
@@ -413,7 +415,9 @@ export type SoilDesignResistanceReportStep = {
     | "r"
     | "unit-conversion";
   caption: string;
+  notes?: string[];
   formula?: string;
+  formulas?: string[];
   items?: string[];
 };
 
@@ -673,30 +677,31 @@ export function getSoilDesignResistanceReport(
     const ilText = soilUsesLiquidityIndex(input.soilType)
       ? `, IL = ${format(input.liquidityIndex)}`
       : "";
-    let structuralFormula =
-      "Конструктивна схема: гнучка; γc2 = 1.0 згідно з приміткою 2 до табл. Е.7";
+    let structuralNotes = [
+      "Конструктивна схема: гнучка. γc2 приймається згідно з приміткою 2 до табл. Е.7.",
+    ];
+    let structuralFormula = "γc2 = 1.0";
 
     if (input.structuralScheme === "rigid" && tableE7.gammaC2Source === "rigid-small") {
-      structuralFormula = `Конструктивна схема: жорстка; для ґрунту "${soilLabel}"${ilText}, L/H = ${format(
+      structuralNotes = [`Конструктивна схема: жорстка. Для ґрунту "${soilLabel}"${ilText}, L/H = ${format(
         values.lengthHeightRatio,
-      )} <= 1.5 приймаємо γc2 = ${format(
-        values.gammaC2,
-      )} за графою "1,5 і менше" табл. Е.7`;
+      )} <= 1.5, тому γc2 приймається за графою "1,5 і менше" табл. Е.7.`];
+      structuralFormula = `γc2 = ${format(values.gammaC2)}`;
     }
     if (input.structuralScheme === "rigid" && tableE7.gammaC2Source === "rigid-large") {
-      structuralFormula = `Конструктивна схема: жорстка; для ґрунту "${soilLabel}"${ilText}, L/H = ${format(
+      structuralNotes = [`Конструктивна схема: жорстка. Для ґрунту "${soilLabel}"${ilText}, L/H = ${format(
         values.lengthHeightRatio,
-      )} >= 4 приймаємо γc2 = ${format(
-        values.gammaC2,
-      )} за графою "4 і більше" табл. Е.7`;
+      )} >= 4, тому γc2 приймається за графою "4 і більше" табл. Е.7.`];
+      structuralFormula = `γc2 = ${format(values.gammaC2)}`;
     }
     if (
       input.structuralScheme === "rigid" &&
       tableE7.gammaC2Source === "rigid-interpolated"
     ) {
-      structuralFormula = `Конструктивна схема: жорстка; для ґрунту "${soilLabel}"${ilText}, L/H = ${format(
+      structuralNotes = [`Конструктивна схема: жорстка. Для ґрунту "${soilLabel}"${ilText}, L/H = ${format(
         values.lengthHeightRatio,
-      )} коефіцієнт γc2 визначаємо інтерполяцією згідно з приміткою 3 до табл. Е.7; γc2 = γc2,1.5 + (γc2,4 - γc2,1.5) * (L/H - 1.5) / (4 - 1.5) = ${format(
+      )} коефіцієнт γc2 визначається інтерполяцією згідно з приміткою 3 до табл. Е.7.`];
+      structuralFormula = `γc2 = γc2,1.5 + (γc2,4 - γc2,1.5) * (L/H - 1.5) / (4 - 1.5) = ${format(
         tableE7.gammaC2AtRatio15 ?? 0,
       )} + (${format(tableE7.gammaC2AtRatio4 ?? 0)} - ${format(
         tableE7.gammaC2AtRatio15 ?? 0,
@@ -704,11 +709,18 @@ export function getSoilDesignResistanceReport(
         values.gammaC2,
       )}`;
     }
+    if (input.structuralScheme === "rigid" && tableE7.gammaC2Source === "loose-sand") {
+      structuralNotes = [
+        `Конструктивна схема: жорстка. Для ґрунту "${soilLabel}" коефіцієнт γc2 приймається за рядком табл. Е.7 для пухких пісків.`,
+      ];
+      structuralFormula = `γc2 = ${format(values.gammaC2)}`;
+    }
 
     steps.push({
       key: "structural-scheme",
       caption:
         "Конструктивна схема споруди згідно з примітками 1-3 до табл. Е.7 ДБН В.2.1-10-2009:",
+      notes: structuralNotes,
       formula: structuralFormula,
     });
   }
@@ -722,15 +734,17 @@ export function getSoilDesignResistanceReport(
     formula:
       input.calculationMode === "manual-e7"
         ? `γc1 = ${format(values.gammaC1)}; γc2 = ${format(values.gammaC2)}`
-        : `Для ґрунту "${SOIL_TYPE_LABELS[input.soilType]}"${
-            soilUsesLiquidityIndex(input.soilType)
-              ? `, IL = ${format(input.liquidityIndex)}`
-              : ""
-          }, за рядком "${tableE7.tableRow}" приймаємо γc1 = ${format(
-            values.gammaC1,
-          )}; γc2 = ${format(
-            values.gammaC2,
-          )} за результатом пункту "Конструктивна схема споруди"`,
+        : `γc1 = ${format(values.gammaC1)}; γc2 = ${format(values.gammaC2)}`,
+    notes:
+      input.calculationMode === "manual-e7"
+        ? undefined
+        : [
+            `Для ґрунту "${SOIL_TYPE_LABELS[input.soilType]}"${
+              soilUsesLiquidityIndex(input.soilType)
+                ? `, IL = ${format(input.liquidityIndex)}`
+                : ""
+            } використовується рядок табл. Е.7: "${tableE7.tableRow}". Коефіцієнт γc2 приймається за результатом блоку "Конструктивна схема споруди".`,
+          ],
   });
 
   steps.push({
@@ -739,45 +753,62 @@ export function getSoilDesignResistanceReport(
       "Визначення коефіцієнта k за способом визначення φ11 і c11 згідно з п. Е.4 ДБН В.2.1-10-2009:",
     formula:
       input.strengthSource === "direct-testing"
-        ? "k = 1.0, оскільки φ11 і c11 визначені безпосередніми випробуваннями"
-        : "k = 1.1, оскільки φ11 і c11 прийняті за таблицями В.1-В.2",
+        ? "k = 1.0"
+        : "k = 1.1",
+    notes: [
+      input.strengthSource === "direct-testing"
+        ? "φ11 і c11 визначені безпосередніми випробуваннями, тому згідно з п. Е.4 ДБН В.2.1-10-2009 приймається k = 1.0."
+        : "φ11 і c11 прийняті за таблицями В.1-В.2, тому згідно з п. Е.4 ДБН В.2.1-10-2009 приймається k = 1.1.",
+    ],
   });
 
   steps.push({
     key: "m-coefficients",
     caption:
       "Визначення коефіцієнтів Mγ, Mq, Mc за кутом внутрішнього тертя φ11 згідно з табл. Е.8 ДБН В.2.1-10-2009:",
+    notes: m.exact
+      ? [
+          `Для φ11 = ${format(
+            input.phi11Deg,
+          )}° коефіцієнти Mγ, Mq, Mc приймаються за табл. Е.8 ДБН В.2.1-10-2009.`,
+        ]
+      : [
+          `φ11 = ${format(input.phi11Deg)}° знаходиться між φa = ${
+            m.phiA
+          }° і φb = ${
+            m.phiB
+          }°. Коефіцієнти Mγ, Mq, Mc визначаються лінійною інтерполяцією за табл. Е.8 ДБН В.2.1-10-2009.`,
+        ],
     formula: m.exact
-      ? `φ11 = ${format(input.phi11Deg)}°; за табл. Е.8 приймаємо Mγ = ${format(
-          values.mGamma,
-        )}; Mq = ${format(values.mQ)}; Mc = ${format(values.mC)}`
-      : `φ11 = ${format(input.phi11Deg)}° знаходиться між φa = ${
-          m.phiA
-        }° і φb = ${
-          m.phiB
-        }°; коефіцієнти визначаємо лінійною інтерполяцією за табл. Е.8; Mγ = Mγ,a + (Mγ,b - Mγ,a) * (φ11 - φa) / (φb - φa) = ${format(
-          DBN_E8_COEFFICIENTS[m.phiA].mGamma,
-        )} + (${format(DBN_E8_COEFFICIENTS[m.phiB].mGamma)} - ${format(
-          DBN_E8_COEFFICIENTS[m.phiA].mGamma,
-        )}) * (${format(input.phi11Deg)} - ${m.phiA}) / (${m.phiB} - ${
-          m.phiA
-        }) = ${format(
-          values.mGamma,
-        )}; Mq = Mq,a + (Mq,b - Mq,a) * (φ11 - φa) / (φb - φa) = ${format(
-          DBN_E8_COEFFICIENTS[m.phiA].mQ,
-        )} + (${format(DBN_E8_COEFFICIENTS[m.phiB].mQ)} - ${format(
-          DBN_E8_COEFFICIENTS[m.phiA].mQ,
-        )}) * (${format(input.phi11Deg)} - ${m.phiA}) / (${m.phiB} - ${
-          m.phiA
-        }) = ${format(
-          values.mQ,
-        )}; Mc = Mc,a + (Mc,b - Mc,a) * (φ11 - φa) / (φb - φa) = ${format(
-          DBN_E8_COEFFICIENTS[m.phiA].mC,
-        )} + (${format(DBN_E8_COEFFICIENTS[m.phiB].mC)} - ${format(
-          DBN_E8_COEFFICIENTS[m.phiA].mC,
-        )}) * (${format(input.phi11Deg)} - ${m.phiA}) / (${m.phiB} - ${
-          m.phiA
-        }) = ${format(values.mC)}`,
+      ? `Mγ = ${format(values.mGamma)}; Mq = ${format(values.mQ)}; Mc = ${format(
+          values.mC,
+        )}`
+      : undefined,
+    formulas: m.exact
+      ? undefined
+      : [
+          `Mγ = Mγ,a + (Mγ,b - Mγ,a) * (φ11 - φa) / (φb - φa) = ${format(
+            DBN_E8_COEFFICIENTS[m.phiA].mGamma,
+          )} + (${format(DBN_E8_COEFFICIENTS[m.phiB].mGamma)} - ${format(
+            DBN_E8_COEFFICIENTS[m.phiA].mGamma,
+          )}) * (${format(input.phi11Deg)} - ${m.phiA}) / (${m.phiB} - ${
+            m.phiA
+          }) = ${format(values.mGamma)}`,
+          `Mq = Mq,a + (Mq,b - Mq,a) * (φ11 - φa) / (φb - φa) = ${format(
+            DBN_E8_COEFFICIENTS[m.phiA].mQ,
+          )} + (${format(DBN_E8_COEFFICIENTS[m.phiB].mQ)} - ${format(
+            DBN_E8_COEFFICIENTS[m.phiA].mQ,
+          )}) * (${format(input.phi11Deg)} - ${m.phiA}) / (${m.phiB} - ${
+            m.phiA
+          }) = ${format(values.mQ)}`,
+          `Mc = Mc,a + (Mc,b - Mc,a) * (φ11 - φa) / (φb - φa) = ${format(
+            DBN_E8_COEFFICIENTS[m.phiA].mC,
+          )} + (${format(DBN_E8_COEFFICIENTS[m.phiB].mC)} - ${format(
+            DBN_E8_COEFFICIENTS[m.phiA].mC,
+          )}) * (${format(input.phi11Deg)} - ${m.phiA}) / (${m.phiB} - ${
+            m.phiA
+          }) = ${format(values.mC)}`,
+        ],
   });
 
   steps.push({
@@ -786,10 +817,19 @@ export function getSoilDesignResistanceReport(
       "Визначення коефіцієнта kz за шириною підошви фундаменту b згідно з п. Е.4 ДБН В.2.1-10-2009:",
     formula:
       kz.source === "narrow"
-        ? `b = ${format(input.foundationWidthM)} м < 10 м; kz = 1.0`
+        ? "kz = 1.0"
         : `kz = z0 / b + 0.2 = 8 / ${format(input.foundationWidthM)} + 0.2 = ${format(
             values.kz,
           )}`,
+    notes: [
+      kz.source === "narrow"
+        ? `Оскільки b = ${format(
+            input.foundationWidthM,
+          )} м < 10 м, згідно з п. Е.4 ДБН В.2.1-10-2009 приймається kz = 1.0.`
+        : `Оскільки b = ${format(
+            input.foundationWidthM,
+          )} м >= 10 м, коефіцієнт kz визначається за залежністю з п. Е.4 ДБН В.2.1-10-2009.`,
+    ],
   });
 
   steps.push({
@@ -813,14 +853,19 @@ export function getSoilDesignResistanceReport(
     formula: note6Applies
       ? `d1 > d => ${format(embedmentDepthRawD1M)} > ${format(
           input.foundationDepthM,
-        )}; у формулі (Е.1) приймаємо d1 = d = ${format(
-          embedmentDepthCalcD1M,
-        )} м, db = 0 м`
+        )}`
       : `d1 <= d => ${format(embedmentDepthRawD1M)} <= ${format(
           input.foundationDepthM,
-        )} - умова виконується; у формулі (Е.1) приймаємо d1 = ${format(
-          embedmentDepthCalcD1M,
-        )} м, db = ${format(basementDepthCalcDbM)} м`,
+        )}`,
+    notes: [
+      note6Applies
+        ? `Умова d1 <= d не виконується. Згідно з приміткою 6 до п. Е.4 ДБН В.2.1-10-2009 для подальшого розрахунку за формулою (Е.1) приймаються d1 = d = ${format(
+            embedmentDepthCalcD1M,
+          )} м і db = 0 м.`
+        : `Умова d1 <= d виконується. Для подальшого розрахунку за формулою (Е.1) приймаються d1 = ${format(
+            embedmentDepthCalcD1M,
+          )} м і db = ${format(basementDepthCalcDbM)} м.`,
+    ],
   });
 
   if (input.hasBasement && !note6Applies) {

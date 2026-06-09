@@ -2739,6 +2739,19 @@ textarea {
   line-height: 1.45;
 }
 
+.soil-resistance-report__notes {
+  display: grid;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.soil-resistance-report__notes p {
+  margin: 0;
+}
+
 .soil-resistance-equation {
   overflow-x: auto;
   border-radius: var(--radius-sm);
@@ -2754,7 +2767,8 @@ textarea {
 
 .soil-resistance-equation .math-notation,
 .soil-resistance-report__caption .math-notation,
-.soil-resistance-report__items .math-notation {
+.soil-resistance-report__items .math-notation,
+.soil-resistance-report__notes .math-notation {
   font-family: var(--font-mono), monospace;
 }
 
