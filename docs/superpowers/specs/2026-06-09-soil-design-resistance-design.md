@@ -24,6 +24,8 @@ The default example must reproduce the referenced MQN calculator example:
 - source: `https://www.mqn.com.ua/foundations-R.php`
 - expected result: `R = 162.8 кПа = 16.3 т/м² = 1.6 кг/см²`
 
+Canonical agreed report text and formulas are captured separately in [`2026-06-09-soil-design-resistance-report-contract.md`](2026-06-09-soil-design-resistance-report-contract.md). Implementation plans and code should treat that file as the source of truth for report captions, display conditions, and formula strings.
+
 ## Goals
 
 - Add a native calculator with a step-by-step report for formula (Е.1).
@@ -197,6 +199,8 @@ If `φ11` is between table values, linearly interpolate:
 The report must show the interpolation formula separately for `Mγ`, `Mq`, and `Mc`.
 
 ## Report Order
+
+The canonical report contract is [`2026-06-09-soil-design-resistance-report-contract.md`](2026-06-09-soil-design-resistance-report-contract.md). The summary below mirrors that contract; if wording ever differs, update both files before implementation and keep the report contract authoritative.
 
 Every step has a stable plain-text formula for tests and accessibility. The UI should render symbols with mathematical notation while preserving the plain-text formula in `aria-label` or an equivalent accessible representation.
 
