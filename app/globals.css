@@ -2706,6 +2706,10 @@ textarea {
   line-height: 1.35;
 }
 
+.soil-resistance-field--number .soil-resistance-field__description {
+  min-height: calc(2em * 1.35);
+}
+
 .soil-resistance-field select:focus,
 .soil-resistance-field input:focus {
   border-color: var(--accent);
@@ -2869,6 +2873,45 @@ textarea {
 .soil-resistance-report__items .math-notation,
 .soil-resistance-report__notes .math-notation {
   font-family: var(--font-mono), monospace;
+}
+
+.report-formula {
+  margin-block: 0.45rem;
+  overflow-x: auto;
+  color: var(--text);
+  line-height: 1.55;
+  scrollbar-width: thin;
+}
+
+.report-formula__line {
+  width: max-content;
+  max-width: 100%;
+  min-width: 100%;
+}
+
+.report-formula .katex-display {
+  margin: 0.25rem 0;
+  text-align: left;
+}
+
+.report-formula .katex {
+  font-size: 1.02rem;
+}
+
+.report-formula--fallback {
+  font-family: var(--font-mono), monospace;
+  white-space: pre-wrap;
+}
+
+.soil-resistance-equation.report-formula {
+  margin-block: 0.45rem;
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0;
+  white-space: normal;
 }
 
 .soil-resistance-norm h4 {

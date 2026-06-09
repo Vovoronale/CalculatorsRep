@@ -4,6 +4,7 @@ import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { IVappsTopbar } from "@/components/ivapps-topbar";
 import { siteContent } from "@/lib/site-content";
 
+import "katex/dist/katex.min.css";
 import "./globals.css";
 
 const sansFont = Inter({

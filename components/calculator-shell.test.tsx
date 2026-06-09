@@ -741,11 +741,16 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("spinbutton", { name: "γc2" })).toHaveValue(1);
     expect(screen.queryByRole("combobox", { name: "Тип ґрунту" })).not.toBeInTheDocument();
     expect(getSummaryText("R = 162.82 кПа = 16.3 т/м² = 1.6 кг/см²")).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(
-        "R = γc1 * γc2 / k * [Mγ * kz * b * γ11 + Mq * d1 * γ′11 + (Mq - 1) * db * γ′11 + Mc * c11] = 1 * 1 / 1 * [1.15 * 1 * 1 * 17.1 + 5.59 * 1.2 * 16.6 + (5.59 - 1) * 0 * 16.6 + 7.95 * 4] = 162.82 кПа",
-      ),
-    ).toBeInTheDocument();
+    const rFormula = screen.getByLabelText(
+      "R = γc1 * γc2 / k * [Mγ * kz * b * γ11 + Mq * d1 * γ′11 + (Mq - 1) * db * γ′11 + Mc * c11] = 1 * 1 / 1 * [1.15 * 1 * 1 * 17.1 + 5.59 * 1.2 * 16.6 + (5.59 - 1) * 0 * 16.6 + 7.95 * 4] = 162.82 кПа",
+    );
+    expect(rFormula).toBeInTheDocument();
+    expect(rFormula.querySelector(".katex")).toBeInTheDocument();
+    expect(rFormula).toHaveClass("soil-resistance-equation");
+    expect(rFormula).toHaveAttribute(
+      "title",
+      "R = γc1 * γc2 / k * [Mγ * kz * b * γ11 + Mq * d1 * γ′11 + (Mq - 1) * db * γ′11 + Mc * c11] = 1 * 1 / 1 * [1.15 * 1 * 1 * 17.1 + 5.59 * 1.2 * 16.6 + (5.59 - 1) * 0 * 16.6 + 7.95 * 4] = 162.82 кПа",
+    );
     expect(
       screen.getAllByRole("link", { name: "формула (Е.1)" }).some(
         (link) => link.getAttribute("href") === "#soil-norm-e1",
@@ -794,10 +799,10 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("spinbutton", { name: "L, м" })).toHaveValue(8.25);
     expect(screen.getByRole("spinbutton", { name: "H, м" })).toHaveValue(3);
     expect(
-      screen.getByText("Довжина споруди або її відсіку для визначення L/H."),
+      screen.getByText("Довжина споруди або її відсіку."),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Висота споруди або її відсіку для визначення L/H."),
+      screen.getByText("Висота споруди або її відсіку."),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("L/H = L / H = 8.25 / 3 = 2.75")).toBeInTheDocument();
     expect(
@@ -938,6 +943,14 @@ describe("CalculatorShell", () => {
 
     expect(css).toMatch(
       /\.cassoon-load-controls\s*{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\);/,
+    );
+  });
+
+  it("keeps soil resistance number field descriptions from shifting the input grid", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+
+    expect(css).toMatch(
+      /\.soil-resistance-field--number\s+\.soil-resistance-field__description\s*{[\s\S]*?min-height:\s*calc\(2em\s*\*\s*1\.35\);/,
     );
   });
 

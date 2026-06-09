@@ -1,13 +1,24 @@
 
 > construction-calculators-hub@0.1.0 dev
-> next dev -p 3003
+> next dev
 
    ▲ Next.js 15.5.15
-   - Local:        http://localhost:3003
-   - Network:      http://192.168.1.19:3003
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.1.19:3002
 
  ✓ Starting...
- ✓ Ready in 2.4s
+ ✓ Ready in 9.7s
  ○ Compiling / ...
- ✓ Compiled / in 14.5s (795 modules)
- GET / 200 in 9089ms
+ ✓ Compiled / in 17.6s (923 modules)
+ ○ Compiling /calculator/[slug] ...
+ ✓ Compiled /calculator/[slug] in 1012ms (846 modules)
+ HEAD /calculator/soil-design-resistance 200 in 3299ms
+ GET /calculator/soil-design-resistance 200 in 1226ms
+ GET / 200 in 834ms
+ GET / 200 in 265ms
+ GET /calculator/soil-design-resistance 200 in 957ms
+ GET / 200 in 351ms
+ GET /calculator/soil-design-resistance 200 in 651ms
+ GET / 200 in 1350ms
+ GET / 200 in 1440ms
+ GET /calculator/soil-design-resistance 200 in 86ms

@@ -16,6 +16,7 @@ import {
 } from "@/lib/soil-design-resistance";
 
 import { MathNotation } from "./math-notation";
+import { ReportFormula } from "./report-formula";
 
 const SOIL_TYPES = Object.keys(SOIL_TYPE_LABELS) as SoilType[];
 
@@ -47,14 +48,6 @@ const SYMBOLS = {
   k: { base: "k", ariaLabel: "k" },
 } as const;
 
-const SYMBOL_PATTERN = new RegExp(
-  Object.keys(SYMBOLS)
-    .sort((left, right) => right.length - left.length)
-    .map((symbol) => symbol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-    .join("|"),
-  "g",
-);
-
 const NORM_LINKS = [
   { text: "формула (Е.1)", id: "soil-norm-e1" },
   { text: "формулою (Е.2)", id: "soil-norm-e2" },
@@ -66,47 +59,6 @@ const NORM_LINKS = [
 
 function parseNumberInput(value: string): number {
   return Number.parseFloat(value.replace(",", "."));
-}
-
-function isFormulaBoundary(value: string | undefined): boolean {
-  return !value || !/[A-Za-zА-Яа-яІіЇїЄєҐґ0-9_,.′]/.test(value);
-}
-
-function renderFormulaText(text: string): ReactNode[] {
-  const nodes: ReactNode[] = [];
-  let lastIndex = 0;
-
-  for (const match of text.matchAll(SYMBOL_PATTERN)) {
-    if (match.index === undefined) continue;
-
-    if (
-      !isFormulaBoundary(text[match.index - 1]) ||
-      !isFormulaBoundary(text[match.index + match[0].length])
-    ) {
-      continue;
-    }
-
-    if (match.index > lastIndex) {
-      nodes.push(<span key={`text:${lastIndex}`}>{text.slice(lastIndex, match.index)}</span>);
-    }
-
-    const symbol = SYMBOLS[match[0] as keyof typeof SYMBOLS];
-    nodes.push(
-      <MathNotation
-        key={`${match[0]}:${match.index}`}
-        base={symbol.base}
-        subscript={"subscript" in symbol ? symbol.subscript : undefined}
-        ariaLabel={symbol.ariaLabel}
-      />,
-    );
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < text.length) {
-    nodes.push(<span key={`text:${lastIndex}`}>{text.slice(lastIndex)}</span>);
-  }
-
-  return nodes;
 }
 
 function RichText({ text }: { text: string }) {
@@ -121,11 +73,7 @@ function RichText({ text }: { text: string }) {
     if (match.index === undefined) continue;
 
     if (match.index > lastIndex) {
-      nodes.push(
-        <span key={`text:${lastIndex}`}>
-          {renderFormulaText(text.slice(lastIndex, match.index))}
-        </span>,
-      );
+      nodes.push(<span key={`text:${lastIndex}`}>{text.slice(lastIndex, match.index)}</span>);
     }
 
     const link = NORM_LINKS.find((item) => item.text === match[0]);
@@ -141,7 +89,7 @@ function RichText({ text }: { text: string }) {
   }
 
   if (lastIndex < text.length) {
-    nodes.push(<span key={`text:${lastIndex}`}>{renderFormulaText(text.slice(lastIndex))}</span>);
+    nodes.push(<span key={`text:${lastIndex}`}>{text.slice(lastIndex)}</span>);
   }
 
   return <>{nodes}</>;
@@ -158,9 +106,7 @@ function ReportStepFormulas({ step }: { step: SoilDesignResistanceReportStep }) 
   return (
     <>
       {formulas.map((formula) => (
-        <div key={formula} className="soil-resistance-equation" aria-label={formula} title={formula}>
-          <RichText text={formula} />
-        </div>
+        <ReportFormula key={formula} formula={formula} className="soil-resistance-equation" />
       ))}
     </>
   );
@@ -436,14 +382,14 @@ export function SoilDesignResistanceCalculator() {
                 value={buildingLengthM}
                 onChange={setBuildingLengthM}
                 min="0"
-                description="Довжина споруди або її відсіку для визначення L/H."
+                description="Довжина споруди або її відсіку."
               />
               <NumberField
                 label="H, м"
                 value={buildingHeightM}
                 onChange={setBuildingHeightM}
                 min="0"
-                description="Висота споруди або її відсіку для визначення L/H."
+                description="Висота споруди або її відсіку."
               />
               <label className="soil-resistance-field soil-resistance-field--wide">
                 <span>Тип ґрунту</span>

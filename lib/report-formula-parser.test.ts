@@ -1,0 +1,101 @@
+import { describe, expect, it } from "vitest";
+
+import { parseReportFormula } from "./report-formula-parser";
+import { reportSymbolToLatex } from "./report-notation";
+
+describe("reportSymbolToLatex", () => {
+  it("maps shared engineering notation to LaTeX", () => {
+    expect(reportSymbolToLatex("Mγ")).toBe("M_{\\gamma}");
+    expect(reportSymbolToLatex("Mγ,a")).toBe("M_{\\gamma,a}");
+    expect(reportSymbolToLatex("Mq")).toBe("M_q");
+    expect(reportSymbolToLatex("Mc")).toBe("M_c");
+    expect(reportSymbolToLatex("φ11")).toBe("\\varphi_{11}");
+    expect(reportSymbolToLatex("φa")).toBe("\\varphi_a");
+    expect(reportSymbolToLatex("γc1")).toBe("\\gamma_{c1}");
+    expect(reportSymbolToLatex("γ′11")).toBe("\\gamma'_{11}");
+    expect(reportSymbolToLatex("As,min,1")).toBe("A_{s,min,1}");
+    expect(reportSymbolToLatex("db,input")).toBe("d_{b,input}");
+    expect(reportSymbolToLatex("L/H")).toBe("\\frac{L}{H}");
+  });
+});
+
+describe("parseReportFormula", () => {
+  it("renders table E8 interpolation formulas as separate LaTeX lines with fractions", () => {
+    const formula =
+      "Mγ = Mγ,a + (Mγ,b - Mγ,a) * (φ11 - φa) / (φb - φa) = 1.15 + (1.24 - 1.15) * (30.01 - 30) / (31 - 30) = 1.15; Mq = Mq,a + (Mq,b - Mq,a) * (φ11 - φa) / (φb - φa) = 5.59 + (5.95 - 5.59) * (30.01 - 30) / (31 - 30) = 5.59; Mc = Mc,a + (Mc,b - Mc,a) * (φ11 - φa) / (φb - φa) = 7.95 + (8.24 - 7.95) * (30.01 - 30) / (31 - 30) = 7.95";
+
+    const result = parseReportFormula(formula);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines).toHaveLength(3);
+    expect(result.lines[0].latex).toContain("M_{\\gamma}");
+    expect(result.lines[0].latex).toContain(
+      "\\frac{\\varphi_{11} - \\varphi_a}{\\varphi_b - \\varphi_a}",
+    );
+    expect(result.lines[1].latex).toContain("M_q");
+    expect(result.lines[2].latex).toContain("M_c");
+  });
+
+  it("renders the R formula with brackets, multiplication, symbols, and units", () => {
+    const formula =
+      "R = γc1 * γc2 / k * [Mγ * kz * b * γ11 + Mq * d1 * γ′11 + (Mq - 1) * db * γ′11 + Mc * c11] = 1.4 * 1.2 / 1.1 * [1.15 * 1 * 2 * 18 + 5.59 * 1.5 * 19 + (5.59 - 1) * 0 * 19 + 7.95 * 10] = 433.61 кПа";
+
+    const result = parseReportFormula(formula);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines[0].latex).toContain("R");
+    expect(result.lines[0].latex).toContain("\\gamma_{c1}");
+    expect(result.lines[0].latex).toContain("\\left[");
+    expect(result.lines[0].latex).toContain("\\right]");
+    expect(result.lines[0].latex).toContain("\\text{кПа}");
+  });
+
+  it("renders squared units without leaving unicode superscripts in math mode", () => {
+    const result = parseReportFormula("R = 162.82 кПа = 16.3 т/м² = 1.6 кг/см²");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines[0].latex).toContain("162.82\\ \\text{кПа}");
+    expect(result.lines[0].latex).toContain("16.3\\ \\text{т/м}^2");
+    expect(result.lines[0].latex).toContain("1.6\\ \\text{кг/см}^2");
+    expect(result.lines[0].latex).not.toContain("²");
+  });
+
+  it("keeps explanatory suffixes as text", () => {
+    const result = parseReportFormula(
+      "k = 1.0, оскільки характеристики ґрунту прийняті за прямими випробуваннями",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines[0].latex).toBe(
+      "k = 1.0\\text{, оскільки характеристики ґрунту прийняті за прямими випробуваннями}",
+    );
+  });
+
+  it("renders min max and comparison implication operators", () => {
+    const minMax = parseReportFormula(
+      "As,min = max(As,min,1; As,min,2) = max(219.62 мм²; 195 мм²) = 219.62 мм²",
+    );
+    const comparison = parseReportFormula("d1 <= d => 1 <= 1.5");
+
+    expect(minMax.ok).toBe(true);
+    expect(comparison.ok).toBe(true);
+    if (!minMax.ok || !comparison.ok) throw new Error("Expected supported formulas");
+    expect(minMax.lines[0].latex).toContain("\\max");
+    expect(minMax.lines[0].latex).toContain("A_{s,min}");
+    expect(comparison.lines[0].latex).toContain("\\le");
+    expect(comparison.lines[0].latex).toContain("\\Rightarrow");
+  });
+
+  it("returns fallback for unsupported prose formulas", () => {
+    const result = parseReportFormula("Приймаємо значення з таблиці без математичного виразу");
+
+    expect(result).toEqual({
+      ok: false,
+      reason: "Formula does not start with a supported mathematical token.",
+    });
+  });
+});
