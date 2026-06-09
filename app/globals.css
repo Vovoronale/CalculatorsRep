@@ -2545,22 +2545,84 @@ textarea {
   background: color-mix(in srgb, var(--accent) 4%, var(--surface));
 }
 
+.soil-resistance-input-shell {
+  display: grid;
+  grid-template-columns: minmax(160px, 190px) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.soil-resistance-input-menu {
+  position: sticky;
+  top: 68px;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 4%, var(--bg));
+  box-shadow: var(--shadow-sm);
+  padding: 10px;
+}
+
+.soil-resistance-input-menu__label {
+  margin: 0;
+  color: var(--text-subtle);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.soil-resistance-input-menu__links {
+  display: grid;
+  gap: 6px;
+}
+
+.soil-resistance-input-menu__links a {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.25;
+  padding: 8px 9px;
+  text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.soil-resistance-input-menu__links a:hover,
+.soil-resistance-input-menu__links a:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 36%, var(--border));
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--accent);
+}
+
 .soil-resistance-controls {
   display: grid;
   gap: 12px;
   min-width: 0;
+  counter-reset: soil-input-section;
 }
 
 .soil-resistance-group {
+  counter-increment: soil-input-section;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
+  gap: 12px;
   margin: 0;
   min-width: 0;
-  border: 1px solid var(--border);
+  scroll-margin-top: 76px;
+  border: 1px solid color-mix(in srgb, var(--accent) 12%, var(--border));
   border-radius: var(--radius-sm);
   background: var(--bg);
-  padding: 12px;
+  box-shadow: var(--shadow-sm);
+  padding: 14px;
 }
 
 .soil-resistance-group legend {
@@ -2568,6 +2630,20 @@ textarea {
   color: var(--text);
   font-size: 13px;
   font-weight: 800;
+}
+
+.soil-resistance-group legend::before {
+  content: counter(soil-input-section);
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-on-fill);
+  font-size: 11px;
+  line-height: 1;
 }
 
 .soil-resistance-field,
@@ -2584,10 +2660,21 @@ textarea {
   grid-column: span 2;
 }
 
+.soil-resistance-field--number {
+  align-content: end;
+}
+
 .soil-resistance-toggle {
   align-content: end;
   grid-template-columns: auto 1fr;
   justify-content: start;
+  min-height: 66px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .soil-resistance-field select,
@@ -2604,8 +2691,19 @@ textarea {
   padding: 9px 10px;
 }
 
+.soil-resistance-field select {
+  min-height: 41px;
+}
+
 .soil-resistance-field input {
   font-family: var(--font-mono), monospace;
+}
+
+.soil-resistance-field__description {
+  color: var(--text-subtle);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
 .soil-resistance-field select:focus,
@@ -2644,8 +2742,9 @@ textarea {
   display: grid;
   gap: 4px;
   border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
-  background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
   color: var(--text);
+  box-shadow: var(--shadow-sm);
 }
 
 .soil-resistance-warning {
@@ -2784,6 +2883,60 @@ textarea {
   color: var(--text-muted);
   font-size: 12px;
   line-height: 1.5;
+}
+
+.soil-resistance-norm__scan {
+  margin: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 6px;
+}
+
+.soil-resistance-norm__scan img {
+  display: block;
+  width: 100%;
+  min-width: 720px;
+  height: auto;
+}
+
+@media (max-width: 900px) {
+  .soil-resistance-input-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .soil-resistance-input-menu {
+    position: static;
+  }
+
+  .soil-resistance-input-menu__links {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .soil-resistance-input-menu__links a {
+    text-align: center;
+  }
+}
+
+@media (max-width: 620px) {
+  .soil-resistance-calculator {
+    padding: 12px;
+  }
+
+  .soil-resistance-input-menu__links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .soil-resistance-group {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .soil-resistance-field--wide {
+    grid-column: auto;
+  }
 }
 
 .foundation-anchorage-calculator {

@@ -751,6 +751,36 @@ describe("CalculatorShell", () => {
         (link) => link.getAttribute("href") === "#soil-norm-e1",
       ),
     ).toBe(true);
+    expect(
+      screen.getByRole("img", {
+        name: "Скан п. Е.4 і формули Е.1 з ДБН В.2.1-10-2009",
+      }),
+    ).toHaveAttribute("src", "/dbn/soil-design-resistance/dbn-e4-e1.png");
+    expect(
+      screen.getByRole("img", {
+        name: "Скан формули Е.1 з ДБН В.2.1-10-2009",
+      }),
+    ).toHaveAttribute("src", "/dbn/soil-design-resistance/dbn-e4-e1.png");
+    expect(
+      screen.getByRole("img", {
+        name: "Скан формули Е.2 з ДБН В.2.1-10-2009",
+      }),
+    ).toHaveAttribute("src", "/dbn/soil-design-resistance/dbn-e2.png");
+    expect(
+      screen.getByRole("img", {
+        name: "Скан табл. Е.7 з ДБН В.2.1-10-2009",
+      }),
+    ).toHaveAttribute("src", "/dbn/soil-design-resistance/dbn-table-e7.png");
+    expect(
+      screen.getByRole("img", {
+        name: "Скан примітки 1 до табл. Е.7 з ДБН В.2.1-10-2009",
+      }),
+    ).toHaveAttribute("src", "/dbn/soil-design-resistance/dbn-table-e7-note-1.png");
+    expect(
+      screen.getByRole("img", {
+        name: "Скан табл. Е.8 з ДБН В.2.1-10-2009",
+      }),
+    ).toHaveAttribute("src", "/dbn/soil-design-resistance/dbn-table-e8.png");
 
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Спосіб розрахунку" }),
@@ -763,6 +793,12 @@ describe("CalculatorShell", () => {
     );
     expect(screen.getByRole("spinbutton", { name: "L, м" })).toHaveValue(8.25);
     expect(screen.getByRole("spinbutton", { name: "H, м" })).toHaveValue(3);
+    expect(
+      screen.getByText("Довжина споруди або її відсіку для визначення L/H."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Висота споруди або її відсіку для визначення L/H."),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("L/H = L / H = 8.25 / 3 = 2.75")).toBeInTheDocument();
     expect(
       screen.getByText((_, element) =>

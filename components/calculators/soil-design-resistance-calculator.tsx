@@ -170,12 +170,14 @@ function NumberField({
   label,
   value,
   onChange,
+  description,
   step = "0.01",
   min,
 }: {
   label: ReactNode;
   value: string;
   onChange: (value: string) => void;
+  description?: string;
   step?: string;
   min?: string;
 }) {
@@ -194,6 +196,9 @@ function NumberField({
         onChange={(event) => onChange(event.target.value)}
         aria-label={plainLabel}
       />
+      {description ? (
+        <span className="soil-resistance-field__description">{description}</span>
+      ) : null}
     </label>
   );
 }
@@ -203,14 +208,20 @@ function SelectField<T extends string>({
   value,
   onChange,
   children,
+  wide = false,
 }: {
   label: string;
   value: T;
   onChange: (value: T) => void;
   children: ReactNode;
+  wide?: boolean;
 }) {
   return (
-    <label className="soil-resistance-field">
+    <label
+      className={
+        wide ? "soil-resistance-field soil-resistance-field--wide" : "soil-resistance-field"
+      }
+    >
       <span>{label}</span>
       <select
         value={value}
@@ -246,6 +257,19 @@ function FieldLabel({
 
 function usesLiquidityIndex(soilType: SoilType): boolean {
   return soilType === "coarse-with-clayey-fill" || soilType === "clayey-soil";
+}
+
+function NormScan({ alt, src }: { alt: string; src: string }) {
+  return (
+    <figure className="soil-resistance-norm__scan">
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+      />
+    </figure>
+  );
 }
 
 export function SoilDesignResistanceCalculator() {
@@ -327,19 +351,56 @@ export function SoilDesignResistanceCalculator() {
   );
 
   const report = useMemo(() => getSoilDesignResistanceReport(input), [input]);
+  const resultSummary =
+    report.valid && report.values ? (
+      <div className="soil-resistance-summary" aria-live="polite">
+        <p>
+          <MathNotation base="R" ariaLabel="R" /> ={" "}
+          {formatSoilDesignResistanceNumber(
+            report.values.soilDesignResistanceKPa,
+            2,
+          )}{" "}
+          кПа ={" "}
+          {formatSoilDesignResistanceNumber(
+            report.values.soilDesignResistanceTonM2,
+            1,
+          )}{" "}
+          т/м² ={" "}
+          {formatSoilDesignResistanceNumber(
+            report.values.soilDesignResistanceKgCm2,
+            1,
+          )}{" "}
+          кг/см²
+        </p>
+      </div>
+    ) : null;
 
   return (
     <div
       className="soil-resistance-calculator"
       aria-label="Калькулятор розрахункового опору ґрунту основи"
     >
-      <div className="soil-resistance-controls">
-        <fieldset className="soil-resistance-group">
+      <div className="soil-resistance-input-shell">
+        <aside className="soil-resistance-input-menu" aria-label="Меню вводу">
+          <p className="soil-resistance-input-menu__label">Ввід</p>
+          <nav className="soil-resistance-input-menu__links" aria-label="Розділи вводу">
+            <a href="#soil-resistance-working">Умови</a>
+            <a href="#soil-resistance-strength">Ґрунт</a>
+            <a href="#soil-resistance-geometry">Геометрія</a>
+            <a href="#soil-resistance-basement">Підвал</a>
+            <a href="#soil-resistance-report-title">Звіт</a>
+          </nav>
+          {resultSummary}
+        </aside>
+
+        <div className="soil-resistance-controls">
+        <fieldset id="soil-resistance-working" className="soil-resistance-group">
           <legend>Умови роботи</legend>
           <SelectField<SoilCalculationMode>
             label="Спосіб розрахунку"
             value={calculationMode}
             onChange={setCalculationMode}
+            wide
           >
             <option value="automatic">Автоматично за характеристиками ґрунту</option>
             <option value="manual-e7">Вручну за табл. Е.7</option>
@@ -370,8 +431,20 @@ export function SoilDesignResistanceCalculator() {
                 <option value="rigid">Жорстка</option>
                 <option value="flexible">Гнучка</option>
               </SelectField>
-              <NumberField label="L, м" value={buildingLengthM} onChange={setBuildingLengthM} min="0" />
-              <NumberField label="H, м" value={buildingHeightM} onChange={setBuildingHeightM} min="0" />
+              <NumberField
+                label="L, м"
+                value={buildingLengthM}
+                onChange={setBuildingLengthM}
+                min="0"
+                description="Довжина споруди або її відсіку для визначення L/H."
+              />
+              <NumberField
+                label="H, м"
+                value={buildingHeightM}
+                onChange={setBuildingHeightM}
+                min="0"
+                description="Висота споруди або її відсіку для визначення L/H."
+              />
               <label className="soil-resistance-field soil-resistance-field--wide">
                 <span>Тип ґрунту</span>
                 <select
@@ -402,7 +475,7 @@ export function SoilDesignResistanceCalculator() {
           )}
         </fieldset>
 
-        <fieldset className="soil-resistance-group">
+        <fieldset id="soil-resistance-strength" className="soil-resistance-group">
           <legend>Характеристики ґрунту</legend>
           <NumberField
             label={<FieldLabel symbol="φ11" unit="°" />}
@@ -432,13 +505,14 @@ export function SoilDesignResistanceCalculator() {
             label="Спосіб визначення φ11 і c11"
             value={strengthSource}
             onChange={setStrengthSource}
+            wide
           >
             <option value="direct-testing">Визначені безпосередніми випробуваннями</option>
             <option value="appendix-b-tables">Прийняті за таблицями В.1-В.2</option>
           </SelectField>
         </fieldset>
 
-        <fieldset className="soil-resistance-group">
+        <fieldset id="soil-resistance-geometry" className="soil-resistance-group">
           <legend>Геометрія фундаменту</legend>
           <NumberField
             label={<FieldLabel symbol="b" unit="м" />}
@@ -454,7 +528,7 @@ export function SoilDesignResistanceCalculator() {
           />
         </fieldset>
 
-        <fieldset className="soil-resistance-group">
+        <fieldset id="soil-resistance-basement" className="soil-resistance-group">
           <legend>Підвал і глибина закладання</legend>
           <label className="soil-resistance-toggle">
             <input
@@ -501,30 +575,8 @@ export function SoilDesignResistanceCalculator() {
             />
           )}
         </fieldset>
-      </div>
-
-      {report.valid && report.values ? (
-        <div className="soil-resistance-summary" aria-live="polite">
-          <p>
-            <MathNotation base="R" ariaLabel="R" /> ={" "}
-            {formatSoilDesignResistanceNumber(
-              report.values.soilDesignResistanceKPa,
-              2,
-            )}{" "}
-            кПа ={" "}
-            {formatSoilDesignResistanceNumber(
-              report.values.soilDesignResistanceTonM2,
-              1,
-            )}{" "}
-            т/м² ={" "}
-            {formatSoilDesignResistanceNumber(
-              report.values.soilDesignResistanceKgCm2,
-              1,
-            )}{" "}
-            кг/см²
-          </p>
         </div>
-      ) : null}
+      </div>
 
       {report.errors.length > 0 ? (
         <div className="soil-resistance-errors" role="alert">
@@ -587,26 +639,50 @@ export function SoilDesignResistanceCalculator() {
           <article id="soil-norm-e4" className="soil-resistance-norm">
             <h4>п. Е.4 ДБН В.2.1-10-2009</h4>
             <p>Основний пункт для визначення розрахункового опору R за додатком Е.</p>
+            <NormScan
+              src="/dbn/soil-design-resistance/dbn-e4-e1.png"
+              alt="Скан п. Е.4 і формули Е.1 з ДБН В.2.1-10-2009"
+            />
           </article>
           <article id="soil-norm-e1" className="soil-resistance-norm">
             <h4>формула (Е.1)</h4>
             <p>Формула визначення розрахункового опору ґрунту основи R.</p>
+            <NormScan
+              src="/dbn/soil-design-resistance/dbn-e4-e1.png"
+              alt="Скан формули Е.1 з ДБН В.2.1-10-2009"
+            />
           </article>
           <article id="soil-norm-e2" className="soil-resistance-norm">
             <h4>формула (Е.2)</h4>
             <p>Формула приведеної глибини закладання d1 для споруди з підвалом.</p>
+            <NormScan
+              src="/dbn/soil-design-resistance/dbn-e2.png"
+              alt="Скан формули Е.2 з ДБН В.2.1-10-2009"
+            />
           </article>
           <article id="soil-norm-table-e7" className="soil-resistance-norm">
             <h4>табл. Е.7</h4>
             <p>Коефіцієнти умов роботи γc1 і γc2 для різних ґрунтів та схем споруд.</p>
+            <NormScan
+              src="/dbn/soil-design-resistance/dbn-table-e7.png"
+              alt="Скан табл. Е.7 з ДБН В.2.1-10-2009"
+            />
           </article>
           <article id="soil-norm-table-e7-note-1" className="soil-resistance-norm">
             <h4>примітка 1 до табл. Е.7</h4>
             <p>Ознака жорсткої конструктивної схеми споруди для прийняття γc2.</p>
+            <NormScan
+              src="/dbn/soil-design-resistance/dbn-table-e7-note-1.png"
+              alt="Скан примітки 1 до табл. Е.7 з ДБН В.2.1-10-2009"
+            />
           </article>
           <article id="soil-norm-table-e8" className="soil-resistance-norm">
             <h4>табл. Е.8</h4>
             <p>Коефіцієнти Mγ, Mq і Mc залежно від φ11.</p>
+            <NormScan
+              src="/dbn/soil-design-resistance/dbn-table-e8.png"
+              alt="Скан табл. Е.8 з ДБН В.2.1-10-2009"
+            />
           </article>
         </div>
       </section>
