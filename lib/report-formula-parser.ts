@@ -105,11 +105,152 @@ function convertSymbols(latex: string): string {
 }
 
 function convertFractions(latex: string): string {
-  return latex.replace(
-    /\(([^()]+)\)\s*\/\s*\(([^()]+)\)/g,
-    (_match, numerator: string, denominator: string) =>
-      `\\frac{${numerator.trim()}}{${denominator.trim()}}`,
-  );
+  let result = latex;
+  let searchStart = 0;
+
+  while (searchStart < result.length) {
+    const slashIndex = findDivisionSlash(result, searchStart);
+    if (slashIndex === -1) break;
+
+    const fraction = getFractionBounds(result, slashIndex);
+    if (!fraction) {
+      searchStart = slashIndex + 1;
+      continue;
+    }
+
+    const numerator = result.slice(fraction.numeratorStart, fraction.numeratorEnd).trim();
+    const denominator = result.slice(fraction.denominatorStart, fraction.denominatorEnd).trim();
+    const replacement = `\\frac{${numerator}}{${denominator}}`;
+
+    result =
+      result.slice(0, fraction.numeratorStart) +
+      replacement +
+      result.slice(fraction.denominatorEnd);
+    searchStart = fraction.numeratorStart + replacement.length;
+  }
+
+  return result;
+}
+
+function findDivisionSlash(value: string, start: number): number {
+  for (let index = start; index < value.length; index += 1) {
+    if (value[index] !== "/") continue;
+
+    const previous = value[index - 1];
+    const next = value[index + 1];
+    if (previous === " " || next === " ") {
+      return index;
+    }
+  }
+
+  return -1;
+}
+
+function getFractionBounds(
+  value: string,
+  slashIndex: number,
+): {
+  numeratorStart: number;
+  numeratorEnd: number;
+  denominatorStart: number;
+  denominatorEnd: number;
+} | null {
+  let numeratorEnd = slashIndex;
+  while (numeratorEnd > 0 && value[numeratorEnd - 1] === " ") numeratorEnd -= 1;
+
+  let denominatorStart = slashIndex + 1;
+  while (denominatorStart < value.length && value[denominatorStart] === " ") denominatorStart += 1;
+
+  const numeratorStart = findNumeratorStart(value, numeratorEnd);
+  const denominatorEnd = findDenominatorEnd(value, denominatorStart);
+
+  if (numeratorStart >= numeratorEnd || denominatorStart >= denominatorEnd) {
+    return null;
+  }
+
+  return {
+    numeratorStart,
+    numeratorEnd,
+    denominatorStart,
+    denominatorEnd,
+  };
+}
+
+function findNumeratorStart(value: string, end: number): number {
+  let parenDepth = 0;
+  let bracketDepth = 0;
+  let braceDepth = 0;
+
+  for (let index = end - 1; index >= 0; index -= 1) {
+    const char = value[index];
+
+    if (char === ")") parenDepth += 1;
+    else if (char === "(") parenDepth -= 1;
+    else if (char === "]") bracketDepth += 1;
+    else if (char === "[") bracketDepth -= 1;
+    else if (char === "}") braceDepth += 1;
+    else if (char === "{") braceDepth -= 1;
+
+    if (
+      parenDepth === 0 &&
+      bracketDepth === 0 &&
+      braceDepth === 0 &&
+      isTopLevelNumeratorBoundary(char)
+    ) {
+      return index + 1;
+    }
+  }
+
+  return 0;
+}
+
+function findDenominatorEnd(value: string, start: number): number {
+  let parenDepth = 0;
+  let bracketDepth = 0;
+  let braceDepth = 0;
+
+  for (let index = start; index < value.length; index += 1) {
+    const char = value[index];
+
+    if (char === "(") parenDepth += 1;
+    else if (char === ")") {
+      if (parenDepth === 0 && bracketDepth === 0 && braceDepth === 0) return index;
+      parenDepth -= 1;
+    } else if (char === "[") bracketDepth += 1;
+    else if (char === "]") {
+      if (parenDepth === 0 && bracketDepth === 0 && braceDepth === 0) return index;
+      bracketDepth -= 1;
+    } else if (char === "{") braceDepth += 1;
+    else if (char === "}") {
+      if (parenDepth === 0 && bracketDepth === 0 && braceDepth === 0) return index;
+      braceDepth -= 1;
+    }
+
+    if (
+      parenDepth === 0 &&
+      bracketDepth === 0 &&
+      braceDepth === 0 &&
+      isTopLevelDenominatorBoundary(char)
+    ) {
+      return trimEndIndex(value, index);
+    }
+  }
+
+  return trimEndIndex(value, value.length);
+}
+
+function trimEndIndex(value: string, end: number): number {
+  let trimmed = end;
+  while (trimmed > 0 && value[trimmed - 1] === " ") trimmed -= 1;
+  return trimmed;
+}
+
+function isTopLevelNumeratorBoundary(char: string): boolean {
+  return char === "=" || char === "+" || char === ";" || char === "<" || char === ">";
+}
+
+function isTopLevelDenominatorBoundary(char: string): boolean {
+  return char === "=" || char === "+" || char === "-" || char === "*" || char === ";" || char === "<" || char === ">";
 }
 
 function convertOperators(latex: string): string {

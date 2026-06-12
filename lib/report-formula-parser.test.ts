@@ -31,7 +31,7 @@ describe("parseReportFormula", () => {
     expect(result.lines).toHaveLength(3);
     expect(result.lines[0].latex).toContain("M_{\\gamma}");
     expect(result.lines[0].latex).toContain(
-      "\\frac{\\varphi_{11} - \\varphi_a}{\\varphi_b - \\varphi_a}",
+      "\\frac{(M_{\\gamma,b} - M_{\\gamma,a}) \\cdot (\\varphi_{11} - \\varphi_a)}{(\\varphi_b - \\varphi_a)}",
     );
     expect(result.lines[1].latex).toContain("M_q");
     expect(result.lines[2].latex).toContain("M_c");
@@ -47,9 +47,23 @@ describe("parseReportFormula", () => {
     if (!result.ok) throw new Error(result.reason);
     expect(result.lines[0].latex).toContain("R");
     expect(result.lines[0].latex).toContain("\\gamma_{c1}");
+    expect(result.lines[0].latex).toContain("\\frac{\\gamma_{c1} \\cdot \\gamma_{c2}}{k}");
     expect(result.lines[0].latex).toContain("\\left[");
     expect(result.lines[0].latex).toContain("\\right]");
     expect(result.lines[0].latex).toContain("\\text{кПа}");
+  });
+
+  it("renders inline division as vertical fractions with numerator and denominator terms", () => {
+    const result = parseReportFormula(
+      "d1 = hs + hcf * γcf / γ′11 = 1.2 + 2.4 * 17 / 18 = 3.47 м",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines[0].latex).toContain(
+      "d_1 = h_s +\\frac{h_{cf} \\cdot \\gamma_{cf}}{\\gamma'_{11}}",
+    );
+    expect(result.lines[0].latex).toContain("1.2 +\\frac{2.4 \\cdot 17}{18}");
   });
 
   it("renders squared units without leaving unicode superscripts in math mode", () => {

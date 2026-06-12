@@ -3,22 +3,17 @@
 > next dev
 
    ▲ Next.js 15.5.15
-   - Local:        http://localhost:3002
-   - Network:      http://192.168.1.19:3002
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.19:3000
 
  ✓ Starting...
- ✓ Ready in 9.7s
- ○ Compiling / ...
- ✓ Compiled / in 17.6s (923 modules)
+ ✓ Ready in 6.7s
  ○ Compiling /calculator/[slug] ...
- ✓ Compiled /calculator/[slug] in 1012ms (846 modules)
- HEAD /calculator/soil-design-resistance 200 in 3299ms
- GET /calculator/soil-design-resistance 200 in 1226ms
- GET / 200 in 834ms
- GET / 200 in 265ms
- GET /calculator/soil-design-resistance 200 in 957ms
- GET / 200 in 351ms
- GET /calculator/soil-design-resistance 200 in 651ms
- GET / 200 in 1350ms
- GET / 200 in 1440ms
- GET /calculator/soil-design-resistance 200 in 86ms
+ ✓ Compiled /calculator/[slug] in 10.7s (932 modules)
+ GET /calculator/soil-design-resistance 200 in 236ms
+ ✓ Compiled / in 374ms (846 modules)
+ HEAD / 200 in 707ms
+ GET / 200 in 392ms
+ GET / 200 in 394ms
+ GET /calculator/soil-design-resistance 200 in 688ms
+ GET /calculator/soil-design-resistance 200 in 39ms
