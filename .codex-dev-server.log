@@ -9,30 +9,12 @@
  ✓ Starting...
  ✓ Ready in 2.2s
  ○ Compiling /calculator/[slug] ...
- ✓ Compiled /calculator/[slug] in 4.8s (848 modules)
- GET /calculator/soil-design-resistance 200 in 5093ms
- GET /calculator/soil-design-resistance 200 in 1472ms
- GET /calculator/soil-design-resistance 200 in 151ms
- GET /calculator/soil-design-resistance 200 in 338ms
- GET /calculator/soil-design-resistance 200 in 378ms
- GET /calculator/soil-design-resistance 200 in 427ms
-
-> construction-calculators-hub@0.1.0 dev
-> next dev
-
-   ▲ Next.js 15.5.15
-   - Local:        http://localhost:3000
-   - Network:      http://192.168.1.19:3000
-
- ✓ Starting...
- ✓ Ready in 7.1s
- ○ Compiling / ...
- ✓ Compiled / in 11.1s (841 modules)
- GET / 200 in 105ms
- GET / 200 in 260ms
- GET / 200 in 328ms
- ✓ Compiled /calculator/[slug] in 413ms (852 modules)
- GET /calculator/soil-design-resistance 200 in 1250ms
- GET /calculator/soil-design-resistance 200 in 356ms
- GET / 200 in 40ms
- GET /calculator/cassoon-load-distribution 200 in 27ms
+ ✓ Compiled /calculator/[slug] in 4.8s (856 modules)
+ GET /calculator/soil-design-resistance 200 in 6190ms
+ GET /calculator/soil-design-resistance 200 in 225ms
+ GET /calculator/soil-design-resistance 200 in 200ms
+ ✓ Compiled in 332ms (856 modules)
+ ✓ Compiled in 191ms (856 modules)
+ ✓ Compiled in 225ms (856 modules)
+ GET /calculator/soil-design-resistance 200 in 406ms
+ GET /calculator/soil-design-resistance 200 in 72ms
