@@ -609,14 +609,17 @@ function ReportStepFormulas({ step }: { step: SoilDesignResistanceReportStep }) 
 
 function NormScan({ alt, src }: { alt: string; src: string }) {
   return (
-    <figure className="soil-resistance-norm__scan">
-      <img
-        src={src}
-        alt={alt}
-        loading="lazy"
-        decoding="async"
-      />
-    </figure>
+    <details className="soil-resistance-norm__scan">
+      <summary>Скан фрагмента ДБН</summary>
+      <figure>
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+        />
+      </figure>
+    </details>
   );
 }
 
@@ -812,19 +815,19 @@ export function SoilDesignResistanceCalculator() {
             onValuesChange={setInputValues}
           />
         </div>
-      </div>
 
-      <section className="soil-resistance-diagrams" aria-labelledby="soil-resistance-diagrams-title">
-        <div className="soil-resistance-report__head">
-          <h3 id="soil-resistance-diagrams-title">Позначення величин</h3>
-        </div>
-        <SoilFoundationDiagram
-          input={input}
-          soilDesignResistanceKPa={
-            report.valid && report.values ? report.values.soilDesignResistanceKPa : undefined
-          }
-        />
-      </section>
+        <section className="soil-resistance-diagrams" aria-labelledby="soil-resistance-diagrams-title">
+          <div className="soil-resistance-report__head">
+            <h3 id="soil-resistance-diagrams-title">Позначення величин</h3>
+          </div>
+          <SoilFoundationDiagram
+            input={input}
+            soilDesignResistanceKPa={
+              report.valid && report.values ? report.values.soilDesignResistanceKPa : undefined
+            }
+          />
+        </section>
+      </div>
 
       {report.errors.length > 0 ? (
         <div className="soil-resistance-errors" role="alert">

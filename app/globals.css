@@ -1607,7 +1607,7 @@ textarea {
 
 .input-schema-form {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .input-schema-group {
@@ -1623,15 +1623,15 @@ textarea {
 
 .input-schema-group legend {
   width: 100%;
-  padding: 8px 12px;
+  padding: 7px 10px;
   border-bottom: 1px solid var(--border);
-  background: var(--surface-2);
+  background: color-mix(in srgb, var(--surface-2) 82%, var(--bg));
   color: var(--text);
   font-family: var(--font-display), sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.86rem;
+  font-weight: 800;
   letter-spacing: 0;
-  text-align: center;
+  text-align: left;
 }
 
 .input-schema-group__rows {
@@ -1640,9 +1640,9 @@ textarea {
 
 .input-schema-field {
   display: grid;
-  grid-template-columns: 2.25rem 4rem minmax(10rem, 0.9fr) minmax(12rem, 1fr) 5.5rem;
+  grid-template-columns: 1.9rem 3.5rem minmax(8.5rem, 0.85fr) minmax(9rem, 1fr) 4.85rem;
   align-items: stretch;
-  min-height: 38px;
+  min-height: 34px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -1661,7 +1661,7 @@ textarea {
   display: flex;
   align-items: center;
   min-width: 0;
-  padding: 4px 8px;
+  padding: 3px 7px;
 }
 
 .input-schema-field__actions,
@@ -1672,14 +1672,14 @@ textarea {
 
 .input-schema-field__actions {
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
 }
 
 .input-schema-field__prefix {
   justify-content: center;
   color: var(--text);
   font-family: var(--font-mono), monospace;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -1689,15 +1689,16 @@ textarea {
 
 .input-schema-field__name {
   color: var(--text);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
+  line-height: 1.25;
 }
 
 .input-schema-field__control {
   grid-column: 4 / 6;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 5.5rem;
-  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) 4.85rem;
+  gap: 5px;
 }
 
 .input-schema-field__control > select:not(.input-schema-field__unit),
@@ -1710,22 +1711,22 @@ textarea {
 .input-schema-field input[type="text"],
 .input-schema-field select {
   min-width: 0;
-  height: 30px;
+  height: 28px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--bg);
   color: var(--text);
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .input-schema-field input[type="text"] {
   width: 100%;
-  padding: 0 9px;
+  padding: 0 8px;
   text-align: right;
 }
 
 .input-schema-field select {
-  padding: 0 26px 0 9px;
+  padding: 0 22px 0 8px;
 }
 
 .input-schema-field__unit {
@@ -1743,46 +1744,46 @@ textarea {
 .input-schema-field__radio {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 30px;
+  gap: 7px;
+  min-height: 28px;
   color: var(--text);
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .input-schema-field__checkbox input,
 .input-schema-field__radio input {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   accent-color: var(--accent);
 }
 
 .input-schema-field__radio-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 16px;
+  gap: 7px 12px;
 }
 
 .input-schema-field output {
   display: inline-flex;
   align-items: center;
-  min-height: 30px;
+  min-height: 28px;
   color: var(--text);
   font-family: var(--font-mono), monospace;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .input-schema-field__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 17px;
+  height: 17px;
   border: 1px solid var(--border-strong);
   border-radius: 999px;
   background: var(--bg);
   color: var(--text-muted);
   font-family: var(--font-mono), monospace;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1;
 }
@@ -1802,9 +1803,9 @@ textarea {
   grid-column: 3 / 6;
   display: grid;
   gap: 6px;
-  padding: 0 10px 8px;
+  padding: 0 9px 7px;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -2813,22 +2814,24 @@ textarea {
 
 .soil-resistance-input-shell {
   display: grid;
-  grid-template-columns: minmax(160px, 190px) minmax(0, 1fr);
+  grid-template-areas: "menu controls diagram";
+  grid-template-columns: minmax(132px, 158px) minmax(470px, 1fr) minmax(340px, 420px);
   gap: 12px;
   align-items: start;
 }
 
 .soil-resistance-input-menu {
+  grid-area: menu;
   position: sticky;
   top: 68px;
   display: grid;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
   border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
   border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--accent) 4%, var(--bg));
   box-shadow: var(--shadow-sm);
-  padding: 10px;
+  padding: 9px;
 }
 
 .soil-resistance-input-menu__label {
@@ -2843,7 +2846,7 @@ textarea {
 
 .soil-resistance-input-menu__links {
   display: grid;
-  gap: 6px;
+  gap: 5px;
 }
 
 .soil-resistance-input-menu__links a {
@@ -2851,10 +2854,10 @@ textarea {
   border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   line-height: 1.25;
-  padding: 8px 9px;
+  padding: 7px 8px;
   text-decoration: none;
   transition:
     background-color 160ms ease,
@@ -2870,20 +2873,56 @@ textarea {
 }
 
 .soil-resistance-controls {
+  grid-area: controls;
   display: grid;
   gap: 12px;
   min-width: 0;
   counter-reset: soil-input-section;
 }
 
+.soil-resistance-controls .input-schema-field {
+  grid-template-columns: 1.65rem 3rem minmax(6.7rem, 0.8fr) minmax(7.5rem, 1fr) 4.4rem;
+}
+
+.soil-resistance-controls .input-schema-field__actions,
+.soil-resistance-controls .input-schema-field__prefix,
+.soil-resistance-controls .input-schema-field__name,
+.soil-resistance-controls .input-schema-field__control {
+  padding-inline: 5px;
+}
+
+.soil-resistance-controls .input-schema-field__name {
+  font-size: 11.5px;
+}
+
+.soil-resistance-controls .input-schema-field input[type="text"],
+.soil-resistance-controls .input-schema-field select,
+.soil-resistance-controls .input-schema-field output {
+  font-size: 11.5px;
+}
+
+.soil-resistance-controls .input-schema-field__control {
+  grid-template-columns: minmax(0, 1fr) 4.4rem;
+  gap: 4px;
+}
+
 .soil-resistance-diagrams {
+  grid-area: diagram;
+  position: sticky;
+  top: 68px;
   display: grid;
-  gap: 1rem;
+  gap: 10px;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent) 3%, var(--bg));
+  box-shadow: var(--shadow-sm);
+  padding: 10px;
 }
 
 .soil-resistance-diagram {
   display: grid;
-  gap: 0.75rem;
+  gap: 8px;
   margin: 0;
 }
 
@@ -2891,19 +2930,19 @@ textarea {
   overflow-x: auto;
   border-radius: var(--radius-sm);
   background: var(--surface-2);
-  padding: 1rem;
+  padding: 8px;
 }
 
 .soil-resistance-diagram__svg {
   display: block;
-  width: min(100%, 900px);
+  width: 100%;
   height: auto;
 }
 
 .soil-resistance-diagram figcaption {
   color: var(--text-subtle);
-  font-size: 0.92rem;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .soil-resistance-group {
@@ -3033,9 +3072,9 @@ textarea {
 .soil-resistance-warning,
 .soil-resistance-errors {
   border-radius: var(--radius-sm);
-  font-size: 13px;
-  line-height: 1.55;
-  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 9px 10px;
 }
 
 .soil-resistance-summary {
@@ -3084,7 +3123,7 @@ textarea {
 .soil-resistance-report__head h3 {
   margin: 0;
   color: var(--text);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.3;
 }
 
@@ -3225,12 +3264,62 @@ textarea {
 }
 
 .soil-resistance-norm__scan {
-  margin: 0;
   max-width: 100%;
-  overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface);
+  overflow: hidden;
+}
+
+.soil-resistance-norm__scan summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 34px;
+  padding: 7px 10px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.3;
+  cursor: pointer;
+  user-select: none;
+}
+
+.soil-resistance-norm__scan summary::-webkit-details-marker {
+  display: none;
+}
+
+.soil-resistance-norm__scan summary::marker {
+  content: "";
+}
+
+.soil-resistance-norm__scan summary::after {
+  content: "+";
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-subtle);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.soil-resistance-norm__scan[open] summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.soil-resistance-norm__scan[open] summary::after {
+  content: "-";
+}
+
+.soil-resistance-norm__scan figure {
+  margin: 0;
+  overflow-x: auto;
   padding: 6px;
 }
 
@@ -3241,9 +3330,12 @@ textarea {
   height: auto;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1180px) {
   .soil-resistance-input-shell {
-    grid-template-columns: 1fr;
+    grid-template-areas:
+      "menu menu"
+      "controls diagram";
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 260px);
   }
 
   .soil-resistance-input-menu {
@@ -3257,15 +3349,29 @@ textarea {
   .soil-resistance-input-menu__links a {
     text-align: center;
   }
+
+  .soil-resistance-diagrams {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .soil-resistance-input-shell {
+    grid-template-areas:
+      "menu"
+      "controls"
+      "diagram";
+    grid-template-columns: 1fr;
+  }
+
+  .soil-resistance-input-menu__links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 620px) {
   .soil-resistance-calculator {
     padding: 12px;
-  }
-
-  .soil-resistance-input-menu__links {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .soil-resistance-group {
