@@ -335,9 +335,8 @@ describe("InputSchemaForm", () => {
               kind: "number",
               name: "Глибина",
               defaultValue: "1.2",
-              quantity: "unitWeight",
-              baseUnit: "kn-m3",
-              defaultDisplayUnit: "kn-m3",
+              defaultDisplayUnit: "m",
+              displayUnits: [{ value: "m", label: "м", factorToBase: 1 }],
             },
           ],
         },
@@ -356,7 +355,7 @@ describe("InputSchemaForm", () => {
 
     expect(unitSelect).toBeDisabled();
     expect(unitSelect).toHaveAttribute("aria-readonly", "true");
-    expect(unitSelect).toHaveValue("kn-m3");
+    expect(unitSelect).toHaveValue("m");
   });
 
   it("renders coefficient quantities without a unit combobox", () => {

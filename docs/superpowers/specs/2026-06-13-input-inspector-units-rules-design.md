@@ -62,8 +62,8 @@ The initial registry contract is:
 | `linearLoad` | `kn-m` | `kn-m`: 1; `n-mm`: 1 |
 | `surfaceLoad` | `kn-m2` | `kn-m2`: 1; `kpa`: 1; `n-m2`: 0.001; `kgf-m2`: 0.00980665; `tf-m2`: 9.80665 |
 | `pressure` | `kpa` | `kpa`: 1; `mpa`: 1000; `kgf-cm2`: 98.0665; `tf-m2`: 9.80665 |
-| `unitWeight` | `kn-m3` | `kn-m3`: 1 |
-| `angle` | `deg` | `deg`: 1 |
+| `unitWeight` | `kn-m3` | `kn-m3`: 1; `n-m3`: 0.001; `kgf-m3`: 0.00980665; `tf-m3`: 9.80665 |
+| `angle` | `deg` | `deg`: 1; `rad`: 180 / π |
 | `coefficient` | none | no display units; no unit combobox |
 
 `linearLoad` uses mechanically equivalent force-per-length units. `1 Н/мм = 1 кН/м`, therefore `n-mm` has `factorToBase: 1`.

@@ -831,6 +831,70 @@ describe("CalculatorShell", () => {
     ).toBeInTheDocument();
   });
 
+  it("unlocks soil design resistance unit selectors and keeps formulas in base units", async () => {
+    const user = userEvent.setup();
+    const calculator = getCalculatorBySlug("soil-design-resistance");
+
+    if (!calculator) {
+      throw new Error("Expected native soil design resistance calculator to exist");
+    }
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    const phiUnitSelect = screen.getByRole("combobox", {
+      name: "Одиниця Кут внутрішнього тертя",
+    });
+    const gammaUnitSelect = screen.getByRole("combobox", {
+      name: "Одиниця Питома вага ґрунту нижче підошви",
+    });
+    const gammaPrimeUnitSelect = screen.getByRole("combobox", {
+      name: "Одиниця Осереднена питома вага вище підошви",
+    });
+
+    expect(phiUnitSelect).toBeEnabled();
+    expect(within(phiUnitSelect).getByRole("option", { name: "°" })).toHaveValue("deg");
+    expect(within(phiUnitSelect).getByRole("option", { name: "рад" })).toHaveValue("rad");
+    expect(gammaUnitSelect).toBeEnabled();
+    expect(gammaPrimeUnitSelect).toBeEnabled();
+    expect(within(gammaUnitSelect).getByRole("option", { name: "кН/м³" })).toHaveValue(
+      "kn-m3",
+    );
+    expect(within(gammaUnitSelect).getByRole("option", { name: "Н/м³" })).toHaveValue(
+      "n-m3",
+    );
+    expect(within(gammaUnitSelect).getByRole("option", { name: "кгс/м³" })).toHaveValue(
+      "kgf-m3",
+    );
+    expect(within(gammaUnitSelect).getByRole("option", { name: "тс/м³" })).toHaveValue(
+      "tf-m3",
+    );
+
+    await user.selectOptions(phiUnitSelect, "rad");
+    await user.selectOptions(gammaUnitSelect, "n-m3");
+
+    expect(screen.getByRole("textbox", { name: "Кут внутрішнього тертя" })).toHaveValue(
+      "0.523598775598",
+    );
+    expect(
+      screen.getByRole("textbox", { name: "Питома вага ґрунту нижче підошви" }),
+    ).toHaveValue("17100");
+    expect(
+      screen.getByLabelText(
+        "R = γc1 * γc2 / k * [Mγ * kz * b * γ11 + Mq * d1 * γ′11 + (Mq - 1) * db * γ′11 + Mc * c11] = 1 * 1 / 1 * [1.15 * 1 * 1 * 17.1 + 5.59 * 1.2 * 16.6 + (5.59 - 1) * 0 * 16.6 + 7.95 * 4] = 162.82 кПа",
+      ),
+    ).toBeInTheDocument();
+
+    await user.clear(screen.getByRole("textbox", { name: "Питома вага ґрунту нижче підошви" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "Питома вага ґрунту нижче підошви" }),
+      "18000",
+    );
+
+    expect(
+      screen.getByLabelText((label) => label.includes("1.15 * 1 * 1 * 18")),
+    ).toBeInTheDocument();
+  });
+
   it("renders the native cassoon load distribution calculator with a step report", async () => {
     const user = userEvent.setup();
     const calculator = getCalculatorBySlug("cassoon-load-distribution");

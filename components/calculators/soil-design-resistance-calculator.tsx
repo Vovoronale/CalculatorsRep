@@ -19,6 +19,11 @@ import {
   type CalculatorInputSchema,
   type CalculatorInputValues,
 } from "@/lib/calculator-input-schema";
+import {
+  buildScene,
+  createDefaultRegistry,
+  type SceneDefinition,
+} from "@/lib/vendor/svgparametric";
 
 import { InputSchemaForm } from "./input-schema-form";
 import { MathNotation } from "./math-notation";
@@ -365,6 +370,192 @@ function parseNumberInput(value: string): number {
   return Number.parseFloat(value.replace(",", "."));
 }
 
+const SVG_PARAMETRIC_REGISTRY = createDefaultRegistry();
+const SOIL_DIAGRAM_METER_SCALE = 120;
+const SOIL_DIAGRAM_MIN_WIDTH = 260;
+const SOIL_DIAGRAM_MAX_WIDTH = 430;
+const SOIL_DIAGRAM_MIN_DEPTH = 110;
+const SOIL_DIAGRAM_MAX_DEPTH = 230;
+
+function sanitizeDiagramValue(value: number, fallback: number): number {
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function clampDiagramValue(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function scaledLengthMeters(
+  value: number,
+  fallbackMeters: number,
+  min: number,
+  max: number,
+): number {
+  const safeValue = sanitizeDiagramValue(value, fallbackMeters);
+  return clampDiagramValue(safeValue * SOIL_DIAGRAM_METER_SCALE, min, max);
+}
+
+function displayDiagramValue(value: number, fallback: number, allowZero = false): number {
+  if (!Number.isFinite(value)) return fallback;
+  return allowZero ? Math.max(0, value) : value > 0 ? value : fallback;
+}
+
+function dimensionScale(displayValue: number, drawingValue: number): number {
+  return drawingValue > 0 ? displayValue / drawingValue : 1;
+}
+
+function escapeSvgAttribute(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;");
+}
+
+function getSoilFoundationScene({
+  hasBasement,
+  foundationWidthM,
+  embedmentDepthD1M,
+  basementDepthInputM,
+  soilLayerAboveFootingHsM,
+  basementFloorThicknessHcfM,
+  soilDesignResistanceKPa,
+}: {
+  hasBasement: boolean;
+  foundationWidthM: number;
+  embedmentDepthD1M: number;
+  basementDepthInputM: number;
+  soilLayerAboveFootingHsM: number;
+  basementFloorThicknessHcfM: number;
+  soilDesignResistanceKPa?: number;
+}): SceneDefinition {
+  const foundationWidthDisplayM = displayDiagramValue(foundationWidthM, 1);
+  const noBasementDepthDisplayM = displayDiagramValue(embedmentDepthD1M, 1.2);
+  const basementDepthDisplayM = displayDiagramValue(basementDepthInputM, 1.2, true);
+  const floorThicknessDisplayM = displayDiagramValue(
+    basementFloorThicknessHcfM,
+    0.2,
+    true,
+  );
+  const baseHeightDisplayM = displayDiagramValue(
+    soilLayerAboveFootingHsM,
+    0.4,
+    true,
+  );
+  const width = scaledLengthMeters(
+    foundationWidthDisplayM,
+    1,
+    SOIL_DIAGRAM_MIN_WIDTH,
+    SOIL_DIAGRAM_MAX_WIDTH,
+  );
+  const noBasementDepth = scaledLengthMeters(
+    noBasementDepthDisplayM,
+    1.2,
+    SOIL_DIAGRAM_MIN_DEPTH,
+    SOIL_DIAGRAM_MAX_DEPTH,
+  );
+  const basementDepth = scaledLengthMeters(
+    basementDepthDisplayM > 0 ? basementDepthDisplayM : 1.2,
+    1.2,
+    95,
+    190,
+  );
+  const floorThickness = scaledLengthMeters(
+    floorThicknessDisplayM > 0 ? floorThicknessDisplayM : 0.2,
+    0.2,
+    18,
+    36,
+  );
+  const baseHeight = scaledLengthMeters(
+    baseHeightDisplayM > 0 ? baseHeightDisplayM : 0.4,
+    0.4,
+    36,
+    70,
+  );
+  const hasResult =
+    typeof soilDesignResistanceKPa === "number" &&
+    Number.isFinite(soilDesignResistanceKPa) &&
+    soilDesignResistanceKPa > 0;
+  const loadValue = hasResult
+    ? formatSoilDesignResistanceNumber(soilDesignResistanceKPa, 1)
+    : "R";
+
+  if (hasBasement) {
+    return {
+      scene: { width: 900, height: 620, mode: "detailed" },
+      objects: {
+        foundation: {
+          type: "BasementFoundation",
+          params: {
+            x: 135,
+            y: 190,
+            width,
+            depth: basementDepth + floorThickness + baseHeight,
+            baseHeight,
+            stemWidth: Math.max(74, width * 0.26),
+            basementWidth: 270,
+            floorTopDepth: basementDepth,
+            floorThickness,
+            slabThickness: 24,
+            upperWallWidth: 84,
+            loadValue,
+            loadPrefix: hasResult ? "R=" : "",
+            loadSuffix: hasResult ? " кПа" : "",
+            widthDimensionScale: dimensionScale(foundationWidthDisplayM, width),
+            baseHeightDimensionScale: dimensionScale(baseHeightDisplayM, baseHeight),
+            floorTopDepthDimensionScale: dimensionScale(
+              basementDepthDisplayM,
+              basementDepth,
+            ),
+            floorThicknessDimensionScale: dimensionScale(
+              floorThicknessDisplayM,
+              floorThickness,
+            ),
+            dimensionSuffix: " м",
+            color: "#111827",
+            strokeWidth: 1.4,
+            fill: "#e6e6e6",
+            slabFill: "#eef7e8",
+            slabColor: "#5f8f43",
+            upperWallColor: "#d56a00",
+            loadFill: "#f3cccc",
+            loadColor: "#b54a4a",
+          },
+        },
+      },
+    };
+  }
+
+  return {
+    scene: { width: 720, height: 430, mode: "detailed" },
+    objects: {
+      foundation: {
+        type: "LoadedFoundation",
+        params: {
+          x: 160,
+          y: 90,
+          width,
+          depth: noBasementDepth,
+          loadValue,
+          loadPrefix: hasResult ? "R=" : "",
+          loadSuffix: hasResult ? " кПа" : "",
+          widthDimensionScale: dimensionScale(foundationWidthDisplayM, width),
+          depthDimensionScale: dimensionScale(
+            noBasementDepthDisplayM,
+            noBasementDepth,
+          ),
+          dimensionSuffix: " м",
+          color: "#111827",
+          strokeWidth: 1.4,
+          fill: "#e6e6e6",
+          loadFill: "#f3cccc",
+          loadColor: "#b54a4a",
+        },
+      },
+    },
+  };
+}
+
 function RichText({ text }: { text: string }) {
   const linkPattern = new RegExp(
     NORM_LINKS.map((link) => link.text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
@@ -425,6 +616,61 @@ function NormScan({ alt, src }: { alt: string; src: string }) {
         loading="lazy"
         decoding="async"
       />
+    </figure>
+  );
+}
+
+function SoilFoundationDiagram({
+  input,
+  soilDesignResistanceKPa,
+}: {
+  input: SoilDesignResistanceInput;
+  soilDesignResistanceKPa?: number;
+}) {
+  const title = input.hasBasement
+    ? `Схема фундаменту з підвалом: b ${formatSoilDesignResistanceNumber(
+        input.foundationWidthM,
+        2,
+      )} м, db,input ${formatSoilDesignResistanceNumber(
+        input.basementDepthInputM,
+        2,
+      )} м, hcf ${formatSoilDesignResistanceNumber(
+        input.basementFloorThicknessHcfM,
+        2,
+      )} м`
+    : `Схема фундаменту без підвалу: b ${formatSoilDesignResistanceNumber(
+        input.foundationWidthM,
+        2,
+      )} м, d1 ${formatSoilDesignResistanceNumber(input.embedmentDepthD1M, 2)} м`;
+  const svg = buildScene(
+    getSoilFoundationScene({
+      hasBasement: input.hasBasement,
+      foundationWidthM: input.foundationWidthM,
+      embedmentDepthD1M: input.embedmentDepthD1M,
+      basementDepthInputM: input.basementDepthInputM,
+      soilLayerAboveFootingHsM: input.soilLayerAboveFootingHsM,
+      basementFloorThicknessHcfM: input.basementFloorThicknessHcfM,
+      soilDesignResistanceKPa,
+    }),
+    SVG_PARAMETRIC_REGISTRY,
+  ).svg.replace(
+    "<svg ",
+    `<svg role="img" aria-label="${escapeSvgAttribute(
+      title,
+    )}" class="soil-resistance-diagram__svg" `,
+  );
+
+  return (
+    <figure className="soil-resistance-diagram">
+      <div
+        className="soil-resistance-diagram__canvas"
+        dangerouslySetInnerHTML={{ __html: svg }}
+      />
+      <figcaption>
+        {input.hasBasement
+          ? "Параметрична схема фундаменту з підвалом для геометричних величин формул (Е.1) і (Е.2)."
+          : "Параметрична схема фундаменту без підвалу для геометричних величин формули (Е.1)."}
+      </figcaption>
     </figure>
   );
 }
@@ -567,6 +813,18 @@ export function SoilDesignResistanceCalculator() {
           />
         </div>
       </div>
+
+      <section className="soil-resistance-diagrams" aria-labelledby="soil-resistance-diagrams-title">
+        <div className="soil-resistance-report__head">
+          <h3 id="soil-resistance-diagrams-title">Позначення величин</h3>
+        </div>
+        <SoilFoundationDiagram
+          input={input}
+          soilDesignResistanceKPa={
+            report.valid && report.values ? report.values.soilDesignResistanceKPa : undefined
+          }
+        />
+      </section>
 
       {report.errors.length > 0 ? (
         <div className="soil-resistance-errors" role="alert">

@@ -80,11 +80,19 @@ export const CALCULATOR_UNIT_REGISTRY: Record<
   },
   unitWeight: {
     baseUnit: "kn-m3",
-    units: [{ value: "kn-m3", label: "кН/м³", factorToBase: 1 }],
+    units: [
+      { value: "kn-m3", label: "кН/м³", factorToBase: 1 },
+      { value: "n-m3", label: "Н/м³", factorToBase: 0.001 },
+      { value: "kgf-m3", label: "кгс/м³", factorToBase: 0.00980665 },
+      { value: "tf-m3", label: "тс/м³", factorToBase: 9.80665 },
+    ],
   },
   angle: {
     baseUnit: "deg",
-    units: [{ value: "deg", label: "°", factorToBase: 1 }],
+    units: [
+      { value: "deg", label: "°", factorToBase: 1 },
+      { value: "rad", label: "рад", factorToBase: 180 / Math.PI },
+    ],
   },
   coefficient: {
     units: [],

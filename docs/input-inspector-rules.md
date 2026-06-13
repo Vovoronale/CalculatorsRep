@@ -57,8 +57,11 @@ Unit ids are ASCII and hyphenated. Denominator-style ids use the suffix after th
 - `kn-m2` means `kN/m²`
 - `kn-m3` means `kN/m³`
 - `kgf-cm2` means `kgf/cm²`
+- `kgf-m3` means `kgf/m³`
 - `tf-m2` means `tf/m²`
+- `tf-m3` means `tf/m³`
 - `n-mm` means `N/mm`
+- `rad` means radians
 
 Use `kgf` and `tf` in ids for force-based engineering units. Do not use `kg` or `ton` ids when the value means kilogram-force or tonne-force.
 

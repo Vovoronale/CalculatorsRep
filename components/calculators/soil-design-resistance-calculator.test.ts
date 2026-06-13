@@ -1,8 +1,18 @@
+import { afterEach } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 
 import type { CalculatorInputField } from "@/lib/calculator-input-schema";
 
-import { SOIL_INPUT_SCHEMA } from "./soil-design-resistance-calculator";
+import {
+  SOIL_INPUT_SCHEMA,
+  SoilDesignResistanceCalculator,
+} from "./soil-design-resistance-calculator";
+
+afterEach(() => {
+  cleanup();
+});
 
 function findSchemaField(id: string): CalculatorInputField {
   for (const group of SOIL_INPUT_SCHEMA.groups) {
@@ -59,5 +69,34 @@ describe("SOIL_INPUT_SCHEMA", () => {
     expectTextDescription(findSchemaField("liquidityIndex"), /глинист/);
     expectTextDescription(findSchemaField("phi11Deg"), /табл\. Е\.8/);
     expectTextDescription(findSchemaField("strengthSource"), /п\. Е\.4/);
+  });
+});
+
+describe("SoilDesignResistanceCalculator diagrams", () => {
+  it("renders the no-basement foundation diagram by default", () => {
+    const { container } = render(createElement(SoilDesignResistanceCalculator));
+    const diagram = container.querySelector(
+      "svg[role='img'][aria-label*='Схема фундаменту без підвалу']",
+    );
+
+    expect(diagram).not.toBeNull();
+    expect(diagram?.textContent).toContain("b=1 м");
+    expect(diagram?.textContent).toContain("d1=1.2 м");
+    expect(diagram?.textContent).toContain("R=162.8 кПа");
+    expect(screen.getByText("Позначення величин")).toBeInTheDocument();
+  });
+
+  it("renders the basement foundation diagram after enabling basement mode", () => {
+    const { container } = render(createElement(SoilDesignResistanceCalculator));
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /є підвал/i }));
+    const diagram = container.querySelector(
+      "svg[role='img'][aria-label*='Схема фундаменту з підвалом']",
+    );
+
+    expect(diagram).not.toBeNull();
+    expect(diagram?.textContent).toContain("b=1 м");
+    expect(diagram?.textContent).toContain("dB=0 м");
+    expect(diagram?.textContent).toContain("h_cf=0.2 м");
   });
 });

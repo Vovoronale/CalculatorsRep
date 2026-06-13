@@ -29,9 +29,13 @@ export class Dimension extends BaseAnnotation {
     const textOffset = numberParam(this.params, "textOffset", 6);
     const tickSize = numberParam(this.params, "tickSize", 10);
     const fontSize = numberParam(this.params, "fontSize", 14);
+    const textWidthFactor = numberParam(this.params, "textWidthFactor", 0.7);
+    const textPadding = numberParam(this.params, "textPadding", 2);
+    const outsideTextOffset = numberParam(this.params, "outsideTextOffset", fontSize * 2 + 2);
     const fontFamily = stringParam(this.params, "fontFamily", "ISOCPEUR, ISOCP, 'Arial Narrow', Arial, sans-serif");
     const prefix = stringParam(this.params, "prefix", "");
     const suffix = stringParam(this.params, "suffix", "");
+    const labelPlacement = stringParam(this.params, "labelPlacement", "auto");
     const dx = x2 - x1;
     const dy = y2 - y1;
     const length = Math.hypot(dx, dy);
@@ -56,12 +60,23 @@ export class Dimension extends BaseAnnotation {
     const dimensionLineEnd = point(dimensionEnd.x + direction.x * extensionOverrun, dimensionEnd.y + direction.y * extensionOverrun);
     const mid = point((dimensionStart.x + dimensionEnd.x) / 2, (dimensionStart.y + dimensionEnd.y) / 2);
     const vertical = Math.abs(dx) < 0.000001 && Math.abs(dy) > 0.000001;
-    const labelPoint = vertical
-      ? point(mid.x - textOffset, mid.y)
-      : point(mid.x - normal.x * textOffset, mid.y - normal.y * textOffset);
     const lineAngle = roundSvg(Math.atan2(direction.y, direction.x) * (180 / Math.PI));
     const angle = vertical ? -90 : lineAngle;
     const label = `${prefix}${formatDimensionValue(length * scale)}${suffix}`;
+    const labelWidth = estimateTextWidth(label, fontSize, textWidthFactor);
+    const labelFits = labelWidth <= Math.max(0, length - textPadding * 2);
+    const shouldMoveLabel = !labelFits || labelPlacement === "outside" || labelPlacement === "end";
+    const outsideDirection = offset === 0
+      ? { x: -normal.x, y: -normal.y }
+      : { x: normal.x * Math.sign(offset), y: normal.y * Math.sign(offset) };
+    const endLabelPoint = point(dimensionEnd.x + direction.x * outsideTextOffset, dimensionEnd.y + direction.y * outsideTextOffset);
+    const labelPoint = labelPlacement === "end"
+      ? endLabelPoint
+      : shouldMoveLabel
+      ? point(mid.x + outsideDirection.x * outsideTextOffset, mid.y + outsideDirection.y * outsideTextOffset)
+      : vertical
+        ? point(mid.x - textOffset, mid.y)
+        : point(mid.x - normal.x * textOffset, mid.y - normal.y * textOffset);
     const attrs = lineVisualAttrs(this.params, { color: "black", strokeWidth: 0.6 });
     const tickDirection = normalize({ x: direction.x + normal.x, y: direction.y + normal.y });
     const firstTick = tickLine(dimensionStart, tickDirection, tickSize);
@@ -73,12 +88,17 @@ export class Dimension extends BaseAnnotation {
       dimensionEnd,
       label: labelPoint
     };
+    const leaderStart = labelPlacement === "end" ? dimensionEnd : mid;
+    const labelLeader = shouldMoveLabel
+      ? [svgElement("line", { x1: leaderStart.x, y1: leaderStart.y, x2: labelPoint.x, y2: labelPoint.y, ...attrs })]
+      : [];
     const node = svgElement("g", {}, [
       svgElement("line", { x1: firstExtensionStart.x, y1: firstExtensionStart.y, x2: firstExtensionEnd.x, y2: firstExtensionEnd.y, ...attrs }),
       svgElement("line", { x1: secondExtensionStart.x, y1: secondExtensionStart.y, x2: secondExtensionEnd.x, y2: secondExtensionEnd.y, ...attrs }),
       svgElement("line", { x1: dimensionLineStart.x, y1: dimensionLineStart.y, x2: dimensionLineEnd.x, y2: dimensionLineEnd.y, ...attrs }),
       svgElement("line", { x1: firstTick.x1, y1: firstTick.y1, x2: firstTick.x2, y2: firstTick.y2, ...attrs }),
       svgElement("line", { x1: secondTick.x1, y1: secondTick.y1, x2: secondTick.x2, y2: secondTick.y2, ...attrs }),
+      ...labelLeader,
       svgElement(
         "text",
         {
@@ -158,7 +178,7 @@ export class DistributedLoad extends BaseAnnotation {
     const x2 = numberParam(this.params, "x2", 100);
     const y2 = numberParam(this.params, "y2", 0);
     const offset = numberParam(this.params, "offset", -30);
-    const explicitHeight = typeof this.params.height === "number" ? this.params.height : undefined;
+    const explicitHeight = distributedLoadHeight(this.params);
     const arrowSpacing = numberParam(this.params, "arrowSpacing", 40);
     const arrowSize = numberParam(this.params, "arrowSize", 10);
     const textOffset = numberParam(this.params, "textOffset", 16);
@@ -180,10 +200,7 @@ export class DistributedLoad extends BaseAnnotation {
     const loadStart = point(x1 + normal.x * loadOffset, y1 + normal.y * loadOffset);
     const loadEnd = point(x2 + normal.x * loadOffset, y2 + normal.y * loadOffset);
     const arrowLength = Math.hypot(tipStart.x - loadStart.x, tipStart.y - loadStart.y);
-    const arrowDirection =
-      arrowLength < 0.000001
-        ? normal
-        : normalize({ x: tipStart.x - loadStart.x, y: tipStart.y - loadStart.y });
+    const arrowDirection = normalize({ x: tipStart.x - loadStart.x, y: tipStart.y - loadStart.y });
     const labelPoint = point((loadStart.x + loadEnd.x) / 2 - arrowDirection.x * textOffset, (loadStart.y + loadEnd.y) / 2 - arrowDirection.y * textOffset);
     const attrs = lineVisualAttrs(this.params, { color: "black", strokeWidth: 0.6 });
     const color = stringParam(this.params, "color", "black");
@@ -241,8 +258,67 @@ export class DistributedLoad extends BaseAnnotation {
   }
 }
 
+export class BreakLine extends BaseAnnotation {
+  build(_context: BuildContext): ResolvedObject {
+    const x1 = numberParam(this.params, "x1", 0);
+    const y1 = numberParam(this.params, "y1", 0);
+    const x2 = numberParam(this.params, "x2", 40);
+    const y2 = numberParam(this.params, "y2", 0);
+    const amplitude = numberParam(this.params, "amplitude", 8);
+    const waveCount = Math.max(1, Math.round(numberParam(this.params, "waveCount", 1)));
+    const overhang = numberParam(this.params, "overhang", 16);
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const length = Math.hypot(dx, dy);
+    const direction = length === 0 ? { x: 1, y: 0 } : { x: dx / length, y: dy / length };
+    const normal = { x: -direction.y, y: direction.x };
+    const defaultBreakLength = Math.min(Math.max(amplitude * 3, 1), length || amplitude * 3);
+    const breakLength = Math.min(Math.max(numberParam(this.params, "breakLength", defaultBreakLength), 0), length);
+    const center = { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
+    const breakStart = {
+      x: center.x - direction.x * (breakLength / 2),
+      y: center.y - direction.y * (breakLength / 2)
+    };
+    const breakEnd = {
+      x: center.x + direction.x * (breakLength / 2),
+      y: center.y + direction.y * (breakLength / 2)
+    };
+    const pathStart = { x: x1 - direction.x * overhang, y: y1 - direction.y * overhang };
+    const pathEnd = { x: x2 + direction.x * overhang, y: y2 + direction.y * overhang };
+    const segmentCount = waveCount * 2 + 1;
+    const commands = [
+      `M ${formatNumber(pathStart.x)} ${formatNumber(pathStart.y)}`,
+      `L ${formatNumber(breakStart.x)} ${formatNumber(breakStart.y)}`
+    ];
+
+    for (let index = 1; index < segmentCount; index += 1) {
+      const t = index / segmentCount;
+      const offset = (index % 2 === 1 ? -1 : 1) * amplitude;
+      const x = breakStart.x + direction.x * breakLength * t + normal.x * offset;
+      const y = breakStart.y + direction.y * breakLength * t + normal.y * offset;
+      commands.push(`L ${formatNumber(x)} ${formatNumber(y)}`);
+    }
+
+    commands.push(`L ${formatNumber(breakEnd.x)} ${formatNumber(breakEnd.y)}`);
+    commands.push(`L ${formatNumber(pathEnd.x)} ${formatNumber(pathEnd.y)}`);
+
+    const anchors = {
+      start: point(x1, y1),
+      end: point(x2, y2),
+      center: point((x1 + x2) / 2, (y1 + y2) / 2)
+    };
+    const node = svgElement("path", { d: commands.join(" "), fill: "none", ...lineVisualAttrs(this.params, { color: "black", strokeWidth: 0.6 }) });
+
+    return { id: this.id, type: this.type, params: this.params, style: this.style, anchors, children: [], node };
+  }
+}
+
 function automaticShelfLength(firstLine: string, fontSize: number, textInset: number, textWidthFactor: number): number {
   return roundSvg(textInset + firstLine.length * fontSize * textWidthFactor + 6);
+}
+
+function estimateTextWidth(text: string, fontSize: number, textWidthFactor: number): number {
+  return text.length * fontSize * textWidthFactor;
 }
 
 function arrowPath(
@@ -294,6 +370,17 @@ function displayValue(value: ParamMap[string]): string {
   if (typeof value === "number") return formatDimensionValue(value);
   if (typeof value === "string") return value;
   return "";
+}
+
+function distributedLoadHeight(params: ParamMap): number | undefined {
+  if (typeof params.height === "number") return params.height;
+
+  const value = params.value;
+  const heightScale = numberParam(params, "heightScale", Number.NaN);
+  if (typeof value !== "number" || Number.isNaN(heightScale)) return undefined;
+
+  const minHeight = numberParam(params, "minHeight", 0);
+  return Math.max(minHeight, Math.abs(value) * heightScale);
 }
 
 function formatNumber(value: number): string {
