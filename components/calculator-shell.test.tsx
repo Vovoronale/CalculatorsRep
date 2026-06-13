@@ -740,8 +740,12 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("combobox", { name: "Спосіб розрахунку" })).toHaveValue(
       "manual-e7",
     );
-    expect(screen.getByRole("spinbutton", { name: "γc1" })).toHaveValue(1);
-    expect(screen.getByRole("spinbutton", { name: "γc2" })).toHaveValue(1);
+    expect(screen.getByText("Коефіцієнт умов роботи 1")).toBeInTheDocument();
+    expect(screen.getByText("Коефіцієнт умов роботи 2")).toBeInTheDocument();
+    expect(screen.getByLabelText("Позначення γc1")).toBeInTheDocument();
+    expect(screen.getByLabelText("Позначення γc2")).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Коефіцієнт умов роботи 1" })).toHaveValue("1");
+    expect(screen.getByRole("textbox", { name: "Коефіцієнт умов роботи 2" })).toHaveValue("1");
     expect(screen.queryByRole("combobox", { name: "Тип ґрунту" })).not.toBeInTheDocument();
     expect(getSummaryText("R = 162.82 кПа = 16.3 т/м² = 1.6 кг/см²")).toBeInTheDocument();
     const rFormula = screen.getByLabelText(
@@ -795,14 +799,14 @@ describe("CalculatorShell", () => {
       "automatic",
     );
 
-    expect(screen.queryByRole("spinbutton", { name: "γc1" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Коефіцієнт умов роботи 1" })).not.toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Тип ґрунту" })).toHaveValue(
       "medium-sand",
     );
-    expect(screen.getByRole("spinbutton", { name: "L, м" })).toHaveValue(8.25);
-    expect(screen.getByRole("spinbutton", { name: "H, м" })).toHaveValue(3);
-    await user.click(screen.getByRole("button", { name: "Показати опис поля L, м" }));
-    await user.click(screen.getByRole("button", { name: "Показати опис поля H, м" }));
+    expect(screen.getByRole("textbox", { name: "Довжина споруди" })).toHaveValue("8.25");
+    expect(screen.getByRole("textbox", { name: "Висота споруди" })).toHaveValue("3");
+    await user.click(screen.getByRole("button", { name: "Показати опис поля Довжина споруди" }));
+    await user.click(screen.getByRole("button", { name: "Показати опис поля Висота споруди" }));
     expect(
       screen.getByText("Довжина споруди або її відсіку."),
     ).toBeInTheDocument();

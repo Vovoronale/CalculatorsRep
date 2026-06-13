@@ -14,39 +14,18 @@ import {
   type SoilStructuralScheme,
   type SoilType,
 } from "@/lib/soil-design-resistance";
+import {
+  getDefaultInputSchemaValues,
+  type CalculatorInputSchema,
+  type CalculatorInputValues,
+} from "@/lib/calculator-input-schema";
 
+import { InputSchemaForm } from "./input-schema-form";
 import { MathNotation } from "./math-notation";
 import { ReportFormula } from "./report-formula";
 
 const SOIL_TYPES = Object.keys(SOIL_TYPE_LABELS) as SoilType[];
-
-const SYMBOLS = {
-  "γc1": { base: "γ", subscript: "c1", ariaLabel: "γc1" },
-  "γc2": { base: "γ", subscript: "c2", ariaLabel: "γc2" },
-  "γ11": { base: "γ", subscript: "11", ariaLabel: "γ11" },
-  "γ′11": { base: "γ′", subscript: "11", ariaLabel: "γ′11" },
-  "γcf": { base: "γ", subscript: "cf", ariaLabel: "γcf" },
-  "Mγ": { base: "M", subscript: "γ", ariaLabel: "Mγ" },
-  "Mq": { base: "M", subscript: "q", ariaLabel: "Mq" },
-  "Mc": { base: "M", subscript: "c", ariaLabel: "Mc" },
-  "φ11": { base: "φ", subscript: "11", ariaLabel: "φ11" },
-  "c11": { base: "c", subscript: "11", ariaLabel: "c11" },
-  "kz": { base: "k", subscript: "z", ariaLabel: "kz" },
-  "z0": { base: "z", subscript: "0", ariaLabel: "z0" },
-  "db,input": { base: "d", subscript: "b,input", ariaLabel: "db,input" },
-  "db": { base: "d", subscript: "b", ariaLabel: "db" },
-  "d1": { base: "d", subscript: "1", ariaLabel: "d1" },
-  "hs": { base: "h", subscript: "s", ariaLabel: "hs" },
-  "hcf": { base: "h", subscript: "cf", ariaLabel: "hcf" },
-  "IL": { base: "I", subscript: "L", ariaLabel: "IL" },
-  "L/H": { base: "L/H", ariaLabel: "L/H" },
-  R: { base: "R", ariaLabel: "R" },
-  L: { base: "L", ariaLabel: "L" },
-  H: { base: "H", ariaLabel: "H" },
-  b: { base: "b", ariaLabel: "b" },
-  d: { base: "d", ariaLabel: "d" },
-  k: { base: "k", ariaLabel: "k" },
-} as const;
+const CLAYEY_SOIL_TYPES: SoilType[] = ["coarse-with-clayey-fill", "clayey-soil"];
 
 const NORM_LINKS = [
   { text: "формула (Е.1)", id: "soil-norm-e1" },
@@ -56,6 +35,262 @@ const NORM_LINKS = [
   { text: "п. Е.4", id: "soil-norm-e4" },
   { text: "приміткою 1", id: "soil-norm-table-e7-note-1" },
 ] as const;
+
+const SOIL_TYPE_OPTIONS = SOIL_TYPES.map((type) => ({
+  value: type,
+  label: SOIL_TYPE_LABELS[type],
+}));
+
+const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
+  groups: [
+    {
+      id: "soil-resistance-working",
+      title: "Умови роботи",
+      fields: [
+        {
+          id: "calculationMode",
+          kind: "select",
+          name: "Спосіб розрахунку",
+          defaultValue: "manual-e7",
+          options: [
+            { value: "automatic", label: "Автоматично за характеристиками ґрунту" },
+            { value: "manual-e7", label: "Вручну за табл. Е.7" },
+          ],
+        },
+        {
+          id: "gammaC1Manual",
+          kind: "number",
+          prefix: { text: "γ", subscript: "c1", ariaLabel: "γc1" },
+          name: "Коефіцієнт умов роботи 1",
+          defaultValue: "1",
+          min: 0,
+          step: "0.01",
+          showWhen: { fieldId: "calculationMode", equals: "manual-e7" },
+        },
+        {
+          id: "gammaC2Manual",
+          kind: "number",
+          prefix: { text: "γ", subscript: "c2", ariaLabel: "γc2" },
+          name: "Коефіцієнт умов роботи 2",
+          defaultValue: "1",
+          min: 0,
+          step: "0.01",
+          showWhen: { fieldId: "calculationMode", equals: "manual-e7" },
+        },
+        {
+          id: "structuralScheme",
+          kind: "select",
+          name: "Конструктивна схема споруди",
+          defaultValue: "rigid",
+          options: [
+            { value: "rigid", label: "Жорстка" },
+            { value: "flexible", label: "Гнучка" },
+          ],
+          showWhen: { fieldId: "calculationMode", equals: "automatic" },
+        },
+        {
+          id: "buildingLengthM",
+          kind: "number",
+          prefix: { text: "L", ariaLabel: "L" },
+          name: "Довжина споруди",
+          defaultValue: "8.25",
+          min: 0,
+          step: "0.01",
+          baseUnit: "m",
+          description: "Довжина споруди або її відсіку.",
+          showWhen: { fieldId: "calculationMode", equals: "automatic" },
+        },
+        {
+          id: "buildingHeightM",
+          kind: "number",
+          prefix: { text: "H", ariaLabel: "H" },
+          name: "Висота споруди",
+          defaultValue: "3",
+          min: 0,
+          step: "0.01",
+          baseUnit: "m",
+          description: "Висота споруди або її відсіку.",
+          showWhen: { fieldId: "calculationMode", equals: "automatic" },
+        },
+        {
+          id: "soilType",
+          kind: "select",
+          name: "Тип ґрунту",
+          defaultValue: "medium-sand",
+          options: SOIL_TYPE_OPTIONS,
+          showWhen: { fieldId: "calculationMode", equals: "automatic" },
+        },
+        {
+          id: "liquidityIndex",
+          kind: "number",
+          prefix: { text: "I", subscript: "L", ariaLabel: "IL" },
+          name: "Показник текучості",
+          defaultValue: "0.3",
+          step: "0.01",
+          showWhen: [
+            { fieldId: "calculationMode", equals: "automatic" },
+            { fieldId: "soilType", in: CLAYEY_SOIL_TYPES },
+          ],
+        },
+      ],
+    },
+    {
+      id: "soil-resistance-strength",
+      title: "Характеристики ґрунту",
+      fields: [
+        {
+          id: "phi11Deg",
+          kind: "number",
+          prefix: { text: "φ", subscript: "11", ariaLabel: "φ11" },
+          name: "Кут внутрішнього тертя",
+          defaultValue: "30",
+          min: 0,
+          step: "0.01",
+          baseUnit: "deg",
+        },
+        {
+          id: "gamma11KnM3",
+          kind: "number",
+          prefix: { text: "γ", subscript: "11", ariaLabel: "γ11" },
+          name: "Питома вага ґрунту нижче підошви",
+          defaultValue: "17.1",
+          min: 0,
+          step: "0.01",
+          baseUnit: "kn-m3",
+        },
+        {
+          id: "gammaPrime11KnM3",
+          kind: "number",
+          prefix: { text: "γ′", subscript: "11", ariaLabel: "γ′11" },
+          name: "Осереднена питома вага вище підошви",
+          defaultValue: "16.6",
+          min: 0,
+          step: "0.01",
+          baseUnit: "kn-m3",
+        },
+        {
+          id: "c11KPa",
+          kind: "number",
+          prefix: { text: "c", subscript: "11", ariaLabel: "c11" },
+          name: "Питоме зчеплення",
+          defaultValue: "4",
+          min: 0,
+          step: "0.01",
+          baseUnit: "kpa",
+        },
+        {
+          id: "strengthSource",
+          kind: "select",
+          name: "Спосіб визначення φ11 і c11",
+          defaultValue: "direct-testing",
+          options: [
+            {
+              value: "direct-testing",
+              label: "Визначені безпосередніми випробуваннями",
+            },
+            {
+              value: "appendix-b-tables",
+              label: "Прийняті за таблицями В.1-В.2",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "soil-resistance-geometry",
+      title: "Геометрія фундаменту",
+      fields: [
+        {
+          id: "foundationWidthM",
+          kind: "number",
+          prefix: { text: "b", ariaLabel: "b" },
+          name: "Ширина підошви",
+          defaultValue: "1",
+          min: 0,
+          step: "0.01",
+          baseUnit: "m",
+        },
+        {
+          id: "foundationDepthM",
+          kind: "number",
+          prefix: { text: "d", ariaLabel: "d" },
+          name: "Глибина закладання",
+          defaultValue: "1.2",
+          min: 0,
+          step: "0.01",
+          baseUnit: "m",
+        },
+      ],
+    },
+    {
+      id: "soil-resistance-basement",
+      title: "Підвал і глибина закладання",
+      fields: [
+        {
+          id: "hasBasement",
+          kind: "checkbox",
+          name: "Є підвал?",
+          defaultValue: false,
+        },
+        {
+          id: "embedmentDepthD1M",
+          kind: "number",
+          prefix: { text: "d", subscript: "1", ariaLabel: "d1" },
+          name: "Приведена глибина закладання",
+          defaultValue: "1.2",
+          min: 0,
+          step: "0.01",
+          baseUnit: "m",
+          showWhen: { fieldId: "hasBasement", equals: false },
+        },
+        {
+          id: "basementDepthInputM",
+          kind: "number",
+          prefix: { text: "d", subscript: "b,input", ariaLabel: "db,input" },
+          name: "Глибина підвалу",
+          defaultValue: "0",
+          min: 0,
+          step: "0.01",
+          baseUnit: "m",
+          showWhen: { fieldId: "hasBasement", equals: true },
+        },
+        {
+          id: "soilLayerAboveFootingHsM",
+          kind: "number",
+          prefix: { text: "h", subscript: "s", ariaLabel: "hs" },
+          name: "Шар ґрунту над підошвою",
+          defaultValue: "0.4",
+          min: 0,
+          step: "0.01",
+          baseUnit: "m",
+          showWhen: { fieldId: "hasBasement", equals: true },
+        },
+        {
+          id: "basementFloorThicknessHcfM",
+          kind: "number",
+          prefix: { text: "h", subscript: "cf", ariaLabel: "hcf" },
+          name: "Товщина підлоги підвалу",
+          defaultValue: "0.2",
+          min: 0,
+          step: "0.01",
+          baseUnit: "m",
+          showWhen: { fieldId: "hasBasement", equals: true },
+        },
+        {
+          id: "basementFloorUnitWeightGammaCfKnM3",
+          kind: "number",
+          prefix: { text: "γ", subscript: "cf", ariaLabel: "γcf" },
+          name: "Питома вага підлоги підвалу",
+          defaultValue: "22",
+          min: 0,
+          step: "0.01",
+          baseUnit: "kn-m3",
+          showWhen: { fieldId: "hasBasement", equals: true },
+        },
+      ],
+    },
+  ],
+};
 
 function parseNumberInput(value: string): number {
   return Number.parseFloat(value.replace(",", "."));
@@ -112,99 +347,6 @@ function ReportStepFormulas({ step }: { step: SoilDesignResistanceReportStep }) 
   );
 }
 
-function NumberField({
-  label,
-  value,
-  onChange,
-  description,
-  step = "0.01",
-  min,
-}: {
-  label: ReactNode;
-  value: string;
-  onChange: (value: string) => void;
-  description?: string;
-  step?: string;
-  min?: string;
-}) {
-  const plainLabel =
-    typeof label === "string" ? label : undefined;
-
-  return (
-    <label className="soil-resistance-field soil-resistance-field--number">
-      <span>{label}</span>
-      <input
-        type="number"
-        inputMode="decimal"
-        min={min}
-        step={step}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        aria-label={plainLabel}
-      />
-      {description ? (
-        <span className="soil-resistance-field__description">{description}</span>
-      ) : null}
-    </label>
-  );
-}
-
-function SelectField<T extends string>({
-  label,
-  value,
-  onChange,
-  children,
-  wide = false,
-}: {
-  label: string;
-  value: T;
-  onChange: (value: T) => void;
-  children: ReactNode;
-  wide?: boolean;
-}) {
-  return (
-    <label
-      className={
-        wide ? "soil-resistance-field soil-resistance-field--wide" : "soil-resistance-field"
-      }
-    >
-      <span>{label}</span>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value as T)}
-        aria-label={label}
-      >
-        {children}
-      </select>
-    </label>
-  );
-}
-
-function FieldLabel({
-  symbol,
-  unit,
-}: {
-  symbol: keyof typeof SYMBOLS;
-  unit?: string;
-}) {
-  const notation = SYMBOLS[symbol];
-
-  return (
-    <>
-      <MathNotation
-        base={notation.base}
-        subscript={"subscript" in notation ? notation.subscript : undefined}
-        ariaLabel={notation.ariaLabel}
-      />
-      {unit ? <span className="math-notation__unit">, {unit}</span> : null}
-    </>
-  );
-}
-
-function usesLiquidityIndex(soilType: SoilType): boolean {
-  return soilType === "coarse-with-clayey-fill" || soilType === "clayey-soil";
-}
-
 function NormScan({ alt, src }: { alt: string; src: string }) {
   return (
     <figure className="soil-resistance-norm__scan">
@@ -219,31 +361,40 @@ function NormScan({ alt, src }: { alt: string; src: string }) {
 }
 
 export function SoilDesignResistanceCalculator() {
-  const [calculationMode, setCalculationMode] =
-    useState<SoilCalculationMode>("manual-e7");
-  const [structuralScheme, setStructuralScheme] =
-    useState<SoilStructuralScheme>("rigid");
-  const [buildingLengthM, setBuildingLengthM] = useState("8.25");
-  const [buildingHeightM, setBuildingHeightM] = useState("3");
-  const [soilType, setSoilType] = useState<SoilType>("medium-sand");
-  const [liquidityIndex, setLiquidityIndex] = useState("0.3");
-  const [gammaC1Manual, setGammaC1Manual] = useState("1");
-  const [gammaC2Manual, setGammaC2Manual] = useState("1");
-  const [phi11Deg, setPhi11Deg] = useState("30");
-  const [gamma11KnM3, setGamma11KnM3] = useState("17.1");
-  const [gammaPrime11KnM3, setGammaPrime11KnM3] = useState("16.6");
-  const [c11KPa, setC11KPa] = useState("4");
-  const [strengthSource, setStrengthSource] =
-    useState<SoilStrengthSource>("direct-testing");
-  const [foundationWidthM, setFoundationWidthM] = useState("1");
-  const [foundationDepthM, setFoundationDepthM] = useState("1.2");
-  const [hasBasement, setHasBasement] = useState(false);
-  const [embedmentDepthD1M, setEmbedmentDepthD1M] = useState("1.2");
-  const [basementDepthInputM, setBasementDepthInputM] = useState("0");
-  const [soilLayerAboveFootingHsM, setSoilLayerAboveFootingHsM] = useState("0.4");
-  const [basementFloorThicknessHcfM, setBasementFloorThicknessHcfM] = useState("0.2");
-  const [basementFloorUnitWeightGammaCfKnM3, setBasementFloorUnitWeightGammaCfKnM3] =
-    useState("22");
+  const [inputValues, setInputValues] = useState<CalculatorInputValues>(
+    () => getDefaultInputSchemaValues(SOIL_INPUT_SCHEMA),
+  );
+  const calculationMode = String(
+    inputValues.calculationMode ?? "manual-e7",
+  ) as SoilCalculationMode;
+  const structuralScheme = String(
+    inputValues.structuralScheme ?? "rigid",
+  ) as SoilStructuralScheme;
+  const buildingLengthM = String(inputValues.buildingLengthM ?? "8.25");
+  const buildingHeightM = String(inputValues.buildingHeightM ?? "3");
+  const soilType = String(inputValues.soilType ?? "medium-sand") as SoilType;
+  const liquidityIndex = String(inputValues.liquidityIndex ?? "0.3");
+  const gammaC1Manual = String(inputValues.gammaC1Manual ?? "1");
+  const gammaC2Manual = String(inputValues.gammaC2Manual ?? "1");
+  const phi11Deg = String(inputValues.phi11Deg ?? "30");
+  const gamma11KnM3 = String(inputValues.gamma11KnM3 ?? "17.1");
+  const gammaPrime11KnM3 = String(inputValues.gammaPrime11KnM3 ?? "16.6");
+  const c11KPa = String(inputValues.c11KPa ?? "4");
+  const strengthSource = String(
+    inputValues.strengthSource ?? "direct-testing",
+  ) as SoilStrengthSource;
+  const foundationWidthM = String(inputValues.foundationWidthM ?? "1");
+  const foundationDepthM = String(inputValues.foundationDepthM ?? "1.2");
+  const hasBasement = Boolean(inputValues.hasBasement);
+  const embedmentDepthD1M = String(inputValues.embedmentDepthD1M ?? "1.2");
+  const basementDepthInputM = String(inputValues.basementDepthInputM ?? "0");
+  const soilLayerAboveFootingHsM = String(inputValues.soilLayerAboveFootingHsM ?? "0.4");
+  const basementFloorThicknessHcfM = String(
+    inputValues.basementFloorThicknessHcfM ?? "0.2",
+  );
+  const basementFloorUnitWeightGammaCfKnM3 = String(
+    inputValues.basementFloorUnitWeightGammaCfKnM3 ?? "22",
+  );
 
   const input = useMemo<SoilDesignResistanceInput>(
     () => ({
@@ -340,187 +491,11 @@ export function SoilDesignResistanceCalculator() {
         </aside>
 
         <div className="soil-resistance-controls">
-        <fieldset id="soil-resistance-working" className="soil-resistance-group">
-          <legend>Умови роботи</legend>
-          <SelectField<SoilCalculationMode>
-            label="Спосіб розрахунку"
-            value={calculationMode}
-            onChange={setCalculationMode}
-            wide
-          >
-            <option value="automatic">Автоматично за характеристиками ґрунту</option>
-            <option value="manual-e7">Вручну за табл. Е.7</option>
-          </SelectField>
-
-          {calculationMode === "manual-e7" ? (
-            <>
-              <NumberField
-                label={<FieldLabel symbol="γc1" />}
-                value={gammaC1Manual}
-                onChange={setGammaC1Manual}
-                min="0"
-              />
-              <NumberField
-                label={<FieldLabel symbol="γc2" />}
-                value={gammaC2Manual}
-                onChange={setGammaC2Manual}
-                min="0"
-              />
-            </>
-          ) : (
-            <>
-              <SelectField<SoilStructuralScheme>
-                label="Конструктивна схема споруди"
-                value={structuralScheme}
-                onChange={setStructuralScheme}
-              >
-                <option value="rigid">Жорстка</option>
-                <option value="flexible">Гнучка</option>
-              </SelectField>
-              <NumberField
-                label="L, м"
-                value={buildingLengthM}
-                onChange={setBuildingLengthM}
-                min="0"
-                description="Довжина споруди або її відсіку."
-              />
-              <NumberField
-                label="H, м"
-                value={buildingHeightM}
-                onChange={setBuildingHeightM}
-                min="0"
-                description="Висота споруди або її відсіку."
-              />
-              <label className="soil-resistance-field soil-resistance-field--wide">
-                <span>Тип ґрунту</span>
-                <select
-                  value={soilType}
-                  onChange={(event) => setSoilType(event.target.value as SoilType)}
-                  aria-label="Тип ґрунту"
-                >
-                  {SOIL_TYPES.map((type) => (
-                    <option key={type} value={type}>
-                      {SOIL_TYPE_LABELS[type]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {usesLiquidityIndex(soilType) ? (
-                <NumberField
-                  label={<FieldLabel symbol="IL" />}
-                  value={liquidityIndex}
-                  onChange={setLiquidityIndex}
-                  step="0.01"
-                />
-              ) : null}
-              <p className="soil-resistance-group__help">
-                Конструктивна схема споруди приймається згідно з{" "}
-                <a href="#soil-norm-table-e7-note-1">приміткою 1</a> до табл. Е.7.
-              </p>
-            </>
-          )}
-        </fieldset>
-
-        <fieldset id="soil-resistance-strength" className="soil-resistance-group">
-          <legend>Характеристики ґрунту</legend>
-          <NumberField
-            label={<FieldLabel symbol="φ11" unit="°" />}
-            value={phi11Deg}
-            onChange={setPhi11Deg}
-            min="0"
+          <InputSchemaForm
+            schema={SOIL_INPUT_SCHEMA}
+            values={inputValues}
+            onValuesChange={setInputValues}
           />
-          <NumberField
-            label={<FieldLabel symbol="γ11" unit="кН/м³" />}
-            value={gamma11KnM3}
-            onChange={setGamma11KnM3}
-            min="0"
-          />
-          <NumberField
-            label={<FieldLabel symbol="γ′11" unit="кН/м³" />}
-            value={gammaPrime11KnM3}
-            onChange={setGammaPrime11KnM3}
-            min="0"
-          />
-          <NumberField
-            label={<FieldLabel symbol="c11" unit="кПа" />}
-            value={c11KPa}
-            onChange={setC11KPa}
-            min="0"
-          />
-          <SelectField<SoilStrengthSource>
-            label="Спосіб визначення φ11 і c11"
-            value={strengthSource}
-            onChange={setStrengthSource}
-            wide
-          >
-            <option value="direct-testing">Визначені безпосередніми випробуваннями</option>
-            <option value="appendix-b-tables">Прийняті за таблицями В.1-В.2</option>
-          </SelectField>
-        </fieldset>
-
-        <fieldset id="soil-resistance-geometry" className="soil-resistance-group">
-          <legend>Геометрія фундаменту</legend>
-          <NumberField
-            label={<FieldLabel symbol="b" unit="м" />}
-            value={foundationWidthM}
-            onChange={setFoundationWidthM}
-            min="0"
-          />
-          <NumberField
-            label={<FieldLabel symbol="d" unit="м" />}
-            value={foundationDepthM}
-            onChange={setFoundationDepthM}
-            min="0"
-          />
-        </fieldset>
-
-        <fieldset id="soil-resistance-basement" className="soil-resistance-group">
-          <legend>Підвал і глибина закладання</legend>
-          <label className="soil-resistance-toggle">
-            <input
-              type="checkbox"
-              checked={hasBasement}
-              onChange={(event) => setHasBasement(event.target.checked)}
-            />
-            <span>Є підвал</span>
-          </label>
-
-          {hasBasement ? (
-            <>
-              <NumberField
-                label={<FieldLabel symbol="db,input" unit="м" />}
-                value={basementDepthInputM}
-                onChange={setBasementDepthInputM}
-                min="0"
-              />
-              <NumberField
-                label={<FieldLabel symbol="hs" unit="м" />}
-                value={soilLayerAboveFootingHsM}
-                onChange={setSoilLayerAboveFootingHsM}
-                min="0"
-              />
-              <NumberField
-                label={<FieldLabel symbol="hcf" unit="м" />}
-                value={basementFloorThicknessHcfM}
-                onChange={setBasementFloorThicknessHcfM}
-                min="0"
-              />
-              <NumberField
-                label={<FieldLabel symbol="γcf" unit="кН/м³" />}
-                value={basementFloorUnitWeightGammaCfKnM3}
-                onChange={setBasementFloorUnitWeightGammaCfKnM3}
-                min="0"
-              />
-            </>
-          ) : (
-            <NumberField
-              label={<FieldLabel symbol="d1" unit="м" />}
-              value={embedmentDepthD1M}
-              onChange={setEmbedmentDepthD1M}
-              min="0"
-            />
-          )}
-        </fieldset>
         </div>
       </div>
 
