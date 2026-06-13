@@ -808,10 +808,10 @@ describe("CalculatorShell", () => {
     await user.click(screen.getByRole("button", { name: "Показати опис поля Довжина споруди" }));
     await user.click(screen.getByRole("button", { name: "Показати опис поля Висота споруди" }));
     expect(
-      screen.getByText(/Довжина споруди або її відсіку L для відношення L\/H/),
+      screen.getByText(/Довжина споруди або її відсіку L у базовій одиниці м/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Висота споруди або її відсіку H для відношення L\/H/),
+      screen.getByText(/Висота споруди або її відсіку H у базовій одиниці м/),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("L/H = L / H = 8.25 / 3 = 2.75")).toBeInTheDocument();
     expect(
