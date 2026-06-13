@@ -15,6 +15,7 @@ import {
   type CalculatorInputValues,
   type CalculatorNumberInputField,
 } from "@/lib/calculator-input-schema";
+import { resolveCalculatorInputUnits } from "@/lib/calculator-units";
 
 import { MathNotation } from "./math-notation";
 
@@ -48,8 +49,11 @@ function getInitialDisplayUnits(schema: CalculatorInputSchema): Record<string, s
 
   for (const group of schema.groups) {
     for (const field of group.fields) {
-      if (field.kind === "number" && field.displayUnits?.length) {
-        units[field.id] = field.defaultDisplayUnit ?? field.displayUnits[0].value;
+      if (field.kind === "number") {
+        const resolvedUnits = getFieldDisplayUnits(field);
+        if (resolvedUnits?.length) {
+          units[field.id] = field.defaultDisplayUnit ?? resolvedUnits[0].value;
+        }
       }
     }
   }
@@ -57,13 +61,20 @@ function getInitialDisplayUnits(schema: CalculatorInputSchema): Record<string, s
   return units;
 }
 
+function getFieldDisplayUnits(
+  field: CalculatorNumberInputField,
+): CalculatorInputDisplayUnit[] | undefined {
+  return resolveCalculatorInputUnits(field);
+}
+
 function getSelectedDisplayUnit(
   field: CalculatorNumberInputField,
   displayUnits: Record<string, string>,
 ): CalculatorInputDisplayUnit | undefined {
-  if (!field.displayUnits?.length) return undefined;
-  const selectedUnit = displayUnits[field.id] ?? field.defaultDisplayUnit ?? field.displayUnits[0].value;
-  return field.displayUnits.find((unit) => unit.value === selectedUnit) ?? field.displayUnits[0];
+  const units = getFieldDisplayUnits(field);
+  if (!units?.length) return undefined;
+  const selectedUnit = displayUnits[field.id] ?? field.defaultDisplayUnit ?? units[0].value;
+  return units.find((unit) => unit.value === selectedUnit) ?? units[0];
 }
 
 export function InputSchemaForm({
@@ -112,6 +123,7 @@ export function InputSchemaForm({
     const fieldId = `input-schema-${field.id}`;
 
     if (field.kind === "number") {
+      const resolvedUnits = getFieldDisplayUnits(field);
       const selectedUnit = getSelectedDisplayUnit(field, displayUnits);
       const value = values[field.id] ?? field.defaultValue;
       const displayValue = selectedUnit
@@ -135,12 +147,12 @@ export function InputSchemaForm({
             }
             aria-label={field.name}
           />
-          {field.displayUnits?.length ? (
+          {resolvedUnits?.length ? (
             <select
               className="input-schema-field__unit"
-              disabled={field.displayUnits.length === 1}
-              aria-readonly={field.displayUnits.length === 1 ? "true" : undefined}
-              value={selectedUnit?.value ?? field.displayUnits[0].value}
+              disabled={resolvedUnits.length === 1}
+              aria-readonly={resolvedUnits.length === 1 ? "true" : undefined}
+              value={selectedUnit?.value ?? resolvedUnits[0].value}
               onChange={(event) =>
                 setDisplayUnits((current) => ({
                   ...current,
@@ -149,7 +161,7 @@ export function InputSchemaForm({
               }
               aria-label={`Одиниця ${field.name}`}
             >
-              {field.displayUnits.map((unit) => (
+              {resolvedUnits.map((unit) => (
                 <option key={unit.value} value={unit.value}>
                   {unit.label}
                 </option>

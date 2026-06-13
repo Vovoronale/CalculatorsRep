@@ -30,12 +30,9 @@ const schema: CalculatorInputSchema = {
           min: 0,
           step: "0.1",
           description: "Короткий проліт у вибраних одиницях.",
+          quantity: "length",
           baseUnit: "m",
           defaultDisplayUnit: "m",
-          displayUnits: [
-            { value: "m", label: "м", factorToBase: 1 },
-            { value: "cm", label: "см", factorToBase: 0.01 },
-          ],
         },
         {
           id: "mode",
@@ -294,6 +291,38 @@ describe("InputSchemaForm", () => {
     });
   });
 
+  it("resolves display units from field quantity", async () => {
+    const user = userEvent.setup();
+    const onValuesChange = vi.fn();
+
+    render(
+      <StatefulInputSchemaForm
+        initialValues={{ ...defaultValues, spanM: "1.25" }}
+        onValuesChange={onValuesChange}
+      />,
+    );
+
+    const unitSelect = screen.getByRole("combobox", { name: "Одиниця Короткий проліт" });
+
+    expect(unitSelect).toHaveValue("m");
+    expect(within(unitSelect).getByRole("option", { name: "м" })).toHaveValue("m");
+    expect(within(unitSelect).getByRole("option", { name: "см" })).toHaveValue("cm");
+    expect(within(unitSelect).getByRole("option", { name: "мм" })).toHaveValue("mm");
+
+    await user.selectOptions(unitSelect, "cm");
+
+    expect(screen.getByRole("textbox", { name: "Короткий проліт" })).toHaveValue("125");
+    expect(onValuesChange).not.toHaveBeenCalled();
+
+    await user.clear(screen.getByRole("textbox", { name: "Короткий проліт" }));
+    await user.type(screen.getByRole("textbox", { name: "Короткий проліт" }), "126,5");
+
+    expect(onValuesChange).toHaveBeenLastCalledWith({
+      ...defaultValues,
+      spanM: "1.265",
+    });
+  });
+
   it("renders a single available display unit as a read-only combobox", () => {
     const singleUnitSchema: CalculatorInputSchema = {
       groups: [
@@ -306,8 +335,9 @@ describe("InputSchemaForm", () => {
               kind: "number",
               name: "Глибина",
               defaultValue: "1.2",
-              defaultDisplayUnit: "m",
-              displayUnits: [{ value: "m", label: "м", factorToBase: 1 }],
+              quantity: "unitWeight",
+              baseUnit: "kn-m3",
+              defaultDisplayUnit: "kn-m3",
             },
           ],
         },
@@ -326,6 +356,47 @@ describe("InputSchemaForm", () => {
 
     expect(unitSelect).toBeDisabled();
     expect(unitSelect).toHaveAttribute("aria-readonly", "true");
+    expect(unitSelect).toHaveValue("kn-m3");
+  });
+
+  it("renders coefficient quantities without a unit combobox", () => {
+    const coefficientSchema: CalculatorInputSchema = {
+      groups: [
+        {
+          id: "coefficients",
+          title: "Coefficients",
+          fields: [
+            {
+              id: "gammaC1",
+              kind: "number",
+              name: "Коефіцієнт умов роботи",
+              defaultValue: "1.2",
+              quantity: "coefficient",
+            },
+            {
+              id: "depthM",
+              kind: "number",
+              name: "Глибина",
+              defaultValue: "1.2",
+              defaultDisplayUnit: "m",
+              displayUnits: [{ value: "m", label: "м", factorToBase: 1 }],
+            },
+          ],
+        },
+      ],
+    };
+
+    render(
+      <InputSchemaForm
+        schema={coefficientSchema}
+        values={{ gammaC1: "1.2", depthM: "1.2" }}
+        onValuesChange={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("combobox", { name: "Одиниця Коефіцієнт умов роботи" }),
+    ).not.toBeInTheDocument();
   });
 
   it("updates select, text, checkbox, radio and renders conditional fields", async () => {

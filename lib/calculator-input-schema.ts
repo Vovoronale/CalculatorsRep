@@ -1,3 +1,5 @@
+import type { CalculatorInputQuantity } from "./calculator-units";
+
 export type CalculatorInputPrimitiveValue = string | boolean;
 
 export type CalculatorInputValues = Record<string, CalculatorInputPrimitiveValue>;
@@ -52,6 +54,7 @@ export type CalculatorNumberInputField = BaseCalculatorInputField & {
   min?: number;
   max?: number;
   step?: string;
+  quantity?: CalculatorInputQuantity;
   baseUnit?: string;
   defaultDisplayUnit?: string;
   displayUnits?: CalculatorInputDisplayUnit[];
