@@ -94,10 +94,18 @@ export function InputSchemaForm({
   };
 
   const toggleDetails = (fieldId: string, mode: "help" | "error") => {
-    setExpandedDetails((current) => ({
-      ...current,
-      [fieldId]: current[fieldId] === mode ? "help" : mode,
-    }));
+    setExpandedDetails((current) => {
+      if (current[fieldId] !== mode) {
+        return {
+          ...current,
+          [fieldId]: mode,
+        };
+      }
+
+      const next = { ...current };
+      delete next[fieldId];
+      return next;
+    });
   };
 
   const renderFieldControl = (field: CalculatorInputField) => {

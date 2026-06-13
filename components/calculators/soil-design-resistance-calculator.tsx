@@ -41,6 +41,13 @@ const SOIL_TYPE_OPTIONS = SOIL_TYPES.map((type) => ({
   label: SOIL_TYPE_LABELS[type],
 }));
 
+const SOIL_LENGTH_DISPLAY_UNITS = [{ value: "m", label: "м", factorToBase: 1 }];
+const SOIL_ANGLE_DISPLAY_UNITS = [{ value: "deg", label: "°", factorToBase: 1 }];
+const SOIL_UNIT_WEIGHT_DISPLAY_UNITS = [
+  { value: "kn-m3", label: "кН/м³", factorToBase: 1 },
+];
+const SOIL_PRESSURE_DISPLAY_UNITS = [{ value: "kpa", label: "кПа", factorToBase: 1 }];
+
 const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
   groups: [
     {
@@ -97,6 +104,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "m",
+          defaultDisplayUnit: "m",
+          displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
           description: "Довжина споруди або її відсіку.",
           showWhen: { fieldId: "calculationMode", equals: "automatic" },
         },
@@ -109,6 +118,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "m",
+          defaultDisplayUnit: "m",
+          displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
           description: "Висота споруди або її відсіку.",
           showWhen: { fieldId: "calculationMode", equals: "automatic" },
         },
@@ -147,6 +158,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "deg",
+          defaultDisplayUnit: "deg",
+          displayUnits: SOIL_ANGLE_DISPLAY_UNITS,
         },
         {
           id: "gamma11KnM3",
@@ -157,6 +170,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "kn-m3",
+          defaultDisplayUnit: "kn-m3",
+          displayUnits: SOIL_UNIT_WEIGHT_DISPLAY_UNITS,
         },
         {
           id: "gammaPrime11KnM3",
@@ -167,6 +182,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "kn-m3",
+          defaultDisplayUnit: "kn-m3",
+          displayUnits: SOIL_UNIT_WEIGHT_DISPLAY_UNITS,
         },
         {
           id: "c11KPa",
@@ -177,6 +194,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "kpa",
+          defaultDisplayUnit: "kpa",
+          displayUnits: SOIL_PRESSURE_DISPLAY_UNITS,
         },
         {
           id: "strengthSource",
@@ -209,6 +228,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "m",
+          defaultDisplayUnit: "m",
+          displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
         },
         {
           id: "foundationDepthM",
@@ -219,6 +240,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "m",
+          defaultDisplayUnit: "m",
+          displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
         },
       ],
     },
@@ -241,6 +264,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "m",
+          defaultDisplayUnit: "m",
+          displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
           showWhen: { fieldId: "hasBasement", equals: false },
         },
         {
@@ -252,6 +277,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "m",
+          defaultDisplayUnit: "m",
+          displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
           showWhen: { fieldId: "hasBasement", equals: true },
         },
         {
@@ -263,6 +290,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "m",
+          defaultDisplayUnit: "m",
+          displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
           showWhen: { fieldId: "hasBasement", equals: true },
         },
         {
@@ -274,6 +303,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "m",
+          defaultDisplayUnit: "m",
+          displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
           showWhen: { fieldId: "hasBasement", equals: true },
         },
         {
@@ -285,6 +316,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           min: 0,
           step: "0.01",
           baseUnit: "kn-m3",
+          defaultDisplayUnit: "kn-m3",
+          displayUnits: SOIL_UNIT_WEIGHT_DISPLAY_UNITS,
           showWhen: { fieldId: "hasBasement", equals: true },
         },
       ],

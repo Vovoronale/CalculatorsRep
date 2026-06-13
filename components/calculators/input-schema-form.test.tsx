@@ -355,4 +355,20 @@ describe("InputSchemaForm", () => {
       within(detail as HTMLElement).getByText("Короткий проліт у вибраних одиницях."),
     ).toBeInTheDocument();
   });
+
+  it("closes inline details when the active action is clicked again", async () => {
+    const user = userEvent.setup();
+
+    render(<InputSchemaForm schema={schema} values={defaultValues} onValuesChange={vi.fn()} />);
+
+    const helpButton = screen.getByRole("button", {
+      name: "Показати опис поля Короткий проліт",
+    });
+
+    await user.click(helpButton);
+    expect(screen.getByText("Короткий проліт у вибраних одиницях.")).toBeInTheDocument();
+
+    await user.click(helpButton);
+    expect(screen.queryByText("Короткий проліт у вибраних одиницях.")).not.toBeInTheDocument();
+  });
 });
