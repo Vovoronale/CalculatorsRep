@@ -1,0 +1,299 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
+import {
+  convertBaseNumberToDisplay,
+  convertDisplayNumberToBase,
+  getVisibleInputSchemaGroups,
+  validateInputSchemaValues,
+  type CalculatorInputDisplayUnit,
+  type CalculatorInputField,
+  type CalculatorInputNotation,
+  type CalculatorInputSchema,
+  type CalculatorInputValidationErrors,
+  type CalculatorInputValues,
+  type CalculatorNumberInputField,
+} from "@/lib/calculator-input-schema";
+
+import { MathNotation } from "./math-notation";
+
+type InputSchemaFormProps = {
+  schema: CalculatorInputSchema;
+  values: CalculatorInputValues;
+  onValuesChange: (values: CalculatorInputValues) => void;
+  validationErrors?: CalculatorInputValidationErrors;
+};
+
+function getNotationText(prefix: CalculatorInputNotation): string {
+  return typeof prefix === "string" ? prefix : prefix.ariaLabel;
+}
+
+function FieldPrefix({ prefix }: { prefix?: CalculatorInputNotation }) {
+  if (!prefix) return null;
+  if (typeof prefix === "string") return <>{prefix}</>;
+
+  return (
+    <MathNotation
+      base={prefix.text}
+      subscript={prefix.subscript}
+      superscript={prefix.superscript}
+      ariaLabel={prefix.ariaLabel}
+    />
+  );
+}
+
+function getInitialDisplayUnits(schema: CalculatorInputSchema): Record<string, string> {
+  const units: Record<string, string> = {};
+
+  for (const group of schema.groups) {
+    for (const field of group.fields) {
+      if (field.kind === "number" && field.displayUnits?.length) {
+        units[field.id] = field.defaultDisplayUnit ?? field.displayUnits[0].value;
+      }
+    }
+  }
+
+  return units;
+}
+
+function getSelectedDisplayUnit(
+  field: CalculatorNumberInputField,
+  displayUnits: Record<string, string>,
+): CalculatorInputDisplayUnit | undefined {
+  if (!field.displayUnits?.length) return undefined;
+  const selectedUnit = displayUnits[field.id] ?? field.defaultDisplayUnit ?? field.displayUnits[0].value;
+  return field.displayUnits.find((unit) => unit.value === selectedUnit) ?? field.displayUnits[0];
+}
+
+export function InputSchemaForm({
+  schema,
+  values,
+  onValuesChange,
+  validationErrors,
+}: InputSchemaFormProps) {
+  const [expandedDetails, setExpandedDetails] = useState<Record<string, "help" | "error">>({});
+  const [displayUnits, setDisplayUnits] = useState<Record<string, string>>(() =>
+    getInitialDisplayUnits(schema),
+  );
+  const schemaErrors = useMemo(
+    () => validateInputSchemaValues(schema, values),
+    [schema, values],
+  );
+  const combinedErrors = {
+    ...schemaErrors,
+    ...validationErrors,
+  };
+  const groups = getVisibleInputSchemaGroups(schema, values);
+
+  const setValue = (id: string, value: string | boolean) => {
+    onValuesChange({
+      ...values,
+      [id]: value,
+    });
+  };
+
+  const toggleDetails = (fieldId: string, mode: "help" | "error") => {
+    setExpandedDetails((current) => ({
+      ...current,
+      [fieldId]: current[fieldId] === mode ? "help" : mode,
+    }));
+  };
+
+  const renderFieldControl = (field: CalculatorInputField) => {
+    const fieldId = `input-schema-${field.id}`;
+
+    if (field.kind === "number") {
+      const selectedUnit = getSelectedDisplayUnit(field, displayUnits);
+      const value = values[field.id] ?? field.defaultValue;
+      const displayValue = selectedUnit
+        ? convertBaseNumberToDisplay(value, selectedUnit)
+        : String(value);
+
+      return (
+        <>
+          <input
+            id={fieldId}
+            type="text"
+            inputMode="decimal"
+            value={displayValue}
+            onChange={(event) =>
+              setValue(
+                field.id,
+                selectedUnit
+                  ? convertDisplayNumberToBase(event.target.value, selectedUnit)
+                  : event.target.value,
+              )
+            }
+            aria-label={field.name}
+          />
+          {field.displayUnits?.length ? (
+            <select
+              className="input-schema-field__unit"
+              value={selectedUnit?.value ?? field.displayUnits[0].value}
+              onChange={(event) =>
+                setDisplayUnits((current) => ({
+                  ...current,
+                  [field.id]: event.target.value,
+                }))
+              }
+              aria-label={`Одиниця ${field.name}`}
+            >
+              {field.displayUnits.map((unit) => (
+                <option key={unit.value} value={unit.value}>
+                  {unit.label}
+                </option>
+              ))}
+            </select>
+          ) : null}
+        </>
+      );
+    }
+
+    if (field.kind === "text") {
+      return (
+        <input
+          id={fieldId}
+          type="text"
+          value={String(values[field.id] ?? field.defaultValue)}
+          onChange={(event) => setValue(field.id, event.target.value)}
+          aria-label={field.name}
+        />
+      );
+    }
+
+    if (field.kind === "select") {
+      return (
+        <select
+          id={fieldId}
+          value={String(values[field.id] ?? field.defaultValue)}
+          onChange={(event) => setValue(field.id, event.target.value)}
+          aria-label={field.name}
+        >
+          {field.options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      );
+    }
+
+    if (field.kind === "checkbox") {
+      return (
+        <label className="input-schema-field__checkbox">
+          <input
+            id={fieldId}
+            type="checkbox"
+            checked={Boolean(values[field.id] ?? field.defaultValue)}
+            onChange={(event) => setValue(field.id, event.target.checked)}
+            aria-label={field.name}
+          />
+        </label>
+      );
+    }
+
+    if (field.kind === "radio") {
+      return (
+        <span className="input-schema-field__radio-group">
+          {field.options.map((option) => (
+            <label key={option.value} className="input-schema-field__radio">
+              <input
+                type="radio"
+                name={`input-schema-${field.id}`}
+                value={option.value}
+                checked={(values[field.id] ?? field.defaultValue) === option.value}
+                onChange={() => setValue(field.id, option.value)}
+              />
+              <span>{option.label}</span>
+            </label>
+          ))}
+        </span>
+      );
+    }
+
+    return <output>{field.getValue(values)}</output>;
+  };
+
+  return (
+    <div className="input-schema-form">
+      {groups.map((group) => (
+        <fieldset className="input-schema-group" id={group.id} key={group.id}>
+          <legend>{group.title}</legend>
+          <div className="input-schema-group__rows">
+            {group.fields.map((field) => {
+              const errors = combinedErrors[field.id] ?? [];
+              const detailsMode = expandedDetails[field.id];
+              const detailsId = `input-schema-${field.id}-details`;
+
+              return (
+                <div
+                  className="input-schema-field"
+                  data-kind={field.kind}
+                  data-invalid={errors.length > 0 ? "true" : undefined}
+                  key={field.id}
+                >
+                  <div className="input-schema-field__actions">
+                    {field.description ? (
+                      <button
+                        type="button"
+                        className="input-schema-field__icon"
+                        aria-controls={detailsId}
+                        aria-expanded={Boolean(detailsMode)}
+                        aria-label={`Показати опис поля ${field.name}`}
+                        onClick={() => toggleDetails(field.id, "help")}
+                      >
+                        ?
+                      </button>
+                    ) : null}
+                    {errors.length > 0 ? (
+                      <button
+                        type="button"
+                        className="input-schema-field__icon input-schema-field__icon--error"
+                        aria-controls={detailsId}
+                        aria-expanded={detailsMode === "error"}
+                        aria-label={`Показати помилку поля ${field.name}`}
+                        onClick={() => toggleDetails(field.id, "error")}
+                      >
+                        !
+                      </button>
+                    ) : null}
+                  </div>
+                  <div
+                    className="input-schema-field__prefix"
+                    data-empty={field.prefix ? undefined : "true"}
+                    aria-label={
+                      field.prefix ? `Позначення ${getNotationText(field.prefix)}` : undefined
+                    }
+                  >
+                    <FieldPrefix prefix={field.prefix} />
+                  </div>
+                  {field.kind === "checkbox" ? (
+                    <div className="input-schema-field__name">{field.name}</div>
+                  ) : (
+                    <label className="input-schema-field__name" htmlFor={`input-schema-${field.id}`}>
+                      {field.name}
+                    </label>
+                  )}
+                  <div className="input-schema-field__control">{renderFieldControl(field)}</div>
+                  {detailsMode ? (
+                    <div className="input-schema-field__details" id={detailsId}>
+                      {field.description ? <p>{field.description}</p> : null}
+                      {detailsMode === "error" && errors.length > 0 ? (
+                        <ul>
+                          {errors.map((error) => (
+                            <li key={error}>{error}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </fieldset>
+      ))}
+    </div>
+  );
+}
