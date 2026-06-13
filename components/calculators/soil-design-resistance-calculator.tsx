@@ -482,7 +482,7 @@ function getSoilFoundationScene({
 
   if (hasBasement) {
     return {
-      scene: { width: 900, height: 620, mode: "detailed" },
+      scene: { width: 560, height: 490, viewBox: [85, 60, 560, 490], mode: "detailed" },
       objects: {
         foundation: {
           type: "BasementFoundation",
@@ -527,7 +527,7 @@ function getSoilFoundationScene({
   }
 
   return {
-    scene: { width: 720, height: 430, mode: "detailed" },
+    scene: { width: 395, height: 320, viewBox: [105, 35, 395, 320], mode: "detailed" },
     objects: {
       foundation: {
         type: "LoadedFoundation",

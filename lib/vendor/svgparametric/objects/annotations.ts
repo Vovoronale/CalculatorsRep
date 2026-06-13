@@ -29,9 +29,10 @@ export class Dimension extends BaseAnnotation {
     const textOffset = numberParam(this.params, "textOffset", 6);
     const tickSize = numberParam(this.params, "tickSize", 10);
     const fontSize = numberParam(this.params, "fontSize", 14);
-    const textWidthFactor = numberParam(this.params, "textWidthFactor", 0.7);
+    const textWidthFactor = numberParam(this.params, "textWidthFactor", 0.45);
     const textPadding = numberParam(this.params, "textPadding", 2);
     const outsideTextOffset = numberParam(this.params, "outsideTextOffset", fontSize * 2 + 2);
+    const outsideTextInset = numberParam(this.params, "outsideTextInset", 3);
     const fontFamily = stringParam(this.params, "fontFamily", "ISOCPEUR, ISOCP, 'Arial Narrow', Arial, sans-serif");
     const prefix = stringParam(this.params, "prefix", "");
     const suffix = stringParam(this.params, "suffix", "");
@@ -69,14 +70,50 @@ export class Dimension extends BaseAnnotation {
     const outsideDirection = offset === 0
       ? { x: -normal.x, y: -normal.y }
       : { x: normal.x * Math.sign(offset), y: normal.y * Math.sign(offset) };
-    const endLabelPoint = point(dimensionEnd.x + direction.x * outsideTextOffset, dimensionEnd.y + direction.y * outsideTextOffset);
+    const oppositeNormal = { x: -normal.x, y: -normal.y };
+    const aboveShelfDirection = normal.y < oppositeNormal.y
+      ? normal
+      : oppositeNormal.y < normal.y
+        ? oppositeNormal
+        : outsideDirection;
+    const endTextStart = point(
+      dimensionEnd.x + direction.x * outsideTextOffset,
+      dimensionEnd.y + direction.y * outsideTextOffset
+    );
+    const endLeaderEnd = point(
+      endTextStart.x + direction.x * labelWidth,
+      endTextStart.y + direction.y * labelWidth
+    );
+    const endLabelPoint = point(
+      endTextStart.x + aboveShelfDirection.x * textOffset,
+      endTextStart.y + aboveShelfDirection.y * textOffset
+    );
+    const outsideBend = point(
+      mid.x + outsideDirection.x * outsideTextOffset + direction.x * outsideTextOffset,
+      mid.y + outsideDirection.y * outsideTextOffset + direction.y * outsideTextOffset
+    );
+    const outsideShelfLength = outsideTextInset + labelWidth;
+    const outsideShelfEnd = point(
+      outsideBend.x + direction.x * outsideShelfLength,
+      outsideBend.y + direction.y * outsideShelfLength
+    );
+    const outsideTextAdvance = vertical && direction.y > 0
+      ? outsideTextInset + labelWidth
+      : outsideTextInset;
+    const outsideTextSideDirection = vertical
+      ? { x: -outsideDirection.x, y: -outsideDirection.y }
+      : aboveShelfDirection;
+    const outsideLabelPoint = point(
+      outsideBend.x + direction.x * outsideTextAdvance + outsideTextSideDirection.x * textOffset,
+      outsideBend.y + direction.y * outsideTextAdvance + outsideTextSideDirection.y * textOffset
+    );
     const labelPoint = labelPlacement === "end"
       ? endLabelPoint
       : shouldMoveLabel
-      ? point(mid.x + outsideDirection.x * outsideTextOffset, mid.y + outsideDirection.y * outsideTextOffset)
-      : vertical
-        ? point(mid.x - textOffset, mid.y)
-        : point(mid.x - normal.x * textOffset, mid.y - normal.y * textOffset);
+        ? outsideLabelPoint
+        : vertical
+          ? point(mid.x - textOffset, mid.y)
+          : point(mid.x - normal.x * textOffset, mid.y - normal.y * textOffset);
     const attrs = lineVisualAttrs(this.params, { color: "black", strokeWidth: 0.6 });
     const tickDirection = normalize({ x: direction.x + normal.x, y: direction.y + normal.y });
     const firstTick = tickLine(dimensionStart, tickDirection, tickSize);
@@ -88,10 +125,16 @@ export class Dimension extends BaseAnnotation {
       dimensionEnd,
       label: labelPoint
     };
-    const leaderStart = labelPlacement === "end" ? dimensionEnd : mid;
-    const labelLeader = shouldMoveLabel
-      ? [svgElement("line", { x1: leaderStart.x, y1: leaderStart.y, x2: labelPoint.x, y2: labelPoint.y, ...attrs })]
-      : [];
+    const labelLeader = labelPlacement === "end"
+      ? [svgElement("line", { x1: dimensionEnd.x, y1: dimensionEnd.y, x2: endLeaderEnd.x, y2: endLeaderEnd.y, ...attrs })]
+      : shouldMoveLabel
+        ? [
+            svgElement("line", { x1: mid.x, y1: mid.y, x2: outsideBend.x, y2: outsideBend.y, ...attrs }),
+            svgElement("line", { x1: outsideBend.x, y1: outsideBend.y, x2: outsideShelfEnd.x, y2: outsideShelfEnd.y, ...attrs })
+          ]
+        : [];
+    const outsideText = shouldMoveLabel && labelPlacement !== "end";
+    const textAnchor = outsideText || labelPlacement === "end" ? "start" : "middle";
     const node = svgElement("g", {}, [
       svgElement("line", { x1: firstExtensionStart.x, y1: firstExtensionStart.y, x2: firstExtensionEnd.x, y2: firstExtensionEnd.y, ...attrs }),
       svgElement("line", { x1: secondExtensionStart.x, y1: secondExtensionStart.y, x2: secondExtensionEnd.x, y2: secondExtensionEnd.y, ...attrs }),
@@ -104,7 +147,7 @@ export class Dimension extends BaseAnnotation {
         {
           x: labelPoint.x,
           y: labelPoint.y,
-          "text-anchor": "middle",
+          "text-anchor": textAnchor,
           "dominant-baseline": "middle",
           "font-family": fontFamily,
           "font-size": fontSize,
