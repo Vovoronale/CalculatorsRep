@@ -849,19 +849,25 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("group", { name: "Вихідні дані" })).toHaveClass(
       "input-schema-group",
     );
-    expect(screen.getByRole("spinbutton", { name: "lk" })).toHaveValue(3);
-    expect(screen.getByRole("spinbutton", { name: "ld" })).toHaveValue(6);
-    expect(screen.getByRole("spinbutton", { name: "q" })).toHaveValue(10);
-    expect(screen.queryByRole("spinbutton", { name: "lk, м" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("spinbutton", { name: "ld, м" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("spinbutton", { name: "q, кН/м²" })).not.toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: "Одиниця lk" })).toHaveValue("m");
-    expect(screen.getByRole("combobox", { name: "Одиниця ld" })).toHaveValue("m");
-    expect(screen.getByRole("combobox", { name: "Одиниця q" })).toHaveValue("kn-m2");
+    expect(screen.getByText("Короткий проліт")).toBeInTheDocument();
+    expect(screen.getByText("Довгий проліт")).toBeInTheDocument();
+    expect(screen.getByText("Повне навантаження")).toBeInTheDocument();
+    expect(screen.getByLabelText("Позначення lk")).toBeInTheDocument();
+    expect(screen.getByLabelText("Позначення ld")).toBeInTheDocument();
+    expect(screen.getByLabelText("Позначення q")).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Короткий проліт" })).toHaveValue("3");
+    expect(screen.getByRole("textbox", { name: "Довгий проліт" })).toHaveValue("6");
+    expect(screen.getByRole("textbox", { name: "Повне навантаження" })).toHaveValue("10");
+    expect(screen.queryByRole("textbox", { name: "lk, м" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "ld, м" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "q, кН/м²" })).not.toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Одиниця Короткий проліт" })).toHaveValue("m");
+    expect(screen.getByRole("combobox", { name: "Одиниця Довгий проліт" })).toHaveValue("m");
+    expect(screen.getByRole("combobox", { name: "Одиниця Повне навантаження" })).toHaveValue("kn-m2");
     expect(
-      screen.getByRole("spinbutton", { name: "q" }).closest(".input-schema-field"),
+      screen.getByRole("textbox", { name: "Повне навантаження" }).closest(".input-schema-field"),
     ).toContainElement(
-      screen.getByRole("combobox", { name: "Одиниця q" }),
+      screen.getByRole("combobox", { name: "Одиниця Повне навантаження" }),
     );
     const initialLoadDiagram = screen.getByRole("img", {
       name: "Параметрична схема розподілу навантаження q між напрямами lk і ld: lk 3 м, ld 6 м",
@@ -924,8 +930,8 @@ describe("CalculatorShell", () => {
       }),
     ).toHaveAttribute("href", "https://koha.tntu.edu.ua/bib/134803");
 
-    await user.clear(screen.getByRole("spinbutton", { name: "ld" }));
-    await user.type(screen.getByRole("spinbutton", { name: "ld" }), "6.3");
+    await user.clear(screen.getByRole("textbox", { name: "Довгий проліт" }));
+    await user.type(screen.getByRole("textbox", { name: "Довгий проліт" }), "6.3");
 
     expect(
       screen.getByText(/ld\/lk більше 2: за приміткою Ліновіча/),
@@ -988,19 +994,19 @@ describe("CalculatorShell", () => {
 
     render(<CalculatorShell selectedCalculator={calculator} />);
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця q" }), "n-m2");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця lk" }), "cm");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця ld" }), "mm");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця Повне навантаження" }), "n-m2");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця Короткий проліт" }), "cm");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця Довгий проліт" }), "mm");
 
-    expect(screen.getByRole("spinbutton", { name: "q" })).toHaveValue(10);
-    expect(screen.queryByRole("spinbutton", { name: "q, Н/м²" })).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Повне навантаження" })).toHaveValue("10000");
+    expect(screen.getByRole("textbox", { name: "Короткий проліт" })).toHaveValue("300");
+    expect(screen.getByRole("textbox", { name: "Довгий проліт" })).toHaveValue("6000");
+    expect(screen.queryByRole("textbox", { name: "q, Н/м²" })).not.toBeInTheDocument();
 
-    await user.clear(screen.getByRole("spinbutton", { name: "q" }));
-    await user.type(screen.getByRole("spinbutton", { name: "q" }), "10000");
-    await user.clear(screen.getByRole("spinbutton", { name: "lk" }));
-    await user.type(screen.getByRole("spinbutton", { name: "lk" }), "600");
-    await user.clear(screen.getByRole("spinbutton", { name: "ld" }));
-    await user.type(screen.getByRole("spinbutton", { name: "ld" }), "3000");
+    await user.clear(screen.getByRole("textbox", { name: "Короткий проліт" }));
+    await user.type(screen.getByRole("textbox", { name: "Короткий проліт" }), "600");
+    await user.clear(screen.getByRole("textbox", { name: "Довгий проліт" }));
+    await user.type(screen.getByRole("textbox", { name: "Довгий проліт" }), "3000");
 
     expect(screen.queryByText("ld має бути не менше lk.")).not.toBeInTheDocument();
     expect(
@@ -1010,17 +1016,22 @@ describe("CalculatorShell", () => {
     ).toBeGreaterThan(0);
     expect(
       screen.getAllByText((_, element) =>
-        Boolean(element?.textContent?.includes("введено l1 = 600 см")),
+        Boolean(element?.textContent?.includes("введено l1 = 6 м")),
       ).length,
     ).toBeGreaterThan(0);
     expect(
-      screen.getAllByText((_, element) =>
+      screen.queryAllByText((_, element) =>
         Boolean(element?.textContent?.includes("введено l2 = 3000 мм")),
+      ).length,
+    ).toBe(0);
+    expect(
+      screen.getAllByText((_, element) =>
+        Boolean(element?.textContent?.includes("введено l2 = 3 м")),
       ).length,
     ).toBeGreaterThan(0);
     expect(
       screen.getByLabelText(
-        "qk = c1 * q = 0.9412 * 10000 = 9411.76 Н/м²; qd = c2 * q = 0.0588 * 10000 = 588.24 Н/м²",
+        "qk = c1 * q = 0.9412 * 10 = 9.41 кН/м²; qd = c2 * q = 0.0588 * 10 = 0.59 кН/м²",
       ),
     ).toBeInTheDocument();
   });
