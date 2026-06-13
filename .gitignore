@@ -4,6 +4,7 @@ out
 coverage
 .DS_Store
 .superpowers
+.worktrees
 tsconfig.tsbuildinfo
 
 # Local agent / tooling artifacts
