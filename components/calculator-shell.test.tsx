@@ -734,11 +734,18 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByLabelText("Калькулятор розрахункового опору ґрунту основи"),
     ).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Умови роботи" })).toHaveClass(
+      "input-schema-group",
+    );
     expect(screen.getByRole("combobox", { name: "Спосіб розрахунку" })).toHaveValue(
       "manual-e7",
     );
-    expect(screen.getByRole("spinbutton", { name: "γc1" })).toHaveValue(1);
-    expect(screen.getByRole("spinbutton", { name: "γc2" })).toHaveValue(1);
+    expect(screen.getByText("Коефіцієнт умов роботи 1")).toBeInTheDocument();
+    expect(screen.getByText("Коефіцієнт умов роботи 2")).toBeInTheDocument();
+    expect(screen.getByLabelText("Позначення γc1")).toBeInTheDocument();
+    expect(screen.getByLabelText("Позначення γc2")).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Коефіцієнт умов роботи 1" })).toHaveValue("1");
+    expect(screen.getByRole("textbox", { name: "Коефіцієнт умов роботи 2" })).toHaveValue("1");
     expect(screen.queryByRole("combobox", { name: "Тип ґрунту" })).not.toBeInTheDocument();
     expect(getSummaryText("R = 162.82 кПа = 16.3 т/м² = 1.6 кг/см²")).toBeInTheDocument();
     const rFormula = screen.getByLabelText(
@@ -792,12 +799,14 @@ describe("CalculatorShell", () => {
       "automatic",
     );
 
-    expect(screen.queryByRole("spinbutton", { name: "γc1" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Коефіцієнт умов роботи 1" })).not.toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Тип ґрунту" })).toHaveValue(
       "medium-sand",
     );
-    expect(screen.getByRole("spinbutton", { name: "L, м" })).toHaveValue(8.25);
-    expect(screen.getByRole("spinbutton", { name: "H, м" })).toHaveValue(3);
+    expect(screen.getByRole("textbox", { name: "Довжина споруди" })).toHaveValue("8.25");
+    expect(screen.getByRole("textbox", { name: "Висота споруди" })).toHaveValue("3");
+    await user.click(screen.getByRole("button", { name: "Показати опис поля Довжина споруди" }));
+    await user.click(screen.getByRole("button", { name: "Показати опис поля Висота споруди" }));
     expect(
       screen.getByText("Довжина споруди або її відсіку."),
     ).toBeInTheDocument();
@@ -841,17 +850,28 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByLabelText("Калькулятор коефіцієнтів c1 і c2 для розподілу навантаження"),
     ).toBeInTheDocument();
-    expect(screen.getByRole("spinbutton", { name: "lk" })).toHaveValue(3);
-    expect(screen.getByRole("spinbutton", { name: "ld" })).toHaveValue(6);
-    expect(screen.getByRole("spinbutton", { name: "q" })).toHaveValue(10);
-    expect(screen.queryByRole("spinbutton", { name: "lk, м" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("spinbutton", { name: "ld, м" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("spinbutton", { name: "q, кН/м²" })).not.toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: "Одиниця lk" })).toHaveValue("m");
-    expect(screen.getByRole("combobox", { name: "Одиниця ld" })).toHaveValue("m");
-    expect(screen.getByRole("combobox", { name: "Одиниця q" })).toHaveValue("kn-m2");
-    expect(screen.getByRole("spinbutton", { name: "q" }).closest("label")).toContainElement(
-      screen.getByRole("combobox", { name: "Одиниця q" }),
+    expect(screen.getByRole("group", { name: "Вихідні дані" })).toHaveClass(
+      "input-schema-group",
+    );
+    expect(screen.getByText("Короткий проліт")).toBeInTheDocument();
+    expect(screen.getByText("Довгий проліт")).toBeInTheDocument();
+    expect(screen.getByText("Повне навантаження")).toBeInTheDocument();
+    expect(screen.getByLabelText("Позначення lk")).toBeInTheDocument();
+    expect(screen.getByLabelText("Позначення ld")).toBeInTheDocument();
+    expect(screen.getByLabelText("Позначення q")).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Короткий проліт" })).toHaveValue("3");
+    expect(screen.getByRole("textbox", { name: "Довгий проліт" })).toHaveValue("6");
+    expect(screen.getByRole("textbox", { name: "Повне навантаження" })).toHaveValue("10");
+    expect(screen.queryByRole("textbox", { name: "lk, м" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "ld, м" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "q, кН/м²" })).not.toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Одиниця Короткий проліт" })).toHaveValue("m");
+    expect(screen.getByRole("combobox", { name: "Одиниця Довгий проліт" })).toHaveValue("m");
+    expect(screen.getByRole("combobox", { name: "Одиниця Повне навантаження" })).toHaveValue("kn-m2");
+    expect(
+      screen.getByRole("textbox", { name: "Повне навантаження" }).closest(".input-schema-field"),
+    ).toContainElement(
+      screen.getByRole("combobox", { name: "Одиниця Повне навантаження" }),
     );
     const initialLoadDiagram = screen.getByRole("img", {
       name: "Параметрична схема розподілу навантаження q між напрямами lk і ld: lk 3 м, ld 6 м",
@@ -914,8 +934,8 @@ describe("CalculatorShell", () => {
       }),
     ).toHaveAttribute("href", "https://koha.tntu.edu.ua/bib/134803");
 
-    await user.clear(screen.getByRole("spinbutton", { name: "ld" }));
-    await user.type(screen.getByRole("spinbutton", { name: "ld" }), "6.3");
+    await user.clear(screen.getByRole("textbox", { name: "Довгий проліт" }));
+    await user.type(screen.getByRole("textbox", { name: "Довгий проліт" }), "6.3");
 
     expect(
       screen.getByText(/ld\/lk більше 2: за приміткою Ліновіча/),
@@ -954,6 +974,20 @@ describe("CalculatorShell", () => {
     );
   });
 
+  it("defines the shared dense input schema form layout", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+
+    expect(css).toMatch(
+      /\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+4\.25rem\s+minmax\(10rem,\s*0\.9fr\)\s+minmax\(12rem,\s*1fr\)\s+minmax\(4\.5rem,\s*auto\);/,
+    );
+    expect(css).toMatch(/\.input-schema-field__prefix\s*{[\s\S]*?justify-content:\s*center;/);
+    expect(css).toMatch(/\.input-schema-field__unit\s*{[\s\S]*?width:\s*100%;/);
+    expect(css).toMatch(
+      /@media\s*\(max-width:\s*720px\)\s*{[\s\S]*?\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+minmax\(0,\s*1fr\);/,
+    );
+    expect(css).toMatch(/\.input-schema-field__prefix\[data-empty="true"\]\s*{[\s\S]*?display:\s*none;/);
+  });
+
   it("updates cassoon load units and normalizes reversed spans", async () => {
     const user = userEvent.setup();
     const calculator = getCalculatorBySlug("cassoon-load-distribution");
@@ -964,19 +998,19 @@ describe("CalculatorShell", () => {
 
     render(<CalculatorShell selectedCalculator={calculator} />);
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця q" }), "n-m2");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця lk" }), "cm");
-    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця ld" }), "mm");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця Повне навантаження" }), "n-m2");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця Короткий проліт" }), "cm");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Одиниця Довгий проліт" }), "mm");
 
-    expect(screen.getByRole("spinbutton", { name: "q" })).toHaveValue(10);
-    expect(screen.queryByRole("spinbutton", { name: "q, Н/м²" })).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Повне навантаження" })).toHaveValue("10000");
+    expect(screen.getByRole("textbox", { name: "Короткий проліт" })).toHaveValue("300");
+    expect(screen.getByRole("textbox", { name: "Довгий проліт" })).toHaveValue("6000");
+    expect(screen.queryByRole("textbox", { name: "q, Н/м²" })).not.toBeInTheDocument();
 
-    await user.clear(screen.getByRole("spinbutton", { name: "q" }));
-    await user.type(screen.getByRole("spinbutton", { name: "q" }), "10000");
-    await user.clear(screen.getByRole("spinbutton", { name: "lk" }));
-    await user.type(screen.getByRole("spinbutton", { name: "lk" }), "600");
-    await user.clear(screen.getByRole("spinbutton", { name: "ld" }));
-    await user.type(screen.getByRole("spinbutton", { name: "ld" }), "3000");
+    await user.clear(screen.getByRole("textbox", { name: "Короткий проліт" }));
+    await user.type(screen.getByRole("textbox", { name: "Короткий проліт" }), "600");
+    await user.clear(screen.getByRole("textbox", { name: "Довгий проліт" }));
+    await user.type(screen.getByRole("textbox", { name: "Довгий проліт" }), "3000");
 
     expect(screen.queryByText("ld має бути не менше lk.")).not.toBeInTheDocument();
     expect(
@@ -986,17 +1020,22 @@ describe("CalculatorShell", () => {
     ).toBeGreaterThan(0);
     expect(
       screen.getAllByText((_, element) =>
-        Boolean(element?.textContent?.includes("введено l1 = 600 см")),
+        Boolean(element?.textContent?.includes("введено l1 = 6 м")),
       ).length,
     ).toBeGreaterThan(0);
     expect(
-      screen.getAllByText((_, element) =>
+      screen.queryAllByText((_, element) =>
         Boolean(element?.textContent?.includes("введено l2 = 3000 мм")),
+      ).length,
+    ).toBe(0);
+    expect(
+      screen.getAllByText((_, element) =>
+        Boolean(element?.textContent?.includes("введено l2 = 3 м")),
       ).length,
     ).toBeGreaterThan(0);
     expect(
       screen.getByLabelText(
-        "qk = c1 * q = 0.9412 * 10000 = 9411.76 Н/м²; qd = c2 * q = 0.0588 * 10000 = 588.24 Н/м²",
+        "qk = c1 * q = 0.9412 * 10 = 9.41 кН/м²; qd = c2 * q = 0.0588 * 10 = 0.59 кН/м²",
       ),
     ).toBeInTheDocument();
   });

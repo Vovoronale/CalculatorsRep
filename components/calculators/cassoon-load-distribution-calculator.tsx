@@ -8,17 +8,22 @@ import {
   CASSOON_LOAD_DISTRIBUTION_SOURCE,
   formatCassoonLoadDistributionNumber,
   getCassoonLoadDistributionReport,
-  type CassoonLoadDistributionLengthUnit,
   type CassoonLoadDistributionLoadUnit,
   type CassoonLoadDistributionReportStep,
   type CassoonLoadDistributionValues,
 } from "@/lib/cassoon-load-distribution";
+import {
+  getDefaultInputSchemaValues,
+  type CalculatorInputSchema,
+  type CalculatorInputValues,
+} from "@/lib/calculator-input-schema";
 import {
   buildScene,
   createDefaultRegistry,
   type SceneDefinition,
 } from "@/lib/vendor/svgparametric";
 
+import { InputSchemaForm } from "./input-schema-form";
 import { MathNotation } from "./math-notation";
 
 const SYMBOLS = {
@@ -42,16 +47,78 @@ const SYMBOL_PATTERN = new RegExp(
   "g",
 );
 
+const LENGTH_DISPLAY_UNITS = Object.entries(CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS).map(
+  ([value, unit]) => ({
+    value,
+    label: unit.label,
+    factorToBase: unit.factorToM,
+  }),
+);
+
+const LOAD_DISPLAY_UNITS = Object.entries(CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS).map(
+  ([value, unit]) => ({
+    value,
+    label: unit.label,
+    factorToBase: unit.factorToKnM2,
+  }),
+);
+
+const CASSOON_INPUT_SCHEMA: CalculatorInputSchema = {
+  groups: [
+    {
+      id: "inputs",
+      title: "Вихідні дані",
+      fields: [
+        {
+          id: "shortSpanM",
+          kind: "number",
+          prefix: { text: "l", subscript: "k", ariaLabel: "lk" },
+          name: "Короткий проліт",
+          defaultValue: "3",
+          min: 0,
+          step: "0.1",
+          description: "Короткий або перший введений проліт; розрахунок нормалізує lk <= ld.",
+          baseUnit: "m",
+          defaultDisplayUnit: "m",
+          displayUnits: LENGTH_DISPLAY_UNITS,
+        },
+        {
+          id: "longSpanM",
+          kind: "number",
+          prefix: { text: "l", subscript: "d", ariaLabel: "ld" },
+          name: "Довгий проліт",
+          defaultValue: "6",
+          min: 0,
+          step: "0.1",
+          description: "Довгий або другий введений проліт; розрахунок нормалізує lk <= ld.",
+          baseUnit: "m",
+          defaultDisplayUnit: "m",
+          displayUnits: LENGTH_DISPLAY_UNITS,
+        },
+        {
+          id: "totalLoadKnM2",
+          kind: "number",
+          prefix: { text: "q", ariaLabel: "q" },
+          name: "Повне навантаження",
+          defaultValue: "10",
+          min: 0,
+          step: "0.1",
+          description: "Повне рівномірно розподілене навантаження на плиту.",
+          baseUnit: "kn-m2",
+          defaultDisplayUnit: "kn-m2",
+          displayUnits: LOAD_DISPLAY_UNITS,
+        },
+      ],
+    },
+  ],
+};
+
 function parseNumberInput(value: string): number {
   return Number.parseFloat(value.replace(",", "."));
 }
 
 function getDisplayLoadValue(valueKnM2: number, unit: CassoonLoadDistributionLoadUnit): number {
   return valueKnM2 / CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS[unit].factorToKnM2;
-}
-
-function getBaseLengthValue(value: number, unit: CassoonLoadDistributionLengthUnit): number {
-  return value * CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS[unit].factorToM;
 }
 
 function isFormulaBoundary(value: string | undefined): boolean {
@@ -460,41 +527,36 @@ function ParametricLoadDistributionDiagram({
 }
 
 export function CassoonLoadDistributionCalculator() {
-  const [shortSpanInput, setShortSpanInput] = useState("3");
-  const [longSpanInput, setLongSpanInput] = useState("6");
-  const [totalLoadInput, setTotalLoadInput] = useState("10");
-  const [shortSpanUnit, setShortSpanUnit] =
-    useState<CassoonLoadDistributionLengthUnit>("m");
-  const [longSpanUnit, setLongSpanUnit] =
-    useState<CassoonLoadDistributionLengthUnit>("m");
-  const [loadUnit, setLoadUnit] = useState<CassoonLoadDistributionLoadUnit>("kn-m2");
+  const [inputValues, setInputValues] = useState<CalculatorInputValues>(
+    () => getDefaultInputSchemaValues(CASSOON_INPUT_SCHEMA),
+  );
+  const shortSpanM = String(inputValues.shortSpanM ?? "3");
+  const longSpanM = String(inputValues.longSpanM ?? "6");
+  const totalLoadKnM2 = String(inputValues.totalLoadKnM2 ?? "10");
+  const loadUnit: CassoonLoadDistributionLoadUnit = "kn-m2";
   const selectedLoadUnit = CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS[loadUnit];
 
   const report = useMemo(
     () => {
-      const shortSpan = parseNumberInput(shortSpanInput);
-      const longSpan = parseNumberInput(longSpanInput);
-      const totalLoad = parseNumberInput(totalLoadInput);
+      const shortSpan = parseNumberInput(shortSpanM);
+      const longSpan = parseNumberInput(longSpanM);
+      const totalLoad = parseNumberInput(totalLoadKnM2);
 
       return getCassoonLoadDistributionReport({
-        shortSpanM: getBaseLengthValue(shortSpan, shortSpanUnit),
-        longSpanM: getBaseLengthValue(longSpan, longSpanUnit),
+        shortSpanM: shortSpan,
+        longSpanM: longSpan,
         shortSpanDisplayValue: shortSpan,
-        shortSpanUnit,
+        shortSpanUnit: "m",
         longSpanDisplayValue: longSpan,
-        longSpanUnit,
-        totalLoadKnM2: totalLoad * selectedLoadUnit.factorToKnM2,
+        longSpanUnit: "m",
+        totalLoadKnM2: totalLoad,
         loadUnit,
       });
     },
     [
-      loadUnit,
-      longSpanInput,
-      longSpanUnit,
-      selectedLoadUnit.factorToKnM2,
-      shortSpanInput,
-      shortSpanUnit,
-      totalLoadInput,
+      longSpanM,
+      shortSpanM,
+      totalLoadKnM2,
     ],
   );
 
@@ -504,103 +566,11 @@ export function CassoonLoadDistributionCalculator() {
       aria-label="Калькулятор коефіцієнтів c1 і c2 для розподілу навантаження"
     >
       <div className="cassoon-load-layout">
-        <div className="cassoon-load-controls">
-          <label className="cassoon-load-field">
-            <span>
-              <MathNotation base="l" subscript="k" ariaLabel="lk" />
-            </span>
-            <span className="cassoon-load-input-group">
-              <input
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="0.1"
-                value={shortSpanInput}
-                onChange={(event) => setShortSpanInput(event.target.value)}
-                aria-label="lk"
-              />
-              <select
-                value={shortSpanUnit}
-                onChange={(event) =>
-                  setShortSpanUnit(event.target.value as CassoonLoadDistributionLengthUnit)
-                }
-                aria-label="Одиниця lk"
-              >
-                {Object.entries(CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS).map(
-                  ([value, unit]) => (
-                    <option key={value} value={value}>
-                      {unit.label}
-                    </option>
-                  ),
-                )}
-              </select>
-            </span>
-          </label>
-
-          <label className="cassoon-load-field">
-            <span>
-              <MathNotation base="l" subscript="d" ariaLabel="ld" />
-            </span>
-            <span className="cassoon-load-input-group">
-              <input
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="0.1"
-                value={longSpanInput}
-                onChange={(event) => setLongSpanInput(event.target.value)}
-                aria-label="ld"
-              />
-              <select
-                value={longSpanUnit}
-                onChange={(event) =>
-                  setLongSpanUnit(event.target.value as CassoonLoadDistributionLengthUnit)
-                }
-                aria-label="Одиниця ld"
-              >
-                {Object.entries(CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS).map(
-                  ([value, unit]) => (
-                    <option key={value} value={value}>
-                      {unit.label}
-                    </option>
-                  ),
-                )}
-              </select>
-            </span>
-          </label>
-
-          <label className="cassoon-load-field">
-            <span>
-              <MathNotation base="q" ariaLabel="q" />
-            </span>
-            <span className="cassoon-load-input-group">
-              <input
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="0.1"
-                value={totalLoadInput}
-                onChange={(event) => setTotalLoadInput(event.target.value)}
-                aria-label="q"
-              />
-              <select
-                value={loadUnit}
-                onChange={(event) =>
-                  setLoadUnit(event.target.value as CassoonLoadDistributionLoadUnit)
-                }
-                aria-label="Одиниця q"
-              >
-                {Object.entries(CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS).map(
-                  ([value, unit]) => (
-                    <option key={value} value={value}>
-                      {unit.label}
-                    </option>
-                  ),
-                )}
-              </select>
-            </span>
-          </label>
-        </div>
+        <InputSchemaForm
+          schema={CASSOON_INPUT_SCHEMA}
+          values={inputValues}
+          onValuesChange={setInputValues}
+        />
 
         <ParametricLoadDistributionDiagram
           values={report.values}
