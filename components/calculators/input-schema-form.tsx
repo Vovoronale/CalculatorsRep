@@ -138,6 +138,8 @@ export function InputSchemaForm({
           {field.displayUnits?.length ? (
             <select
               className="input-schema-field__unit"
+              disabled={field.displayUnits.length === 1}
+              aria-readonly={field.displayUnits.length === 1 ? "true" : undefined}
               value={selectedUnit?.value ?? field.displayUnits[0].value}
               onChange={(event) =>
                 setDisplayUnits((current) => ({

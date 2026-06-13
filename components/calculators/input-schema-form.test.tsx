@@ -294,6 +294,40 @@ describe("InputSchemaForm", () => {
     });
   });
 
+  it("renders a single available display unit as a read-only combobox", () => {
+    const singleUnitSchema: CalculatorInputSchema = {
+      groups: [
+        {
+          id: "single-unit",
+          title: "Single unit",
+          fields: [
+            {
+              id: "depthM",
+              kind: "number",
+              name: "Глибина",
+              defaultValue: "1.2",
+              defaultDisplayUnit: "m",
+              displayUnits: [{ value: "m", label: "м", factorToBase: 1 }],
+            },
+          ],
+        },
+      ],
+    };
+
+    render(
+      <InputSchemaForm
+        schema={singleUnitSchema}
+        values={{ depthM: "1.2" }}
+        onValuesChange={vi.fn()}
+      />,
+    );
+
+    const unitSelect = screen.getByRole("combobox", { name: "Одиниця Глибина" });
+
+    expect(unitSelect).toBeDisabled();
+    expect(unitSelect).toHaveAttribute("aria-readonly", "true");
+  });
+
   it("updates select, text, checkbox, radio and renders conditional fields", async () => {
     const user = userEvent.setup();
     const onValuesChange = vi.fn();

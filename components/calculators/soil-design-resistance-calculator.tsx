@@ -59,6 +59,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           kind: "select",
           name: "Спосіб розрахунку",
           defaultValue: "manual-e7",
+          description:
+            "В автоматичному режимі γc1 і γc2 підбираються за табл. Е.7 ДБН В.2.1-10 залежно від типу ґрунту, конструктивної схеми та L/H. У ручному режимі користувач задає ці коефіцієнти самостійно.",
           options: [
             { value: "automatic", label: "Автоматично за характеристиками ґрунту" },
             { value: "manual-e7", label: "Вручну за табл. Е.7" },
@@ -72,6 +74,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           defaultValue: "1",
           min: 0,
           step: "0.01",
+          description:
+            "Коефіцієнт умов роботи ґрунту γc1 для формули (Е.1) ДБН В.2.1-10. У ручному режимі приймається користувачем за табл. Е.7; значення має бути додатним.",
           showWhen: { fieldId: "calculationMode", equals: "manual-e7" },
         },
         {
@@ -82,6 +86,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           defaultValue: "1",
           min: 0,
           step: "0.01",
+          description:
+            "Коефіцієнт умов роботи споруди з основою γc2 для формули (Е.1) ДБН В.2.1-10. У ручному режимі приймається користувачем за табл. Е.7; значення має бути додатним.",
           showWhen: { fieldId: "calculationMode", equals: "manual-e7" },
         },
         {
@@ -89,6 +95,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           kind: "select",
           name: "Конструктивна схема споруди",
           defaultValue: "rigid",
+          description:
+            "Ознака для вибору γc2 за табл. Е.7 ДБН В.2.1-10 в автоматичному режимі. Жорстка схема обмежує взаємні деформації основи й споруди, гнучка допускає їх більшу нерівномірність.",
           options: [
             { value: "rigid", label: "Жорстка" },
             { value: "flexible", label: "Гнучка" },
@@ -106,7 +114,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "m",
           defaultDisplayUnit: "m",
           displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
-          description: "Довжина споруди або її відсіку.",
+          description:
+            "Довжина споруди або її відсіку L для відношення L/H у табл. Е.7 ДБН В.2.1-10. Значення задається в метрах і має бути більше 0.",
           showWhen: { fieldId: "calculationMode", equals: "automatic" },
         },
         {
@@ -120,7 +129,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "m",
           defaultDisplayUnit: "m",
           displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
-          description: "Висота споруди або її відсіку.",
+          description:
+            "Висота споруди або її відсіку H для відношення L/H у табл. Е.7 ДБН В.2.1-10. Значення задається в метрах і має бути більше 0.",
           showWhen: { fieldId: "calculationMode", equals: "automatic" },
         },
         {
@@ -128,6 +138,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           kind: "select",
           name: "Тип ґрунту",
           defaultValue: "medium-sand",
+          description:
+            "Тип ґрунту використовується для вибору рядка табл. Е.7 та коефіцієнтів Mγ, Mq, Mc за табл. Е.8 ДБН В.2.1-10.",
           options: SOIL_TYPE_OPTIONS,
           showWhen: { fieldId: "calculationMode", equals: "automatic" },
         },
@@ -138,6 +150,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           name: "Показник текучості",
           defaultValue: "0.3",
           step: "0.01",
+          description:
+            "Показник текучості IL потрібен для глинистих ґрунтів або глинистого заповнювача при виборі табличних значень ДБН В.2.1-10. Додаток Е використовує його як класифікаційну ознаку.",
           showWhen: [
             { fieldId: "calculationMode", equals: "automatic" },
             { fieldId: "soilType", in: CLAYEY_SOIL_TYPES },
@@ -160,6 +174,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "deg",
           defaultDisplayUnit: "deg",
           displayUnits: SOIL_ANGLE_DISPLAY_UNITS,
+          description:
+            "Розрахунковий кут внутрішнього тертя φ11 ґрунту нижче підошви фундаменту. Використовується у формулі (Е.1) і для вибору Mγ, Mq, Mc за табл. Е.8 ДБН В.2.1-10.",
         },
         {
           id: "gamma11KnM3",
@@ -172,6 +188,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "kn-m3",
           defaultDisplayUnit: "kn-m3",
           displayUnits: SOIL_UNIT_WEIGHT_DISPLAY_UNITS,
+          description:
+            "Розрахункова питома вага ґрунту γ11 нижче підошви фундаменту. Входить у член із шириною b у формулі (Е.1) ДБН В.2.1-10; значення має бути більше 0.",
         },
         {
           id: "gammaPrime11KnM3",
@@ -184,6 +202,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "kn-m3",
           defaultDisplayUnit: "kn-m3",
           displayUnits: SOIL_UNIT_WEIGHT_DISPLAY_UNITS,
+          description:
+            "Осереднена розрахункова питома вага γ′11 ґрунтів вище підошви фундаменту. Використовується в члені з глибиною d1 у формулі (Е.1) ДБН В.2.1-10.",
         },
         {
           id: "c11KPa",
@@ -196,12 +216,16 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "kpa",
           defaultDisplayUnit: "kpa",
           displayUnits: SOIL_PRESSURE_DISPLAY_UNITS,
+          description:
+            "Розрахункове питоме зчеплення c11 ґрунту нижче підошви фундаменту. Входить у формулу (Е.1) ДБН В.2.1-10 через коефіцієнт Mc; значення не повинно бути від'ємним.",
         },
         {
           id: "strengthSource",
           kind: "select",
           name: "Спосіб визначення φ11 і c11",
           defaultValue: "direct-testing",
+          description:
+            "Фіксує походження φ11 і c11 у звіті: безпосередні випробування або прийняття за таблицями В.1-В.2 ДБН В.2.1-10. Впливає на пояснювальний warning, але не змінює саму формулу.",
           options: [
             {
               value: "direct-testing",
@@ -230,6 +254,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "m",
           defaultDisplayUnit: "m",
           displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
+          description:
+            "Ширина підошви фундаменту b у метрах. Використовується у формулі (Е.1) ДБН В.2.1-10 та для коефіцієнта kz; значення має бути більше 0.",
         },
         {
           id: "foundationDepthM",
@@ -242,6 +268,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "m",
           defaultDisplayUnit: "m",
           displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
+          description:
+            "Глибина закладання фундаменту d від планувальної поверхні до підошви. Використовується для перевірки примітки до додатка Е та має бути більше 0.",
         },
       ],
     },
@@ -254,6 +282,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           kind: "checkbox",
           name: "Є підвал?",
           defaultValue: false,
+          description:
+            "Вмикає розрахунок приведеної глибини закладання за формулою (Е.2) ДБН В.2.1-10 для будівель із підвалом.",
         },
         {
           id: "embedmentDepthD1M",
@@ -266,6 +296,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "m",
           defaultDisplayUnit: "m",
           displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
+          description:
+            "Приведена глибина закладання d1 для формули (Е.1), коли підвалу немає. Значення задається користувачем у метрах і має бути більше 0.",
           showWhen: { fieldId: "hasBasement", equals: false },
         },
         {
@@ -279,6 +311,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "m",
           defaultDisplayUnit: "m",
           displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
+          description:
+            "Глибина підвалу db,input від рівня планування до підлоги підвалу. Використовується для визначення d1 за формулою (Е.2) ДБН В.2.1-10.",
           showWhen: { fieldId: "hasBasement", equals: true },
         },
         {
@@ -292,6 +326,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "m",
           defaultDisplayUnit: "m",
           displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
+          description:
+            "Товщина шару ґрунту hs над підошвою в межах підвалу. Разом із γ′11 входить у формулу (Е.2) для приведеної глибини d1.",
           showWhen: { fieldId: "hasBasement", equals: true },
         },
         {
@@ -305,6 +341,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "m",
           defaultDisplayUnit: "m",
           displayUnits: SOIL_LENGTH_DISPLAY_UNITS,
+          description:
+            "Товщина підлоги підвалу hcf. Разом із питомою вагою γcf враховується у формулі (Е.2) ДБН В.2.1-10.",
           showWhen: { fieldId: "hasBasement", equals: true },
         },
         {
@@ -318,6 +356,8 @@ const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           baseUnit: "kn-m3",
           defaultDisplayUnit: "kn-m3",
           displayUnits: SOIL_UNIT_WEIGHT_DISPLAY_UNITS,
+          description:
+            "Питома вага конструкції підлоги підвалу γcf. Використовується у формулі (Е.2) для приведеної глибини d1; значення має бути більше 0.",
           showWhen: { fieldId: "hasBasement", equals: true },
         },
       ],

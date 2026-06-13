@@ -808,10 +808,10 @@ describe("CalculatorShell", () => {
     await user.click(screen.getByRole("button", { name: "Показати опис поля Довжина споруди" }));
     await user.click(screen.getByRole("button", { name: "Показати опис поля Висота споруди" }));
     expect(
-      screen.getByText("Довжина споруди або її відсіку."),
+      screen.getByText(/Довжина споруди або її відсіку L для відношення L\/H/),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Висота споруди або її відсіку."),
+      screen.getByText(/Висота споруди або її відсіку H для відношення L\/H/),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("L/H = L / H = 8.25 / 3 = 2.75")).toBeInTheDocument();
     expect(
@@ -978,14 +978,39 @@ describe("CalculatorShell", () => {
     const css = readFileSync("app/globals.css", "utf8");
 
     expect(css).toMatch(
-      /\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+4\.25rem\s+minmax\(10rem,\s*0\.9fr\)\s+minmax\(12rem,\s*1fr\)\s+minmax\(4\.5rem,\s*auto\);/,
+      /\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.25rem\s+4rem\s+minmax\(10rem,\s*0\.9fr\)\s+minmax\(12rem,\s*1fr\)\s+5\.5rem;/,
     );
+    expect(css).toMatch(/\.input-schema-field\s*{[\s\S]*?min-height:\s*38px;/);
     expect(css).toMatch(/\.input-schema-field__prefix\s*{[\s\S]*?justify-content:\s*center;/);
+    expect(css).toMatch(
+      /\.input-schema-field__control\s*{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)\s+5\.5rem;/,
+    );
     expect(css).toMatch(/\.input-schema-field__unit\s*{[\s\S]*?width:\s*100%;/);
+    expect(css).toMatch(/\.input-schema-field input\[type="text"\],[\s\S]*?height:\s*30px;/);
     expect(css).toMatch(
       /@media\s*\(max-width:\s*720px\)\s*{[\s\S]*?\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+minmax\(0,\s*1fr\);/,
     );
     expect(css).toMatch(/\.input-schema-field__prefix\[data-empty="true"\]\s*{[\s\S]*?display:\s*none;/);
+  });
+
+  it("shows soil resistance help actions for documented inspector fields", () => {
+    const calculator = getCalculatorBySlug("soil-design-resistance");
+
+    if (!calculator) {
+      throw new Error("Expected native soil design resistance calculator to exist");
+    }
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(
+      document.querySelector('button[aria-label="Показати опис поля Коефіцієнт умов роботи 1"]'),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector('button[aria-label="Показати опис поля Кут внутрішнього тертя"]'),
+    ).toBeInTheDocument();
+    expect(
+      document.querySelector('button[aria-label="Показати опис поля Ширина підошви"]'),
+    ).toBeInTheDocument();
   });
 
   it("updates cassoon load units and normalizes reversed spans", async () => {

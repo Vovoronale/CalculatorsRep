@@ -7,13 +7,11 @@
    - Network:      http://192.168.1.19:3000
 
  ✓ Starting...
- ✓ Ready in 6.7s
+ ✓ Ready in 2.2s
  ○ Compiling /calculator/[slug] ...
- ✓ Compiled /calculator/[slug] in 10.7s (932 modules)
- GET /calculator/soil-design-resistance 200 in 236ms
- ✓ Compiled / in 374ms (846 modules)
- HEAD / 200 in 707ms
- GET / 200 in 392ms
- GET / 200 in 394ms
- GET /calculator/soil-design-resistance 200 in 688ms
- GET /calculator/soil-design-resistance 200 in 39ms
+ ✓ Compiled /calculator/[slug] in 4.8s (848 modules)
+ GET /calculator/soil-design-resistance 200 in 5093ms
+ GET /calculator/soil-design-resistance 200 in 1472ms
+ GET /calculator/soil-design-resistance 200 in 151ms
+ GET /calculator/soil-design-resistance 200 in 338ms
+ GET /calculator/soil-design-resistance 200 in 378ms
