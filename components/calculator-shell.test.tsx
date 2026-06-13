@@ -734,6 +734,9 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByLabelText("Калькулятор розрахункового опору ґрунту основи"),
     ).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Умови роботи" })).toHaveClass(
+      "input-schema-group",
+    );
     expect(screen.getByRole("combobox", { name: "Спосіб розрахунку" })).toHaveValue(
       "manual-e7",
     );
@@ -798,6 +801,8 @@ describe("CalculatorShell", () => {
     );
     expect(screen.getByRole("spinbutton", { name: "L, м" })).toHaveValue(8.25);
     expect(screen.getByRole("spinbutton", { name: "H, м" })).toHaveValue(3);
+    await user.click(screen.getByRole("button", { name: "Показати опис поля L, м" }));
+    await user.click(screen.getByRole("button", { name: "Показати опис поля H, м" }));
     expect(
       screen.getByText("Довжина споруди або її відсіку."),
     ).toBeInTheDocument();
@@ -841,6 +846,9 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByLabelText("Калькулятор коефіцієнтів c1 і c2 для розподілу навантаження"),
     ).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Вихідні дані" })).toHaveClass(
+      "input-schema-group",
+    );
     expect(screen.getByRole("spinbutton", { name: "lk" })).toHaveValue(3);
     expect(screen.getByRole("spinbutton", { name: "ld" })).toHaveValue(6);
     expect(screen.getByRole("spinbutton", { name: "q" })).toHaveValue(10);
@@ -850,7 +858,9 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("combobox", { name: "Одиниця lk" })).toHaveValue("m");
     expect(screen.getByRole("combobox", { name: "Одиниця ld" })).toHaveValue("m");
     expect(screen.getByRole("combobox", { name: "Одиниця q" })).toHaveValue("kn-m2");
-    expect(screen.getByRole("spinbutton", { name: "q" }).closest("label")).toContainElement(
+    expect(
+      screen.getByRole("spinbutton", { name: "q" }).closest(".input-schema-field"),
+    ).toContainElement(
       screen.getByRole("combobox", { name: "Одиниця q" }),
     );
     const initialLoadDiagram = screen.getByRole("img", {
@@ -952,6 +962,20 @@ describe("CalculatorShell", () => {
     expect(css).toMatch(
       /\.soil-resistance-field--number\s+\.soil-resistance-field__description\s*{[\s\S]*?min-height:\s*calc\(2em\s*\*\s*1\.35\);/,
     );
+  });
+
+  it("defines the shared dense input schema form layout", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+
+    expect(css).toMatch(
+      /\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+4\.25rem\s+minmax\(10rem,\s*0\.9fr\)\s+minmax\(12rem,\s*1fr\)\s+minmax\(4\.5rem,\s*auto\);/,
+    );
+    expect(css).toMatch(/\.input-schema-field__prefix\s*{[\s\S]*?justify-content:\s*center;/);
+    expect(css).toMatch(/\.input-schema-field__unit\s*{[\s\S]*?width:\s*100%;/);
+    expect(css).toMatch(
+      /@media\s*\(max-width:\s*720px\)\s*{[\s\S]*?\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+minmax\(0,\s*1fr\);/,
+    );
+    expect(css).toMatch(/\.input-schema-field__prefix\[data-empty="true"\]\s*{[\s\S]*?display:\s*none;/);
   });
 
   it("updates cassoon load units and normalizes reversed spans", async () => {
