@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 
 import {
-  CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS,
   CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS,
   CASSOON_LOAD_DISTRIBUTION_SOURCE,
   formatCassoonLoadDistributionNumber,
@@ -47,23 +46,7 @@ const SYMBOL_PATTERN = new RegExp(
   "g",
 );
 
-const LENGTH_DISPLAY_UNITS = Object.entries(CASSOON_LOAD_DISTRIBUTION_LENGTH_UNITS).map(
-  ([value, unit]) => ({
-    value,
-    label: unit.label,
-    factorToBase: unit.factorToM,
-  }),
-);
-
-const LOAD_DISPLAY_UNITS = Object.entries(CASSOON_LOAD_DISTRIBUTION_LOAD_UNITS).map(
-  ([value, unit]) => ({
-    value,
-    label: unit.label,
-    factorToBase: unit.factorToKnM2,
-  }),
-);
-
-const CASSOON_INPUT_SCHEMA: CalculatorInputSchema = {
+export const CASSOON_INPUT_SCHEMA: CalculatorInputSchema = {
   groups: [
     {
       id: "inputs",
@@ -77,10 +60,11 @@ const CASSOON_INPUT_SCHEMA: CalculatorInputSchema = {
           defaultValue: "3",
           min: 0,
           step: "0.1",
-          description: "Короткий або перший введений проліт; розрахунок нормалізує lk <= ld.",
+          description:
+            "Короткий або перший введений проліт. Інспектор передає значення в базовій одиниці м; розрахунок нормалізує lk <= ld перед визначенням коефіцієнтів за методикою Ліновіча.",
+          quantity: "length",
           baseUnit: "m",
           defaultDisplayUnit: "m",
-          displayUnits: LENGTH_DISPLAY_UNITS,
         },
         {
           id: "longSpanM",
@@ -90,10 +74,11 @@ const CASSOON_INPUT_SCHEMA: CalculatorInputSchema = {
           defaultValue: "6",
           min: 0,
           step: "0.1",
-          description: "Довгий або другий введений проліт; розрахунок нормалізує lk <= ld.",
+          description:
+            "Довгий або другий введений проліт. Інспектор передає значення в базовій одиниці м; розрахунок нормалізує lk <= ld перед визначенням коефіцієнтів за методикою Ліновіча.",
+          quantity: "length",
           baseUnit: "m",
           defaultDisplayUnit: "m",
-          displayUnits: LENGTH_DISPLAY_UNITS,
         },
         {
           id: "totalLoadKnM2",
@@ -103,10 +88,11 @@ const CASSOON_INPUT_SCHEMA: CalculatorInputSchema = {
           defaultValue: "10",
           min: 0,
           step: "0.1",
-          description: "Повне рівномірно розподілене навантаження на плиту.",
+          description:
+            "Повне рівномірно розподілене навантаження q на плиту. Інспектор передає значення в базовій одиниці кН/м²; далі q розподіляється між напрямами lk і ld за формулами Ліновіча.",
+          quantity: "surfaceLoad",
           baseUnit: "kn-m2",
           defaultDisplayUnit: "kn-m2",
-          displayUnits: LOAD_DISPLAY_UNITS,
         },
       ],
     },
