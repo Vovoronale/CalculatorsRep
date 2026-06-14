@@ -1,0 +1,89 @@
+import { render, screen } from "@testing-library/react";
+import { createElement } from "react";
+import { describe, expect, it } from "vitest";
+
+import type { CalculatorInputField } from "@/lib/calculator-input-schema";
+import { getFoundationBasePressureReport } from "@/lib/foundation-base-pressure";
+
+import {
+  FOUNDATION_BASE_PRESSURE_INPUT_SCHEMA,
+  FoundationBasePressureCalculator,
+  buildFoundationBasePressureDocxReport,
+} from "./foundation-base-pressure-calculator";
+
+function findSchemaField(id: string): CalculatorInputField {
+  for (const group of FOUNDATION_BASE_PRESSURE_INPUT_SCHEMA.groups) {
+    const field = group.fields.find((item) => item.id === id);
+    if (field) return field;
+  }
+  throw new Error(`Missing schema field ${id}`);
+}
+
+describe("FOUNDATION_BASE_PRESSURE_INPUT_SCHEMA", () => {
+  it("uses the agreed default example values", () => {
+    expect(findSchemaField("verticalForceT")).toMatchObject({
+      defaultValue: "26",
+      prefix: { text: "N", ariaLabel: "N" },
+    });
+    expect(findSchemaField("momentXTm")).toMatchObject({
+      defaultValue: "2",
+      prefix: { text: "M", subscript: "x", ariaLabel: "Mx" },
+    });
+    expect(findSchemaField("foundationLengthM")).toMatchObject({
+      defaultValue: "2.4",
+      quantity: "length",
+      baseUnit: "m",
+      defaultDisplayUnit: "m",
+    });
+    expect(findSchemaField("soilAndFoundationUnitWeightTM3")).toMatchObject({
+      defaultValue: "2",
+      prefix: { text: "γ", ariaLabel: "γ" },
+    });
+  });
+});
+
+describe("FoundationBasePressureCalculator", () => {
+  it("renders the calculator with report, DOCX action, and pressure epure", () => {
+    render(createElement(FoundationBasePressureCalculator));
+
+    expect(
+      screen.getByLabelText("Калькулятор напружень під підошвою фундаменту"),
+    ).toHaveClass("native-calculator");
+    expect(
+      screen.getByRole("heading", { name: "Епюра тиску під підошвою" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
+    expect(screen.getAllByText(/σ1 = 27.73 т\/м²/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/P_lift = 20.2%/).length).toBeGreaterThan(0);
+  });
+});
+
+describe("foundation base pressure DOCX export", () => {
+  it("maps report steps and diagram to DOCX", () => {
+    const report = getFoundationBasePressureReport({
+      verticalForceT: 26,
+      momentXTm: 2,
+      shearYT: 0.5,
+      momentYTm: 9.7,
+      shearXT: 9,
+      foundationLengthM: 2.4,
+      foundationWidthM: 1.8,
+      embedmentDepthM: 2,
+      loadApplicationHeightM: 1.6,
+      soilAndFoundationUnitWeightTM3: 2,
+    });
+    const docxReport = buildFoundationBasePressureDocxReport(
+      report,
+      new Date("2026-06-15"),
+    );
+
+    expect(docxReport.fileBaseName).toBe(
+      "napruzhennia-pid-pidoshvoiu-fundamentu-2026-06-15",
+    );
+    expect(docxReport.steps.map((step) => step.key)).toEqual(
+      report.steps.map((step) => step.key),
+    );
+    expect(docxReport.figures?.[0]?.svg).toContain("<svg");
+  });
+});

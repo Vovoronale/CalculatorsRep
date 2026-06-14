@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { CassoonLoadDistributionCalculator } from "@/components/calculators/cassoon-load-distribution-calculator";
 import { ConcreteCharacteristicsCalculator } from "@/components/calculators/concrete-characteristics-calculator";
+import { FoundationBasePressureCalculator } from "@/components/calculators/foundation-base-pressure-calculator";
 import { FoundationBarAnchorageCalculator } from "@/components/calculators/foundation-bar-anchorage-calculator";
 import { MinimumReinforcementCalculator } from "@/components/calculators/minimum-reinforcement-calculator";
 import { RebarAreaBarsCalculator } from "@/components/calculators/rebar-area-bars-calculator";
@@ -545,6 +546,8 @@ function NativeCalculator({ calculator }: { calculator: Calculator }) {
       return <CassoonLoadDistributionCalculator />;
     case "soil-design-resistance":
       return <SoilDesignResistanceCalculator />;
+    case "foundation-base-pressure":
+      return <FoundationBasePressureCalculator />;
     default:
       return (
         <div className="detail-external">

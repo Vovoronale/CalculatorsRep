@@ -87,7 +87,8 @@ export type Calculator = {
     | "minimum-reinforcement-area"
     | "foundation-bar-anchorage"
     | "cassoon-load-distribution"
-    | "soil-design-resistance";
+    | "soil-design-resistance"
+    | "foundation-base-pressure";
   accessLabel: string;
   embedUrl?: string;
   openUrl: string;

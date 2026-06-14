@@ -146,7 +146,7 @@ describe("CalculatorShell", () => {
     render(<CalculatorShell />);
 
     await user.click(screen.getByRole("button", { name: "Розгорнути Конструкції" }));
-    await user.click(screen.getByRole("link", { name: "Конструкції 7" }));
+    await user.click(screen.getByRole("link", { name: "Конструкції 8" }));
 
     expect(screen.getByRole("heading", { name: "Конструкції" })).toBeInTheDocument();
     const table = screen.getByRole("table", {
@@ -782,17 +782,23 @@ describe("CalculatorShell", () => {
     [
       "cassoon-load-distribution",
       "Калькулятор коефіцієнтів c1 і c2 для розподілу навантаження",
+      "Позначення величин",
     ],
-    ["minimum-reinforcement-area", "Калькулятор мінімальної площі армування"],
-    ["foundation-bar-anchorage", "Калькулятор анкерування арматури фундаменту"],
-  ])("renders %s with the shared report calculator shell", (slug, ariaLabel) => {
+    [
+      "foundation-base-pressure",
+      "Калькулятор напружень під підошвою фундаменту",
+      "Епюра тиску під підошвою",
+    ],
+    ["minimum-reinforcement-area", "Калькулятор мінімальної площі армування", "Позначення величин"],
+    ["foundation-bar-anchorage", "Калькулятор анкерування арматури фундаменту", "Позначення величин"],
+  ])("renders %s with the shared report calculator shell", (slug, ariaLabel, diagramHeading) => {
     const calculator = getCalculatorBySlug(slug);
     if (!calculator) throw new Error(`Expected ${slug} to exist`);
 
     render(<CalculatorShell selectedCalculator={calculator} />);
 
     expect(screen.getByLabelText(ariaLabel)).toHaveClass("native-calculator");
-    expect(screen.getByRole("heading", { name: "Позначення величин" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: diagramHeading })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
   });

@@ -5792,6 +5792,44 @@ textarea {
   z-index: 70;
 }
 
+.foundation-base-pressure-summary,
+.foundation-base-pressure-source {
+  color: var(--text-muted);
+}
+
+.foundation-base-pressure-summary p {
+  margin: 0;
+}
+
+.foundation-base-pressure-summary p + p {
+  margin-top: 8px;
+}
+
+.foundation-base-pressure-summary span + span {
+  display: block;
+  margin-top: 4px;
+}
+
+.foundation-base-pressure-diagram {
+  margin: 0;
+}
+
+.foundation-base-pressure-diagram__canvas {
+  overflow-x: auto;
+}
+
+.foundation-base-pressure-diagram__svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.foundation-base-pressure-diagram__label {
+  fill: var(--text);
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+}
+
 /* =====================================================
    Topbar — responsive
    ===================================================== */

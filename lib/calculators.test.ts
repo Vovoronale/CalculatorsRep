@@ -130,6 +130,10 @@ describe("calculator data model", () => {
         slug: "soil-design-resistance",
         extraCategories: ["perevirka-dbn", "normatyvni-obgruntuvannya"],
       },
+      {
+        slug: "foundation-base-pressure",
+        extraCategories: ["perevirka-dbn", "normatyvni-obgruntuvannya"],
+      },
     ]);
   });
 
@@ -142,6 +146,7 @@ describe("calculator data model", () => {
 
     expect(getCalculatorsForCategory("perevirka-dbn").map((calculator) => calculator.slug)).toEqual([
       "soil-design-resistance",
+      "foundation-base-pressure",
     ]);
     expect(getCalculatorsForCategory("asystenty-pidhotovky-poyasnen")).toHaveLength(0);
   });
@@ -197,6 +202,22 @@ describe("calculator data model", () => {
     for (const calculator of calculators) {
       expect(calculator.standard, calculator.slug).toBeTruthy();
     }
+  });
+
+  it("registers the foundation base pressure calculator as a native foundation calculator", () => {
+    const calculator = getCalculatorBySlug("foundation-base-pressure");
+
+    expect(calculator).toMatchObject({
+      title: "Напруження під підошвою фундаменту",
+      shortDescription:
+        "Розрахунок крайових напружень під прямокутною підошвою фундаменту з урахуванням відриву.",
+      mainCategory: "fundamenty",
+      extraCategories: ["perevirka-dbn", "normatyvni-obgruntuvannya"],
+      displayMode: "native",
+      nativeCalculator: "foundation-base-pressure",
+      icon: "Layers",
+      standard: "Методика визначення крайових напружень під прямокутною підошвою фундаменту",
+    });
   });
 
   it("builds unique metadata from calculator title, category, and short description", () => {
