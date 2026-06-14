@@ -13,6 +13,12 @@ describe("SiteFooter", () => {
 
     const footer = screen.getByRole("contentinfo");
 
+    expect(within(footer).getByRole("link", { name: "IVapps.pro" })).toHaveAttribute("href", "/");
+    expect(within(footer).getByText(/Цифрова платформа розрахункових інструментів/)).toBeInTheDocument();
+    expect(within(footer).getByRole("link", { name: "Про автора" })).toHaveAttribute(
+      "href",
+      "/author",
+    );
     expect(within(footer).getByRole("link", { name: "CadEE.pro" })).toHaveAttribute(
       "href",
       "https://cadee.pro",
