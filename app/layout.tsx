@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import Script from "next/script";
 
 import { IVappsTopbar } from "@/components/ivapps-topbar";
 import { siteContent } from "@/lib/site-content";
@@ -34,6 +35,13 @@ export const metadata: Metadata = {
 };
 
 const themeBootstrap = `(function(){try{var s=localStorage.getItem('theme');var p=window.matchMedia('(prefers-color-scheme: dark)').matches;var t=s||(p?'dark':'light');document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='light';}})();`;
+const googleAnalyticsId = "G-LFC4DCDX7V";
+const googleAnalyticsBootstrap = `
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){window.dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '${googleAnalyticsId}');
+`;
 
 export default function RootLayout({
   children,
@@ -48,6 +56,13 @@ export default function RootLayout({
       <body
         className={`${sansFont.variable} ${displayFont.variable} ${monoFont.variable}`}
       >
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {googleAnalyticsBootstrap}
+        </Script>
         <IVappsTopbar />
         {children}
       </body>
