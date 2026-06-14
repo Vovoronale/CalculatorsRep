@@ -19,6 +19,9 @@ export function SiteFooter() {
             {link.label}
           </Link>
         ))}
+        <a href={`mailto:${siteContent.footer.contactEmail}`}>
+          {siteContent.footer.contactEmail}
+        </a>
       </div>
     </footer>
   );

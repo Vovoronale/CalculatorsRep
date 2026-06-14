@@ -70,6 +70,7 @@ type Workspace = {
 type Footer = {
   note: string;
   authorCta: string;
+  contactEmail: string;
 };
 
 type AuthorSocialLink = {

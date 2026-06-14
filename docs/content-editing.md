@@ -176,7 +176,7 @@
 
 ### Бренд і workspace-копія
 
-`site.brand`, `site.workspace`, `site.footer` — одиничні текстові поля. Без структурних змін, просто редагуй текст.
+`site.brand`, `site.workspace`, `site.footer` — одиничні текстові поля. `site.footer.contactEmail` рендериться у footer як `mailto:`-посилання біля юридичних сторінок.
 
 ### Сторінка `/author`
 
@@ -200,7 +200,7 @@
   "metaDescription": "Короткий SEO-опис сторінки.",
   "eyebrow": "Дані та аналітика",
   "lead": "Вступний абзац сторінки.",
-  "updatedAt": "2026-06-14",
+  "updatedAt": "14 червня 2026 року",
   "sections": [
     {
       "title": "Інженерний контекст",

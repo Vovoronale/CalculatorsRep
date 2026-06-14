@@ -41,11 +41,30 @@ describe("legal pages", () => {
 
       expect(page, `${route.slug} content should exist`).toBeDefined();
       expect(page.title).toBe(route.title);
-      expect(page.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(page.updatedAt).toBe("14 червня 2026 року");
       expect(page.sections.length).toBeGreaterThanOrEqual(4);
-      expect(page.sections.map((section: { title: string }) => section.title)).toContain(
-        "Інженерний контекст",
-      );
+      expect(JSON.stringify(page)).toContain("Ivapps.pro@gmail.com");
+      expect(JSON.stringify(page)).not.toContain("[вставити публічний email]");
     }
+  });
+
+  it("uses the provided legal copy anchors", () => {
+    const content = JSON.parse(readFileSync("data/content.json", "utf8"));
+    const legalPages = content.site.legalPages ?? [];
+    const terms = legalPages.find((page: { slug: string }) => page.slug === "terms");
+    const disclaimer = legalPages.find(
+      (page: { slug: string }) => page.slug === "disclaimer",
+    );
+    const privacy = legalPages.find((page: { slug: string }) => page.slug === "privacy");
+
+    expect(JSON.stringify(terms)).toContain(
+      "До цих Умов застосовується законодавство України",
+    );
+    expect(JSON.stringify(disclaimer)).toContain(
+      "Сайт і його матеріали надаються “як є” та “за наявності”",
+    );
+    expect(JSON.stringify(privacy)).toContain(
+      "Володільцем даних у межах роботи сайту є автор і адміністратор платформи IVApps.pro: Іванейко Володимир",
+      );
   });
 });
