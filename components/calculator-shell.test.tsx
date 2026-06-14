@@ -647,7 +647,7 @@ describe("CalculatorShell", () => {
     expect(document.querySelectorAll(".minimum-reinforcement-formula")).toHaveLength(0);
     expect(document.querySelectorAll(".minimum-reinforcement-check")).toHaveLength(0);
     expect(screen.getByLabelText("400 <= 500 <= 600 - умова виконується")).toHaveClass(
-      "minimum-reinforcement-equation",
+      "native-report__formula",
     );
     const initialSectionDiagram = screen.getByRole("img", {
       name: "Параметричний залізобетонний переріз bt 1000 мм, h 500 мм",
@@ -702,10 +702,13 @@ describe("CalculatorShell", () => {
       screen.getByRole("link", { name: /Підібрати діаметр і крок/ }),
     ).toBeInTheDocument();
 
-    await user.clear(screen.getByRole("spinbutton", { name: "h, мм" }));
-    await user.type(screen.getByRole("spinbutton", { name: "h, мм" }), "300");
-    await user.clear(screen.getByRole("spinbutton", { name: "bt, мм" }));
-    await user.type(screen.getByRole("spinbutton", { name: "bt, мм" }), "1200");
+    await user.clear(screen.getByRole("textbox", { name: "Висота перерізу" }));
+    await user.type(screen.getByRole("textbox", { name: "Висота перерізу" }), "300");
+    await user.clear(screen.getByRole("textbox", { name: "Ширина розтягнутої зони" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "Ширина розтягнутої зони" }),
+      "1200",
+    );
 
     const updatedSectionDiagram = screen.getByRole("img", {
       name: "Параметричний залізобетонний переріз bt 1200 мм, h 300 мм",
@@ -733,8 +736,8 @@ describe("CalculatorShell", () => {
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByLabelText("Калькулятор анкерування стрижня фундаменту"),
-    ).toBeInTheDocument();
+      screen.getByLabelText("Калькулятор анкерування арматури фундаменту"),
+    ).toHaveClass("native-calculator");
     expect(screen.getByRole("group", { name: /^Конструкція і матеріали/ })).toBeInTheDocument();
     expect(screen.getByRole("group", { name: /^Геометрія фундаменту/ })).toBeInTheDocument();
     expect(screen.getByRole("group", { name: /^Навантаження на уступі/ })).toBeInTheDocument();
@@ -742,10 +745,10 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("img", { name: "Схема моделі сили розтягу фундаменту за рисунком 8.13" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/h бетонування, мм/)).toBeInTheDocument();
-    expect(screen.getByText(/a від низу, мм/)).toBeInTheDocument();
+    expect(screen.getByText("Висота бетонування")).toBeInTheDocument();
+    expect(screen.getByText("Вісь стрижня від низу")).toBeInTheDocument();
     expect(
-      screen.getByRole("checkbox", { name: /Ковзна опалубка - зменшує eta1 до 0.7/ }),
+      screen.getByRole("checkbox", { name: "Ковзна опалубка" }),
     ).toBeInTheDocument();
     expect(
       screen.getAllByRole("link", { name: "п. 7.2.2.2" }).some(
@@ -761,7 +764,10 @@ describe("CalculatorShell", () => {
     const dstuLink = screen.getAllByRole("link", { name: "п. 8.8.2.5" })[0];
     expect(dstuLink).toHaveAttribute("href", "#norm-dstu-8-8-2-5");
 
-    expect(screen.getByRole("tab", { name: "Нормативні пункти" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Норми" })).toHaveAttribute(
+      "href",
+      "#foundation-anchorage-norms",
+    );
     expect(
       screen.getByRole("heading", {
         name: "п. 8.8.2.5 ДСТУ Б В.2.6-156:2010, формула (8.13)",
@@ -770,6 +776,25 @@ describe("CalculatorShell", () => {
     expect(
       screen.getAllByText(/Сила розтягу для анкерування визначається як Fs = R \* ze \/ zi/).length,
     ).toBeGreaterThan(0);
+  });
+
+  it.each([
+    [
+      "cassoon-load-distribution",
+      "Калькулятор коефіцієнтів c1 і c2 для розподілу навантаження",
+    ],
+    ["minimum-reinforcement-area", "Калькулятор мінімальної площі армування"],
+    ["foundation-bar-anchorage", "Калькулятор анкерування арматури фундаменту"],
+  ])("renders %s with the shared report calculator shell", (slug, ariaLabel) => {
+    const calculator = getCalculatorBySlug(slug);
+    if (!calculator) throw new Error(`Expected ${slug} to exist`);
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(screen.getByLabelText(ariaLabel)).toHaveClass("native-calculator");
+    expect(screen.getByRole("heading", { name: "Позначення величин" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
   });
 
   it("renders the native soil design resistance calculator with a DBN report", async () => {
@@ -1049,9 +1074,9 @@ describe("CalculatorShell", () => {
     const coefficientsEquation = screen.getByLabelText(
       "c1 = ld^4 / (lk^4 + ld^4) = 6^4 / (3^4 + 6^4) = 0.9412; c2 = lk^4 / (lk^4 + ld^4) = 3^4 / (3^4 + 6^4) = 0.0588",
     );
-    expect(
-      coefficientsEquation.querySelectorAll(".cassoon-load-equation__line"),
-    ).toHaveLength(2);
+    expect(coefficientsEquation.querySelectorAll(".report-formula__line")).toHaveLength(
+      2,
+    );
     expect(
       screen.getAllByText((_, element) =>
         Boolean(
