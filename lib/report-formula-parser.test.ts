@@ -104,6 +104,40 @@ describe("parseReportFormula", () => {
     expect(comparison.lines[0].latex).toContain("\\Rightarrow");
   });
 
+  it("renders foundation anchorage formulas with the original mathematical notation", () => {
+    const formulas = [
+      "alpha2 = min(max(1.0 - 0.15 * (cd - Ø) / Ø; 0.7); 1.0) = min(max(1.0 - 0.15 * (50 - 16) / 16; 0.7); 1.0) = 0.7",
+      "alpha235 = max(alpha2 * alpha3 * alpha5; 0.7) = max(0.7 * 0.99 * 1; 0.7) = max(0.7; 0.7) = 0.7",
+      "lbd = alpha1 * alpha4 * alpha235 * lb,rqd = 1 * 1 * 0.7 * 24.98 = 17.49 мм",
+      "sigma_sd = Fs * 1000 / As,prov = 15.07 * 1000 / 804.25 = 18.74 МПа",
+      "eta1 = 1.0, оскільки h = 600 мм, a = 58 мм і стрижень знаходиться в зоні добрих умов зчеплення",
+      "As,1 = pi * Ø^2 / 4 = pi * 16^2 / 4 = 201.06 мм²",
+      "MQ = Q * hQ = 50 * 0.5 = 25 кН*м",
+      "As,prov = As,1 * 1000 / s = 201.06 * 1000 / 150 = 1340.41 мм²/м.п.",
+    ];
+
+    const latex = formulas.map((formula) => {
+      const result = parseReportFormula(formula);
+      expect(result.ok).toBe(true);
+      if (!result.ok) throw new Error(result.reason);
+      return result.lines.map((line) => line.latex).join("\n");
+    }).join("\n");
+
+    expect(latex).toContain("\\alpha_2");
+    expect(latex).toContain("\\alpha_{235}");
+    expect(latex).toContain("l_{bd}");
+    expect(latex).toContain("\\sigma_{sd}");
+    expect(latex).toContain("\\eta_1");
+    expect(latex).toContain("\\pi");
+    expect(latex).toContain("\\text{кН*м}");
+    expect(latex).toContain("\\text{мм}^2/\\text{м.п.}");
+    expect(latex).not.toContain("alpha2");
+    expect(latex).not.toContain("alpha235");
+    expect(latex).not.toContain("sigma_sd");
+    expect(latex).not.toContain("hBond");
+    expect(latex).not.toContain("aBottom");
+  });
+
   it("returns fallback for unsupported prose formulas", () => {
     const result = parseReportFormula("Приймаємо значення з таблиці без математичного виразу");
 

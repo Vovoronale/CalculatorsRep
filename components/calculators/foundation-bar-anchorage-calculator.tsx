@@ -307,7 +307,7 @@ export const FOUNDATION_BAR_ANCHORAGE_INPUT_SCHEMA: CalculatorInputSchema = {
         {
           id: "bondHeightMm",
           kind: "derived",
-          prefix: "h бетонування",
+          prefix: { text: "h", ariaLabel: "h" },
           name: "Висота бетонування",
           description: "Прийнята рівною висоті фундаменту h.",
           getValue: (values) =>
@@ -316,7 +316,7 @@ export const FOUNDATION_BAR_ANCHORAGE_INPUT_SCHEMA: CalculatorInputSchema = {
         {
           id: "bottomBarAxisMm",
           kind: "derived",
-          prefix: "a від низу",
+          prefix: { text: "a", ariaLabel: "a" },
           name: "Вісь стрижня від низу",
           description: "Обчислюється як c + Ø / 2.",
           getValue: (values) => formatDerivedMillimeter(getSchemaBottomBarAxis(values)),

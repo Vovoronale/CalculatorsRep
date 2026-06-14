@@ -17,7 +17,8 @@ const REPORT_SYMBOL_PATTERN = new RegExp(
   "gu",
 );
 const FORMULA_OPERATOR_PATTERN = /(=|<=|>=|<|>|\+|-|\*|\/|\(|\[)/u;
-const UNIT_PATTERN = /(\d(?:[.,]\d+)?)\s(кПа|т\/м²|кг\/см²|мм²|см²|МПа|кН\/м²|кН|м)(?=$|\s=|;|\)|\])/gu;
+const UNIT_PATTERN =
+  /(\d(?:[.,]\d+)?)\s(мм²\/м\.п\.|кН\*м|кПа|т\/м²|кг\/см²|мм²|см²|МПа|кН\/м²|кН|м)(?=$|\s=|;|\)|\])/gu;
 const EXPLANATORY_SUFFIX_PATTERNS = [
   ", оскільки",
   " - умова виконується",
@@ -66,6 +67,10 @@ function escapeLatexText(text: string): string {
 }
 
 function unitToLatex(unit: string): string {
+  if (unit === "мм²/м.п.") {
+    return "\\text{мм}^2/\\text{м.п.}";
+  }
+
   if (unit.endsWith("²")) {
     return `\\text{${escapeLatexText(unit.slice(0, -1))}}^2`;
   }
@@ -246,7 +251,7 @@ function trimEndIndex(value: string, end: number): number {
 }
 
 function isTopLevelNumeratorBoundary(char: string): boolean {
-  return char === "=" || char === "+" || char === ";" || char === "<" || char === ">";
+  return char === "=" || char === "+" || char === "-" || char === ";" || char === "<" || char === ">";
 }
 
 function isTopLevelDenominatorBoundary(char: string): boolean {
@@ -254,20 +259,76 @@ function isTopLevelDenominatorBoundary(char: string): boolean {
 }
 
 function convertOperators(latex: string): string {
-  return latex
+  const textBlocks = new Map<string, string>();
+  let textBlockIndex = 0;
+  const protectedLatex = latex.replace(/\\text\{[^{}]*\}/g, (textBlock) => {
+    const placeholder = `@@TEXT_BLOCK_${textBlockIndex}@@`;
+    textBlockIndex += 1;
+    textBlocks.set(placeholder, textBlock);
+    return placeholder;
+  });
+
+  const converted = protectedLatex
     .replace(/<=/g, "\\le")
     .replace(/>=/g, "\\ge")
     .replace(/=>/g, "\\Rightarrow")
     .replace(/\*/g, "\\cdot")
     .replace(/\[/g, "\\left[")
     .replace(/\]/g, "\\right]");
+
+  return [...textBlocks.entries()].reduce(
+    (result, [placeholder, textBlock]) => result.replace(placeholder, textBlock),
+    converted,
+  );
 }
 
 function convertFunctionSeparators(latex: string): string {
-  return latex.replace(/\\(min|max)\(([^)]+)\)/g, (_match, fn: string, body: string) => {
-    const args = body.replace(/;\s*/g, ";\\ ");
-    return `\\${fn}\\left(${args}\\right)`;
-  });
+  let result = "";
+  let index = 0;
+
+  while (index < latex.length) {
+    const fn = latex.startsWith("\\min(", index)
+      ? "min"
+      : latex.startsWith("\\max(", index)
+        ? "max"
+        : null;
+
+    if (!fn) {
+      result += latex[index];
+      index += 1;
+      continue;
+    }
+
+    const openIndex = index + fn.length + 1;
+    const closeIndex = findMatchingParenthesis(latex, openIndex);
+
+    if (closeIndex === -1) {
+      result += latex[index];
+      index += 1;
+      continue;
+    }
+
+    const body = latex.slice(openIndex + 1, closeIndex).replace(/;\s*/g, ";\\ ");
+    result += `\\${fn}\\left(${body}\\right)`;
+    index = closeIndex + 1;
+  }
+
+  return result;
+}
+
+function findMatchingParenthesis(value: string, openIndex: number): number {
+  let depth = 0;
+
+  for (let index = openIndex; index < value.length; index += 1) {
+    const char = value[index];
+    if (char === "(") depth += 1;
+    if (char === ")") {
+      depth -= 1;
+      if (depth === 0) return index;
+    }
+  }
+
+  return -1;
 }
 
 function lineToLatex(source: string): string {
@@ -276,9 +337,9 @@ function lineToLatex(source: string): string {
 
   latex = convertSymbols(latex);
   latex = convertFractions(latex);
+  latex = convertUnits(latex);
   latex = convertOperators(latex);
   latex = convertFunctionSeparators(latex);
-  latex = convertUnits(latex);
 
   if (suffix) {
     latex += `\\text{${escapeLatexText(suffix)}}`;

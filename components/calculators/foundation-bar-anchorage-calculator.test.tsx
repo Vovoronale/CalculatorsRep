@@ -49,6 +49,19 @@ describe("FOUNDATION_BAR_ANCHORAGE_INPUT_SCHEMA", () => {
       prefix: { text: "N", ariaLabel: "N" },
     });
   });
+
+  it("keeps migrated inspector notation short and moves prose to field names", () => {
+    expect(findSchemaField("bondHeightMm")).toMatchObject({
+      kind: "derived",
+      prefix: { text: "h", ariaLabel: "h" },
+      name: "Висота бетонування",
+    });
+    expect(findSchemaField("bottomBarAxisMm")).toMatchObject({
+      kind: "derived",
+      prefix: { text: "a", ariaLabel: "a" },
+      name: "Вісь стрижня від низу",
+    });
+  });
 });
 
 describe("FoundationBarAnchorageCalculator", () => {

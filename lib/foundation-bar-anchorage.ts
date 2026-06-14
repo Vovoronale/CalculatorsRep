@@ -764,11 +764,11 @@ export function getFoundationBarAnchorageReport(
       key: "internal-lever-arm",
       caption:
         "Обчислення робочої висоти d та внутрішнього плеча zi за спрощеним припущенням п. 8.8.2.6 ДСТУ Б В.2.6-156:2010:",
-      formula: `aBottom = c + Ø / 2 = ${formatFormulaNumber(
+      formula: `a = c + Ø / 2 = ${formatFormulaNumber(
         input.coverBottomMm,
       )} + ${formatFormulaNumber(input.barDiameterMm)} / 2 = ${formatFormulaNumber(
         bottomBarAxisMm,
-      )} мм; d = h - aBottom = ${formatFormulaNumber(
+      )} мм; d = h - a = ${formatFormulaNumber(
         input.footingHeightMm,
       )} - ${formatFormulaNumber(bottomBarAxisMm)} = ${formatFormulaNumber(
         effectiveDepthMm,
@@ -824,14 +824,14 @@ export function getFoundationBarAnchorageReport(
         "Визначення коефіцієнта eta1 умов зчеплення за положенням стрижня під час бетонування згідно з п. 7.2.2.2 ДСТУ Б В.2.6-156:2010 / рис. 8.2 EN 1992-1-1:",
       formula:
         eta1 === 1
-          ? `eta1 = 1.0, оскільки hBond = ${formatFormulaNumber(
+          ? `eta1 = 1.0, оскільки h = ${formatFormulaNumber(
               bondHeightMm,
-            )} мм, aBottom = ${formatFormulaNumber(
+            )} мм, a = ${formatFormulaNumber(
               bottomBarAxisMm,
             )} мм і стрижень знаходиться в зоні добрих умов зчеплення`
-          : `eta1 = 0.7, оскільки hBond = ${formatFormulaNumber(
+          : `eta1 = 0.7, оскільки h = ${formatFormulaNumber(
               bondHeightMm,
-            )} мм, aBottom = ${formatFormulaNumber(
+            )} мм, a = ${formatFormulaNumber(
               bottomBarAxisMm,
             )} мм і стрижень знаходиться поза зоною добрих умов зчеплення`,
     },

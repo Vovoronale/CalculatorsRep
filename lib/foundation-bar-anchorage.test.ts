@@ -115,7 +115,7 @@ describe("foundation bar anchorage calculator", () => {
       "Fs = R * ze / zi = 122.5 * 60 / 487.8 = 15.07 кН",
     );
     expect(report.steps.find((step) => step.key === "internal-lever-arm")?.formula).toBe(
-      "aBottom = c + Ø / 2 = 50 + 16 / 2 = 58 мм; d = h - aBottom = 600 - 58 = 542 мм; zi = 0.9 * d = 0.9 * 542 = 487.8 мм",
+      "a = c + Ø / 2 = 50 + 16 / 2 = 58 мм; d = h - a = 600 - 58 = 542 мм; zi = 0.9 * d = 0.9 * 542 = 487.8 мм",
     );
     expect(report.steps.find((step) => step.key === "alpha2")?.formula).toBe(
       "alpha2 = min(max(1.0 - 0.15 * (cd - Ø) / Ø; 0.7); 1.0) = min(max(1.0 - 0.15 * (50 - 16) / 16; 0.7); 1.0) = min(max(0.68; 0.7); 1.0) = min(0.7; 1.0) = 0.7",
@@ -140,6 +140,9 @@ describe("foundation bar anchorage calculator", () => {
     );
     expect(report.steps.find((step) => step.key === "final-check")?.formula).toBe(
       "lb >= lb,req => 700 >= 160 - умова виконується",
+    );
+    expect(report.steps.map((step) => step.formula ?? "").join(" ")).not.toMatch(
+      /aBottom|hBond/,
     );
   });
 
