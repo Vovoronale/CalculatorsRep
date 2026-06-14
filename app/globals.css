@@ -2963,10 +2963,22 @@ textarea {
 .native-calculator__summary {
   display: grid;
   gap: 4px;
+  min-width: 0;
   border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
   background: color-mix(in srgb, var(--accent) 8%, var(--surface));
   color: var(--text);
+  overflow-wrap: anywhere;
   box-shadow: var(--shadow-sm);
+}
+
+.native-calculator__summary a {
+  box-sizing: border-box;
+  justify-self: stretch;
+  max-width: 100%;
+  min-width: 0;
+  text-align: center;
+  white-space: normal;
+  width: 100%;
 }
 
 .native-calculator__status--warning {
