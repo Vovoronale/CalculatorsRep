@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildCalculatorSeoMetadata,
+  buildCalculatorStructuredData,
   calculatorCategories,
   calculators,
   getCalculatorBySlug,
   getCalculatorsForCategory,
+  getCalculatorSeoSections,
 } from "@/lib/calculators";
+import { siteContent } from "@/lib/site-content";
 
 describe("calculator data model", () => {
   it("builds the category navigation in the expected order", () => {
@@ -193,6 +197,149 @@ describe("calculator data model", () => {
     for (const calculator of calculators) {
       expect(calculator.standard, calculator.slug).toBeTruthy();
     }
+  });
+
+  it("builds unique metadata from calculator title, category, and short description", () => {
+    const metadata = calculators.map((calculator) =>
+      buildCalculatorSeoMetadata(calculator, siteContent.brand.umbrella),
+    );
+
+    expect(new Set(metadata.map((item) => item.title)).size).toBe(calculators.length);
+    expect(new Set(metadata.map((item) => item.description)).size).toBe(
+      calculators.length,
+    );
+
+    const soil = getCalculatorBySlug("soil-design-resistance");
+
+    if (!soil) {
+      throw new Error("Expected native soil design resistance calculator to exist");
+    }
+
+    expect(buildCalculatorSeoMetadata(soil, siteContent.brand.umbrella)).toEqual({
+      title: "Розрахунковий опір ґрунту основи | Фундаменти | IVapps.pro",
+      description:
+        "Розрахунковий опір ґрунту основи у категорії «Фундаменти»: Обчислення розрахункового опору ґрунту основи R за додатком Е ДБН В.2.1-10-2009.",
+    });
+  });
+
+  it("builds calculator SEO sections with methodology, example, and normative context", () => {
+    const calculator = getCalculatorBySlug("soil-design-resistance");
+
+    if (!calculator) {
+      throw new Error("Expected native soil design resistance calculator to exist");
+    }
+
+    const sections = getCalculatorSeoSections(calculator);
+
+    expect(sections.map((section) => section.title)).toEqual([
+      "Короткий опис задачі",
+      "Де застосовується",
+      "Вхідні параметри",
+      "Формули та методика",
+      "Приклад розрахунку",
+      "Обмеження",
+      "Нормативна база",
+    ]);
+    expect(sections[0].body).toContain(
+      "Обчислення розрахункового опору ґрунту основи R",
+    );
+    expect(sections[3].body).toContain("ДБН В.2.1-10-2009, додаток Е");
+    expect(sections[4].body).toContain("Розрахунковий опір ґрунту основи");
+    expect(sections[6].items).toEqual(["ДБН В.2.1-10-2009, додаток Е"]);
+  });
+
+  it("uses calculator SEO content overrides when they are present", () => {
+    const calculator = getCalculatorBySlug("rebar-area-bars");
+
+    if (!calculator) {
+      throw new Error("Expected native rebar calculator to exist");
+    }
+
+    const sections = getCalculatorSeoSections({
+      ...calculator,
+      seoContent: {
+        task: "Підібрати набір стрижнів за потрібною площею арматури.",
+        applications: ["Підбір робочої арматури балки"],
+        inputParameters: ["Потрібна площа As"],
+        formulas: ["As = n * π * d² / 4"],
+        example: "Для As = 5 см² калькулятор підбирає найближчу комбінацію.",
+        limitations: ["Не перевіряє міцність перерізу."],
+        standards: ["ДСТУ 3760:2006"],
+      },
+    });
+
+    expect(sections[0].body).toBe(
+      "Підібрати набір стрижнів за потрібною площею арматури.",
+    );
+    expect(sections[1].items).toEqual(["Підбір робочої арматури балки"]);
+    expect(sections[2].items).toEqual(["Потрібна площа As"]);
+    expect(sections[3].items).toEqual(["As = n * π * d² / 4"]);
+    expect(sections[4].body).toBe(
+      "Для As = 5 см² калькулятор підбирає найближчу комбінацію.",
+    );
+    expect(sections[5].items).toEqual(["Не перевіряє міцність перерізу."]);
+    expect(sections[6].items).toEqual(["ДСТУ 3760:2006"]);
+  });
+
+  it("builds BreadcrumbList and SoftwareApplication structured data", () => {
+    const calculator = getCalculatorBySlug("soil-design-resistance");
+
+    if (!calculator) {
+      throw new Error("Expected native soil design resistance calculator to exist");
+    }
+
+    const structuredData = buildCalculatorStructuredData(
+      calculator,
+      "https://ivapps.pro",
+      siteContent.brand.umbrella,
+    );
+
+    expect(structuredData).toEqual([
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Каталог",
+            item: "https://ivapps.pro/",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Конструкції",
+            item: "https://ivapps.pro/#konstruktsiyi",
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Фундаменти",
+            item: "https://ivapps.pro/#fundamenty",
+          },
+          {
+            "@type": "ListItem",
+            position: 4,
+            name: "Розрахунковий опір ґрунту основи",
+            item: "https://ivapps.pro/calculator/soil-design-resistance",
+          },
+        ],
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "Розрахунковий опір ґрунту основи",
+        applicationCategory: "EngineeringApplication",
+        operatingSystem: "Web",
+        url: "https://ivapps.pro/calculator/soil-design-resistance",
+        description:
+          "Обчислення розрахункового опору ґрунту основи R за додатком Е ДБН В.2.1-10-2009.",
+        provider: {
+          "@type": "Organization",
+          name: "IVapps.pro",
+        },
+      },
+    ]);
   });
 
   it("includes the CadEE air permeability calculator as an embedded thermal calculator", () => {

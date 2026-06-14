@@ -267,7 +267,7 @@ describe("CalculatorShell", () => {
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        level: 2,
+        level: 1,
         name: "Теплотехнічний розрахунок огороджувальної конструкції будівлі",
       }),
     ).toBeInTheDocument();
@@ -287,6 +287,57 @@ describe("CalculatorShell", () => {
     ).toHaveAttribute("href", "/#ogorodzhuvalni-konstruktsiyi");
   });
 
+  it("renders calculator detail pages with a single H1 and SEO methodology sections", () => {
+    const calculator = getCalculatorBySlug("soil-design-resistance");
+
+    if (!calculator) {
+      throw new Error("Expected native soil design resistance calculator to exist");
+    }
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    const pageHeadings = [...document.querySelectorAll("h1")];
+
+    expect(pageHeadings).toHaveLength(1);
+    expect(pageHeadings[0]).toHaveTextContent("Розрахунковий опір ґрунту основи");
+
+    const seoSection = screen.getByRole("region", {
+      name: "Методика та нормативний контекст",
+    });
+
+    expect(
+      within(seoSection).getByRole("heading", {
+        level: 2,
+        name: "Методика та нормативний контекст",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(seoSection).getByRole("heading", {
+        level: 3,
+        name: "Короткий опис задачі",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(seoSection).getByRole("heading", {
+        level: 3,
+        name: "Формули та методика",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(seoSection).getByRole("heading", {
+        level: 3,
+        name: "Приклад розрахунку",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(seoSection).getByRole("heading", {
+        level: 3,
+        name: "Нормативна база",
+      }),
+    ).toBeInTheDocument();
+    expect(seoSection).toHaveTextContent("ДБН В.2.1-10-2009, додаток Е");
+  });
+
   it("renders the native rebar area calculator without an iframe", () => {
     const calculator = getCalculatorBySlug("rebar-area-bars");
 
@@ -298,7 +349,7 @@ describe("CalculatorShell", () => {
 
     expect(
       screen.getByRole("heading", {
-        level: 2,
+        level: 1,
         name: "Сортамент арматури. Підбір діаметра та кількості арматурних стрижнів за площею",
       }),
     ).toBeInTheDocument();
@@ -457,7 +508,7 @@ describe("CalculatorShell", () => {
 
     expect(
       screen.getByRole("heading", {
-        level: 2,
+        level: 1,
         name: "Характеристики арматури для розрахунку залізобетонних конструкцій",
       }),
     ).toBeInTheDocument();
@@ -513,7 +564,7 @@ describe("CalculatorShell", () => {
 
     expect(
       screen.getByRole("heading", {
-        level: 2,
+        level: 1,
         name: "Характеристики бетону для розрахунку залізобетонних конструкцій",
       }),
     ).toBeInTheDocument();
@@ -566,7 +617,7 @@ describe("CalculatorShell", () => {
 
     expect(
       screen.getByRole("heading", {
-        level: 2,
+        level: 1,
         name: "Мінімальна площа армування залізобетонної балки або плити",
       }),
     ).toBeInTheDocument();
@@ -671,7 +722,7 @@ describe("CalculatorShell", () => {
 
     expect(
       screen.getByRole("heading", {
-        level: 2,
+        level: 1,
         name: "Анкерування арматурного стрижня у залізобетонному фундаменті",
       }),
     ).toBeInTheDocument();
@@ -727,7 +778,7 @@ describe("CalculatorShell", () => {
 
     expect(
       screen.getByRole("heading", {
-        level: 2,
+        level: 1,
         name: "Розрахунковий опір ґрунту основи",
       }),
     ).toBeInTheDocument();
@@ -918,7 +969,7 @@ describe("CalculatorShell", () => {
 
     expect(
       screen.getByRole("heading", {
-        level: 2,
+        level: 1,
         name: "Розподіл навантаження в кесонному перекритті",
       }),
     ).toBeInTheDocument();

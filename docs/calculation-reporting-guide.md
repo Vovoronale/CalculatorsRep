@@ -190,7 +190,7 @@ Plain-text `formula` залишається єдиним canonical formula field
 2. Імпортуй компонент у `components/calculator-shell.tsx`.
 3. Додай `case` у `NativeCalculator`.
 4. Додай запис у `data/content.json` з `displayMode: "native"`.
-5. Перевір `openUrl`, `order`, `seoTitle`, `seoDescription`, `useCases`, `tags`.
+5. Перевір `openUrl`, `order`, `useCases`, `tags`, `standard` і за потреби додай `seoContent` для розгорнутих SEO-блоків. `<title>` та `<meta name="description">` генеруються автоматично з `title`, основної категорії та `shortDescription`.
 
 ## Підтримка документа
 

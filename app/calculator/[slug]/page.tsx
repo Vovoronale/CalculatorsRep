@@ -2,7 +2,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { CalculatorShell } from "@/components/calculator-shell";
-import { calculators, getCalculatorBySlug } from "@/lib/calculators";
+import {
+  buildCalculatorSeoMetadata,
+  buildCalculatorStructuredData,
+  calculators,
+  getCalculatorBySlug,
+} from "@/lib/calculators";
 import { siteContent } from "@/lib/site-content";
 
 type CalculatorPageProps = {
@@ -12,6 +17,8 @@ type CalculatorPageProps = {
 };
 
 export const dynamicParams = false;
+
+const siteUrl = "https://ivapps.pro";
 
 export async function generateStaticParams() {
   return calculators.map((calculator) => ({
@@ -31,9 +38,14 @@ export async function generateMetadata({
     };
   }
 
+  const metadata = buildCalculatorSeoMetadata(
+    calculator,
+    siteContent.brand.umbrella,
+  );
+
   return {
-    title: `${calculator.seoTitle} | ${siteContent.brand.productName}`,
-    description: calculator.seoDescription,
+    title: metadata.title,
+    description: metadata.description,
   };
 }
 
@@ -45,5 +57,24 @@ export default async function CalculatorPage({ params }: CalculatorPageProps) {
     notFound();
   }
 
-  return <CalculatorShell selectedCalculator={calculator} />;
+  const structuredData = buildCalculatorStructuredData(
+    calculator,
+    siteUrl,
+    siteContent.brand.umbrella,
+  );
+
+  return (
+    <>
+      {structuredData.map((item) => (
+        <script
+          key={item["@type"]}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(item).replace(/</g, "\\u003c"),
+          }}
+        />
+      ))}
+      <CalculatorShell selectedCalculator={calculator} />
+    </>
+  );
 }

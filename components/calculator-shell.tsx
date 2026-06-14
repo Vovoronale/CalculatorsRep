@@ -23,7 +23,9 @@ import {
   calculatorCategories,
   getCalculatorsForCategory,
   getCategoryTrail,
+  getCalculatorSeoSections,
   type Calculator,
+  type CalculatorSeoSection,
   type CategorySlug,
 } from "@/lib/calculators";
 import { siteContent } from "@/lib/site-content";
@@ -395,9 +397,9 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
             </span>
           ))}
         </div>
-        <h2 id="detail-title" className="detail-header__title">
+        <h1 id="detail-title" className="detail-header__title">
           {calculator.title}
-        </h2>
+        </h1>
         <p className="detail-header__desc">{calculator.shortDescription}</p>
         {!showsIframe && calculator.description ? (
           <p className="detail-header__long">{calculator.description}</p>
@@ -466,6 +468,8 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
         </ul>
       ) : null}
 
+      <CalculatorSeoSections sections={getCalculatorSeoSections(calculator)} />
+
       {related.length > 0 ? (
         <section
           className="workspace-section workspace-section--related"
@@ -488,6 +492,39 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
           </div>
         </section>
       ) : null}
+    </section>
+  );
+}
+
+function CalculatorSeoSections({ sections }: { sections: CalculatorSeoSection[] }) {
+  return (
+    <section
+      className="detail-seo"
+      aria-labelledby="detail-seo-title"
+      role="region"
+    >
+      <div className="detail-seo__head">
+        <h2 id="detail-seo-title" className="detail-seo__title">
+          Методика та нормативний контекст
+        </h2>
+      </div>
+      <div className="detail-seo__grid">
+        {sections.map((section) => (
+          <article className="detail-seo__block" key={section.title}>
+            <h3 className="detail-seo__block-title">{section.title}</h3>
+            {section.body ? (
+              <p className="detail-seo__text">{section.body}</p>
+            ) : null}
+            {section.items && section.items.length > 0 ? (
+              <ul className="detail-seo__list">
+                {section.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            ) : null}
+          </article>
+        ))}
+      </div>
     </section>
   );
 }
