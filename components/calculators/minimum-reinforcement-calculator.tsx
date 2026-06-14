@@ -4,9 +4,15 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import {
+  getDefaultInputSchemaValues,
+  type CalculatorInputDisplayUnit,
+  type CalculatorInputSchema,
+  type CalculatorInputValues,
+} from "@/lib/calculator-input-schema";
+import {
   formatMinimumReinforcementNumber,
   getMinimumReinforcementReport,
-  type MinimumReinforcementReportStep,
+  type MinimumReinforcementReport,
   type MinimumReinforcementStructureType,
 } from "@/lib/minimum-reinforcement";
 import { getConcreteClasses, type ConcreteClassName } from "@/lib/materials/concrete";
@@ -17,11 +23,133 @@ import {
   createDefaultRegistry,
   type SceneDefinition,
 } from "@/lib/vendor/svgparametric";
+import type { DocxReportFigure } from "@/lib/report-docx/types";
 
+import { InputSchemaForm } from "./input-schema-form";
 import { MathNotation } from "./math-notation";
+import { NativeCalculatorLayout } from "./native-calculator-layout";
+import { NativeReport } from "./native-report";
+import {
+  buildNativeDocxReport,
+  formatDocxFileDate,
+} from "./native-report-docx";
+import { ReportDocxButton } from "./report-docx-button";
 
 const DEFAULT_CONCRETE_CLASS: ConcreteClassName = "C30/37";
 const DEFAULT_REBAR_CLASS: RebarClassName = "A500C";
+
+const MILLIMETER_DISPLAY_UNITS: CalculatorInputDisplayUnit[] = [
+  { value: "mm", label: "мм", factorToBase: 1 },
+  { value: "cm", label: "см", factorToBase: 10 },
+  { value: "m", label: "м", factorToBase: 1000 },
+];
+
+const CONCRETE_CLASS_OPTIONS = getConcreteClasses().map((className) => ({
+  value: className,
+  label: className,
+}));
+
+const REBAR_CLASS_OPTIONS = getRebarClasses().map((className) => ({
+  value: className,
+  label: className,
+}));
+
+export const MINIMUM_REINFORCEMENT_INPUT_SCHEMA: CalculatorInputSchema = {
+  groups: [
+    {
+      id: "minimum-reinforcement-inputs",
+      title: "Вихідні дані",
+      fields: [
+        {
+          id: "structureType",
+          kind: "select",
+          name: "Тип конструкції",
+          defaultValue: "beam",
+          description:
+            "Тип елемента визначає пояснення розрахунку і формат рекомендації з підбору арматури.",
+          options: [
+            { value: "beam", label: "Балка" },
+            { value: "slab", label: "Плита" },
+          ],
+        },
+        {
+          id: "concreteClass",
+          kind: "select",
+          name: "Клас бетону",
+          defaultValue: DEFAULT_CONCRETE_CLASS,
+          description:
+            "Клас бетону використовується для визначення fctm за табличними характеристиками.",
+          options: CONCRETE_CLASS_OPTIONS,
+        },
+        {
+          id: "rebarClass",
+          kind: "select",
+          name: "Клас арматури",
+          defaultValue: DEFAULT_REBAR_CLASS,
+          description:
+            "Клас арматури використовується для визначення fyk і перевірки меж застосовності Eurocode 2.",
+          options: REBAR_CLASS_OPTIONS,
+        },
+        {
+          id: "sectionHeightMm",
+          kind: "number",
+          prefix: { text: "h", ariaLabel: "h" },
+          name: "Висота перерізу",
+          defaultValue: "500",
+          min: 0,
+          step: "1",
+          baseUnit: "mm",
+          defaultDisplayUnit: "mm",
+          displayUnits: MILLIMETER_DISPLAY_UNITS,
+          description:
+            "Повна висота залізобетонного перерізу h. Значення передається в розрахунок у міліметрах.",
+        },
+        {
+          id: "tensileZoneWidthMm",
+          kind: "number",
+          prefix: { text: "b", subscript: "t", ariaLabel: "bt" },
+          name: "Ширина розтягнутої зони",
+          defaultValue: "1000",
+          min: 0,
+          step: "1",
+          baseUnit: "mm",
+          defaultDisplayUnit: "mm",
+          displayUnits: MILLIMETER_DISPLAY_UNITS,
+          description:
+            "Ширина розтягнутої зони bt; для плити зазвичай приймається смуга 1000 мм.",
+        },
+        {
+          id: "reinforcementCentroidDistanceMm",
+          kind: "number",
+          prefix: { text: "a", subscript: "s", ariaLabel: "a_s" },
+          name: "Відстань до центра арматури",
+          defaultValue: "50",
+          min: 0,
+          step: "1",
+          baseUnit: "mm",
+          defaultDisplayUnit: "mm",
+          displayUnits: MILLIMETER_DISPLAY_UNITS,
+          description:
+            "Відстань a_s від розтягнутої грані до центра робочої арматури; використовується для d = h - a_s.",
+        },
+        {
+          id: "rebarDiameterMm",
+          kind: "number",
+          prefix: { text: "Ø", subscript: "s", ariaLabel: "Øs" },
+          name: "Діаметр стрижня",
+          defaultValue: "16",
+          min: 0,
+          step: "1",
+          baseUnit: "mm",
+          defaultDisplayUnit: "mm",
+          displayUnits: MILLIMETER_DISPLAY_UNITS,
+          description:
+            "Діаметр стрижня Øs використовується в пояснювальній схемі перерізу.",
+        },
+      ],
+    },
+  ],
+};
 
 const SYMBOLS = {
   "As,min,2": { base: "A", subscript: "s,min,2", ariaLabel: "As,min,2" },
@@ -102,22 +230,6 @@ function FormulaText({ text }: { text: string }) {
   );
 }
 
-function ReportStepFormula({ step }: { step: MinimumReinforcementReportStep }) {
-  if (!step.formula) {
-    return null;
-  }
-
-  return (
-    <div
-      className="minimum-reinforcement-equation"
-      aria-label={step.formula}
-      title={step.formula}
-    >
-      <FormulaText text={step.formula} />
-    </div>
-  );
-}
-
 const SVG_PARAMETRIC_REGISTRY = createDefaultRegistry();
 const SECTION_DIAGRAM_MARGIN_LEFT = 120;
 const SECTION_DIAGRAM_MARGIN_TOP = 70;
@@ -132,6 +244,14 @@ function formatDiagramDimension(value: number): string {
   return Number.isFinite(value) && value > 0
     ? formatMinimumReinforcementNumber(value, 1)
     : "0";
+}
+
+function escapeSvgAttribute(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;");
 }
 
 function getReinforcedConcreteSectionScene({
@@ -247,19 +367,62 @@ function ParametricSectionDiagram({
   );
 }
 
+function buildMinimumReinforcementDiagramFigure(
+  report: MinimumReinforcementReport,
+): DocxReportFigure {
+  const title = `Параметричний залізобетонний переріз bt ${formatDiagramDimension(
+    report.input.tensileZoneWidthMm,
+  )} мм, h ${formatDiagramDimension(report.input.sectionHeightMm)} мм`;
+  const sceneDefinition = getReinforcedConcreteSectionScene({
+    widthMm: report.input.tensileZoneWidthMm,
+    heightMm: report.input.sectionHeightMm,
+    reinforcementCentroidDistanceMm: report.input.reinforcementCentroidDistanceMm,
+    rebarDiameterMm: report.input.rebarDiameterMm,
+    minimumAreaMm2: report.values?.minimumAreaMm2,
+  });
+  const svg = buildScene(sceneDefinition, SVG_PARAMETRIC_REGISTRY).svg.replace(
+    "<svg ",
+    `<svg role="img" aria-label="${escapeSvgAttribute(
+      title,
+    )}" class="minimum-reinforcement-diagram__svg" `,
+  );
+
+  return {
+    key: "minimum-reinforcement-section-diagram",
+    caption: "Параметричний залізобетонний переріз",
+    svg,
+    widthPx: sceneDefinition.scene.width,
+    heightPx: sceneDefinition.scene.height,
+  };
+}
+
+export function buildMinimumReinforcementDocxReport(
+  report: MinimumReinforcementReport,
+  date = new Date(),
+) {
+  return buildNativeDocxReport({
+    title: "Покроковий звіт",
+    fileBaseName: `minimalne-armuvannia-${formatDocxFileDate(date)}`,
+    figures: [buildMinimumReinforcementDiagramFigure(report)],
+    steps: report.steps,
+  });
+}
+
 export function MinimumReinforcementCalculator() {
-  const concreteClasses = useMemo(() => getConcreteClasses(), []);
-  const rebarClasses = useMemo(() => getRebarClasses(), []);
-  const [structureType, setStructureType] =
-    useState<MinimumReinforcementStructureType>("beam");
-  const [concreteClass, setConcreteClass] =
-    useState<ConcreteClassName>(DEFAULT_CONCRETE_CLASS);
-  const [rebarClass, setRebarClass] = useState<RebarClassName>(DEFAULT_REBAR_CLASS);
-  const [sectionHeightInput, setSectionHeightInput] = useState("500");
-  const [tensileZoneWidthInput, setTensileZoneWidthInput] = useState("1000");
-  const [reinforcementCentroidDistanceInput, setReinforcementCentroidDistanceInput] =
-    useState("50");
-  const [rebarDiameterInput, setRebarDiameterInput] = useState("16");
+  const [inputValues, setInputValues] = useState<CalculatorInputValues>(
+    () => getDefaultInputSchemaValues(MINIMUM_REINFORCEMENT_INPUT_SCHEMA),
+  );
+  const structureType = String(
+    inputValues.structureType ?? "beam",
+  ) as MinimumReinforcementStructureType;
+  const concreteClass = String(inputValues.concreteClass ?? DEFAULT_CONCRETE_CLASS);
+  const rebarClass = String(inputValues.rebarClass ?? DEFAULT_REBAR_CLASS);
+  const sectionHeightInput = String(inputValues.sectionHeightMm ?? "500");
+  const tensileZoneWidthInput = String(inputValues.tensileZoneWidthMm ?? "1000");
+  const reinforcementCentroidDistanceInput = String(
+    inputValues.reinforcementCentroidDistanceMm ?? "50",
+  );
+  const rebarDiameterInput = String(inputValues.rebarDiameterMm ?? "16");
 
   const report = useMemo(
     () =>
@@ -286,13 +449,10 @@ export function MinimumReinforcementCalculator() {
       tensileZoneWidthInput,
     ],
   );
-
-  const handleStructureTypeChange = (value: MinimumReinforcementStructureType) => {
-    setStructureType(value);
-    if (value === "slab" && !tensileZoneWidthInput) {
-      setTensileZoneWidthInput("1000");
-    }
-  };
+  const docxReport = useMemo(
+    () => buildMinimumReinforcementDocxReport(report),
+    [report],
+  );
   const rebarSelectionHref =
     report.valid && report.values
       ? `/calculator/rebar-area-bars?minimumArea=${encodeURIComponent(
@@ -322,190 +482,84 @@ export function MinimumReinforcementCalculator() {
     [report],
   );
 
+  const resultSummary =
+    report.valid && report.values ? (
+      <>
+        <p>
+          <MathNotation base="A" subscript="s,min" ariaLabel="As,min" /> ={" "}
+          {report.values.minimumAreaMm2.toFixed(1)} мм² ={" "}
+          {report.values.minimumAreaCm2.toFixed(2)} см²;{" "}
+          <MathNotation base="d" ariaLabel="d" /> ={" "}
+          {report.values.effectiveDepthMm} мм.
+        </p>
+        <p className="minimum-reinforcement-summary__handoff">
+          {structureType === "slab" && rebarSpacingSelection ? (
+            <>
+              Рекомендований підбір на 1 м.п.: Ø
+              {rebarSpacingSelection.diameter} крок{" "}
+              {rebarSpacingSelection.spacingMillimeters} мм ={" "}
+              {formatMinimumReinforcementNumber(
+                rebarSpacingSelection.areaSquareMillimeters,
+                1,
+              )}{" "}
+              мм²/м.п. (
+              {(
+                (rebarSpacingSelection.areaSquareMillimeters /
+                  report.values.minimumAreaMm2) *
+                100
+              ).toFixed(1)}
+              % від As,min).
+            </>
+          ) : structureType === "beam" && rebarSelection ? (
+            <>
+              Рекомендований підбір: {rebarSelection.count}Ø
+              {rebarSelection.diameter} ={" "}
+              {formatMinimumReinforcementNumber(
+                rebarSelection.areaSquareMillimeters,
+                1,
+              )}{" "}
+              мм² (
+              {(
+                (rebarSelection.areaSquareMillimeters /
+                  report.values.minimumAreaMm2) *
+                100
+              ).toFixed(1)}
+              % від As,min).
+            </>
+          ) : (
+            <>
+              Для As,min = {report.values.minimumAreaMm2.toFixed(1)} мм² не знайдено
+              {structureType === "slab"
+                ? " підбір на 1 м.п. у поточному сортаменті."
+                : " підбір у поточному сортаменті."}
+            </>
+          )}
+        </p>
+        <Link className="minimum-reinforcement-summary__link" href={rebarSelectionHref}>
+          {structureType === "slab"
+            ? "Підібрати діаметр і крок арматури на 1 м.п."
+            : "Підібрати діаметр і кількість арматури"}
+        </Link>
+      </>
+    ) : null;
+
   return (
-    <div
-      className="minimum-reinforcement-calculator"
-      aria-label="Калькулятор мінімальної площі армування"
-    >
-      <div className="minimum-reinforcement-calculator__controls">
-        <label className="minimum-reinforcement-field">
-          <span>Тип конструкції</span>
-          <select
-            value={structureType}
-            onChange={(event) =>
-              handleStructureTypeChange(
-                event.target.value as MinimumReinforcementStructureType,
-              )
-            }
-            aria-label="Тип конструкції"
-          >
-            <option value="beam">Балка</option>
-            <option value="slab">Плита</option>
-          </select>
-        </label>
-
-        <label className="minimum-reinforcement-field">
-          <span>Клас бетону</span>
-          <select
-            value={concreteClass}
-            onChange={(event) => setConcreteClass(event.target.value as ConcreteClassName)}
-            aria-label="Клас бетону"
-          >
-            {concreteClasses.map((className) => (
-              <option key={className} value={className}>
-                {className}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="minimum-reinforcement-field">
-          <span>Клас арматури</span>
-          <select
-            value={rebarClass}
-            onChange={(event) => setRebarClass(event.target.value as RebarClassName)}
-            aria-label="Клас арматури"
-          >
-            {rebarClasses.map((className) => (
-              <option key={className} value={className}>
-                {className}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="minimum-reinforcement-field minimum-reinforcement-field--number">
-          <span>
-            <MathNotation base="h" ariaLabel="h" />
-            <span className="math-notation__unit">, мм</span>
-          </span>
-          <input
-            type="number"
-            inputMode="decimal"
-            min="0"
-            step="1"
-            value={sectionHeightInput}
-            onChange={(event) => setSectionHeightInput(event.target.value)}
-            aria-label="h, мм"
-          />
-        </label>
-
-        <label className="minimum-reinforcement-field minimum-reinforcement-field--number">
-          <span>
-            <MathNotation base="b" subscript="t" ariaLabel="bt" />
-            <span className="math-notation__unit">, мм</span>
-          </span>
-          <input
-            type="number"
-            inputMode="decimal"
-            min="0"
-            step="1"
-            value={tensileZoneWidthInput}
-            onChange={(event) => setTensileZoneWidthInput(event.target.value)}
-            aria-label="bt, мм"
-          />
-        </label>
-
-        <label className="minimum-reinforcement-field minimum-reinforcement-field--number">
-          <span>
-            <MathNotation base="a" subscript="s" ariaLabel="a_s" />
-            <span className="math-notation__unit">, мм</span>
-          </span>
-          <input
-            type="number"
-            inputMode="decimal"
-            min="0"
-            step="1"
-            value={reinforcementCentroidDistanceInput}
-            onChange={(event) =>
-              setReinforcementCentroidDistanceInput(event.target.value)
-            }
-            aria-label="a_s, мм"
-          />
-        </label>
-
-        <label className="minimum-reinforcement-field minimum-reinforcement-field--number">
-          <span>
-            <MathNotation base="Ø" subscript="s" ariaLabel="Øs" />
-            <span className="math-notation__unit">, мм</span>
-          </span>
-          <input
-            type="number"
-            inputMode="decimal"
-            min="0"
-            step="1"
-            value={rebarDiameterInput}
-            onChange={(event) => setRebarDiameterInput(event.target.value)}
-            aria-label="Øs, мм"
-          />
-        </label>
-      </div>
-
-      {report.valid && report.values ? (
-        <div className="minimum-reinforcement-summary" aria-live="polite">
-          <p>
-            <MathNotation base="A" subscript="s,min" ariaLabel="As,min" /> ={" "}
-            {report.values.minimumAreaMm2.toFixed(1)} мм² ={" "}
-            {report.values.minimumAreaCm2.toFixed(2)} см²;{" "}
-            <MathNotation base="d" ariaLabel="d" /> ={" "}
-            {report.values.effectiveDepthMm} мм.
-          </p>
-          <p className="minimum-reinforcement-summary__handoff">
-            {structureType === "slab" && rebarSpacingSelection ? (
-              <>
-                Рекомендований підбір на 1 м.п.: Ø
-                {rebarSpacingSelection.diameter} крок{" "}
-                {rebarSpacingSelection.spacingMillimeters} мм ={" "}
-                {formatMinimumReinforcementNumber(
-                  rebarSpacingSelection.areaSquareMillimeters,
-                  1,
-                )}{" "}
-                мм²/м.п. (
-                {(
-                  (rebarSpacingSelection.areaSquareMillimeters /
-                    report.values.minimumAreaMm2) *
-                  100
-                ).toFixed(1)}
-                % від As,min).
-              </>
-            ) : structureType === "beam" && rebarSelection ? (
-              <>
-                Рекомендований підбір: {rebarSelection.count}Ø
-                {rebarSelection.diameter} ={" "}
-                {formatMinimumReinforcementNumber(
-                  rebarSelection.areaSquareMillimeters,
-                  1,
-                )}{" "}
-                мм² (
-                {(
-                  (rebarSelection.areaSquareMillimeters /
-                    report.values.minimumAreaMm2) *
-                  100
-                ).toFixed(1)}
-                % від As,min).
-              </>
-            ) : (
-              <>
-                Для As,min = {report.values.minimumAreaMm2.toFixed(1)} мм² не знайдено
-                {structureType === "slab"
-                  ? " підбір на 1 м.п. у поточному сортаменті."
-                  : " підбір у поточному сортаменті."}
-              </>
-            )}
-          </p>
-          <Link className="minimum-reinforcement-summary__link" href={rebarSelectionHref}>
-            {structureType === "slab"
-              ? "Підібрати діаметр і крок арматури на 1 м.п."
-              : "Підібрати діаметр і кількість арматури"}
-          </Link>
-        </div>
-      ) : null}
-
-      <section
-        className="minimum-reinforcement-diagrams"
-        aria-labelledby="minimum-diagrams-title"
-      >
-        <h3 id="minimum-diagrams-title">Позначення величин</h3>
+    <NativeCalculatorLayout
+      ariaLabel="Калькулятор мінімальної площі армування"
+      navLinks={[
+        { href: "#minimum-reinforcement-inputs", label: "Ввід" },
+        { href: "#native-calculator-diagrams-title", label: "Схема" },
+        { href: "#minimum-report-title", label: "Звіт" },
+      ]}
+      summary={resultSummary}
+      controls={
+        <InputSchemaForm
+          schema={MINIMUM_REINFORCEMENT_INPUT_SCHEMA}
+          values={inputValues}
+          onValuesChange={setInputValues}
+        />
+      }
+      diagrams={
         <div className="minimum-reinforcement-diagrams__grid">
           <ParametricSectionDiagram
             widthMm={parseNumberInput(tensileZoneWidthInput)}
@@ -519,51 +573,17 @@ export function MinimumReinforcementCalculator() {
             }
           />
         </div>
-      </section>
-
-      {report.errors.length > 0 ? (
-        <div className="minimum-reinforcement-errors" role="alert">
-          <ul>
-            {report.errors.map((error) => (
-              <li key={error}>{error}</li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
-      {report.warnings.length > 0 ? (
-        <div className="minimum-reinforcement-warning" role="status">
-          {report.warnings.map((warning) => (
-            <p key={warning}>{warning}</p>
-          ))}
-        </div>
-      ) : null}
-
-      <section className="minimum-reinforcement-report" aria-labelledby="minimum-report-title">
-        <div className="minimum-reinforcement-report__head">
-          <h3 id="minimum-report-title">Покроковий звіт</h3>
-        </div>
-
-        <ol className="minimum-reinforcement-report__steps">
-          {report.steps.map((step) => (
-            <li key={step.key} className="minimum-reinforcement-report__step">
-              <p className="minimum-reinforcement-report__caption">
-                <FormulaText text={step.caption} />
-              </p>
-              {step.items ? (
-                <ul className="minimum-reinforcement-report__items">
-                  {step.items.map((item) => (
-                    <li key={item}>
-                      <FormulaText text={item} />
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              <ReportStepFormula step={step} />
-            </li>
-          ))}
-        </ol>
-      </section>
-    </div>
+      }
+      errors={report.errors}
+      warnings={report.warnings}
+    >
+      <NativeReport
+        titleId="minimum-report-title"
+        title="Покроковий звіт"
+        steps={report.steps}
+        renderText={(text) => <FormulaText text={text} />}
+        actions={<ReportDocxButton report={docxReport} />}
+      />
+    </NativeCalculatorLayout>
   );
 }
