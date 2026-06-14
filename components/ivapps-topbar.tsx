@@ -7,16 +7,19 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { siteContent } from "@/lib/site-content";
 
 export function IVappsTopbar() {
-  const { umbrella, umbrellaMonogram, umbrellaWordmark } = siteContent.brand;
+  const { umbrella, umbrellaWordmark } = siteContent.brand;
   const { cta } = siteContent.topbar;
 
   return (
     <header className="ivapps-topbar" aria-label={umbrella}>
       <div className="ivapps-topbar__left">
         <Link href="/" className="ivapps-logo" aria-label={umbrella}>
-          <span className="ivapps-logo__mark" aria-hidden>
-            {umbrellaMonogram}
-          </span>
+          <img
+            className="ivapps-logo__mark"
+            src="/brand/ivapps-icon.png"
+            alt=""
+            aria-hidden="true"
+          />
           <span className="ivapps-logo__wordmark">{umbrellaWordmark}</span>
         </Link>
       </div>

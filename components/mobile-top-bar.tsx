@@ -11,7 +11,7 @@ type MobileTopBarProps = {
 };
 
 export function MobileTopBar({ onOpenDrawer }: MobileTopBarProps) {
-  const { umbrella, umbrellaMonogram, umbrellaWordmark } = siteContent.brand;
+  const { umbrella, umbrellaWordmark } = siteContent.brand;
 
   return (
     <div className="mobile-top-bar">
@@ -24,9 +24,12 @@ export function MobileTopBar({ onOpenDrawer }: MobileTopBarProps) {
         <Menu size={20} aria-hidden />
       </button>
       <Link href="/" className="ivapps-logo mobile-top-bar__brand" aria-label={umbrella}>
-        <span className="ivapps-logo__mark" aria-hidden>
-          {umbrellaMonogram}
-        </span>
+        <img
+          className="ivapps-logo__mark"
+          src="/brand/ivapps-icon.png"
+          alt=""
+          aria-hidden="true"
+        />
         <span className="ivapps-logo__wordmark">{umbrellaWordmark}</span>
       </Link>
       <ThemeToggle variant="icon" className="mobile-top-bar__theme" />

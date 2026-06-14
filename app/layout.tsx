@@ -30,8 +30,18 @@ const monoFont = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://ivapps.pro"),
   title: `${siteContent.brand.productName} | ${siteContent.brand.authorName}`,
   description: siteContent.brand.role,
+  icons: {
+    icon: [{ url: "/brand/ivapps-icon.png", type: "image/png" }],
+    apple: [{ url: "/brand/ivapps-icon.png", type: "image/png" }],
+  },
+  openGraph: {
+    title: `${siteContent.brand.productName} | ${siteContent.brand.authorName}`,
+    description: siteContent.brand.role,
+    images: [{ url: "/brand/ivapps-emblem.png", width: 900, height: 739 }],
+  },
 };
 
 const themeBootstrap = `(function(){try{var s=localStorage.getItem('theme');var p=window.matchMedia('(prefers-color-scheme: dark)').matches;var t=s||(p?'dark':'light');document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='light';}})();`;

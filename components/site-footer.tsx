@@ -17,8 +17,12 @@ export function SiteFooter() {
             className="ivapps-logo site-footer__logo"
             aria-label={siteContent.brand.umbrella}
           >
-            <span className="ivapps-logo__mark">{siteContent.brand.umbrellaMonogram}</span>
-            <span className="ivapps-logo__wordmark">{siteContent.brand.umbrellaWordmark}</span>
+            <img
+              className="ivapps-logo__emblem"
+              src="/brand/ivapps-emblem.png"
+              alt=""
+              aria-hidden="true"
+            />
           </Link>
           <p className="site-footer__eyebrow">{siteContent.brand.productName}</p>
           <p className="site-footer__description">{siteContent.brand.role}</p>
