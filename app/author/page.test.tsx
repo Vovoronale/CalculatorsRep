@@ -15,7 +15,7 @@ describe("AuthorPage", () => {
     const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
     const workspace = screen.getByRole("main");
 
-    expect(within(rail).getByText("Іванейко Володимир")).toBeInTheDocument();
+    expect(within(rail).getByText("Калькулятори")).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "CadEE.pro" })[0]).toHaveAttribute(
       "href",
       "https://cadee.pro",

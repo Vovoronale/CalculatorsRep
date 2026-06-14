@@ -128,6 +128,14 @@ Plain-text `formula` залишається єдиним canonical formula field
 
 Схема має показувати тільки потрібні для розрахунку величини. Не додавай зайві елементи, якщо вони не використовуються у формулах або вихідних даних.
 
+## DOCX export
+
+Нативні калькулятори, які підтримують експорт звіту, мають мапити наявні `report.steps` у універсальний контракт `DocxReportDocument` з `lib/report-docx/types.ts`.
+
+Canonical formula source залишається plain-text `formula` або `formulas` у кожному кроці звіту. Не додавай дубльовані поля для DOCX-формул у розрахункові модулі. Якщо формула не підтримується DOCX parser-ом, експорт має вставити точний plain-text рядок і не блокувати створення документа.
+
+Для схем передавай контрольований SVG або PNG через `DocxReportFigure`. Browser export конвертує SVG у PNG перед вбудовуванням, тому що static Cloudflare Pages deployment не має server-side document generation.
+
 ## Handoff між калькуляторами
 
 Якщо результат одного калькулятора є вихідними даними для іншого, додай пряме посилання з query parameters.
