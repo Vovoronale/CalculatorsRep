@@ -4,10 +4,12 @@ import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 
 import type { CalculatorInputField } from "@/lib/calculator-input-schema";
+import { getSoilDesignResistanceReport } from "@/lib/soil-design-resistance";
 
 import {
   SOIL_INPUT_SCHEMA,
   SoilDesignResistanceCalculator,
+  buildSoilDesignResistanceDocxReport,
 } from "./soil-design-resistance-calculator";
 
 afterEach(() => {
@@ -79,6 +81,54 @@ describe("SOIL_INPUT_SCHEMA", () => {
     expectTextDescription(findSchemaField("liquidityIndex"), /глинист/);
     expectTextDescription(findSchemaField("phi11Deg"), /табл\. Е\.8/);
     expectTextDescription(findSchemaField("strengthSource"), /п\. Е\.4/);
+  });
+});
+
+describe("soil design resistance DOCX export", () => {
+  it("maps the soil report to the universal DOCX report contract", () => {
+    const report = getSoilDesignResistanceReport({
+      calculationMode: "manual-e7",
+      structuralScheme: "rigid",
+      buildingLengthM: 8.25,
+      buildingHeightM: 3,
+      soilType: "medium-sand",
+      liquidityIndex: 0.3,
+      gammaC1Manual: 1,
+      gammaC2Manual: 1,
+      phi11Deg: 30,
+      gamma11KnM3: 17.1,
+      gammaPrime11KnM3: 16.6,
+      c11KPa: 4,
+      strengthSource: "direct-testing",
+      foundationWidthM: 1,
+      foundationDepthM: 1.2,
+      hasBasement: false,
+      embedmentDepthD1M: 1.2,
+      basementDepthInputM: 1.5,
+      soilLayerAboveFootingHsM: 0.4,
+      basementFloorThicknessHcfM: 0.2,
+      basementFloorUnitWeightGammaCfKnM3: 22,
+    });
+
+    const docxReport = buildSoilDesignResistanceDocxReport(report);
+
+    expect(docxReport.title).toBe("Покроковий звіт");
+    expect(docxReport.fileBaseName).toMatch(
+      /^rozrakhunkovyi-opir-gruntu-\d{4}-\d{2}-\d{2}$/,
+    );
+    expect(docxReport.steps.map((step) => step.key)).toEqual(
+      report.steps.map((step) => step.key),
+    );
+    expect(docxReport.steps.find((step) => step.key === "r")?.formula).toBe(
+      report.steps.find((step) => step.key === "r")?.formula,
+    );
+    expect(docxReport.figures?.[0]?.svg).toContain("<svg");
+  });
+
+  it("shows a DOCX download button in the report section", () => {
+    render(createElement(SoilDesignResistanceCalculator));
+
+    expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
   });
 });
 

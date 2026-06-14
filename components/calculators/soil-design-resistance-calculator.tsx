@@ -9,6 +9,7 @@ import {
   getSoilDesignResistanceReport,
   type SoilCalculationMode,
   type SoilDesignResistanceInput,
+  type SoilDesignResistanceReport,
   type SoilDesignResistanceReportStep,
   type SoilStrengthSource,
   type SoilStructuralScheme,
@@ -19,6 +20,7 @@ import {
   type CalculatorInputSchema,
   type CalculatorInputValues,
 } from "@/lib/calculator-input-schema";
+import type { DocxReportDocument, DocxReportFigure } from "@/lib/report-docx/types";
 import {
   buildScene,
   createDefaultRegistry,
@@ -27,6 +29,7 @@ import {
 
 import { InputSchemaForm } from "./input-schema-form";
 import { MathNotation } from "./math-notation";
+import { ReportDocxButton } from "./report-docx-button";
 import { ReportFormula } from "./report-formula";
 
 const SOIL_TYPES = Object.keys(SOIL_TYPE_LABELS) as SoilType[];
@@ -609,6 +612,98 @@ function getSoilFoundationScene({
   };
 }
 
+function getSoilFoundationDiagramTitle(input: SoilDesignResistanceInput): string {
+  return input.hasBasement
+    ? `Схема фундаменту з підвалом: b ${formatSoilDesignResistanceNumber(
+        input.foundationWidthM,
+        2,
+      )} м, db,input ${formatSoilDesignResistanceNumber(
+        input.basementDepthInputM,
+        2,
+      )} м, hcf ${formatSoilDesignResistanceNumber(
+        input.basementFloorThicknessHcfM,
+        2,
+      )} м`
+    : `Схема фундаменту без підвалу: b ${formatSoilDesignResistanceNumber(
+        input.foundationWidthM,
+        2,
+      )} м, d1 ${formatSoilDesignResistanceNumber(input.embedmentDepthD1M, 2)} м`;
+}
+
+function getSoilFoundationDiagramCaption(input: SoilDesignResistanceInput): string {
+  return input.hasBasement
+    ? "Схема фундаменту з підвалом для геометричних величин формул (Е.1) і (Е.2)."
+    : "Схема фундаменту без підвалу для геометричних величин формули (Е.1).";
+}
+
+function buildSoilFoundationDiagramFigure({
+  input,
+  soilDesignResistanceKPa,
+}: {
+  input: SoilDesignResistanceInput;
+  soilDesignResistanceKPa?: number;
+}): DocxReportFigure {
+  const sceneDefinition = getSoilFoundationScene({
+    hasBasement: input.hasBasement,
+    foundationWidthM: input.foundationWidthM,
+    embedmentDepthD1M: input.embedmentDepthD1M,
+    basementDepthInputM: input.basementDepthInputM,
+    soilLayerAboveFootingHsM: input.soilLayerAboveFootingHsM,
+    basementFloorThicknessHcfM: input.basementFloorThicknessHcfM,
+    soilDesignResistanceKPa,
+  });
+  const title = getSoilFoundationDiagramTitle(input);
+  const svg = buildScene(sceneDefinition, SVG_PARAMETRIC_REGISTRY).svg.replace(
+    "<svg ",
+    `<svg role="img" aria-label="${escapeSvgAttribute(
+      title,
+    )}" class="soil-resistance-diagram__svg" `,
+  );
+
+  return {
+    key: "soil-foundation-diagram",
+    caption: getSoilFoundationDiagramCaption(input),
+    svg,
+    widthPx: sceneDefinition.scene.width,
+    heightPx: sceneDefinition.scene.height,
+  };
+}
+
+function formatDocxFileDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+export function buildSoilDesignResistanceDocxReport(
+  report: SoilDesignResistanceReport,
+  date = new Date(),
+): DocxReportDocument {
+  const soilDesignResistanceKPa =
+    report.valid && report.values ? report.values.soilDesignResistanceKPa : undefined;
+
+  return {
+    title: "Покроковий звіт",
+    fileBaseName: `rozrakhunkovyi-opir-gruntu-${formatDocxFileDate(date)}`,
+    figures: [
+      buildSoilFoundationDiagramFigure({
+        input: report.input,
+        soilDesignResistanceKPa,
+      }),
+    ],
+    steps: report.steps.map((step) => ({
+      key: step.key,
+      caption: step.caption,
+      ...(step.items ? { items: [...step.items] } : {}),
+      ...(step.notes ? { notes: [...step.notes] } : {}),
+      ...(step.formula ? { formula: step.formula } : {}),
+      ...(step.formulas ? { formulas: [...step.formulas] } : {}),
+    })),
+  };
+}
+
 function RichText({ text }: { text: string }) {
   const linkPattern = new RegExp(
     NORM_LINKS.map((link) => link.text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
@@ -683,50 +778,15 @@ function SoilFoundationDiagram({
   input: SoilDesignResistanceInput;
   soilDesignResistanceKPa?: number;
 }) {
-  const title = input.hasBasement
-    ? `Схема фундаменту з підвалом: b ${formatSoilDesignResistanceNumber(
-        input.foundationWidthM,
-        2,
-      )} м, db,input ${formatSoilDesignResistanceNumber(
-        input.basementDepthInputM,
-        2,
-      )} м, hcf ${formatSoilDesignResistanceNumber(
-        input.basementFloorThicknessHcfM,
-        2,
-      )} м`
-    : `Схема фундаменту без підвалу: b ${formatSoilDesignResistanceNumber(
-        input.foundationWidthM,
-        2,
-      )} м, d1 ${formatSoilDesignResistanceNumber(input.embedmentDepthD1M, 2)} м`;
-  const svg = buildScene(
-    getSoilFoundationScene({
-      hasBasement: input.hasBasement,
-      foundationWidthM: input.foundationWidthM,
-      embedmentDepthD1M: input.embedmentDepthD1M,
-      basementDepthInputM: input.basementDepthInputM,
-      soilLayerAboveFootingHsM: input.soilLayerAboveFootingHsM,
-      basementFloorThicknessHcfM: input.basementFloorThicknessHcfM,
-      soilDesignResistanceKPa,
-    }),
-    SVG_PARAMETRIC_REGISTRY,
-  ).svg.replace(
-    "<svg ",
-    `<svg role="img" aria-label="${escapeSvgAttribute(
-      title,
-    )}" class="soil-resistance-diagram__svg" `,
-  );
+  const figure = buildSoilFoundationDiagramFigure({ input, soilDesignResistanceKPa });
 
   return (
     <figure className="soil-resistance-diagram">
       <div
         className="soil-resistance-diagram__canvas"
-        dangerouslySetInnerHTML={{ __html: svg }}
+        dangerouslySetInnerHTML={{ __html: figure.svg ?? "" }}
       />
-      <figcaption>
-        {input.hasBasement
-          ? "Схема фундаменту з підвалом для геометричних величин формул (Е.1) і (Е.2)."
-          : "Схема фундаменту без підвалу для геометричних величин формули (Е.1)."}
-      </figcaption>
+      <figcaption>{figure.caption}</figcaption>
     </figure>
   );
 }
@@ -819,6 +879,7 @@ export function SoilDesignResistanceCalculator() {
   );
 
   const report = useMemo(() => getSoilDesignResistanceReport(input), [input]);
+  const docxReport = useMemo(() => buildSoilDesignResistanceDocxReport(report), [report]);
   const resultSummary =
     report.valid && report.values ? (
       <div className="soil-resistance-summary" aria-live="polite">
@@ -903,6 +964,7 @@ export function SoilDesignResistanceCalculator() {
       <section className="soil-resistance-report" aria-labelledby="soil-resistance-report-title">
         <div className="soil-resistance-report__head">
           <h3 id="soil-resistance-report-title">Покроковий звіт</h3>
+          <ReportDocxButton report={docxReport} />
         </div>
 
         <ol className="soil-resistance-report__steps">

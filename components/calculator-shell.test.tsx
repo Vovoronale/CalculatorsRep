@@ -42,7 +42,7 @@ describe("CalculatorShell", () => {
 
     expect(rail).toBeInTheDocument();
     expect(workspace).toBeInTheDocument();
-    expect(within(rail).getByText("Іванейко Володимир")).toBeInTheDocument();
+    expect(within(rail).getByText("Калькулятори")).toBeInTheDocument();
     expect(within(rail).getByText("Напрями розрахунків")).toBeInTheDocument();
     expect(
       within(rail).getByRole("link", { name: "Теплотехніка 20" }),
@@ -815,6 +815,7 @@ describe("CalculatorShell", () => {
       "title",
       "R = γc1 * γc2 / k * [Mγ * kz * b * γ11 + Mq * d1 * γ′11 + (Mq - 1) * db * γ′11 + Mc * c11] = 1 * 1 / 1 * [1.15 * 1 * 1 * 17.1 + 5.59 * 1.2 * 16.6 + (5.59 - 1) * 0 * 16.6 + 7.95 * 4] = 162.82 кПа",
     );
+    expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
     expect(
       screen.getAllByRole("link", { name: "формула (Е.1)" }).some(
         (link) => link.getAttribute("href") === "#soil-norm-e1",
