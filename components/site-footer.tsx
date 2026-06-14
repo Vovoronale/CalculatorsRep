@@ -3,20 +3,18 @@ import Link from "next/link";
 import { siteContent } from "@/lib/site-content";
 
 export function SiteFooter() {
-  const externalLinks = siteContent.navigation.utilityLinks.filter(
-    (link) => link.external,
-  );
+  const utilityLinks = siteContent.navigation.utilityLinks;
 
   return (
     <footer className="site-footer">
       <p>{siteContent.footer.note}</p>
       <div className="site-footer__links">
-        {externalLinks.map((link) => (
+        {utilityLinks.map((link) => (
           <Link
             key={link.label}
             href={link.href}
-            target="_blank"
-            rel="noreferrer"
+            target={link.external ? "_blank" : undefined}
+            rel={link.external ? "noreferrer" : undefined}
           >
             {link.label}
           </Link>

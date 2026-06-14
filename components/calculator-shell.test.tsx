@@ -60,10 +60,14 @@ describe("CalculatorShell", () => {
       }),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "GitHub" })).not.toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "Про автора" })).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: "Про автора" })).toHaveLength(3);
     expect(screen.getAllByRole("link", { name: "Про автора" })[0]).toHaveAttribute(
       "href",
       "/author",
+    );
+    expect(screen.getByRole("link", { name: "Конфіденційність" })).toHaveAttribute(
+      "href",
+      "/privacy",
     );
     expect(
       within(workspace).getByRole("heading", {
@@ -124,8 +128,10 @@ describe("CalculatorShell", () => {
       within(workspace).queryByText("Вбудований розрахунок"),
     ).not.toBeInTheDocument();
     expect(
-      within(workspace).getByRole("link", { name: "Про автора" }),
-    ).toHaveAttribute("href", "/author");
+      within(workspace)
+        .getAllByRole("link", { name: "Про автора" })
+        .some((link) => link.getAttribute("href") === "/author"),
+    ).toBe(true);
     expect(
       screen.queryByRole("heading", { name: "Інженерні продукти та напрями" }),
     ).not.toBeInTheDocument();

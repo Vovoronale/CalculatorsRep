@@ -10,19 +10,23 @@ describe("sitemap metadata route", () => {
 
     expect(urls).toContain("https://ivapps.pro/");
     expect(urls).toContain("https://ivapps.pro/author");
+    expect(urls).toContain("https://ivapps.pro/disclaimer");
+    expect(urls).toContain("https://ivapps.pro/terms");
+    expect(urls).toContain("https://ivapps.pro/privacy");
 
     for (const calculator of calculators) {
       expect(urls).toContain(`https://ivapps.pro/calculator/${calculator.slug}`);
     }
 
     expect(new Set(urls).size).toBe(urls.length);
-    expect(entries).toHaveLength(calculators.length + 2);
+    expect(entries).toHaveLength(calculators.length + 5);
   });
 
   it("uses sensible priorities and change frequencies for SEO discovery", () => {
     const entries = sitemap();
     const home = entries.find((entry) => entry.url === "https://ivapps.pro/");
     const author = entries.find((entry) => entry.url === "https://ivapps.pro/author");
+    const privacy = entries.find((entry) => entry.url === "https://ivapps.pro/privacy");
     const calculatorEntry = entries.find(
       (entry) => entry.url === "https://ivapps.pro/calculator/soil-design-resistance",
     );
@@ -34,6 +38,10 @@ describe("sitemap metadata route", () => {
     expect(author).toMatchObject({
       changeFrequency: "monthly",
       priority: 0.6,
+    });
+    expect(privacy).toMatchObject({
+      changeFrequency: "yearly",
+      priority: 0.4,
     });
     expect(calculatorEntry).toMatchObject({
       changeFrequency: "monthly",

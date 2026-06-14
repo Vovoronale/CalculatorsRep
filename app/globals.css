@@ -4355,6 +4355,81 @@ textarea {
 }
 
 /* =====================================================
+   Legal pages
+   ===================================================== */
+
+.legal-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 78ch;
+  padding-bottom: 4px;
+}
+
+.legal-page__eyebrow {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.legal-page h1 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.legal-page__lead {
+  margin: 0;
+  max-width: 68ch;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.legal-page__updated {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  color: var(--text-subtle);
+}
+
+.legal-page__sections {
+  display: grid;
+  gap: 24px;
+  max-width: 78ch;
+}
+
+.legal-section {
+  display: grid;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.legal-section h2 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.legal-section p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+/* =====================================================
    Footer
    ===================================================== */
 

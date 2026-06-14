@@ -86,6 +86,22 @@ type AuthorPage = {
   socialLinks: AuthorSocialLink[];
 };
 
+export type LegalPageSection = {
+  title: string;
+  body: string[];
+};
+
+export type LegalPage = {
+  slug: string;
+  title: string;
+  metaTitle: string;
+  metaDescription: string;
+  eyebrow: string;
+  lead: string;
+  updatedAt: string;
+  sections: LegalPageSection[];
+};
+
 export type SiteContent = {
   brand: Brand;
   navigation: { utilityLinks: UtilityLink[] };
@@ -93,6 +109,7 @@ export type SiteContent = {
   workspace: Workspace;
   footer: Footer;
   authorPage: AuthorPage;
+  legalPages: LegalPage[];
 };
 
 export const siteContent: SiteContent = contentData.site as SiteContent;

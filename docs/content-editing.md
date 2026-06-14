@@ -1,6 +1,6 @@
 # Content editing guide
 
-Майже весь видимий контент сайту (калькулятори, категорії, IVapps top bar, сторінка `/author`, бренд-копія) живе в одному файлі: [`data/content.json`](../data/content.json). Зміни підхоплюються Next.js при наступному `npm run build` (статичний експорт) або при гарячій перезагрузці `npm run dev`.
+Майже весь видимий контент сайту (калькулятори, категорії, IVapps top bar, сторінка `/author`, юридичні сторінки, бренд-копія) живе в одному файлі: [`data/content.json`](../data/content.json). Зміни підхоплюються Next.js при наступному `npm run build` (статичний експорт) або при гарячій перезагрузці `npm run dev`.
 
 Цей гайд описує всі секції JSON, схему запису калькулятора, як додавати нові категорії і де редагувати інший контент.
 
@@ -11,11 +11,12 @@
 | Top-level key | Що контролює | Loader |
 |---|---|---|
 | `site.brand` | Назви, монограма, ім'я автора, роль | [`lib/site-content.ts`](../lib/site-content.ts) |
-| `site.navigation.utilityLinks` | Утилітарні посилання у хедері | [`lib/site-content.ts`](../lib/site-content.ts) |
+| `site.navigation.utilityLinks` | Утилітарні посилання у footer | [`lib/site-content.ts`](../lib/site-content.ts) |
 | `site.topbar` | IVapps top bar: products dropdown, мови, CTA | [`lib/site-content.ts`](../lib/site-content.ts) |
 | `site.workspace` | Тексти hero/каталогу/детальної сторінки | [`lib/site-content.ts`](../lib/site-content.ts) |
 | `site.footer` | Текст футера | [`lib/site-content.ts`](../lib/site-content.ts) |
 | `site.authorPage` | Усі тексти `/author` | [`lib/site-content.ts`](../lib/site-content.ts) |
+| `site.legalPages` | Тексти `/disclaimer`, `/terms`, `/privacy` | [`lib/site-content.ts`](../lib/site-content.ts), [`lib/legal-pages.ts`](../lib/legal-pages.ts) |
 | `categories` | Категорії калькуляторів (бічна панель) | [`lib/calculators.ts`](../lib/calculators.ts) |
 | `calculators` | Записи калькуляторів | [`lib/calculators.ts`](../lib/calculators.ts) |
 | `projectCategories` | Блок «Екосистема продуктів» на `/author` | [`lib/projects.ts`](../lib/projects.ts) |
@@ -169,9 +170,9 @@
 
 `site.topbar.products` у [`data/content.json`](../data/content.json). Кожен запис: `{ label, href, external, tagline?, active? }`. Рендериться у [`components/products-dropdown.tsx`](../components/products-dropdown.tsx).
 
-### Утилітарні посилання у хедері
+### Утилітарні посилання у footer
 
-`site.navigation.utilityLinks`. Прості `{ label, href, external }`.
+`site.navigation.utilityLinks`. Прості `{ label, href, external }`. Рендеряться у [`components/site-footer.tsx`](../components/site-footer.tsx). Для зовнішніх посилань став `external: true`, для внутрішніх сторінок — `false`.
 
 ### Бренд і workspace-копія
 
@@ -184,6 +185,32 @@
 - `aiAssistants[]` — асистенти.
 
 Рендериться у [`components/author-view.tsx`](../components/author-view.tsx).
+
+### Юридичні сторінки
+
+`site.legalPages[]` містить тексти для `/disclaimer`, `/terms`, `/privacy`.
+
+Кожен запис:
+
+```json
+{
+  "slug": "privacy",
+  "title": "Політика конфіденційності",
+  "metaTitle": "Політика конфіденційності | IVapps.pro",
+  "metaDescription": "Короткий SEO-опис сторінки.",
+  "eyebrow": "Дані та аналітика",
+  "lead": "Вступний абзац сторінки.",
+  "updatedAt": "2026-06-14",
+  "sections": [
+    {
+      "title": "Інженерний контекст",
+      "body": ["Один або кілька абзаців."]
+    }
+  ]
+}
+```
+
+Рендериться у [`components/legal-page-view.tsx`](../components/legal-page-view.tsx). Список slug-ів і пошук сторінки — у [`lib/legal-pages.ts`](../lib/legal-pages.ts). Якщо додаєш нову юридичну сторінку, також створи route у `app/<slug>/page.tsx` і додай її до sitemap.
 
 ---
 
