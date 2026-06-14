@@ -1,50 +1,15 @@
 
 > construction-calculators-hub@0.1.0 dev
-> next dev
+> next dev -p 3002
 
    ▲ Next.js 15.5.15
-   - Local:        http://localhost:3000
-   - Network:      http://192.168.1.19:3000
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.1.19:3002
 
  ✓ Starting...
- ✓ Ready in 3.6s
+ ✓ Ready in 1951ms
  ○ Compiling / ...
- ✓ Compiled / in 10.2s (861 modules)
- GET / 200 in 10922ms
- GET / 200 in 185ms
- GET / 200 in 177ms
- ○ Compiling /calculator/[slug] ...
- ✓ Compiled /calculator/[slug] in 614ms (858 modules)
- GET /calculator/soil-design-resistance 200 in 873ms
- GET /calculator/soil-design-resistance 200 in 38ms
- ✓ Compiled in 441ms (858 modules)
- ✓ Compiled in 298ms (872 modules)
- GET /calculator/soil-design-resistance 200 in 239ms
- GET / 200 in 241ms
- ✓ Compiled in 329ms (872 modules)
- GET / 200 in 126ms
- GET /calculator/soil-design-resistance 200 in 126ms
- ✓ Compiled in 460ms (872 modules)
- GET / 200 in 166ms
- GET /calculator/soil-design-resistance 200 in 170ms
- GET /calculator/soil-design-resistance 200 in 461ms
- ✓ Compiled in 473ms (872 modules)
- GET /calculator/soil-design-resistance 200 in 197ms
- GET / 200 in 153ms
- GET /calculator/soil-design-resistance 200 in 151ms
- GET /calculator/soil-design-resistance 200 in 392ms
- ✓ Compiled in 344ms (872 modules)
- GET /calculator/soil-design-resistance 200 in 222ms
- GET /calculator/soil-design-resistance 200 in 226ms
- GET / 200 in 226ms
- ✓ Compiled in 330ms (872 modules)
- GET / 200 in 257ms
- GET /calculator/soil-design-resistance 200 in 234ms
- GET /calculator/soil-design-resistance 200 in 238ms
- GET /calculator/soil-design-resistance 200 in 340ms
- ✓ Compiled in 645ms (872 modules)
- GET /calculator/soil-design-resistance 200 in 295ms
- GET /calculator/soil-design-resistance 200 in 99ms
- GET / 200 in 74ms
- GET /calculator/soil-design-resistance 200 in 267ms
- GET /calculator/soil-design-resistance 200 in 154ms
+ ✓ Compiled / in 1141ms (847 modules)
+ GET / 200 in 1893ms
+ ✓ Compiled /calculator/[slug] in 286ms (858 modules)
+ GET /calculator/soil-design-resistance 200 in 960ms

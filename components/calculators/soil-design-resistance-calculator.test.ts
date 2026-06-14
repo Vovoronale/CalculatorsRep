@@ -55,7 +55,9 @@ describe("SOIL_INPUT_SCHEMA", () => {
         quantity,
         prefix,
       });
-      expect(field).not.toHaveProperty("displayUnits");
+      if (id !== "phi11Deg") {
+        expect(field).not.toHaveProperty("displayUnits");
+      }
       expect(field.description, id).toBeTruthy();
       expect(field.description, id).not.toBe(field.name);
     }
@@ -63,6 +65,14 @@ describe("SOIL_INPUT_SCHEMA", () => {
     expect(findSchemaField("hasBasement")).toMatchObject({
       kind: "checkbox",
       name: "Є підвал?",
+    });
+    expect(findSchemaField("basementDepthInputM")).toMatchObject({
+      kind: "number",
+      defaultValue: "1.5",
+    });
+    expect(findSchemaField("phi11Deg")).toMatchObject({
+      kind: "number",
+      displayUnits: [{ value: "deg", label: "°", factorToBase: 1 }],
     });
 
     expectTextDescription(findSchemaField("gammaC1Manual"), /табл\. Е\.7/);
@@ -117,6 +127,18 @@ describe("SoilDesignResistanceCalculator diagrams", () => {
     expect(screen.getByText("Позначення величин")).toBeInTheDocument();
   });
 
+  it("keeps the soil friction angle unit fixed to degrees", () => {
+    render(createElement(SoilDesignResistanceCalculator));
+
+    const angleUnit = screen.getByRole("combobox", {
+      name: "Одиниця Кут внутрішнього тертя",
+    });
+
+    expect(angleUnit).toBeDisabled();
+    expect(angleUnit).toHaveTextContent("°");
+    expect(angleUnit).not.toHaveTextContent("рад");
+  });
+
   it("changes no-basement foundation geometry when footing width changes", () => {
     const { container } = render(createElement(SoilDesignResistanceCalculator));
     const widthInput = screen.getByRole("textbox", { name: "Ширина підошви" });
@@ -164,7 +186,7 @@ describe("SoilDesignResistanceCalculator diagrams", () => {
 
     expect(diagram).not.toBeNull();
     expect(diagram?.textContent).toContain("b=1 м");
-    expect(diagram?.textContent).toContain("dB=0 м");
+    expect(diagram?.textContent).toContain("dB=1.5 м");
     expect(diagram?.textContent).toContain("h_cf=0.2 м");
   });
 

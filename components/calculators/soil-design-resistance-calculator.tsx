@@ -175,6 +175,7 @@ export const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           quantity: "angle",
           baseUnit: "deg",
           defaultDisplayUnit: "deg",
+          displayUnits: [{ value: "deg", label: "°", factorToBase: 1 }],
           description:
             "Кут внутрішнього тертя φ11 у градусах; за ним визначаються Mγ, Mq і Mc за табл. Е.8 ДБН В.2.1-10-2009.",
         },
@@ -306,7 +307,7 @@ export const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
           kind: "number",
           prefix: { text: "d", subscript: "b,input", ariaLabel: "db,input" },
           name: "Глибина підвалу",
-          defaultValue: "0",
+          defaultValue: "1.5",
           min: 0,
           step: "0.01",
           quantity: "length",
