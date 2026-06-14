@@ -1,8 +1,15 @@
+import { render, screen } from "@testing-library/react";
+import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 
 import type { CalculatorInputField } from "@/lib/calculator-input-schema";
+import { getCassoonLoadDistributionReport } from "@/lib/cassoon-load-distribution";
 
-import { CASSOON_INPUT_SCHEMA } from "./cassoon-load-distribution-calculator";
+import {
+  CASSOON_INPUT_SCHEMA,
+  CassoonLoadDistributionCalculator,
+  buildCassoonLoadDistributionDocxReport,
+} from "./cassoon-load-distribution-calculator";
 
 function findSchemaField(id: string): CalculatorInputField {
   for (const group of CASSOON_INPUT_SCHEMA.groups) {
@@ -52,5 +59,48 @@ describe("CASSOON_INPUT_SCHEMA", () => {
     expectTextDescription(shortSpan, /нормалізує lk <= ld/);
     expectTextDescription(longSpan, /нормалізує lk <= ld/);
     expectTextDescription(totalLoad, /Ліновіч/);
+  });
+});
+
+describe("cassoon load distribution DOCX export", () => {
+  it("maps cassoon report to DOCX", () => {
+    const report = getCassoonLoadDistributionReport({
+      shortSpanM: 3,
+      longSpanM: 6,
+      totalLoadKnM2: 10,
+      loadUnit: "kn-m2",
+    });
+
+    const docxReport = buildCassoonLoadDistributionDocxReport(
+      report,
+      new Date("2026-06-14"),
+    );
+
+    expect(docxReport.fileBaseName).toBe(
+      "rozpodil-navantazhennia-kesonna-plita-2026-06-14",
+    );
+    expect(docxReport.steps.map((step) => step.key)).toEqual(
+      report.steps.map((step) => step.key),
+    );
+    expect(docxReport.steps.find((step) => step.key === "loads")?.formula).toBe(
+      report.steps.find((step) => step.key === "loads")?.formula,
+    );
+    expect(docxReport.figures?.[0]?.svg).toContain("<svg");
+  });
+});
+
+describe("CassoonLoadDistributionCalculator", () => {
+  it("renders cassoon with the shared native report layout", () => {
+    render(createElement(CassoonLoadDistributionCalculator));
+
+    expect(
+      screen.getByLabelText(
+        "Калькулятор коефіцієнтів c1 і c2 для розподілу навантаження",
+      ),
+    ).toHaveClass("native-calculator");
+    expect(screen.getByRole("heading", { name: "Позначення величин" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
+    expect(screen.getByLabelText(/qk = c1 \* q/)).toHaveAttribute("title");
   });
 });

@@ -8,6 +8,7 @@ import {
   formatCassoonLoadDistributionNumber,
   getCassoonLoadDistributionReport,
   type CassoonLoadDistributionLoadUnit,
+  type CassoonLoadDistributionReport,
   type CassoonLoadDistributionReportStep,
   type CassoonLoadDistributionValues,
 } from "@/lib/cassoon-load-distribution";
@@ -21,9 +22,17 @@ import {
   createDefaultRegistry,
   type SceneDefinition,
 } from "@/lib/vendor/svgparametric";
+import type { DocxReportFigure } from "@/lib/report-docx/types";
 
 import { InputSchemaForm } from "./input-schema-form";
 import { MathNotation } from "./math-notation";
+import { NativeCalculatorLayout } from "./native-calculator-layout";
+import { NativeReport } from "./native-report";
+import {
+  buildNativeDocxReport,
+  formatDocxFileDate,
+} from "./native-report-docx";
+import { ReportDocxButton } from "./report-docx-button";
 
 const SYMBOLS = {
   "ld/lk": { base: "l", subscript: "d", ariaLabel: "ld/lk" },
@@ -170,34 +179,6 @@ function FormulaText({ text }: { text: string }) {
         return <span key={`${part}:${index}`}>{part}</span>;
       })}
     </>
-  );
-}
-
-function ReportStepFormula({ step }: { step: CassoonLoadDistributionReportStep }) {
-  if (!step.formula) {
-    return null;
-  }
-
-  const formulaLines = step.formula.split("; ");
-
-  return (
-    <div
-      className="cassoon-load-equation"
-      aria-label={step.formula}
-      title={step.formula}
-    >
-      {formulaLines.map((line, index) => (
-        <span className="cassoon-load-equation__line" key={`${step.key}:${line}`}>
-          <FormulaText
-            text={
-              index < formulaLines.length - 1 && !line.endsWith(";")
-                ? `${line};`
-                : line
-            }
-          />
-        </span>
-      ))}
-    </div>
   );
 }
 
@@ -512,6 +493,66 @@ function ParametricLoadDistributionDiagram({
   );
 }
 
+function buildCassoonLoadDistributionDiagramFigure(
+  report: CassoonLoadDistributionReport,
+): DocxReportFigure {
+  const loadUnit = report.input.loadUnit ?? "kn-m2";
+  const values = report.values;
+  const shortSpanM = values?.shortSpanM ?? report.input.shortSpanM;
+  const longSpanM = values?.longSpanM ?? report.input.longSpanM;
+  const shortDirectionLoadKnM2 = values?.shortDirectionLoadKnM2 ?? 0;
+  const longDirectionLoadKnM2 = values?.longDirectionLoadKnM2 ?? 0;
+  const totalLoadKnM2 = report.input.totalLoadKnM2;
+  const totalLoadLabel = Number.isFinite(totalLoadKnM2) && totalLoadKnM2 > 0
+    ? formatDiagramLoadValue(totalLoadKnM2, loadUnit)
+    : "q";
+  const shortDirectionLoadLabel = values
+    ? formatDiagramLoadValue(shortDirectionLoadKnM2, loadUnit)
+    : "";
+  const longDirectionLoadLabel = values
+    ? formatDiagramLoadValue(longDirectionLoadKnM2, loadUnit)
+    : "";
+  const sceneDefinition = getCassoonLoadDistributionScene({
+    shortSpanM,
+    longSpanM,
+    shortDirectionLoadLabel,
+    longDirectionLoadLabel,
+    totalLoadLabel,
+    shortDirectionLoadShare:
+      totalLoadKnM2 > 0 ? shortDirectionLoadKnM2 / totalLoadKnM2 : 0,
+    longDirectionLoadShare:
+      totalLoadKnM2 > 0 ? longDirectionLoadKnM2 / totalLoadKnM2 : 0,
+  });
+  const title = `Параметрична схема розподілу навантаження q між напрямами lk і ld: lk ${formatDiagramMeterValue(
+    shortSpanM,
+  )} м, ld ${formatDiagramMeterValue(longSpanM)} м`;
+  const svg = buildScene(sceneDefinition, SVG_PARAMETRIC_REGISTRY).svg.replace(
+    "<svg ",
+    `<svg role="img" aria-label="${escapeSvgAttribute(title)}" class="cassoon-load-diagram__svg" `,
+  );
+
+  return {
+    key: "cassoon-load-distribution-diagram",
+    caption:
+      "Схема розподілу повного навантаження q між коротким напрямом qk та довгим напрямом qd.",
+    svg,
+    widthPx: sceneDefinition.scene.width,
+    heightPx: sceneDefinition.scene.height,
+  };
+}
+
+export function buildCassoonLoadDistributionDocxReport(
+  report: CassoonLoadDistributionReport,
+  date = new Date(),
+) {
+  return buildNativeDocxReport({
+    title: "Покроковий звіт",
+    fileBaseName: `rozpodil-navantazhennia-kesonna-plita-${formatDocxFileDate(date)}`,
+    figures: [buildCassoonLoadDistributionDiagramFigure(report)],
+    steps: report.steps,
+  });
+}
+
 export function CassoonLoadDistributionCalculator() {
   const [inputValues, setInputValues] = useState<CalculatorInputValues>(
     () => getDefaultInputSchemaValues(CASSOON_INPUT_SCHEMA),
@@ -545,53 +586,65 @@ export function CassoonLoadDistributionCalculator() {
       totalLoadKnM2,
     ],
   );
+  const docxReport = useMemo(
+    () => buildCassoonLoadDistributionDocxReport(report),
+    [report],
+  );
+  const resultSummary =
+    report.valid && report.values ? (
+      <>
+        <p>
+          <MathNotation base="c" subscript="1" ariaLabel="c1" /> ={" "}
+          {formatCassoonLoadDistributionNumber(report.values.c1, 4)};{" "}
+          <MathNotation base="c" subscript="2" ariaLabel="c2" /> ={" "}
+          {formatCassoonLoadDistributionNumber(report.values.c2, 4)};{" "}
+          <MathNotation base="l" subscript="d" ariaLabel="ld" />/
+          <MathNotation base="l" subscript="k" ariaLabel="lk" /> ={" "}
+          {formatCassoonLoadDistributionNumber(report.values.spanRatio, 3)}.
+        </p>
+        <p>
+          <MathNotation base="q" subscript="k" ariaLabel="qk" /> ={" "}
+          {formatCassoonLoadDistributionNumber(
+            getDisplayLoadValue(report.values.shortDirectionLoadKnM2, loadUnit),
+            selectedLoadUnit.fractionDigits,
+          )}{" "}
+          {selectedLoadUnit.label};{" "}
+          <MathNotation base="q" subscript="d" ariaLabel="qd" /> ={" "}
+          {formatCassoonLoadDistributionNumber(
+            getDisplayLoadValue(report.values.longDirectionLoadKnM2, loadUnit),
+            selectedLoadUnit.fractionDigits,
+          )}{" "}
+          {selectedLoadUnit.label}.
+        </p>
+      </>
+    ) : null;
 
   return (
-    <div
-      className="cassoon-load-calculator"
-      aria-label="Калькулятор коефіцієнтів c1 і c2 для розподілу навантаження"
-    >
-      <div className="cassoon-load-layout">
+    <NativeCalculatorLayout
+      ariaLabel="Калькулятор коефіцієнтів c1 і c2 для розподілу навантаження"
+      navLinks={[
+        { href: "#inputs", label: "Ввід" },
+        { href: "#native-calculator-diagrams-title", label: "Схема" },
+        { href: "#cassoon-load-report-title", label: "Звіт" },
+      ]}
+      summary={resultSummary}
+      controls={
         <InputSchemaForm
           schema={CASSOON_INPUT_SCHEMA}
           values={inputValues}
           onValuesChange={setInputValues}
         />
-
+      }
+      diagrams={
         <ParametricLoadDistributionDiagram
           values={report.values}
           totalLoadKnM2={report.input.totalLoadKnM2}
           loadUnit={loadUnit}
         />
-      </div>
-
-      {report.valid && report.values ? (
-        <div className="cassoon-load-summary" aria-live="polite">
-          <p>
-            <MathNotation base="c" subscript="1" ariaLabel="c1" /> ={" "}
-            {formatCassoonLoadDistributionNumber(report.values.c1, 4)};{" "}
-            <MathNotation base="c" subscript="2" ariaLabel="c2" /> ={" "}
-            {formatCassoonLoadDistributionNumber(report.values.c2, 4)};{" "}
-            <MathNotation base="l" subscript="d" ariaLabel="ld" />/
-            <MathNotation base="l" subscript="k" ariaLabel="lk" /> ={" "}
-            {formatCassoonLoadDistributionNumber(report.values.spanRatio, 3)}.
-          </p>
-          <p>
-            <MathNotation base="q" subscript="k" ariaLabel="qk" /> ={" "}
-            {formatCassoonLoadDistributionNumber(
-              getDisplayLoadValue(report.values.shortDirectionLoadKnM2, loadUnit),
-              selectedLoadUnit.fractionDigits,
-            )}{" "}
-            {selectedLoadUnit.label};{" "}
-            <MathNotation base="q" subscript="d" ariaLabel="qd" /> ={" "}
-            {formatCassoonLoadDistributionNumber(
-              getDisplayLoadValue(report.values.longDirectionLoadKnM2, loadUnit),
-              selectedLoadUnit.fractionDigits,
-            )}{" "}
-            {selectedLoadUnit.label}.
-          </p>
-        </div>
-      ) : null}
+      }
+      errors={report.errors}
+      warnings={report.warnings}
+    >
 
       <p className="cassoon-load-source">
         Джерело:{" "}
@@ -604,49 +657,13 @@ export function CassoonLoadDistributionCalculator() {
         </a>
       </p>
 
-      {report.errors.length > 0 ? (
-        <div className="cassoon-load-errors" role="alert">
-          <ul>
-            {report.errors.map((error) => (
-              <li key={error}>{error}</li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
-      {report.warnings.length > 0 ? (
-        <div className="cassoon-load-warning" role="status">
-          {report.warnings.map((warning) => (
-            <p key={warning}>{warning}</p>
-          ))}
-        </div>
-      ) : null}
-
-      <section className="cassoon-load-report" aria-labelledby="cassoon-load-report-title">
-        <div className="cassoon-load-report__head">
-          <h3 id="cassoon-load-report-title">Покроковий звіт</h3>
-        </div>
-
-        <ol className="cassoon-load-report__steps">
-          {report.steps.map((step) => (
-            <li key={step.key} className="cassoon-load-report__step">
-              <p className="cassoon-load-report__caption">
-                <FormulaText text={step.caption} />
-              </p>
-              {step.items ? (
-                <ul className="cassoon-load-report__items">
-                  {step.items.map((item) => (
-                    <li key={item}>
-                      <FormulaText text={item} />
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              <ReportStepFormula step={step} />
-            </li>
-          ))}
-        </ol>
-      </section>
-    </div>
+      <NativeReport
+        titleId="cassoon-load-report-title"
+        title="Покроковий звіт"
+        steps={report.steps}
+        renderText={(text) => <FormulaText text={text} />}
+        actions={<ReportDocxButton report={docxReport} />}
+      />
+    </NativeCalculatorLayout>
   );
 }
