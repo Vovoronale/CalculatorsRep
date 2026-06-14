@@ -34,9 +34,9 @@ describe("SiteFooter", () => {
       "href",
       "/privacy",
     );
-    expect(within(footer).getByRole("link", { name: "Ivapps.pro@gmail.com" })).toHaveAttribute(
+    expect(within(footer).getByRole("link", { name: "ivapps.pro@gmail.com" })).toHaveAttribute(
       "href",
-      "mailto:Ivapps.pro@gmail.com",
+      "mailto:ivapps.pro@gmail.com",
     );
   });
 });

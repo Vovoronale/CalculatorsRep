@@ -62,7 +62,6 @@ export function CatalogRail({
     >
       <div className="catalog-rail__brand-block">
         <Link href="/" className="catalog-rail__brand">
-          <span className="catalog-rail__brand-eyebrow">{siteContent.brand.authorName}</span>
           <span>{siteContent.brand.subBrandName}</span>
         </Link>
         {onCloseMobile ? (

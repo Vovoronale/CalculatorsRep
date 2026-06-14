@@ -43,7 +43,7 @@ describe("legal pages", () => {
       expect(page.title).toBe(route.title);
       expect(page.updatedAt).toBe("14 червня 2026 року");
       expect(page.sections.length).toBeGreaterThanOrEqual(4);
-      expect(JSON.stringify(page)).toContain("Ivapps.pro@gmail.com");
+      expect(JSON.stringify(page)).toContain("ivapps.pro@gmail.com");
       expect(JSON.stringify(page)).not.toContain("[вставити публічний email]");
     }
   });
