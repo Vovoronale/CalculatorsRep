@@ -1,0 +1,75 @@
+import { describe, expect, it } from "vitest";
+
+import { parseDocxFormula } from "./math-parser";
+
+describe("parseDocxFormula", () => {
+  it("parses equality chains with symbols, units, and multiplication", () => {
+    const source =
+      "R = γc1 * γc2 / k * [Mγ * kz * b * γ11 + Mc * c11] = 162.82 кПа";
+    const result = parseDocxFormula(source);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.statements).toHaveLength(1);
+    expect(result.statements[0].source).toBe(source);
+    expect(result.statements[0].expression.type).toBe("chain");
+  });
+
+  it("parses arithmetic precedence, powers, functions, and semicolon-separated formulas", () => {
+    const result = parseDocxFormula(
+      "As,1 = pi * Ø^2 / 4 = 78.54 мм²; lb,min = max(0.3 * lb,rqd; 10 * Ø; 100) = 100 мм",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.statements).toHaveLength(2);
+    expect(result.statements[0].source).toBe("As,1 = pi * Ø^2 / 4 = 78.54 мм²");
+    expect(result.statements[1].source).toBe(
+      "lb,min = max(0.3 * lb,rqd; 10 * Ø; 100) = 100 мм",
+    );
+  });
+
+  it("parses comparisons and implication", () => {
+    const result = parseDocxFormula("d1 <= d => 1.2 <= 1.2 - умова виконується");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.statements[0].suffix).toBe(" - умова виконується");
+    expect(result.statements[0].expression.type).toBe("chain");
+    if (result.statements[0].expression.type !== "chain") {
+      throw new Error("Expected chain expression");
+    }
+    expect(result.statements[0].expression.operators).toEqual(["<=", "=>", "<="]);
+  });
+
+  it("captures common engineering symbol subscripts", () => {
+    const result = parseDocxFormula("γc1 = 1.4; As,min = 5.85 см²; db,input = 1.5 м");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+
+    const first = result.statements[0].expression;
+    const second = result.statements[1].expression;
+    const third = result.statements[2].expression;
+
+    expect(first.type).toBe("chain");
+    expect(second.type).toBe("chain");
+    expect(third.type).toBe("chain");
+    if (first.type !== "chain" || second.type !== "chain" || third.type !== "chain") {
+      throw new Error("Expected chain expressions");
+    }
+
+    expect(first.parts[0]).toMatchObject({ type: "symbol", base: "γ", subscript: "c1" });
+    expect(second.parts[0]).toMatchObject({ type: "symbol", base: "A", subscript: "s,min" });
+    expect(third.parts[0]).toMatchObject({ type: "symbol", base: "d", subscript: "b,input" });
+  });
+
+  it("falls back for prose that is not a formula", () => {
+    const result = parseDocxFormula("Приймаємо значення з таблиці без математичного виразу");
+
+    expect(result).toEqual({
+      ok: false,
+      reason: "Formula does not contain a supported mathematical operator.",
+    });
+  });
+});
