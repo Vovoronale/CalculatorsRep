@@ -73,6 +73,37 @@ describe("SOIL_INPUT_SCHEMA", () => {
 });
 
 describe("SoilDesignResistanceCalculator diagrams", () => {
+  function getDiagram(container: HTMLElement, label: string): SVGElement {
+    const diagram = container.querySelector(`svg[role='img'][aria-label*='${label}']`);
+    if (!(diagram instanceof SVGElement)) {
+      throw new Error(`Missing diagram with label ${label}`);
+    }
+    return diagram;
+  }
+
+  function getLoadBand(diagram: SVGElement): Element {
+    const loadBand = diagram.querySelector("rect[fill='#f3cccc']");
+    if (!loadBand) {
+      throw new Error("Missing foundation load band");
+    }
+    return loadBand;
+  }
+
+  function numericAttribute(element: Element, name: string): number {
+    const value = element.getAttribute(name);
+    if (value === null) {
+      throw new Error(`Missing ${name} attribute`);
+    }
+    return Number(value);
+  }
+
+  function getViewBoxNumbers(diagram: SVGElement): number[] {
+    return (diagram.getAttribute("viewBox") ?? "")
+      .split(/\s+/)
+      .filter(Boolean)
+      .map(Number);
+  }
+
   it("renders the no-basement foundation diagram by default", () => {
     const { container } = render(createElement(SoilDesignResistanceCalculator));
     const diagram = container.querySelector(
@@ -84,6 +115,43 @@ describe("SoilDesignResistanceCalculator diagrams", () => {
     expect(diagram?.textContent).toContain("d1=1.2 м");
     expect(diagram?.textContent).toContain("R=162.8 кПа");
     expect(screen.getByText("Позначення величин")).toBeInTheDocument();
+  });
+
+  it("changes no-basement foundation geometry when footing width changes", () => {
+    const { container } = render(createElement(SoilDesignResistanceCalculator));
+    const widthInput = screen.getByRole("textbox", { name: "Ширина підошви" });
+    const initialDiagram = getDiagram(container, "Схема фундаменту без підвалу");
+    const initialLoadBand = getLoadBand(initialDiagram);
+
+    expect(numericAttribute(initialLoadBand, "width")).toBe(180);
+
+    fireEvent.change(widthInput, { target: { value: "2" } });
+
+    const updatedDiagram = getDiagram(container, "Схема фундаменту без підвалу");
+    const updatedLoadBand = getLoadBand(updatedDiagram);
+
+    expect(numericAttribute(updatedLoadBand, "width")).toBe(360);
+    expect(updatedDiagram.textContent).toContain("b=2 м");
+  });
+
+  it("changes no-basement foundation geometry when embedment depth changes", () => {
+    const { container } = render(createElement(SoilDesignResistanceCalculator));
+    const depthInput = screen.getByRole("textbox", {
+      name: "Приведена глибина закладання",
+    });
+    const initialLoadBand = getLoadBand(
+      getDiagram(container, "Схема фундаменту без підвалу"),
+    );
+
+    expect(numericAttribute(initialLoadBand, "y")).toBe(368);
+
+    fireEvent.change(depthInput, { target: { value: "2" } });
+
+    const updatedDiagram = getDiagram(container, "Схема фундаменту без підвалу");
+    const updatedLoadBand = getLoadBand(updatedDiagram);
+
+    expect(numericAttribute(updatedLoadBand, "y")).toBe(512);
+    expect(updatedDiagram.textContent).toContain("d1=2 м");
   });
 
   it("renders the basement foundation diagram after enabling basement mode", () => {
@@ -98,5 +166,60 @@ describe("SoilDesignResistanceCalculator diagrams", () => {
     expect(diagram?.textContent).toContain("b=1 м");
     expect(diagram?.textContent).toContain("dB=0 м");
     expect(diagram?.textContent).toContain("h_cf=0.2 м");
+  });
+
+  it("changes basement foundation geometry when basement inputs change", () => {
+    const { container } = render(createElement(SoilDesignResistanceCalculator));
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /є підвал/i }));
+
+    const widthInput = screen.getByRole("textbox", { name: "Ширина підошви" });
+    const basementDepthInput = screen.getByRole("textbox", { name: "Глибина підвалу" });
+    const floorThicknessInput = screen.getByRole("textbox", {
+      name: "Товщина підлоги підвалу",
+    });
+    const initialDiagram = getDiagram(container, "Схема фундаменту з підвалом");
+    const initialLoadBand = getLoadBand(initialDiagram);
+
+    expect(numericAttribute(initialLoadBand, "width")).toBe(180);
+
+    fireEvent.change(widthInput, { target: { value: "2" } });
+    fireEvent.change(basementDepthInput, { target: { value: "1.5" } });
+    fireEvent.change(floorThicknessInput, { target: { value: "0.35" } });
+
+    const updatedDiagram = getDiagram(container, "Схема фундаменту з підвалом");
+    const updatedLoadBand = getLoadBand(updatedDiagram);
+
+    expect(numericAttribute(updatedLoadBand, "width")).toBe(360);
+    expect(updatedDiagram.textContent).toContain("b=2 м");
+    expect(updatedDiagram.textContent).toContain("dB=1.5 м");
+    expect(updatedDiagram.textContent).toContain("h_cf=0.35 м");
+    expect(numericAttribute(updatedLoadBand, "y")).toBeGreaterThan(
+      numericAttribute(initialLoadBand, "y"),
+    );
+  });
+
+  it("uses a viewBox that keeps foundation annotations inside the diagram", () => {
+    const { container } = render(createElement(SoilDesignResistanceCalculator));
+    const widthInput = screen.getByRole("textbox", { name: "Ширина підошви" });
+    const depthInput = screen.getByRole("textbox", {
+      name: "Приведена глибина закладання",
+    });
+
+    fireEvent.change(widthInput, { target: { value: "3" } });
+    fireEvent.change(depthInput, { target: { value: "2" } });
+
+    const diagram = getDiagram(container, "Схема фундаменту без підвалу");
+    const loadBand = getLoadBand(diagram);
+    const [viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight] = getViewBoxNumbers(diagram);
+    const loadX = numericAttribute(loadBand, "x");
+    const loadY = numericAttribute(loadBand, "y");
+    const loadWidth = numericAttribute(loadBand, "width");
+    const loadHeight = numericAttribute(loadBand, "height");
+
+    expect(viewBoxX).toBeLessThanOrEqual(loadX);
+    expect(viewBoxY).toBeLessThanOrEqual(0);
+    expect(viewBoxX + viewBoxWidth).toBeGreaterThanOrEqual(loadX + loadWidth);
+    expect(viewBoxY + viewBoxHeight).toBeGreaterThanOrEqual(loadY + loadHeight + 34);
   });
 });

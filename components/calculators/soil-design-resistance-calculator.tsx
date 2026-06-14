@@ -371,37 +371,31 @@ function parseNumberInput(value: string): number {
 }
 
 const SVG_PARAMETRIC_REGISTRY = createDefaultRegistry();
-const SOIL_DIAGRAM_METER_SCALE = 120;
-const SOIL_DIAGRAM_MIN_WIDTH = 260;
-const SOIL_DIAGRAM_MAX_WIDTH = 430;
-const SOIL_DIAGRAM_MIN_DEPTH = 110;
-const SOIL_DIAGRAM_MAX_DEPTH = 230;
+const SOIL_DIAGRAM_UNITS_PER_METER = 180;
+const SOIL_DIAGRAM_DIMENSION_SCALE = 1 / SOIL_DIAGRAM_UNITS_PER_METER;
+const SOIL_DIAGRAM_LOAD_GAP = 62;
+const SOIL_DIAGRAM_LOAD_LABEL_SPACE = 86;
+const SOIL_DIAGRAM_STEM_HEIGHT = 72;
+const SOIL_DIAGRAM_UPPER_WALL_HEIGHT = 72;
 
 function sanitizeDiagramValue(value: number, fallback: number): number {
   return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
-function clampDiagramValue(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
-
 function scaledLengthMeters(
   value: number,
   fallbackMeters: number,
-  min: number,
-  max: number,
+  allowZero = false,
 ): number {
-  const safeValue = sanitizeDiagramValue(value, fallbackMeters);
-  return clampDiagramValue(safeValue * SOIL_DIAGRAM_METER_SCALE, min, max);
+  const safeValue = allowZero
+    ? displayDiagramValue(value, fallbackMeters, true)
+    : sanitizeDiagramValue(value, fallbackMeters);
+  return safeValue * SOIL_DIAGRAM_UNITS_PER_METER;
 }
 
 function displayDiagramValue(value: number, fallback: number, allowZero = false): number {
   if (!Number.isFinite(value)) return fallback;
   return allowZero ? Math.max(0, value) : value > 0 ? value : fallback;
-}
-
-function dimensionScale(displayValue: number, drawingValue: number): number {
-  return drawingValue > 0 ? displayValue / drawingValue : 1;
 }
 
 function escapeSvgAttribute(value: string): string {
@@ -410,6 +404,67 @@ function escapeSvgAttribute(value: string): string {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll("\"", "&quot;");
+}
+
+function viewBox(left: number, top: number, right: number, bottom: number): [number, number, number, number] {
+  const x = Math.floor(left);
+  const y = Math.floor(top);
+  return [x, y, Math.ceil(right - x), Math.ceil(bottom - y)];
+}
+
+function getNoBasementViewBox({
+  x,
+  y,
+  width,
+  depth,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  depth: number;
+}): [number, number, number, number] {
+  const stemHeightAboveGround = depth * 0.4;
+  const depthDimensionOffset = Math.max(32, width * 0.1);
+  const loadTopY = y + depth + SOIL_DIAGRAM_LOAD_GAP;
+
+  return viewBox(
+    x - depthDimensionOffset - 86,
+    y - stemHeightAboveGround - 24,
+    x + width + 48,
+    loadTopY + SOIL_DIAGRAM_LOAD_LABEL_SPACE,
+  );
+}
+
+function getBasementViewBox({
+  x,
+  y,
+  width,
+  floorTopDepth,
+  floorThickness,
+  baseHeight,
+  stemWidth,
+  basementWidth,
+}: {
+  x: number;
+  y: number;
+  width: number;
+  floorTopDepth: number;
+  floorThickness: number;
+  baseHeight: number;
+  stemWidth: number;
+  basementWidth: number;
+}): [number, number, number, number] {
+  const depth = floorTopDepth + floorThickness + baseHeight;
+  const stemRight = x + (width + stemWidth) / 2;
+  const basementRight = stemRight + basementWidth;
+  const loadTopY = y + depth + SOIL_DIAGRAM_LOAD_GAP;
+
+  return viewBox(
+    x - 60,
+    y - SOIL_DIAGRAM_STEM_HEIGHT - SOIL_DIAGRAM_UPPER_WALL_HEIGHT - 50,
+    Math.max(x + width + 48, basementRight + 180),
+    loadTopY + SOIL_DIAGRAM_LOAD_LABEL_SPACE,
+  );
 }
 
 function getSoilFoundationScene({
@@ -442,36 +497,11 @@ function getSoilFoundationScene({
     0.4,
     true,
   );
-  const width = scaledLengthMeters(
-    foundationWidthDisplayM,
-    1,
-    SOIL_DIAGRAM_MIN_WIDTH,
-    SOIL_DIAGRAM_MAX_WIDTH,
-  );
-  const noBasementDepth = scaledLengthMeters(
-    noBasementDepthDisplayM,
-    1.2,
-    SOIL_DIAGRAM_MIN_DEPTH,
-    SOIL_DIAGRAM_MAX_DEPTH,
-  );
-  const basementDepth = scaledLengthMeters(
-    basementDepthDisplayM > 0 ? basementDepthDisplayM : 1.2,
-    1.2,
-    95,
-    190,
-  );
-  const floorThickness = scaledLengthMeters(
-    floorThicknessDisplayM > 0 ? floorThicknessDisplayM : 0.2,
-    0.2,
-    18,
-    36,
-  );
-  const baseHeight = scaledLengthMeters(
-    baseHeightDisplayM > 0 ? baseHeightDisplayM : 0.4,
-    0.4,
-    36,
-    70,
-  );
+  const width = scaledLengthMeters(foundationWidthDisplayM, 1);
+  const noBasementDepth = scaledLengthMeters(noBasementDepthDisplayM, 1.2);
+  const basementDepth = scaledLengthMeters(basementDepthDisplayM, 1.2, true);
+  const floorThickness = scaledLengthMeters(floorThicknessDisplayM, 0.2, true);
+  const baseHeight = scaledLengthMeters(baseHeightDisplayM, 0.4, true);
   const hasResult =
     typeof soilDesignResistanceKPa === "number" &&
     Number.isFinite(soilDesignResistanceKPa) &&
@@ -481,36 +511,52 @@ function getSoilFoundationScene({
     : "R";
 
   if (hasBasement) {
+    const x = 135;
+    const y = 190;
+    const stemWidth = Math.max(74, width * 0.26);
+    const basementWidth = 270;
+    const sceneViewBox = getBasementViewBox({
+      x,
+      y,
+      width,
+      floorTopDepth: basementDepth,
+      floorThickness,
+      baseHeight,
+      stemWidth,
+      basementWidth,
+    });
+
     return {
-      scene: { width: 560, height: 490, viewBox: [85, 60, 560, 490], mode: "detailed" },
+      scene: {
+        width: sceneViewBox[2],
+        height: sceneViewBox[3],
+        viewBox: sceneViewBox,
+        mode: "detailed",
+      },
       objects: {
         foundation: {
           type: "BasementFoundation",
           params: {
-            x: 135,
-            y: 190,
+            x,
+            y,
             width,
             depth: basementDepth + floorThickness + baseHeight,
             baseHeight,
-            stemWidth: Math.max(74, width * 0.26),
-            basementWidth: 270,
+            stemWidth,
+            stemHeightAboveGround: SOIL_DIAGRAM_STEM_HEIGHT,
+            basementWidth,
             floorTopDepth: basementDepth,
             floorThickness,
             slabThickness: 24,
             upperWallWidth: 84,
+            upperWallHeight: SOIL_DIAGRAM_UPPER_WALL_HEIGHT,
             loadValue,
             loadPrefix: hasResult ? "R=" : "",
             loadSuffix: hasResult ? " кПа" : "",
-            widthDimensionScale: dimensionScale(foundationWidthDisplayM, width),
-            baseHeightDimensionScale: dimensionScale(baseHeightDisplayM, baseHeight),
-            floorTopDepthDimensionScale: dimensionScale(
-              basementDepthDisplayM,
-              basementDepth,
-            ),
-            floorThicknessDimensionScale: dimensionScale(
-              floorThicknessDisplayM,
-              floorThickness,
-            ),
+            widthDimensionScale: SOIL_DIAGRAM_DIMENSION_SCALE,
+            baseHeightDimensionScale: SOIL_DIAGRAM_DIMENSION_SCALE,
+            floorTopDepthDimensionScale: SOIL_DIAGRAM_DIMENSION_SCALE,
+            floorThicknessDimensionScale: SOIL_DIAGRAM_DIMENSION_SCALE,
             dimensionSuffix: " м",
             color: "#111827",
             strokeWidth: 1.4,
@@ -526,24 +572,30 @@ function getSoilFoundationScene({
     };
   }
 
+  const x = 160;
+  const y = 90;
+  const sceneViewBox = getNoBasementViewBox({ x, y, width, depth: noBasementDepth });
+
   return {
-    scene: { width: 395, height: 320, viewBox: [105, 35, 395, 320], mode: "detailed" },
+    scene: {
+      width: sceneViewBox[2],
+      height: sceneViewBox[3],
+      viewBox: sceneViewBox,
+      mode: "detailed",
+    },
     objects: {
       foundation: {
         type: "LoadedFoundation",
         params: {
-          x: 160,
-          y: 90,
+          x,
+          y,
           width,
           depth: noBasementDepth,
           loadValue,
           loadPrefix: hasResult ? "R=" : "",
           loadSuffix: hasResult ? " кПа" : "",
-          widthDimensionScale: dimensionScale(foundationWidthDisplayM, width),
-          depthDimensionScale: dimensionScale(
-            noBasementDepthDisplayM,
-            noBasementDepth,
-          ),
+          widthDimensionScale: SOIL_DIAGRAM_DIMENSION_SCALE,
+          depthDimensionScale: SOIL_DIAGRAM_DIMENSION_SCALE,
           dimensionSuffix: " м",
           color: "#111827",
           strokeWidth: 1.4,

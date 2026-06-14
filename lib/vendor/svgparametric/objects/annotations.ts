@@ -242,7 +242,6 @@ export class DistributedLoad extends BaseAnnotation {
     const tipEnd = point(x2 + normal.x * tipOffset, y2 + normal.y * tipOffset);
     const loadStart = point(x1 + normal.x * loadOffset, y1 + normal.y * loadOffset);
     const loadEnd = point(x2 + normal.x * loadOffset, y2 + normal.y * loadOffset);
-    const arrowLength = Math.hypot(tipStart.x - loadStart.x, tipStart.y - loadStart.y);
     const arrowDirection = normalize({ x: tipStart.x - loadStart.x, y: tipStart.y - loadStart.y });
     const labelPoint = point((loadStart.x + loadEnd.x) / 2 - arrowDirection.x * textOffset, (loadStart.y + loadEnd.y) / 2 - arrowDirection.y * textOffset);
     const attrs = lineVisualAttrs(this.params, { color: "black", strokeWidth: 0.6 });
@@ -259,13 +258,11 @@ export class DistributedLoad extends BaseAnnotation {
       const firstHead = point(headBack.x + direction.x * headHalfWidth, headBack.y + direction.y * headHalfWidth);
       const secondHead = point(headBack.x - direction.x * headHalfWidth, headBack.y - direction.y * headHalfWidth);
 
-      if (arrowLength >= 0.000001) {
-        arrows.push(
-          svgElement("line", { x1: shaftStart.x, y1: shaftStart.y, x2: tip.x, y2: tip.y, ...attrs }),
-          svgElement("line", { x1: firstHead.x, y1: firstHead.y, x2: tip.x, y2: tip.y, ...attrs }),
-          svgElement("line", { x1: secondHead.x, y1: secondHead.y, x2: tip.x, y2: tip.y, ...attrs })
-        );
-      }
+      arrows.push(
+        svgElement("line", { x1: shaftStart.x, y1: shaftStart.y, x2: tip.x, y2: tip.y, ...attrs }),
+        svgElement("line", { x1: firstHead.x, y1: firstHead.y, x2: tip.x, y2: tip.y, ...attrs }),
+        svgElement("line", { x1: secondHead.x, y1: secondHead.y, x2: tip.x, y2: tip.y, ...attrs })
+      );
     }
 
     const anchors = {
@@ -277,9 +274,7 @@ export class DistributedLoad extends BaseAnnotation {
     };
     const lineAngle = roundSvg(Math.atan2(direction.y, direction.x) * (180 / Math.PI));
     const node = svgElement("g", {}, [
-      ...(arrowLength >= 0.000001
-        ? [svgElement("line", { x1: loadStart.x, y1: loadStart.y, x2: loadEnd.x, y2: loadEnd.y, ...attrs })]
-        : []),
+      svgElement("line", { x1: loadStart.x, y1: loadStart.y, x2: loadEnd.x, y2: loadEnd.y, ...attrs }),
       ...arrows,
       svgElement(
         "text",
