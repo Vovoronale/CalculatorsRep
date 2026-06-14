@@ -831,7 +831,7 @@ describe("CalculatorShell", () => {
     ).toBeInTheDocument();
   });
 
-  it("unlocks soil design resistance unit selectors and keeps formulas in base units", async () => {
+  it("keeps soil design resistance angle fixed and converts unit weights locally", async () => {
     const user = userEvent.setup();
     const calculator = getCalculatorBySlug("soil-design-resistance");
 
@@ -851,9 +851,9 @@ describe("CalculatorShell", () => {
       name: "Одиниця Осереднена питома вага вище підошви",
     });
 
-    expect(phiUnitSelect).toBeEnabled();
+    expect(phiUnitSelect).toBeDisabled();
     expect(within(phiUnitSelect).getByRole("option", { name: "°" })).toHaveValue("deg");
-    expect(within(phiUnitSelect).getByRole("option", { name: "рад" })).toHaveValue("rad");
+    expect(within(phiUnitSelect).queryByRole("option", { name: "рад" })).not.toBeInTheDocument();
     expect(gammaUnitSelect).toBeEnabled();
     expect(gammaPrimeUnitSelect).toBeEnabled();
     expect(within(gammaUnitSelect).getByRole("option", { name: "кН/м³" })).toHaveValue(
@@ -869,11 +869,10 @@ describe("CalculatorShell", () => {
       "tf-m3",
     );
 
-    await user.selectOptions(phiUnitSelect, "rad");
     await user.selectOptions(gammaUnitSelect, "n-m3");
 
     expect(screen.getByRole("textbox", { name: "Кут внутрішнього тертя" })).toHaveValue(
-      "0.523598775598",
+      "30",
     );
     expect(
       screen.getByRole("textbox", { name: "Питома вага ґрунту нижче підошви" }),
@@ -893,6 +892,18 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByLabelText((label) => label.includes("1.15 * 1 * 1 * 18")),
     ).toBeInTheDocument();
+  });
+
+  it("uses a wider workspace for the soil resistance calculator diagram", () => {
+    const calculator = getCalculatorBySlug("soil-design-resistance");
+
+    if (!calculator) {
+      throw new Error("Expected native soil design resistance calculator to exist");
+    }
+
+    const { container } = render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(container.querySelector(".workspace-content--soil-resistance")).toBeInTheDocument();
   });
 
   it("renders the native cassoon load distribution calculator with a step report", async () => {
@@ -1014,12 +1025,13 @@ describe("CalculatorShell", () => {
     expect(updatedLoadDiagram.textContent).toContain("ld = 6.3 м");
     expect(updatedLoadDiagram.textContent).toContain("qk = 10 кН/м²");
     expect(updatedLoadDiagram.textContent).toContain("qd = 0 кН/м²");
-    const updatedTopLoadLines = [...updatedLoadDiagram.querySelectorAll("line")].filter(
+    const updatedTopLoadLine = [...updatedLoadDiagram.querySelectorAll("line")].find(
       (line) => Math.abs(getNumericAttribute(line, "x2") - getNumericAttribute(line, "x1")) > 250
         && getNumericAttribute(line, "y1") < 118,
     );
 
-    expect(updatedTopLoadLines).toHaveLength(0);
+    expect(updatedTopLoadLine).toBeDefined();
+    expect(110 - getNumericAttribute(updatedTopLoadLine!, "y1")).toBeCloseTo(0);
   });
 
   it("stacks native cassoon load input fields vertically", () => {
@@ -1055,6 +1067,34 @@ describe("CalculatorShell", () => {
       /@media\s*\(max-width:\s*720px\)\s*{[\s\S]*?\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+minmax\(0,\s*1fr\);/,
     );
     expect(css).toMatch(/\.input-schema-field__prefix\[data-empty="true"\]\s*{[\s\S]*?display:\s*none;/);
+  });
+
+  it("keeps soil resistance inspector fields stacked on narrow screens", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+
+    expect(css).toMatch(
+      /@media\s*\(max-width:\s*720px\)\s*{[\s\S]*?\.soil-resistance-controls\s+\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+minmax\(0,\s*1fr\);/,
+    );
+    expect(css).toMatch(
+      /@media\s*\(max-width:\s*720px\)\s*{[\s\S]*?\.soil-resistance-controls\s+\.input-schema-field__control\s*{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\);/,
+    );
+  });
+
+  it("keeps the soil resistance diagram inside a larger responsive desktop track", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+
+    expect(css).toMatch(
+      /\.workspace-content--soil-resistance\s*{[\s\S]*?max-width:\s*1280px;/,
+    );
+    expect(css).toMatch(
+      /\.soil-resistance-input-shell\s*{[\s\S]*?grid-template-columns:\s*minmax\(120px,\s*150px\)\s+minmax\(470px,\s*1fr\)\s+minmax\(400px,\s*500px\);/,
+    );
+    expect(css).toMatch(
+      /\.soil-resistance-diagram__canvas\s*{[\s\S]*?max-width:\s*100%;/,
+    );
+    expect(css).toMatch(
+      /@media\s*\(max-width:\s*1320px\)\s*{[\s\S]*?\.soil-resistance-input-shell\s*{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(280px,\s*340px\);/,
+    );
   });
 
   it("shows soil resistance help actions for documented inspector fields", () => {

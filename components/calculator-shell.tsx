@@ -142,12 +142,17 @@ export function CalculatorShell({
               }
             />
             <div
-              className={
-                selectedCalculator.displayMode === "embed" &&
-                selectedCalculator.embedUrl
-                  ? "workspace-content workspace-content--embed"
-                  : "workspace-content workspace-content--reading"
-              }
+              className={[
+                "workspace-content",
+                selectedCalculator.displayMode === "embed" && selectedCalculator.embedUrl
+                  ? "workspace-content--embed"
+                  : "workspace-content--reading",
+                selectedCalculator.nativeCalculator === "soil-design-resistance"
+                  ? "workspace-content--soil-resistance"
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(" ")}
             >
               <CalculatorDetail
                 calculator={selectedCalculator}
