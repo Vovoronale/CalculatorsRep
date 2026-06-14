@@ -512,6 +512,15 @@ function format(value: number, digits = 2): string {
   return formatSoilDesignResistanceNumber(value, digits);
 }
 
+function formatInputQuantity(
+  name: string,
+  symbol: string,
+  value: string,
+  unit?: string,
+): string {
+  return `${name}: ${symbol} = ${value}${unit ? ` ${unit}` : ""}`;
+}
+
 function getInputItems(input: SoilDesignResistanceInput): string[] {
   const items = [
     `Спосіб розрахунку: ${
@@ -522,44 +531,95 @@ function getInputItems(input: SoilDesignResistanceInput): string[] {
     `Конструктивна схема споруди: ${
       input.structuralScheme === "rigid" ? "жорстка" : "гнучка"
     }`,
-    `L = ${format(input.buildingLengthM)} м`,
-    `H = ${format(input.buildingHeightM)} м`,
+    formatInputQuantity("Довжина споруди", "L", format(input.buildingLengthM), "м"),
+    formatInputQuantity("Висота споруди", "H", format(input.buildingHeightM), "м"),
     `Тип ґрунту: ${SOIL_TYPE_LABELS[input.soilType]}`,
   ];
 
   if (soilUsesLiquidityIndex(input.soilType)) {
-    items.push(`IL = ${format(input.liquidityIndex)}`);
+    items.push(
+      formatInputQuantity("Показник текучості", "IL", format(input.liquidityIndex)),
+    );
   }
 
   items.push(
-    `φ11 = ${format(input.phi11Deg)}°`,
-    `γ11 = ${format(input.gamma11KnM3)} кН/м³`,
-    `γ′11 = ${format(input.gammaPrime11KnM3)} кН/м³`,
-    `c11 = ${format(input.c11KPa)} кПа`,
+    formatInputQuantity("Кут внутрішнього тертя", "φ11", `${format(input.phi11Deg)}°`),
+    formatInputQuantity(
+      "Питома вага ґрунту нижче підошви",
+      "γ11",
+      format(input.gamma11KnM3),
+      "кН/м³",
+    ),
+    formatInputQuantity(
+      "Осереднена питома вага вище підошви",
+      "γ′11",
+      format(input.gammaPrime11KnM3),
+      "кН/м³",
+    ),
+    formatInputQuantity("Питоме зчеплення", "c11", format(input.c11KPa), "кПа"),
     `Спосіб визначення φ11 і c11: ${
       input.strengthSource === "direct-testing"
         ? "визначені безпосередніми випробуваннями"
         : "прийняті за таблицями В.1-В.2"
     }`,
-    `b = ${format(input.foundationWidthM)} м`,
-    `d = ${format(input.foundationDepthM)} м`,
+    formatInputQuantity("Ширина підошви", "b", format(input.foundationWidthM), "м"),
+    formatInputQuantity("Глибина закладання", "d", format(input.foundationDepthM), "м"),
     `Підвал: ${input.hasBasement ? "є підвал" : "немає підвалу"}`,
   );
 
   if (input.hasBasement) {
     items.push(
-      `db,input = ${format(input.basementDepthInputM)} м`,
-      `hs = ${format(input.soilLayerAboveFootingHsM)} м`,
-      `hcf = ${format(input.basementFloorThicknessHcfM)} м`,
-      `γcf = ${format(input.basementFloorUnitWeightGammaCfKnM3)} кН/м³`,
+      formatInputQuantity(
+        "Глибина підвалу",
+        "db,input",
+        format(input.basementDepthInputM),
+        "м",
+      ),
+      formatInputQuantity(
+        "Шар ґрунту над підошвою",
+        "hs",
+        format(input.soilLayerAboveFootingHsM),
+        "м",
+      ),
+      formatInputQuantity(
+        "Товщина підлоги підвалу",
+        "hcf",
+        format(input.basementFloorThicknessHcfM),
+        "м",
+      ),
+      formatInputQuantity(
+        "Питома вага підлоги підвалу",
+        "γcf",
+        format(input.basementFloorUnitWeightGammaCfKnM3),
+        "кН/м³",
+      ),
     );
   } else {
-    items.push(`d1 = ${format(input.embedmentDepthD1M)} м`);
+    items.push(
+      formatInputQuantity(
+        "Приведена глибина закладання",
+        "d1",
+        format(input.embedmentDepthD1M),
+        "м",
+      ),
+    );
   }
 
   if (input.calculationMode === "manual-e7") {
-    items.push(`γc1 = ${format(input.gammaC1Manual ?? 0)}`);
-    items.push(`γc2 = ${format(input.gammaC2Manual ?? 0)}`);
+    items.push(
+      formatInputQuantity(
+        "Коефіцієнт умов роботи 1",
+        "γc1",
+        format(input.gammaC1Manual ?? 0),
+      ),
+    );
+    items.push(
+      formatInputQuantity(
+        "Коефіцієнт умов роботи 2",
+        "γc2",
+        format(input.gammaC2Manual ?? 0),
+      ),
+    );
   }
 
   return items;

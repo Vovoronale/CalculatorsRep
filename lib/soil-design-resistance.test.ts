@@ -190,6 +190,24 @@ describe("soil design resistance report", () => {
     const report = getSoilDesignResistanceReport(baseInput);
 
     expect(report.valid).toBe(true);
+    expect(report.steps.find((step) => step.key === "inputs")?.items).toEqual([
+      "Спосіб розрахунку: вручну за табл. Е.7",
+      "Конструктивна схема споруди: жорстка",
+      "Довжина споруди: L = 24 м",
+      "Висота споруди: H = 6 м",
+      "Тип ґрунту: Пісок середньої крупності",
+      "Кут внутрішнього тертя: φ11 = 30°",
+      "Питома вага ґрунту нижче підошви: γ11 = 17.1 кН/м³",
+      "Осереднена питома вага вище підошви: γ′11 = 16.6 кН/м³",
+      "Питоме зчеплення: c11 = 4 кПа",
+      "Спосіб визначення φ11 і c11: визначені безпосередніми випробуваннями",
+      "Ширина підошви: b = 1 м",
+      "Глибина закладання: d = 1.2 м",
+      "Підвал: немає підвалу",
+      "Приведена глибина закладання: d1 = 1.2 м",
+      "Коефіцієнт умов роботи 1: γc1 = 1",
+      "Коефіцієнт умов роботи 2: γc2 = 1",
+    ]);
     expect(report.values?.soilDesignResistanceKPa).toBeCloseTo(162.82, 2);
     expect(report.values?.soilDesignResistanceTonM2).toBeCloseTo(16.282, 3);
     expect(report.values?.soilDesignResistanceKgCm2).toBeCloseTo(1.6282, 4);
@@ -319,6 +337,14 @@ describe("soil design resistance report", () => {
     );
     expect(report.steps.find((step) => step.key === "db")?.formula).toBe(
       "db = min(db,input; 2.0) = min(2.6; 2.0) = 2.0 м",
+    );
+    expect(getReportStep(report, "inputs").items).toEqual(
+      expect.arrayContaining([
+        "Глибина підвалу: db,input = 2.6 м",
+        "Шар ґрунту над підошвою: hs = 0.4 м",
+        "Товщина підлоги підвалу: hcf = 0.2 м",
+        "Питома вага підлоги підвалу: γcf = 22 кН/м³",
+      ]),
     );
   });
 

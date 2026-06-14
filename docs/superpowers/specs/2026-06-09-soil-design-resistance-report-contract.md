@@ -21,21 +21,21 @@ Items:
 ```text
 Спосіб розрахунку: ...
 Конструктивна схема споруди: ...
-L = ... м
-H = ... м
+Довжина споруди: L = ... м
+Висота споруди: H = ... м
 Тип ґрунту: ...
-IL = ...
-φ11 = ...°
-γ11 = ... кН/м³
-γ′11 = ... кН/м³
-c11 = ... кПа
+Показник текучості: IL = ...
+Кут внутрішнього тертя: φ11 = ...°
+Питома вага ґрунту нижче підошви: γ11 = ... кН/м³
+Осереднена питома вага вище підошви: γ′11 = ... кН/м³
+Питоме зчеплення: c11 = ... кПа
 Спосіб визначення φ11 і c11: ...
-b = ... м
-d = ... м
+Ширина підошви: b = ... м
+Глибина закладання: d = ... м
 Підвал: ...
-d1 = ... м
-γc1 = ...
-γc2 = ...
+Приведена глибина закладання: d1 = ... м
+Коефіцієнт умов роботи 1: γc1 = ...
+Коефіцієнт умов роботи 2: γc2 = ...
 ```
 
 Rules:
@@ -43,7 +43,16 @@ Rules:
 - Show `IL = ...` only when `IL` applies to the selected soil type.
 - Show `γc1 = ...` and `γc2 = ...` only in manual table Е.7 mode.
 - In automatic mode, `γc1` and `γc2` are calculated in later report steps and are not listed as user inputs.
-- For basement cases, replace the simple `d1 = ... м` item with the basement inputs used for `d1` and `db`.
+- Every scalar input item must include the user-facing quantity name and the mathematical notation in the form `<назва>: <позначення> = <значення> <одиниця>`.
+- Text-choice items without a mathematical symbol (`Спосіб розрахунку`, `Конструктивна схема споруди`, `Тип ґрунту`, `Спосіб визначення φ11 і c11`, `Підвал`) remain descriptive text rows.
+- For basement cases, replace the simple `Приведена глибина закладання: d1 = ... м` item with the basement inputs used for `d1` and `db`:
+
+```text
+Глибина підвалу: db,input = ... м
+Шар ґрунту над підошвою: hs = ... м
+Товщина підлоги підвалу: hcf = ... м
+Питома вага підлоги підвалу: γcf = ... кН/м³
+```
 
 ### 2. Відношення L/H
 
