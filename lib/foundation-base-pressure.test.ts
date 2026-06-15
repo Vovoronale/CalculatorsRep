@@ -88,6 +88,16 @@ describe("foundation base pressure calculator", () => {
     expect(report.warnings).toEqual([]);
   });
 
+  it("does not include unresolved source-name placeholder text in report captions", () => {
+    const report = getFoundationBasePressureReport(
+      DEFAULT_FOUNDATION_BASE_PRESSURE_INPUT,
+    );
+
+    expect(JSON.stringify(report.steps)).not.toContain(
+      "назву джерела буде уточнено користувачем",
+    );
+  });
+
   it("validates dimensions and avoids non-finite formulas", () => {
     const report = getFoundationBasePressureReport({
       ...DEFAULT_FOUNDATION_BASE_PRESSURE_INPUT,

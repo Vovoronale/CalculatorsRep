@@ -17,7 +17,7 @@ Canonical agreed report text and formulas are captured separately in [`2026-06-1
 The method source is intentionally temporary:
 
 ```text
-Методика визначення крайових напружень під прямокутною підошвою фундаменту; назву джерела буде уточнено користувачем.
+Методика визначення крайових напружень під прямокутною підошвою фундаменту
 ```
 
 The user will later replace it with the exact book/source name.

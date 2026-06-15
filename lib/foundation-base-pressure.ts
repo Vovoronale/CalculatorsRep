@@ -1,5 +1,5 @@
 export const FOUNDATION_BASE_PRESSURE_SOURCE =
-  "Методика визначення крайових напружень під прямокутною підошвою фундаменту; назву джерела буде уточнено користувачем.";
+  "Методика визначення крайових напружень під прямокутною підошвою фундаменту";
 
 export type FoundationBasePressureInput = {
   verticalForceT: number;
