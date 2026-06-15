@@ -42,6 +42,20 @@ describe("parseDocxFormula", () => {
     expect(result.statements[0].expression.operators).toEqual(["<=", "=>", "<="]);
   });
 
+  it("parses approximate equilibrium formulas", () => {
+    const result = parseDocxFormula(
+      "ΣMx = N_total * (y_R - b / 2) = 43.28 * (0.9647 - 0.9000) = 2.80 т·м ≈ Mx_base = 2.80 т·м",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.statements[0].expression.type).toBe("chain");
+    if (result.statements[0].expression.type !== "chain") {
+      throw new Error("Expected chain expression");
+    }
+    expect(result.statements[0].expression.operators).toEqual(["=", "=", "=", "≈", "="]);
+  });
+
   it("captures common engineering symbol subscripts", () => {
     const result = parseDocxFormula("γc1 = 1.4; As,min = 5.85 см²; db,input = 1.5 м");
 

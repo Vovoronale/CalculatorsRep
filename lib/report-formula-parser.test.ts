@@ -115,6 +115,19 @@ describe("parseReportFormula", () => {
     expect(latex).toContain("y_{R}");
   });
 
+  it("renders approximate equilibrium formulas with units before the comparison", () => {
+    const result = parseReportFormula(
+      "ΣMx = N_total * (y_R - b / 2) = 43.28 * (0.9647 - 0.9000) = 2.80 т·м ≈ Mx_base = 2.80 т·м",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines[0].latex).toContain("\\Sigma_{Mx}");
+    expect(result.lines[0].latex).toContain("\\approx");
+    expect(result.lines[0].latex).toContain("2.80\\ \\text{т·м}");
+    expect(result.lines[0].latex).toContain("M_{x,base}");
+  });
+
   it("keeps explanatory suffixes as text", () => {
     const result = parseReportFormula(
       "k = 1.0, оскільки характеристики ґрунту прийняті за прямими випробуваннями",

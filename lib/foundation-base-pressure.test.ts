@@ -98,6 +98,20 @@ describe("foundation base pressure calculator", () => {
     );
   });
 
+  it("renders equilibrium checks as formulas with substitutions", () => {
+    const report = getFoundationBasePressureReport(
+      DEFAULT_FOUNDATION_BASE_PRESSURE_INPUT,
+    );
+    const equilibriumStep = report.steps.find((step) => step.key === "equilibrium");
+
+    expect(equilibriumStep?.items).toBeUndefined();
+    expect(equilibriumStep?.formulas).toEqual([
+      "ΣP = ∫A p(x, y) dA = 43.28 т ≈ N_total = 43.28 т",
+      "ΣMx = ∫A (y - b / 2) * p(x, y) dA = N_total * (y_R - b / 2) = 43.28 * (0.9647 - 0.9000) = 2.80 т·м ≈ Mx_base = 2.80 т·м",
+      "ΣMy = ∫A (x - l / 2) * p(x, y) dA = N_total * (x_R - l / 2) = 43.28 * (1.7568 - 1.2000) = 24.10 т·м ≈ My_base = 24.10 т·м",
+    ]);
+  });
+
   it("validates dimensions and avoids non-finite formulas", () => {
     const report = getFoundationBasePressureReport({
       ...DEFAULT_FOUNDATION_BASE_PRESSURE_INPUT,

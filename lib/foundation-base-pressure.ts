@@ -764,10 +764,10 @@ function buildReportSteps(
     steps.push({
       key: "equilibrium",
       caption: `Перевірка рівноваги контактної епюри з урахуванням відриву (${FOUNDATION_BASE_PRESSURE_SOURCE}):`,
-      items: [
-        `ΣP = ${fixed(values.equilibrium.forceT, 2)} т ≈ N_total = ${fixed(values.totalVerticalForceT, 2)} т`,
-        `ΣMx = ${fixed(values.equilibrium.momentXTm, 2)} т·м ≈ Mx_base = ${fixed(values.baseMomentXTm, 2)} т·м`,
-        `ΣMy = ${fixed(values.equilibrium.momentYTm, 2)} т·м ≈ My_base = ${fixed(values.baseMomentYTm, 2)} т·м`,
+      formulas: [
+        `ΣP = ∫A p(x, y) dA = ${fixed(values.equilibrium.forceT, 2)} т ≈ N_total = ${fixed(values.totalVerticalForceT, 2)} т`,
+        `ΣMx = ∫A (y - b / 2) * p(x, y) dA = N_total * (y_R - b / 2) = ${fixed(values.totalVerticalForceT, 2)} * (${fixed(values.resultantYM, 4)} - ${fixed(input.foundationWidthM / 2, 4)}) = ${fixed(values.equilibrium.momentXTm, 2)} т·м ≈ Mx_base = ${fixed(values.baseMomentXTm, 2)} т·м`,
+        `ΣMy = ∫A (x - l / 2) * p(x, y) dA = N_total * (x_R - l / 2) = ${fixed(values.totalVerticalForceT, 2)} * (${fixed(values.resultantXM, 4)} - ${fixed(input.foundationLengthM / 2, 4)}) = ${fixed(values.equilibrium.momentYTm, 2)} т·м ≈ My_base = ${fixed(values.baseMomentYTm, 2)} т·м`,
       ],
     });
   }

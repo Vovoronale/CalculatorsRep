@@ -1,5 +1,5 @@
 export type DocxBinaryOperator = "+" | "-" | "*" | "/" | "^";
-export type DocxChainOperator = "=" | "<" | "<=" | ">" | ">=" | "=>";
+export type DocxChainOperator = "=" | "<" | "<=" | ">" | ">=" | "=>" | "≈";
 
 export type DocxFormulaNode =
   | { type: "number"; value: string }
@@ -197,7 +197,7 @@ function tokenize(source: string): Token[] {
       continue;
     }
 
-    if (char === "=" || char === "<" || char === ">") {
+    if (char === "=" || char === "<" || char === ">" || char === "≈") {
       tokens.push({ type: "operator", value: char });
       index += 1;
       continue;
@@ -474,7 +474,15 @@ class FormulaParser {
 }
 
 function isChainOperator(value: string): value is DocxChainOperator {
-  return value === "=" || value === "<" || value === "<=" || value === ">" || value === ">=" || value === "=>";
+  return (
+    value === "=" ||
+    value === "<" ||
+    value === "<=" ||
+    value === ">" ||
+    value === ">=" ||
+    value === "=>" ||
+    value === "≈"
+  );
 }
 
 function isSupportedFunction(value: string): value is "min" | "max" | "sqrt" | "abs" {

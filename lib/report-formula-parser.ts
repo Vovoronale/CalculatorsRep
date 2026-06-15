@@ -18,7 +18,7 @@ const REPORT_SYMBOL_PATTERN = new RegExp(
 );
 const FORMULA_OPERATOR_PATTERN = /(=|<=|>=|<|>|\+|-|\*|\/|\(|\[)/u;
 const UNIT_PATTERN =
-  /(\d(?:[.,]\d+)?)\s?(мм²\/м\.п\.|кН\*м|т\/м³|т\/м²|кг\/см²|кН\/м²|т·м|мм²|см²|м²|м³|МПа|кПа|кН|т|м|%)(?=$|\s=|;|\)|\])/gu;
+  /(\d(?:[.,]\d+)?)\s?(мм²\/м\.п\.|кН\*м|т\/м³|т\/м²|кг\/см²|кН\/м²|т·м|мм²|см²|м²|м³|МПа|кПа|кН|т|м|%)(?=$|\s=|\s≈|;|\)|\])/gu;
 const EXPLANATORY_SUFFIX_PATTERNS = [
   ", оскільки",
   " - умова виконується",
@@ -283,6 +283,7 @@ function convertOperators(latex: string): string {
   const converted = protectedLatex
     .replace(/<=/g, "\\le")
     .replace(/>=/g, "\\ge")
+    .replace(/≈/g, "\\approx")
     .replace(/=>/g, "\\Rightarrow")
     .replace(/\*/g, "\\cdot")
     .replace(/\[/g, "\\left[")

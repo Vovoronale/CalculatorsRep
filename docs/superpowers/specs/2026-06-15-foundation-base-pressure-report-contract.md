@@ -367,12 +367,12 @@ Caption:
 Перевірка рівноваги контактної епюри з урахуванням відриву (Методика визначення крайових напружень під прямокутною підошвою фундаменту):
 ```
 
-Items:
+Formulas:
 
 ```text
-ΣP = <значення> т ≈ N_total = <N_total> т
-ΣMx = <значення> т·м ≈ Mx_base = <Mx_base> т·м
-ΣMy = <значення> т·м ≈ My_base = <My_base> т·м
+ΣP = ∫A p(x, y) dA = <ΣP> т ≈ N_total = <N_total> т
+ΣMx = ∫A (y - b / 2) * p(x, y) dA = N_total * (y_R - b / 2) = <N_total> * (<y_R> - <b/2>) = <ΣMx> т·м ≈ Mx_base = <Mx_base> т·м
+ΣMy = ∫A (x - l / 2) * p(x, y) dA = N_total * (x_R - l / 2) = <N_total> * (<x_R> - <l/2>) = <ΣMy> т·м ≈ My_base = <My_base> т·м
 ```
 
 Rule:
