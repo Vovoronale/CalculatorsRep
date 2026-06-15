@@ -371,14 +371,14 @@ Caption:
 Formulas:
 
 ```text
-ΣP = ∫A p(x, y) dA = <ΣP> т ≈ N_total = <N_total> т
-ΣMx = ∫A (y - b / 2) * p(x, y) dA = N_total * (y_R - b / 2) = <N_total> * (<y_R> - <b/2>) = <ΣMx> т·м ≈ Mx_base = <Mx_base> т·м
-ΣMy = ∫A (x - l / 2) * p(x, y) dA = N_total * (x_R - l / 2) = <N_total> * (<x_R> - <l/2>) = <ΣMy> т·м ≈ My_base = <My_base> т·м
+ΣP = N_total = <N_total> т
+ΣMx = N_total * (y_R - b / 2) = <N_total> * (<y_R> - <b/2>) = <ΣMx> т·м ≈ Mx_base = <Mx_base> т·м
+ΣMy = N_total * (x_R - l / 2) = <N_total> * (<x_R> - <l/2>) = <ΣMy> т·м ≈ My_base = <My_base> т·м
 ```
 
 Rule:
 
-The equilibrium check is diagnostic and should use a tolerance appropriate for the numerical method. The exact tolerance must be stated in the implementation plan before coding.
+The equilibrium check is a diagnostic engineering control of the selected uplift scheme. Do not show integral expressions or `p0`, `ax`, `ay` in this step.
 
 ### 10. Схема епюри
 

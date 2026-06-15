@@ -147,10 +147,12 @@ describe("foundation base pressure calculator", () => {
     const equilibriumStep = report.steps.find((step) => step.key === "equilibrium");
 
     expect(equilibriumStep?.items).toBeUndefined();
+    expect(JSON.stringify(equilibriumStep)).not.toContain("∫A");
+    expect(JSON.stringify(equilibriumStep)).not.toContain("p(x, y)");
     expect(equilibriumStep?.formulas).toEqual([
-      "ΣP = ∫A p(x, y) dA = 43.28 т ≈ N_total = 43.28 т",
-      "ΣMx = ∫A (y - b / 2) * p(x, y) dA = N_total * (y_R - b / 2) = 43.28 * (0.9647 - 0.9000) = 2.80 т·м ≈ Mx_base = 2.80 т·м",
-      "ΣMy = ∫A (x - l / 2) * p(x, y) dA = N_total * (x_R - l / 2) = 43.28 * (1.7568 - 1.2000) = 24.10 т·м ≈ My_base = 24.10 т·м",
+      "ΣP = N_total = 43.28 т",
+      "ΣMx = N_total * (y_R - b / 2) = 43.28 * (0.9647 - 0.9000) = 2.80 т·м ≈ Mx_base = 2.80 т·м",
+      "ΣMy = N_total * (x_R - l / 2) = 43.28 * (1.7568 - 1.2000) = 24.10 т·м ≈ My_base = 24.10 т·м",
     ]);
   });
 
