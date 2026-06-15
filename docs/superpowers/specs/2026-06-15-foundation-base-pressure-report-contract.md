@@ -218,7 +218,7 @@ Show only when at least one corner stress from step 5 is `< 0`.
 Caption:
 
 ```text
-Контактна епюра з урахуванням відриву (Методика визначення крайових напружень під прямокутною підошвою фундаменту):
+Вибір схеми відриву підошви (Методика визначення крайових напружень під прямокутною підошвою фундаменту):
 ```
 
 Warning text:
@@ -227,29 +227,20 @@ Warning text:
 Найменше з обчислених напружень менше нуля, тому маємо відрив підошви.
 ```
 
-Model text:
+Action text:
 
 ```text
-Контактна епюра з урахуванням відриву шукається як лінійна площина тиску без розтягу:
-p(x, y) = max(0; p0 + ax * x + ay * y)
-```
-
-Equilibrium text:
-
-```text
-Параметри p0, ax, ay підбираються чисельно так, щоб виконувались умови рівноваги:
-∫A p(x, y) dA = N_total
-∫A x * p(x, y) dA = N_total * x_R
-∫A y * p(x, y) dA = N_total * y_R
+Визначаємо від'ємні кутові напруження: <negative-stress-list>.
+За розташуванням від'ємних кутів вибираємо схему відриву: <scheme-name>.
 ```
 
 Rule:
 
-- The report must identify the uplift scheme after solving the no-tension contact problem.
-- The calculation model is universal for a rectangular base with a no-tension contact plane.
+- Do not show `p0`, `ax`, `ay` in the visible report.
+- The implementation may use a numerical solver internally to locate the zero-pressure line, but the visible report must be action-oriented: negative corners -> scheme -> zero-pressure-line dimensions -> uplift area -> uplift share -> final contact stresses.
 - The first version must explicitly classify and report the two agreed check schemes below: uplift in one corner and uplift in two corners.
 - If the solved contact polygon has another shape, the implementation plan must define a generic polygon report block and obtain user approval before coding that report text.
-- The implementation may use a numerical solver, but the report must show the detected scheme, the found dimensions, the final stresses, and the explicit uplift-area formula.
+- The report must show the uplift area in `м²` before showing the uplift share in `%`.
 
 ### 7. Відрив в одному куті
 
@@ -266,13 +257,13 @@ Caption:
 Scheme note:
 
 ```text
-Перебором/чисельним розв'язанням знайдено, що відрив підошви присутній в одному куті.
+Від'ємне напруження отримане в одному куті, тому зона відриву має форму трикутника.
 ```
 
 Dimension note:
 
 ```text
-Для схеми відриву в одному куті c1 — сторона трикутної зони відриву вздовж b; c2 — сторона трикутної зони відриву вздовж l.
+Лінія σ = 0 перетинає дві суміжні грані підошви: c1 — сторона трикутної зони відриву вздовж b, c2 — сторона трикутної зони відриву вздовж l.
 ```
 
 Dimension formulas:
@@ -282,10 +273,11 @@ c1 = <c1> м
 c2 = <c2> м
 ```
 
-Uplift share formula:
+Uplift area and share formulas:
 
 ```text
-P_lift = c1 * c2 / (2 * b * l) * 100 = <c1> * <c2> / (2 * <b> * <l>) * 100 = <P_lift>%
+A_lift = c1 * c2 / 2 = <c1> * <c2> / 2 = <A_lift> м²
+P_lift = A_lift / A * 100 = <A_lift> / <A> * 100 = <P_lift>%
 ```
 
 Final stress formulas:
@@ -301,7 +293,8 @@ Check example 2 formulas:
 ```text
 c1 = 1.7340 м
 c2 = 1.3427 м
-P_lift = c1 * c2 / (2 * b * l) * 100 = 1.7340 * 1.3427 / (2 * 1.80 * 2.40) * 100 = 26.9%
+A_lift = c1 * c2 / 2 = 1.7340 * 1.3427 / 2 = 1.1641 м²
+P_lift = A_lift / A * 100 = 1.1641 / 4.320 * 100 = 26.9%
 σ1 = 36.39 т/м²
 σ2 = 15.70 т/м²
 σ3 = 0.76 т/м²
@@ -322,7 +315,13 @@ Caption:
 Scheme note:
 
 ```text
-Перебором/чисельним розв'язанням знайдено, що відрив підошви присутній у двох кутах.
+Від'ємні напруження отримані у двох суміжних кутах однієї грані, тому зона відриву має форму трапеції.
+```
+
+Dimension note:
+
+```text
+Лінія σ = 0 перетинає дві протилежні грані підошви: c1 — відстань від точки 3 до перетину на верхній грані, c2 — відстань від точки 4 до перетину на нижній грані.
 ```
 
 Dimension formulas:
@@ -332,10 +331,11 @@ c1 = <c1> м
 c2 = <c2> м
 ```
 
-Uplift share formula:
+Uplift area and share formulas:
 
 ```text
-P_lift = (c1 + c2) / 2 * b * 1 / (b * l) * 100 = (<c1> + <c2>) / 2 * <b> * 1 / (<b> * <l>) * 100 = <P_lift>%
+A_lift = (c1 + c2) / 2 * b = (<c1> + <c2>) / 2 * <b> = <A_lift> м²
+P_lift = A_lift / A * 100 = <A_lift> / <A> * 100 = <P_lift>%
 ```
 
 Final stress formulas:
@@ -350,7 +350,8 @@ Check example 1 formulas:
 ```text
 c1 = 0.2781 м
 c2 = 0.6927 м
-P_lift = (c1 + c2) / 2 * b * 1 / (b * l) * 100 = (0.2781 + 0.6927) / 2 * 1.80 * 1 / (1.80 * 2.40) * 100 = 20.2%
+A_lift = (c1 + c2) / 2 * b = (0.2781 + 0.6927) / 2 * 1.80 = 0.8737 м²
+P_lift = A_lift / A * 100 = 0.8737 / 4.320 * 100 = 20.2%
 σ1 = 27.73 т/м²
 σ2 = 22.31 т/м²
 ```

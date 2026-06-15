@@ -24,6 +24,7 @@ export type FoundationBasePressureUplift =
       type: "one-corner";
       c1M: number;
       c2M: number;
+      upliftAreaM2: number;
       contactStressesTM2: [number, number, number];
       upliftSharePercent: number;
       compressedPolygon: Point[];
@@ -32,12 +33,14 @@ export type FoundationBasePressureUplift =
       type: "two-corners";
       c1M: number;
       c2M: number;
+      upliftAreaM2: number;
       contactStressesTM2: [number, number];
       upliftSharePercent: number;
       compressedPolygon: Point[];
     }
   | {
       type: "generic";
+      upliftAreaM2: number;
       contactStressesTM2: number[];
       upliftSharePercent: number;
       compressedPolygon: Point[];
@@ -54,6 +57,7 @@ export type FoundationBasePressureValues = {
   eccentricityXM: number;
   eccentricityYM: number;
   noUpliftCornerStressesTM2: [number, number, number, number];
+  negativeCornerPointNumbers: CornerPointNumber[];
   resultantXM: number;
   resultantYM: number;
   uplift: FoundationBasePressureUplift;
@@ -94,6 +98,7 @@ export type FoundationBasePressureReport = {
 };
 
 type Point = [number, number];
+type CornerPointNumber = 1 | 2 | 3 | 4;
 
 type Plane = {
   p0: number;
@@ -136,6 +141,14 @@ function isNonNegativeFinite(value: number): boolean {
 
 function fixed(value: number, digits: number): string {
   return value.toFixed(digits);
+}
+
+function getNegativeCornerPointNumbers(
+  cornerStressesTM2: [number, number, number, number],
+): CornerPointNumber[] {
+  return cornerStressesTM2.flatMap((stress, index) =>
+    stress < 0 ? ([(index + 1) as CornerPointNumber] as CornerPointNumber[]) : [],
+  );
 }
 
 export function formatFoundationBasePressureNumber(
@@ -506,11 +519,13 @@ function classifyUplift({
   if (bottomIntercept && topIntercept) {
     const c1M = floorTo(topIntercept[0], 4);
     const c2M = roundTo(bottomIntercept[0], 4);
+    const upliftAreaM2 = roundTo(((c1M + c2M) / 2) * widthM, 4);
 
     return {
       type: "two-corners",
       c1M,
       c2M,
+      upliftAreaM2,
       contactStressesTM2: [
         roundTo(cornerPressures[0], 2),
         roundTo(cornerPressures[1], 2),
@@ -523,11 +538,13 @@ function classifyUplift({
   if (bottomIntercept && leftIntercept) {
     const c1M = roundTo(leftIntercept[1], 4);
     const c2M = roundTo(bottomIntercept[0], 4);
+    const upliftAreaM2 = roundTo((c1M * c2M) / 2, 4);
 
     return {
       type: "one-corner",
       c1M,
       c2M,
+      upliftAreaM2,
       contactStressesTM2: [
         roundTo(cornerPressures[0], 2),
         roundTo(cornerPressures[1], 2),
@@ -540,6 +557,7 @@ function classifyUplift({
 
   return {
     type: "generic",
+    upliftAreaM2: roundTo(lengthM * widthM - integrated.areaM2, 4),
     contactStressesTM2: cornerPressures.filter((value) => value > 1e-8),
     upliftSharePercent: roundTo(upliftSharePercent, 1),
     compressedPolygon: polygon,
@@ -586,9 +604,12 @@ export function getFoundationBasePressureReport(
     totalVerticalForceT / areaM2 - baseMomentYTm / sectionModulusWyM3 + baseMomentXTm / sectionModulusWxM3,
     totalVerticalForceT / areaM2 - baseMomentYTm / sectionModulusWyM3 - baseMomentXTm / sectionModulusWxM3,
   ];
+  const negativeCornerPointNumbers = getNegativeCornerPointNumbers(
+    noUpliftCornerStressesTM2,
+  );
   const resultantXM = input.foundationLengthM / 2 + eccentricityXM;
   const resultantYM = input.foundationWidthM / 2 + eccentricityYM;
-  const hasUplift = noUpliftCornerStressesTM2.some((stress) => stress < 0);
+  const hasUplift = negativeCornerPointNumbers.length > 0;
   let uplift: FoundationBasePressureUplift = {
     type: "none",
     contactStressesTM2: noUpliftCornerStressesTM2,
@@ -630,6 +651,7 @@ export function getFoundationBasePressureReport(
     eccentricityXM,
     eccentricityYM,
     noUpliftCornerStressesTM2,
+    negativeCornerPointNumbers,
     resultantXM,
     resultantYM,
     uplift,
@@ -648,6 +670,45 @@ export function getFoundationBasePressureReport(
     values,
     steps,
   };
+}
+
+function formatCornerPointList(points: CornerPointNumber[]): string {
+  if (points.length <= 1) return String(points[0] ?? "");
+  if (points.length === 2) return `${points[0]} і ${points[1]}`;
+
+  return `${points.slice(0, -1).join(", ")} і ${points[points.length - 1]}`;
+}
+
+function formatNegativeCornerStressList(
+  values: FoundationBasePressureValues,
+): string {
+  return values.negativeCornerPointNumbers
+    .map((point) => {
+      const stress = values.noUpliftCornerStressesTM2[point - 1];
+
+      return `σ${point} = ${fixed(stress, 2)} т/м²`;
+    })
+    .join(", ");
+}
+
+function getUpliftSchemeName(
+  uplift: FoundationBasePressureUplift,
+): string {
+  if (uplift.type === "one-corner") return "трикутник";
+  if (uplift.type === "two-corners") return "трапеція";
+  if (uplift.type === "none") return "відрив відсутній";
+
+  return "складна форма";
+}
+
+function getContactPointNumbers(
+  uplift: FoundationBasePressureUplift,
+): CornerPointNumber[] {
+  if (uplift.type === "none") return [1, 2, 3, 4];
+  if (uplift.type === "one-corner") return [1, 2, 3];
+  if (uplift.type === "two-corners") return [1, 2];
+
+  return [];
 }
 
 function buildReportSteps(
@@ -704,59 +765,81 @@ function buildReportSteps(
     return steps;
   }
 
+  const negativeCornerNoun =
+    values.negativeCornerPointNumbers.length === 1
+      ? "від'ємного кута"
+      : "від'ємних кутів";
+
   steps.push({
     key: "contact-model",
-    caption: `Контактна епюра з урахуванням відриву (${FOUNDATION_BASE_PRESSURE_SOURCE}):`,
+    caption: `Вибір схеми відриву підошви (${FOUNDATION_BASE_PRESSURE_SOURCE}):`,
     notes: [
       "Найменше з обчислених напружень менше нуля, тому маємо відрив підошви.",
-      "Контактна епюра з урахуванням відриву шукається як лінійна площина тиску без розтягу:",
-      "Параметри p0, ax, ay підбираються чисельно так, щоб виконувались умови рівноваги.",
-    ],
-    formulas: [
-      "p(x, y) = max(0; p0 + ax * x + ay * y)",
-      "∫A p(x, y) dA = N_total",
-      "∫A x * p(x, y) dA = N_total * x_R",
-      "∫A y * p(x, y) dA = N_total * y_R",
+      `Визначаємо від'ємні кутові напруження: ${formatNegativeCornerStressList(
+        values,
+      )}.`,
+      `За розташуванням ${negativeCornerNoun} вибираємо схему відриву: ${getUpliftSchemeName(
+        values.uplift,
+      )}.`,
     ],
   });
 
   if (values.uplift.type === "one-corner") {
+    const contactPointList = formatCornerPointList(
+      getContactPointNumbers(values.uplift),
+    );
+
     steps.push({
       key: "uplift-one-corner",
       caption: `Відрив підошви в одному куті (${FOUNDATION_BASE_PRESSURE_SOURCE}):`,
       notes: [
-        "Перебором/чисельним розв'язанням знайдено, що відрив підошви присутній в одному куті.",
-        "Для схеми відриву в одному куті c1 — сторона трикутної зони відриву вздовж b; c2 — сторона трикутної зони відриву вздовж l.",
-        `Напруження під підошвою з урахуванням відриву: σ1 = ${fixed(values.uplift.contactStressesTM2[0], 2)} т/м², σ2 = ${fixed(values.uplift.contactStressesTM2[1], 2)} т/м², σ3 = ${fixed(values.uplift.contactStressesTM2[2], 2)} т/м².`,
+        "Від'ємне напруження отримане в одному куті, тому зона відриву має форму трикутника.",
+        "Лінія σ = 0 перетинає дві суміжні грані підошви: c1 — сторона трикутної зони відриву вздовж b, c2 — сторона трикутної зони відриву вздовж l.",
+        `Після виключення зони відриву контакт зберігається в точках ${contactPointList}.`,
       ],
-      items: [
-        `c1 = ${fixed(values.uplift.c1M, 4)} м`,
-        `c2 = ${fixed(values.uplift.c2M, 4)} м`,
+      formulas: [
+        `c1 = y_left = ${fixed(values.uplift.c1M, 4)} м`,
+        `c2 = x_bottom = ${fixed(values.uplift.c2M, 4)} м`,
+        `A_lift = c1 * c2 / 2 = ${fixed(values.uplift.c1M, 4)} * ${fixed(values.uplift.c2M, 4)} / 2 = ${fixed(values.uplift.upliftAreaM2, 4)} м²`,
+        `P_lift = A_lift / A * 100 = ${fixed(values.uplift.upliftAreaM2, 4)} / ${fixed(values.areaM2, 3)} * 100 = ${fixed(values.uplift.upliftSharePercent, 1)}%`,
+        `σ1 = ${fixed(values.uplift.contactStressesTM2[0], 2)} т/м²`,
+        `σ2 = ${fixed(values.uplift.contactStressesTM2[1], 2)} т/м²`,
+        `σ3 = ${fixed(values.uplift.contactStressesTM2[2], 2)} т/м²`,
       ],
-      formula: `P_lift = c1 * c2 / (2 * b * l) * 100 = ${fixed(values.uplift.c1M, 4)} * ${fixed(values.uplift.c2M, 4)} / (2 * ${fixed(input.foundationWidthM, 2)} * ${fixed(input.foundationLengthM, 2)}) * 100 = ${fixed(values.uplift.upliftSharePercent, 1)}%`,
     });
   } else if (values.uplift.type === "two-corners") {
+    const contactPointList = formatCornerPointList(
+      getContactPointNumbers(values.uplift),
+    );
+
     steps.push({
       key: "uplift-two-corners",
       caption: `Відрив підошви у двох кутах (${FOUNDATION_BASE_PRESSURE_SOURCE}):`,
       notes: [
-        "Перебором/чисельним розв'язанням знайдено, що відрив підошви присутній у двох кутах.",
-        `Напруження під підошвою з урахуванням відриву: σ1 = ${fixed(values.uplift.contactStressesTM2[0], 2)} т/м², σ2 = ${fixed(values.uplift.contactStressesTM2[1], 2)} т/м².`,
+        "Від'ємні напруження отримані у двох суміжних кутах однієї грані, тому зона відриву має форму трапеції.",
+        "Лінія σ = 0 перетинає дві протилежні грані підошви: c1 — відстань від точки 3 до перетину на верхній грані, c2 — відстань від точки 4 до перетину на нижній грані.",
+        `Після виключення зони відриву контакт зберігається в точках ${contactPointList}.`,
       ],
-      items: [
-        `c1 = ${fixed(values.uplift.c1M, 4)} м`,
-        `c2 = ${fixed(values.uplift.c2M, 4)} м`,
+      formulas: [
+        `c1 = x_top = ${fixed(values.uplift.c1M, 4)} м`,
+        `c2 = x_bottom = ${fixed(values.uplift.c2M, 4)} м`,
+        `A_lift = (c1 + c2) / 2 * b = (${fixed(values.uplift.c1M, 4)} + ${fixed(values.uplift.c2M, 4)}) / 2 * ${fixed(input.foundationWidthM, 2)} = ${fixed(values.uplift.upliftAreaM2, 4)} м²`,
+        `P_lift = A_lift / A * 100 = ${fixed(values.uplift.upliftAreaM2, 4)} / ${fixed(values.areaM2, 3)} * 100 = ${fixed(values.uplift.upliftSharePercent, 1)}%`,
+        `σ1 = ${fixed(values.uplift.contactStressesTM2[0], 2)} т/м²`,
+        `σ2 = ${fixed(values.uplift.contactStressesTM2[1], 2)} т/м²`,
       ],
-      formula: `P_lift = (c1 + c2) / 2 * b * 1 / (b * l) * 100 = (${fixed(values.uplift.c1M, 4)} + ${fixed(values.uplift.c2M, 4)}) / 2 * ${fixed(input.foundationWidthM, 2)} * 1 / (${fixed(input.foundationWidthM, 2)} * ${fixed(input.foundationLengthM, 2)}) * 100 = ${fixed(values.uplift.upliftSharePercent, 1)}%`,
     });
   } else {
     steps.push({
       key: "uplift-generic",
       caption: `Відрив підошви складної форми (${FOUNDATION_BASE_PRESSURE_SOURCE}):`,
       notes: [
-        "Чисельним розрахунком знайдено контактний полігон, який не зводиться до погоджених схем одного або двох кутів.",
+        "Положення лінії σ = 0 утворює контактний полігон, який не зводиться до погоджених схем одного або двох кутів.",
       ],
-      formula: `P_lift = ${fixed(values.uplift.upliftSharePercent, 1)}%`,
+      formulas: [
+        `A_lift = ${fixed(values.uplift.upliftAreaM2, 4)} м²`,
+        `P_lift = A_lift / A * 100 = ${fixed(values.uplift.upliftAreaM2, 4)} / ${fixed(values.areaM2, 3)} * 100 = ${fixed(values.uplift.upliftSharePercent, 1)}%`,
+      ],
     });
   }
 

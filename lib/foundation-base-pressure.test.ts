@@ -40,9 +40,31 @@ describe("foundation base pressure calculator", () => {
       },
     });
     expect(report.steps.map((step) => step.key)).toContain("uplift-two-corners");
-    expect(report.steps.find((step) => step.key === "uplift-two-corners")?.formula).toBe(
-      "P_lift = (c1 + c2) / 2 * b * 1 / (b * l) * 100 = (0.2781 + 0.6927) / 2 * 1.80 * 1 / (1.80 * 2.40) * 100 = 20.2%",
-    );
+    expect(JSON.stringify(report.steps)).not.toContain("p0");
+    expect(JSON.stringify(report.steps)).not.toContain("p0, ax, ay");
+    expect(report.steps.find((step) => step.key === "contact-model")).toMatchObject({
+      caption: expect.stringContaining("Вибір схеми відриву підошви"),
+      notes: [
+        "Найменше з обчислених напружень менше нуля, тому маємо відрив підошви.",
+        "Визначаємо від'ємні кутові напруження: σ3 = -1.77 т/м², σ4 = -6.09 т/м².",
+        "За розташуванням від'ємних кутів вибираємо схему відриву: трапеція.",
+      ],
+    });
+    expect(report.steps.find((step) => step.key === "uplift-two-corners")).toMatchObject({
+      notes: [
+        "Від'ємні напруження отримані у двох суміжних кутах однієї грані, тому зона відриву має форму трапеції.",
+        "Лінія σ = 0 перетинає дві протилежні грані підошви: c1 — відстань від точки 3 до перетину на верхній грані, c2 — відстань від точки 4 до перетину на нижній грані.",
+        "Після виключення зони відриву контакт зберігається в точках 1 і 2.",
+      ],
+      formulas: [
+        "c1 = x_top = 0.2781 м",
+        "c2 = x_bottom = 0.6927 м",
+        "A_lift = (c1 + c2) / 2 * b = (0.2781 + 0.6927) / 2 * 1.80 = 0.8737 м²",
+        "P_lift = A_lift / A * 100 = 0.8737 / 4.320 * 100 = 20.2%",
+        "σ1 = 27.73 т/м²",
+        "σ2 = 22.31 т/м²",
+      ],
+    });
   });
 
   it("reproduces the one-corner uplift example", () => {
@@ -69,9 +91,29 @@ describe("foundation base pressure calculator", () => {
         expect.closeTo(0.76, 2),
       ],
     });
-    expect(report.steps.find((step) => step.key === "uplift-one-corner")?.formula).toBe(
-      "P_lift = c1 * c2 / (2 * b * l) * 100 = 1.7340 * 1.3427 / (2 * 1.80 * 2.40) * 100 = 26.9%",
-    );
+    expect(report.steps.find((step) => step.key === "contact-model")).toMatchObject({
+      notes: [
+        "Найменше з обчислених напружень менше нуля, тому маємо відрив підошви.",
+        "Визначаємо від'ємні кутові напруження: σ4 = -11.49 т/м².",
+        "За розташуванням від'ємного кута вибираємо схему відриву: трикутник.",
+      ],
+    });
+    expect(report.steps.find((step) => step.key === "uplift-one-corner")).toMatchObject({
+      notes: [
+        "Від'ємне напруження отримане в одному куті, тому зона відриву має форму трикутника.",
+        "Лінія σ = 0 перетинає дві суміжні грані підошви: c1 — сторона трикутної зони відриву вздовж b, c2 — сторона трикутної зони відриву вздовж l.",
+        "Після виключення зони відриву контакт зберігається в точках 1, 2 і 3.",
+      ],
+      formulas: [
+        "c1 = y_left = 1.7340 м",
+        "c2 = x_bottom = 1.3427 м",
+        "A_lift = c1 * c2 / 2 = 1.7340 * 1.3427 / 2 = 1.1641 м²",
+        "P_lift = A_lift / A * 100 = 1.1641 / 4.320 * 100 = 26.9%",
+        "σ1 = 36.39 т/м²",
+        "σ2 = 15.70 т/м²",
+        "σ3 = 0.76 т/м²",
+      ],
+    });
   });
 
   it("returns final corner stresses when uplift is absent", () => {
