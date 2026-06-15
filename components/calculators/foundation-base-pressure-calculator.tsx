@@ -206,7 +206,7 @@ function escapeSvgText(value: string): string {
     .replaceAll("\"", "&quot;");
 }
 
-function getUpliftSummary(report: FoundationBasePressureReport): string {
+function getUpliftSummaryText(report: FoundationBasePressureReport): string {
   const uplift = report.values?.uplift;
 
   if (!uplift || uplift.type === "none") {
@@ -219,13 +219,30 @@ function getUpliftSummary(report: FoundationBasePressureReport): string {
   )}%`;
 }
 
-function getMeanPressureSummary(report: FoundationBasePressureReport): string | null {
+function getUpliftSummary(report: FoundationBasePressureReport) {
+  const uplift = report.values?.uplift;
+
+  if (!uplift || uplift.type === "none") {
+    return getUpliftSummaryText(report);
+  }
+
+  return (
+    <span>
+      <MathNotation base="P" subscript="lift" ariaLabel="P_lift" /> ={" "}
+      {formatFoundationBasePressureNumber(uplift.upliftSharePercent, 1)}%
+    </span>
+  );
+}
+
+function getMeanPressureSummary(report: FoundationBasePressureReport) {
   if (!report.values) return null;
 
-  return `p_avg = ${formatFoundationBasePressureNumber(
-    report.values.meanPressureTM2,
-    2,
-  )} т/м²`;
+  return (
+    <span>
+      <MathNotation base="p" subscript="avg" ariaLabel="p_avg" /> ={" "}
+      {formatFoundationBasePressureNumber(report.values.meanPressureTM2, 2)} т/м²
+    </span>
+  );
 }
 
 function getStressSummary(report: FoundationBasePressureReport) {
@@ -344,7 +361,7 @@ function buildFoundationBasePressureDiagramSvg(report: FoundationBasePressureRep
   const upliftLabel =
     uplift && uplift.type !== "none"
       ? `<text x="${baseX}" y="${baseY - 34}" class="foundation-base-pressure-diagram__label">${escapeSvgText(
-          getUpliftSummary(report),
+          getUpliftSummaryText(report),
         )}</text>`
       : "";
   const cLabels =
