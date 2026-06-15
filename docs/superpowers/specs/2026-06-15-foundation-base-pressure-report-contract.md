@@ -394,8 +394,13 @@ Caption:
 Rules:
 
 - The diagram must show the rectangular base `l` by `b`.
+- The diagram must show corner point numbers:
+  - `1` at `(l, b)`;
+  - `2` at `(l, 0)`;
+  - `3` at `(0, b)`;
+  - `4` at `(0, 0)`.
 - If uplift is present, show the uplift zone and label `c1`, `c2` where applicable.
-- Label the final nonzero stresses shown by the detected scheme.
+- Label the final nonzero stresses at the corresponding contact corners: `σ1` at point `1`, `σ2` at point `2`, `σ3` at point `3`, `σ4` at point `4`.
 
 ## Check Examples
 

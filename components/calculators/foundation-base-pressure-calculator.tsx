@@ -241,6 +241,8 @@ function getStressSummary(report: FoundationBasePressureReport) {
   ));
 }
 
+type DiagramPointNumber = 1 | 2 | 3 | 4;
+
 function buildFoundationBasePressureDiagramSvg(report: FoundationBasePressureReport): string {
   const width = 540;
   const height = 340;
@@ -268,15 +270,66 @@ function buildFoundationBasePressureDiagramSvg(report: FoundationBasePressureRep
       : `${baseX},${baseY} ${baseX + baseWidth},${baseY} ${baseX + baseWidth},${
           baseY + baseHeight
         } ${baseX},${baseY + baseHeight}`;
+  const pointMarkers = [
+    {
+      point: 1,
+      cx: baseX + baseWidth,
+      cy: baseY,
+      textX: baseX + baseWidth + 16,
+      textY: baseY - 10,
+    },
+    {
+      point: 2,
+      cx: baseX + baseWidth,
+      cy: baseY + baseHeight,
+      textX: baseX + baseWidth + 16,
+      textY: baseY + baseHeight + 19,
+    },
+    { point: 3, cx: baseX, cy: baseY, textX: baseX - 20, textY: baseY - 10 },
+    {
+      point: 4,
+      cx: baseX,
+      cy: baseY + baseHeight,
+      textX: baseX - 20,
+      textY: baseY + baseHeight + 19,
+    },
+  ]
+    .map(
+      ({ point, cx, cy, textX, textY }) => `
+  <g data-point-label="${point}">
+    <circle cx="${cx}" cy="${cy}" r="10" fill="#ffffff" stroke="#111827" stroke-width="1.5" />
+    <text x="${textX}" y="${textY}" class="foundation-base-pressure-diagram__point">${point}</text>
+  </g>`,
+    )
+    .join("");
+  const stressLabelPositions = {
+    1: { x: baseX + baseWidth + 14, y: baseY - 6 },
+    2: { x: baseX + baseWidth + 14, y: baseY + baseHeight + 11 },
+    3: { x: baseX + 12, y: baseY - 6 },
+    4: { x: baseX + 12, y: baseY + baseHeight + 11 },
+  } as const;
+  const contactStressPointNumbers =
+    uplift?.type === "none"
+      ? ([1, 2, 3, 4] satisfies DiagramPointNumber[])
+      : uplift?.type === "one-corner"
+        ? ([1, 2, 3] satisfies DiagramPointNumber[])
+        : uplift?.type === "two-corners"
+          ? ([1, 2] satisfies DiagramPointNumber[])
+          : [];
   const stressLabels =
-    uplift && uplift.type !== "generic"
-      ? uplift.contactStressesTM2
-          .map(
-            (stress, index) =>
-              `<text x="${baseX + baseWidth + 24}" y="${baseY + 28 + index * 30}" class="foundation-base-pressure-diagram__label">σ${
-                index + 1
-              } = ${formatFoundationBasePressureNumber(stress, 2)} т/м²</text>`,
-          )
+    uplift && contactStressPointNumbers.length > 0
+      ? contactStressPointNumbers
+          .map((point, index) => {
+            const stress = uplift.contactStressesTM2[index];
+            const position = stressLabelPositions[point];
+
+            return `<text data-stress-label="${point}" x="${position.x}" y="${
+              position.y
+            }" class="foundation-base-pressure-diagram__label">σ${point} = ${formatFoundationBasePressureNumber(
+              stress,
+              2,
+            )} т/м²</text>`;
+          })
           .join("")
       : "";
   const upliftLabel =
@@ -297,6 +350,7 @@ function buildFoundationBasePressureDiagramSvg(report: FoundationBasePressureRep
 <svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${title}" class="foundation-base-pressure-diagram__svg" viewBox="0 0 ${width} ${height}">
   <rect x="${baseX}" y="${baseY}" width="${baseWidth}" height="${baseHeight}" fill="#f8fafc" stroke="#111827" stroke-width="2" />
   <polygon points="${contactPolygon}" fill="#dbeafe" stroke="#2563eb" stroke-width="1.8" />
+  ${pointMarkers}
   <line x1="${baseX}" y1="${baseY + baseHeight}" x2="${baseX + baseWidth}" y2="${
     baseY + baseHeight
   }" stroke="#111827" stroke-width="1" />

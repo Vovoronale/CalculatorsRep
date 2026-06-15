@@ -86,4 +86,36 @@ describe("foundation base pressure DOCX export", () => {
     );
     expect(docxReport.figures?.[0]?.svg).toContain("<svg");
   });
+
+  it("labels point numbers and contact stresses at the matching diagram corners", () => {
+    const report = getFoundationBasePressureReport({
+      verticalForceT: 26,
+      momentXTm: 2,
+      shearYT: 0.5,
+      momentYTm: 9.7,
+      shearXT: 9,
+      foundationLengthM: 2.4,
+      foundationWidthM: 1.8,
+      embedmentDepthM: 2,
+      loadApplicationHeightM: 1.6,
+      soilAndFoundationUnitWeightTM3: 2,
+    });
+    const docxReport = buildFoundationBasePressureDocxReport(
+      report,
+      new Date("2026-06-15"),
+    );
+    const svg = docxReport.figures?.[0]?.svg ?? "";
+
+    expect(svg).toContain('data-point-label="1"');
+    expect(svg).toContain('data-point-label="2"');
+    expect(svg).toContain('data-point-label="3"');
+    expect(svg).toContain('data-point-label="4"');
+    expect(svg).toContain('data-stress-label="1"');
+    expect(svg).toContain('data-stress-label="2"');
+    expect(svg).not.toContain('data-stress-label="3"');
+    expect(svg).not.toContain('data-stress-label="4"');
+    expect(svg).toContain('x="410" y="82"');
+    expect(svg).toContain('x="410" y="324"');
+    expect(svg).not.toContain('x="420" y="116"');
+  });
 });

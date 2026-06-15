@@ -5830,6 +5830,13 @@ textarea {
   font-size: 13px;
 }
 
+.foundation-base-pressure-diagram__point {
+  fill: var(--text);
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 /* =====================================================
    Topbar — responsive
    ===================================================== */
