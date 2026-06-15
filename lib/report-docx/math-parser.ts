@@ -35,6 +35,7 @@ type Token =
   | { type: "close-paren"; value: ")" }
   | { type: "open-bracket"; value: "[" }
   | { type: "close-bracket"; value: "]" }
+  | { type: "pipe"; value: "|" }
   | { type: "separator"; value: "," | ";" };
 
 const EXPLANATORY_SUFFIX_PATTERNS = [
@@ -51,7 +52,9 @@ const KNOWN_UNITS = [
   "кН/м²",
   "кг/см²",
   "тс/м³",
+  "т/м³",
   "т/м²",
+  "т·м",
   "Н/м³",
   "мм²",
   "см²",
@@ -63,7 +66,9 @@ const KNOWN_UNITS = [
   "мм",
   "см",
   "рад",
+  "т",
   "м",
+  "%",
   "°",
 ].sort((left, right) => right.length - left.length);
 
@@ -109,7 +114,7 @@ function isIdentifierStart(char: string): boolean {
 }
 
 function isIdentifierPart(char: string): boolean {
-  return /[A-Za-zА-Яа-яІіЇїЄєҐґØΣλσγφβαδεθκμρτπωπ0-9_,.′]/u.test(char);
+  return /[A-Za-zА-Яа-яІіЇїЄєҐґØΣλσγφβαδεθκμρτπωπ0-9_,.′_]/u.test(char);
 }
 
 function getKnownUnitAt(source: string, index: number): string | null {
@@ -174,6 +179,12 @@ function tokenize(source: string): Token[] {
       continue;
     }
 
+    if (char === "|") {
+      tokens.push({ type: "pipe", value: char });
+      index += 1;
+      continue;
+    }
+
     if (char === "," || char === ";") {
       tokens.push({ type: "separator", value: char });
       index += 1;
@@ -228,9 +239,12 @@ function splitSymbol(value: string): { base: string; subscript?: string } {
 
   const underscoreIndex = value.indexOf("_");
   if (underscoreIndex > 0) {
+    const left = splitSymbol(value.slice(0, underscoreIndex));
+    const right = value.slice(underscoreIndex + 1);
+
     return {
-      base: value.slice(0, underscoreIndex),
-      subscript: value.slice(underscoreIndex + 1),
+      base: left.base,
+      subscript: left.subscript ? `${left.subscript},${right}` : right,
     };
   }
 
@@ -374,6 +388,12 @@ class FormulaParser {
       const expression = this.parseChain();
       this.consume("close-bracket", "Expected closing bracket.");
       return { type: "group", bracket: "square", expression };
+    }
+
+    if (this.match("pipe")) {
+      const expression = this.parseChain();
+      this.consume("pipe", "Expected closing absolute value bar.");
+      return { type: "function", name: "abs", args: [expression] };
     }
 
     throw new Error(`Expected expression near "${this.peek()?.value ?? "end"}".`);

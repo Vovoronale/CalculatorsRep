@@ -77,6 +77,44 @@ describe("parseReportFormula", () => {
     expect(result.lines[0].latex).not.toContain("²");
   });
 
+  it("renders underscore engineering symbols and foundation pressure units", () => {
+    const result = parseReportFormula(
+      "G_fund = γ * b * l * h_gr = 2.00 * 1.80 * 2.40 * 2.00 = 17.28 т; Mx_base = |Mx + Qy * h_fund| = |2.00 + 0.500 * 1.60| = 2.80 т·м; γ = 2.00 т/м³; P_lift = c1 * c2 / (2 * b * l) * 100 = 0.2781 * 0.6927 / (2 * 1.80 * 2.40) * 100 = 20.2%",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    const latex = result.lines.map((line) => line.latex).join("\n");
+    expect(latex).toContain("G_{fund}");
+    expect(latex).toContain("h_{gr}");
+    expect(latex).toContain("M_{x,base}");
+    expect(latex).toContain("M_{x}");
+    expect(latex).toContain("Q_{y}");
+    expect(latex).toContain("h_{fund}");
+    expect(latex).toContain("P_{lift}");
+    expect(latex).toContain("c_{1}");
+    expect(latex).toContain("\\text{т}");
+    expect(latex).toContain("\\text{т·м}");
+    expect(latex).toContain("\\text{т/м}^3");
+    expect(latex).toContain("20.2\\%");
+    expect(latex).not.toContain("G_fund");
+    expect(latex).not.toContain("P_lift");
+  });
+
+  it("renders integral equilibrium formulas", () => {
+    const result = parseReportFormula(
+      "∫A p(x, y) dA = N_total; ∫A x * p(x, y) dA = N_total * x_R; ∫A y * p(x, y) dA = N_total * y_R",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    const latex = result.lines.map((line) => line.latex).join("\n");
+    expect(latex).toContain("\\int_{A}");
+    expect(latex).toContain("N_{total}");
+    expect(latex).toContain("x_{R}");
+    expect(latex).toContain("y_{R}");
+  });
+
   it("keeps explanatory suffixes as text", () => {
     const result = parseReportFormula(
       "k = 1.0, оскільки характеристики ґрунту прийняті за прямими випробуваннями",

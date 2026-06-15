@@ -64,6 +64,48 @@ describe("parseDocxFormula", () => {
     expect(third.parts[0]).toMatchObject({ type: "symbol", base: "d", subscript: "b,input" });
   });
 
+  it("parses underscore symbols and foundation pressure units", () => {
+    const result = parseDocxFormula(
+      "G_fund = γ * b * l * h_gr = 17.28 т; Mx_base = |Mx + Qy * h_fund| = 2.80 т·м; γ = 2.00 т/м³; P_lift = 20.2%",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.statements).toHaveLength(4);
+
+    const [selfWeight, moment, unitWeight, upliftShare] = result.statements;
+    expect(selfWeight.expression.type).toBe("chain");
+    expect(moment.expression.type).toBe("chain");
+    expect(unitWeight.expression.type).toBe("chain");
+    expect(upliftShare.expression.type).toBe("chain");
+    if (
+      selfWeight.expression.type !== "chain" ||
+      moment.expression.type !== "chain" ||
+      unitWeight.expression.type !== "chain" ||
+      upliftShare.expression.type !== "chain"
+    ) {
+      throw new Error("Expected chain expressions");
+    }
+
+    expect(selfWeight.expression.parts[0]).toMatchObject({
+      type: "symbol",
+      base: "G",
+      subscript: "fund",
+    });
+    expect(moment.expression.parts[0]).toMatchObject({
+      type: "symbol",
+      base: "M",
+      subscript: "x,base",
+    });
+    expect(unitWeight.expression.parts[1]).toMatchObject({ type: "unit", value: "т/м³" });
+    expect(upliftShare.expression.parts[0]).toMatchObject({
+      type: "symbol",
+      base: "P",
+      subscript: "lift",
+    });
+    expect(upliftShare.expression.parts[1]).toMatchObject({ type: "unit", value: "%" });
+  });
+
   it("falls back for prose that is not a formula", () => {
     const result = parseDocxFormula("Приймаємо значення з таблиці без математичного виразу");
 

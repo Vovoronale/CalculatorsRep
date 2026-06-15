@@ -10,15 +10,15 @@ export type ParseReportFormulaResult =
   | { ok: false; reason: string };
 
 const MATH_START_PATTERN =
-  /^(?:[-+()[\]]|\d|[A-Za-zØΣА-Яа-яІіЇїЄєҐґλσγφ][A-Za-zØΣА-Яа-яІіЇїЄєҐґ0-9_,./′-]*)/u;
-const SYMBOL_PATTERN = /[A-Za-zØΣλσγφ][A-Za-zØΣλσγφ0-9_,.′/-]*/gu;
+  /^(?:[-+()[\]]|∫|\d|[A-Za-zØΣА-Яа-яІіЇїЄєҐґλσγφ][A-Za-zØΣА-Яа-яІіЇїЄєҐґ0-9_,./′_-]*)/u;
+const SYMBOL_PATTERN = /[A-Za-zØΣλσγφ∫][A-Za-zØΣλσγφ∫0-9_,.′/_-]*/gu;
 const REPORT_SYMBOL_PATTERN = new RegExp(
   REPORT_SYMBOLS.map((symbol) => symbol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
   "gu",
 );
 const FORMULA_OPERATOR_PATTERN = /(=|<=|>=|<|>|\+|-|\*|\/|\(|\[)/u;
 const UNIT_PATTERN =
-  /(\d(?:[.,]\d+)?)\s(мм²\/м\.п\.|кН\*м|кПа|т\/м²|кг\/см²|мм²|см²|МПа|кН\/м²|кН|м)(?=$|\s=|;|\)|\])/gu;
+  /(\d(?:[.,]\d+)?)\s?(мм²\/м\.п\.|кН\*м|т\/м³|т\/м²|кг\/см²|кН\/м²|т·м|мм²|см²|м²|м³|МПа|кПа|кН|т|м|%)(?=$|\s=|;|\)|\])/gu;
 const EXPLANATORY_SUFFIX_PATTERNS = [
   ", оскільки",
   " - умова виконується",
@@ -75,13 +75,22 @@ function unitToLatex(unit: string): string {
     return `\\text{${escapeLatexText(unit.slice(0, -1))}}^2`;
   }
 
+  if (unit.endsWith("³")) {
+    return `\\text{${escapeLatexText(unit.slice(0, -1))}}^3`;
+  }
+
+  if (unit === "%") {
+    return "\\%";
+  }
+
   return `\\text{${escapeLatexText(unit)}}`;
 }
 
 function convertUnits(latex: string): string {
   return latex.replace(
     UNIT_PATTERN,
-    (_match, value: string, unit: string) => `${value}\\ ${unitToLatex(unit)}`,
+    (_match, value: string, unit: string) =>
+      unit === "%" ? `${value}${unitToLatex(unit)}` : `${value}\\ ${unitToLatex(unit)}`,
   );
 }
 
@@ -90,7 +99,7 @@ function convertSymbols(latex: string): string {
   let placeholderIndex = 0;
 
   const withKnownSymbols = latex.replace(REPORT_SYMBOL_PATTERN, (symbol) => {
-    const placeholder = `@@REPORT_SYMBOL_${placeholderIndex}@@`;
+    const placeholder = `@@${placeholderIndex}@@`;
     placeholderIndex += 1;
     placeholders.set(placeholder, reportSymbolToLatex(symbol));
     return placeholder;
@@ -100,6 +109,9 @@ function convertSymbols(latex: string): string {
     if (/^\d/.test(symbol)) return symbol;
     if (["min", "max"].includes(symbol)) return `\\${symbol}`;
     if (symbol === "pi") return "\\pi";
+    if (symbol.endsWith(",")) {
+      return `${reportSymbolToLatex(symbol.slice(0, -1))},`;
+    }
     return reportSymbolToLatex(symbol);
   });
 

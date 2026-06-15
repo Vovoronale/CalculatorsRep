@@ -23,6 +23,21 @@ describe("ReportFormula", () => {
     expect(element.textContent).toContain("M");
   });
 
+  it("renders foundation pressure formulas with multi-letter subscripts and local units", () => {
+    const formula =
+      "G_fund = γ * b * l * h_gr = 17.28 т; P_lift = c1 * c2 / (2 * b * l) * 100 = 20.2%";
+
+    render(<ReportFormula formula={formula} />);
+
+    const element = screen.getByLabelText(formula);
+    expect(element).not.toHaveClass("report-formula--fallback");
+    expect(element.querySelectorAll(".katex")).toHaveLength(2);
+    expect(element.innerHTML).toContain("fund");
+    expect(element.innerHTML).toContain("lift");
+    expect(element.innerHTML).toContain("т");
+    expect(element.innerHTML).toContain("%");
+  });
+
   it("renders unsupported formulas as fallback text without throwing", () => {
     const formula = "Приймаємо значення з таблиці без математичного виразу";
 

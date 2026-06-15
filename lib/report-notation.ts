@@ -5,6 +5,7 @@ const GREEK_TO_LATEX: Record<string, string> = {
   "Σ": "\\Sigma",
   "λ": "\\lambda",
   "σ": "\\sigma",
+  "∫": "\\int",
 };
 
 const NAMED_SYMBOLS: Record<string, string> = {
@@ -78,6 +79,31 @@ const NAMED_SYMBOLS: Record<string, string> = {
   "lambda": "\\lambda",
 };
 
+function mergeSubscripts(left: string | undefined, right: string): string {
+  return left ? `${left},${right}` : right;
+}
+
+function splitGenericSymbol(symbol: string): { base: string; subscript?: string } {
+  const underscoreIndex = symbol.indexOf("_");
+  if (underscoreIndex > 0) {
+    const left = splitGenericSymbol(symbol.slice(0, underscoreIndex));
+    return {
+      base: left.base,
+      subscript: mergeSubscripts(left.subscript, symbol.slice(underscoreIndex + 1)),
+    };
+  }
+
+  const primeAwareBaseLength = symbol[1] === "′" ? 2 : 1;
+  const base = symbol.slice(0, primeAwareBaseLength);
+  const subscript = symbol.slice(primeAwareBaseLength);
+
+  return subscript ? { base, subscript } : { base };
+}
+
+function baseToLatex(base: string): string {
+  return base.replace(/[γφØΣλσ∫]/g, (match) => GREEK_TO_LATEX[match] ?? match);
+}
+
 export const REPORT_SYMBOLS = Object.keys(NAMED_SYMBOLS).sort(
   (left, right) => right.length - left.length,
 );
@@ -89,7 +115,15 @@ export function reportSymbolToLatex(symbol: string): string {
   const greek = GREEK_TO_LATEX[symbol];
   if (greek) return greek;
 
-  return symbol.replace(/[γφØΣλσ]/g, (match) => GREEK_TO_LATEX[match] ?? match);
+  if (symbol === "pi") return "\\pi";
+
+  if (/[A-Za-zØΣλσγφ∫][A-Za-zØΣλσγφ∫0-9_,.′_-]+/u.test(symbol)) {
+    const { base, subscript } = splitGenericSymbol(symbol);
+    const latexBase = baseToLatex(base);
+    return subscript ? `${latexBase}_{${subscript}}` : latexBase;
+  }
+
+  return symbol.replace(/[γφØΣλσ∫]/g, (match) => GREEK_TO_LATEX[match] ?? match);
 }
 
 export function isKnownReportSymbol(symbol: string): boolean {
