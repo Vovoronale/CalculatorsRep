@@ -50,6 +50,7 @@ export type FoundationBasePressureValues = {
   selfWeightT: number;
   totalVerticalForceT: number;
   areaM2: number;
+  meanPressureTM2: number;
   sectionModulusWyM3: number;
   sectionModulusWxM3: number;
   baseMomentXTm: number;
@@ -73,6 +74,7 @@ export type FoundationBasePressureReportStep = {
     | "inputs"
     | "vertical-load"
     | "geometry"
+    | "average-pressure"
     | "base-loads"
     | "no-uplift-stresses"
     | "no-uplift-result"
@@ -588,6 +590,7 @@ export function getFoundationBasePressureReport(
     input.embedmentDepthM;
   const totalVerticalForceT = input.verticalForceT + selfWeightT;
   const areaM2 = input.foundationWidthM * input.foundationLengthM;
+  const meanPressureTM2 = totalVerticalForceT / areaM2;
   const sectionModulusWyM3 = (input.foundationWidthM * input.foundationLengthM ** 2) / 6;
   const sectionModulusWxM3 = (input.foundationLengthM * input.foundationWidthM ** 2) / 6;
   const baseMomentXTm = Math.abs(
@@ -644,6 +647,7 @@ export function getFoundationBasePressureReport(
     selfWeightT,
     totalVerticalForceT,
     areaM2,
+    meanPressureTM2,
     sectionModulusWyM3,
     sectionModulusWxM3,
     baseMomentXTm,
@@ -735,6 +739,13 @@ function buildReportSteps(
       ],
     },
     {
+      key: "average-pressure",
+      caption: `Середній тиск під підошвою (${FOUNDATION_BASE_PRESSURE_SOURCE}):`,
+      formulas: [
+        `p_avg = N_total / A = ${fixed(values.totalVerticalForceT, 2)} / ${fixed(values.areaM2, 3)} = ${fixed(values.meanPressureTM2, 2)} т/м²`,
+      ],
+    },
+    {
       key: "base-loads",
       caption: `Зовнішні зусилля на рівні підошви (${FOUNDATION_BASE_PRESSURE_SOURCE}):`,
       formulas: [
@@ -788,6 +799,21 @@ function buildReportSteps(
     const contactPointList = formatCornerPointList(
       getContactPointNumbers(values.uplift),
     );
+    const eta1 =
+      input.foundationLengthM / values.uplift.c2M +
+      input.foundationWidthM / values.uplift.c1M -
+      1;
+    const eta2 = input.foundationLengthM / values.uplift.c2M - 1;
+    const eta3 = input.foundationWidthM / values.uplift.c1M - 1;
+    const unitDiagramVolumeM2 =
+      input.foundationWidthM *
+        input.foundationLengthM *
+        (input.foundationLengthM / (2 * values.uplift.c2M) +
+          input.foundationWidthM / (2 * values.uplift.c1M) -
+          1) +
+      (values.uplift.c1M * values.uplift.c2M) / 6;
+    const pressureScaleTM2 =
+      values.totalVerticalForceT / unitDiagramVolumeM2;
 
     steps.push({
       key: "uplift-one-corner",
@@ -802,15 +828,25 @@ function buildReportSteps(
         `c2 = x_bottom = ${fixed(values.uplift.c2M, 4)} м`,
         `A_lift = c1 * c2 / 2 = ${fixed(values.uplift.c1M, 4)} * ${fixed(values.uplift.c2M, 4)} / 2 = ${fixed(values.uplift.upliftAreaM2, 4)} м²`,
         `P_lift = A_lift / A * 100 = ${fixed(values.uplift.upliftAreaM2, 4)} / ${fixed(values.areaM2, 3)} * 100 = ${fixed(values.uplift.upliftSharePercent, 1)}%`,
-        `σ1 = ${fixed(values.uplift.contactStressesTM2[0], 2)} т/м²`,
-        `σ2 = ${fixed(values.uplift.contactStressesTM2[1], 2)} т/м²`,
-        `σ3 = ${fixed(values.uplift.contactStressesTM2[2], 2)} т/м²`,
+        `η1 = l / c2 + b / c1 - 1 = ${fixed(input.foundationLengthM, 2)} / ${fixed(values.uplift.c2M, 4)} + ${fixed(input.foundationWidthM, 2)} / ${fixed(values.uplift.c1M, 4)} - 1 = ${fixed(eta1, 4)}`,
+        `η2 = l / c2 - 1 = ${fixed(input.foundationLengthM, 2)} / ${fixed(values.uplift.c2M, 4)} - 1 = ${fixed(eta2, 4)}`,
+        `η3 = b / c1 - 1 = ${fixed(input.foundationWidthM, 2)} / ${fixed(values.uplift.c1M, 4)} - 1 = ${fixed(eta3, 4)}`,
+        `V_eta = b * l * (l / (2 * c2) + b / (2 * c1) - 1) + c1 * c2 / 6 = ${fixed(input.foundationWidthM, 2)} * ${fixed(input.foundationLengthM, 2)} * (${fixed(input.foundationLengthM, 2)} / (2 * ${fixed(values.uplift.c2M, 4)}) + ${fixed(input.foundationWidthM, 2)} / (2 * ${fixed(values.uplift.c1M, 4)}) - 1) + ${fixed(values.uplift.c1M, 4)} * ${fixed(values.uplift.c2M, 4)} / 6 = ${fixed(unitDiagramVolumeM2, 4)} м²`,
+        `k = N_total / V_eta = ${fixed(values.totalVerticalForceT, 2)} / ${fixed(unitDiagramVolumeM2, 4)} = ${fixed(pressureScaleTM2, 4)} т/м²`,
+        `σ1 = k * η1 = ${fixed(pressureScaleTM2, 4)} * ${fixed(eta1, 4)} = ${fixed(values.uplift.contactStressesTM2[0], 2)} т/м²`,
+        `σ2 = k * η2 = ${fixed(pressureScaleTM2, 4)} * ${fixed(eta2, 4)} = ${fixed(values.uplift.contactStressesTM2[1], 2)} т/м²`,
+        `σ3 = k * η3 = ${fixed(pressureScaleTM2, 4)} * ${fixed(eta3, 4)} = ${fixed(values.uplift.contactStressesTM2[2], 2)} т/м²`,
       ],
     });
   } else if (values.uplift.type === "two-corners") {
     const contactPointList = formatCornerPointList(
       getContactPointNumbers(values.uplift),
     );
+    const d1M = input.foundationLengthM - values.uplift.c1M;
+    const d2M = input.foundationLengthM - values.uplift.c2M;
+    const pressureSlopeTM3 =
+      (6 * values.totalVerticalForceT) /
+      (input.foundationWidthM * (d1M ** 2 + d1M * d2M + d2M ** 2));
 
     steps.push({
       key: "uplift-two-corners",
@@ -825,8 +861,11 @@ function buildReportSteps(
         `c2 = x_bottom = ${fixed(values.uplift.c2M, 4)} м`,
         `A_lift = (c1 + c2) / 2 * b = (${fixed(values.uplift.c1M, 4)} + ${fixed(values.uplift.c2M, 4)}) / 2 * ${fixed(input.foundationWidthM, 2)} = ${fixed(values.uplift.upliftAreaM2, 4)} м²`,
         `P_lift = A_lift / A * 100 = ${fixed(values.uplift.upliftAreaM2, 4)} / ${fixed(values.areaM2, 3)} * 100 = ${fixed(values.uplift.upliftSharePercent, 1)}%`,
-        `σ1 = ${fixed(values.uplift.contactStressesTM2[0], 2)} т/м²`,
-        `σ2 = ${fixed(values.uplift.contactStressesTM2[1], 2)} т/м²`,
+        `d1 = l - c1 = ${fixed(input.foundationLengthM, 2)} - ${fixed(values.uplift.c1M, 4)} = ${fixed(d1M, 4)} м`,
+        `d2 = l - c2 = ${fixed(input.foundationLengthM, 2)} - ${fixed(values.uplift.c2M, 4)} = ${fixed(d2M, 4)} м`,
+        `k = 6 * N_total / (b * (d1^2 + d1 * d2 + d2^2)) = 6 * ${fixed(values.totalVerticalForceT, 2)} / (${fixed(input.foundationWidthM, 2)} * (${fixed(d1M, 4)}^2 + ${fixed(d1M, 4)} * ${fixed(d2M, 4)} + ${fixed(d2M, 4)}^2)) = ${fixed(pressureSlopeTM3, 4)} т/м³`,
+        `σ1 = k * d1 = ${fixed(pressureSlopeTM3, 4)} * ${fixed(d1M, 4)} = ${fixed(values.uplift.contactStressesTM2[0], 2)} т/м²`,
+        `σ2 = k * d2 = ${fixed(pressureSlopeTM3, 4)} * ${fixed(d2M, 4)} = ${fixed(values.uplift.contactStressesTM2[1], 2)} т/м²`,
       ],
     });
   } else {

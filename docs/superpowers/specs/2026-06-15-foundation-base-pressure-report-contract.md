@@ -178,7 +178,27 @@ ex = My_base / N_total = 24.10 / 43.28 = 0.5568 м < l / 2 = 2.40 / 2 = 1.200 м
 ey = Mx_base / N_total = 2.80 / 43.28 = 0.0647 м < b / 2 = 1.80 / 2 = 0.900 м
 ```
 
-### 5. Напруження по кутах без урахування відриву
+### 5. Середній тиск під підошвою
+
+Caption:
+
+```text
+Середній тиск під підошвою (Методика визначення крайових напружень під прямокутною підошвою фундаменту):
+```
+
+Formula:
+
+```text
+p_avg = N_total / A = <N_total> / <A> = <p_avg> т/м²
+```
+
+Default example 1 formula:
+
+```text
+p_avg = N_total / A = 43.28 / 4.320 = 10.02 т/м²
+```
+
+### 6. Напруження по кутах без урахування відриву
 
 Caption:
 
@@ -209,11 +229,11 @@ Display rule:
 - If all `σ1...σ4 >= 0`, show that uplift is absent and these values are final.
 - If at least one value is `< 0`, show the uplift warning and run the contact pressure calculation without tension.
 
-### 6. Контактна епюра з урахуванням відриву
+### 7. Контактна епюра з урахуванням відриву
 
 Display condition:
 
-Show only when at least one corner stress from step 5 is `< 0`.
+Show only when at least one corner stress from step 6 is `< 0`.
 
 Caption:
 
@@ -242,7 +262,7 @@ Rule:
 - If the solved contact polygon has another shape, the implementation plan must define a generic polygon report block and obtain user approval before coding that report text.
 - The report must show the uplift area in `м²` before showing the uplift share in `%`.
 
-### 7. Відрив в одному куті
+### 8. Відрив в одному куті
 
 Display condition:
 
@@ -283,9 +303,14 @@ P_lift = A_lift / A * 100 = <A_lift> / <A> * 100 = <P_lift>%
 Final stress formulas:
 
 ```text
-σ1 = <σ1> т/м²
-σ2 = <σ2> т/м²
-σ3 = <σ3> т/м²
+η1 = l / c2 + b / c1 - 1 = <l> / <c2> + <b> / <c1> - 1 = <η1>
+η2 = l / c2 - 1 = <l> / <c2> - 1 = <η2>
+η3 = b / c1 - 1 = <b> / <c1> - 1 = <η3>
+V_eta = b * l * (l / (2 * c2) + b / (2 * c1) - 1) + c1 * c2 / 6 = <V_eta> м²
+k = N_total / V_eta = <N_total> / <V_eta> = <k> т/м²
+σ1 = k * η1 = <k> * <η1> = <σ1> т/м²
+σ2 = k * η2 = <k> * <η2> = <σ2> т/м²
+σ3 = k * η3 = <k> * <η3> = <σ3> т/м²
 ```
 
 Check example 2 formulas:
@@ -295,12 +320,17 @@ c1 = 1.7340 м
 c2 = 1.3427 м
 A_lift = c1 * c2 / 2 = 1.7340 * 1.3427 / 2 = 1.1641 м²
 P_lift = A_lift / A * 100 = 1.1641 / 4.320 * 100 = 26.9%
-σ1 = 36.39 т/м²
-σ2 = 15.70 т/м²
-σ3 = 0.76 т/м²
+η1 = l / c2 + b / c1 - 1 = 2.40 / 1.3427 + 1.80 / 1.7340 - 1 = 1.8255
+η2 = l / c2 - 1 = 2.40 / 1.3427 - 1 = 0.7874
+η3 = b / c1 - 1 = 1.80 / 1.7340 - 1 = 0.0381
+V_eta = b * l * (l / (2 * c2) + b / (2 * c1) - 1) + c1 * c2 / 6 = 1.80 * 2.40 * (2.40 / (2 * 1.3427) + 1.80 / (2 * 1.7340) - 1) + 1.7340 * 1.3427 / 6 = 2.1711 м²
+k = N_total / V_eta = 43.28 / 2.1711 = 19.9343 т/м²
+σ1 = k * η1 = 19.9343 * 1.8255 = 36.39 т/м²
+σ2 = k * η2 = 19.9343 * 0.7874 = 15.70 т/м²
+σ3 = k * η3 = 19.9343 * 0.0381 = 0.76 т/м²
 ```
 
-### 8. Відрив у двох кутах
+### 9. Відрив у двох кутах
 
 Display condition:
 
@@ -341,8 +371,11 @@ P_lift = A_lift / A * 100 = <A_lift> / <A> * 100 = <P_lift>%
 Final stress formulas:
 
 ```text
-σ1 = <σ1> т/м²
-σ2 = <σ2> т/м²
+d1 = l - c1 = <l> - <c1> = <d1> м
+d2 = l - c2 = <l> - <c2> = <d2> м
+k = 6 * N_total / (b * (d1^2 + d1 * d2 + d2^2)) = 6 * <N_total> / (<b> * (<d1>^2 + <d1> * <d2> + <d2>^2)) = <k> т/м³
+σ1 = k * d1 = <k> * <d1> = <σ1> т/м²
+σ2 = k * d2 = <k> * <d2> = <σ2> т/м²
 ```
 
 Check example 1 formulas:
@@ -352,11 +385,14 @@ c1 = 0.2781 м
 c2 = 0.6927 м
 A_lift = (c1 + c2) / 2 * b = (0.2781 + 0.6927) / 2 * 1.80 = 0.8737 м²
 P_lift = A_lift / A * 100 = 0.8737 / 4.320 * 100 = 20.2%
-σ1 = 27.73 т/м²
-σ2 = 22.31 т/м²
+d1 = l - c1 = 2.40 - 0.2781 = 2.1219 м
+d2 = l - c2 = 2.40 - 0.6927 = 1.7073 м
+k = 6 * N_total / (b * (d1^2 + d1 * d2 + d2^2)) = 6 * 43.28 / (1.80 * (2.1219^2 + 2.1219 * 1.7073 + 1.7073^2)) = 13.0676 т/м³
+σ1 = k * d1 = 13.0676 * 2.1219 = 27.73 т/м²
+σ2 = k * d2 = 13.0676 * 1.7073 = 22.31 т/м²
 ```
 
-### 9. Перевірка рівноваги
+### 10. Перевірка рівноваги
 
 Display condition:
 
@@ -380,7 +416,7 @@ Rule:
 
 The equilibrium check is a diagnostic engineering control of the selected uplift scheme. Do not show integral expressions or `p0`, `ax`, `ay` in this step.
 
-### 10. Схема епюри
+### 11. Схема епюри
 
 Display condition:
 

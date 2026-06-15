@@ -219,6 +219,15 @@ function getUpliftSummary(report: FoundationBasePressureReport): string {
   )}%`;
 }
 
+function getMeanPressureSummary(report: FoundationBasePressureReport): string | null {
+  if (!report.values) return null;
+
+  return `p_avg = ${formatFoundationBasePressureNumber(
+    report.values.meanPressureTM2,
+    2,
+  )} т/м²`;
+}
+
 function getStressSummary(report: FoundationBasePressureReport) {
   const uplift = report.values?.uplift;
 
@@ -419,9 +428,11 @@ export function FoundationBasePressureCalculator() {
     [report],
   );
   const stressSummary = getStressSummary(report);
+  const meanPressureSummary = getMeanPressureSummary(report);
   const resultSummary =
     report.valid && report.values ? (
       <div className="foundation-base-pressure-summary" aria-live="polite">
+        <p>{meanPressureSummary}</p>
         <p>{stressSummary}</p>
         <p>{getUpliftSummary(report)}</p>
       </div>

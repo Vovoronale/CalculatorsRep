@@ -54,6 +54,7 @@ describe("FoundationBasePressureCalculator", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
+    expect(screen.getByText(/p_avg = 10.02 т\/м²/)).toBeInTheDocument();
     expect(screen.getAllByText(/σ1 = 27.73 т\/м²/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/P_lift = 20.2%/).length).toBeGreaterThan(0);
   });

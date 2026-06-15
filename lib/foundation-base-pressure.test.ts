@@ -16,6 +16,7 @@ describe("foundation base pressure calculator", () => {
       selfWeightT: expect.closeTo(17.28, 6),
       totalVerticalForceT: expect.closeTo(43.28, 6),
       areaM2: expect.closeTo(4.32, 6),
+      meanPressureTM2: expect.closeTo(10.0185, 4),
       sectionModulusWyM3: expect.closeTo(1.728, 6),
       sectionModulusWxM3: expect.closeTo(1.296, 6),
       baseMomentXTm: expect.closeTo(2.8, 6),
@@ -40,6 +41,11 @@ describe("foundation base pressure calculator", () => {
       },
     });
     expect(report.steps.map((step) => step.key)).toContain("uplift-two-corners");
+    expect(report.steps.find((step) => step.key === "average-pressure")).toMatchObject({
+      formulas: [
+        "p_avg = N_total / A = 43.28 / 4.320 = 10.02 т/м²",
+      ],
+    });
     expect(JSON.stringify(report.steps)).not.toContain("p0");
     expect(JSON.stringify(report.steps)).not.toContain("p0, ax, ay");
     expect(report.steps.find((step) => step.key === "contact-model")).toMatchObject({
@@ -61,8 +67,11 @@ describe("foundation base pressure calculator", () => {
         "c2 = x_bottom = 0.6927 м",
         "A_lift = (c1 + c2) / 2 * b = (0.2781 + 0.6927) / 2 * 1.80 = 0.8737 м²",
         "P_lift = A_lift / A * 100 = 0.8737 / 4.320 * 100 = 20.2%",
-        "σ1 = 27.73 т/м²",
-        "σ2 = 22.31 т/м²",
+        "d1 = l - c1 = 2.40 - 0.2781 = 2.1219 м",
+        "d2 = l - c2 = 2.40 - 0.6927 = 1.7073 м",
+        "k = 6 * N_total / (b * (d1^2 + d1 * d2 + d2^2)) = 6 * 43.28 / (1.80 * (2.1219^2 + 2.1219 * 1.7073 + 1.7073^2)) = 13.0676 т/м³",
+        "σ1 = k * d1 = 13.0676 * 2.1219 = 27.73 т/м²",
+        "σ2 = k * d2 = 13.0676 * 1.7073 = 22.31 т/м²",
       ],
     });
   });
@@ -109,9 +118,14 @@ describe("foundation base pressure calculator", () => {
         "c2 = x_bottom = 1.3427 м",
         "A_lift = c1 * c2 / 2 = 1.7340 * 1.3427 / 2 = 1.1641 м²",
         "P_lift = A_lift / A * 100 = 1.1641 / 4.320 * 100 = 26.9%",
-        "σ1 = 36.39 т/м²",
-        "σ2 = 15.70 т/м²",
-        "σ3 = 0.76 т/м²",
+        "η1 = l / c2 + b / c1 - 1 = 2.40 / 1.3427 + 1.80 / 1.7340 - 1 = 1.8255",
+        "η2 = l / c2 - 1 = 2.40 / 1.3427 - 1 = 0.7874",
+        "η3 = b / c1 - 1 = 1.80 / 1.7340 - 1 = 0.0381",
+        "V_eta = b * l * (l / (2 * c2) + b / (2 * c1) - 1) + c1 * c2 / 6 = 1.80 * 2.40 * (2.40 / (2 * 1.3427) + 1.80 / (2 * 1.7340) - 1) + 1.7340 * 1.3427 / 6 = 2.1711 м²",
+        "k = N_total / V_eta = 43.28 / 2.1711 = 19.9343 т/м²",
+        "σ1 = k * η1 = 19.9343 * 1.8255 = 36.39 т/м²",
+        "σ2 = k * η2 = 19.9343 * 0.7874 = 15.70 т/м²",
+        "σ3 = k * η3 = 19.9343 * 0.0381 = 0.76 т/м²",
       ],
     });
   });
