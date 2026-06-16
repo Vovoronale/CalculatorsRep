@@ -2,7 +2,7 @@
 
 Date: 2026-06-17
 Project: `construction-calculators-hub`
-Status: Awaiting user review
+Status: Secondary design spec; report contract reviewed first
 
 ## Context
 
@@ -15,6 +15,8 @@ The project needs a standalone native calculator for determining environmental e
 This calculator is logically used before the future concrete cover durability calculator. It determines the full set of environmental exposure classes and returns one governing class from `X0/XC/XD/XS` for the durability cover table.
 
 The agreed report text, display rules, formula strings, warnings, errors, and handoff parameters are captured separately in [`2026-06-17-concrete-exposure-class-report-contract.md`](2026-06-17-concrete-exposure-class-report-contract.md). Implementation plans, tests, and code must treat that file as the source of truth.
+
+This design spec is intentionally secondary. If this document differs from the report contract, update this document to match the contract before writing an implementation plan.
 
 Normative references must remain flexible before final release. The current design references DBN V.2.6-98 and DSTU ENV/EN 206 class concepts, but the catalog and UI must remind users to verify the currently valid standard before applying the result in a project.
 
@@ -307,4 +309,3 @@ npm run test
 npm run typecheck
 npm run build
 ```
-

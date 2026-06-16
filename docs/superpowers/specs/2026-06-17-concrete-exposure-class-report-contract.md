@@ -8,6 +8,21 @@ This document contains the agreed Ukrainian report captions, display conditions,
 
 Normative references must remain flexible before final release because the status of the referenced concrete standards can change. The UI and catalog copy must warn users to verify the current validity of the specific standard before applying the result in a project.
 
+## Agreed Decisions From Chat
+
+This contract captures the decisions agreed before implementation:
+
+- The calculator is a standalone native calculator.
+- The calculator is called from the future concrete cover durability calculator, not from the fire cover calculator.
+- The future concrete cover durability calculator keeps its own `exposureClass` select with values `X0`, `XC1`, `XC2`, `XC3`, `XC4`, `XD1`, `XD2`, `XD3`, `XS1`, `XS2`, `XS3`.
+- Next to that select, the future calculator shows a button that opens this exposure class calculator.
+- All shared fields known in the future concrete cover durability calculator must prefill the matching fields in this calculator.
+- The first agreed prefill set is `elementName`, `elementType`, `reinforcementPresence`, and `currentExposureClass`.
+- After this calculator determines the result, the return link fills the `exposureClass` select in the future concrete cover durability calculator.
+- The report uses the existing native report model: `caption`, `items`, `notes`, `formula`, and `formulas`.
+- The report contract is the source of truth for captions, display conditions, formulas, warning text, error text, and handoff behavior.
+- The design spec and implementation plan must reference this contract instead of duplicating or changing report formulas.
+
 ## Inputs
 
 ### UI Fields
@@ -125,6 +140,25 @@ If `returnTo` is absent, use the future default:
 ```text
 /calculator/concrete-cover-durability?exposureClass=<governing_cover_exposure_class>&sourceExposureClasses=<exposure_classes>&sourceCalculator=concrete-exposure-class
 ```
+
+Future concrete cover durability calculator behavior:
+
+```text
+Клас впливу середовища: <select with X0/XC/XD/XS values>
+Button: Визначити клас
+```
+
+The button opens this calculator with all shared data that is already known in the cover calculator:
+
+```text
+/calculator/concrete-exposure-class?returnTo=/calculator/concrete-cover-durability&returnField=exposureClass&returnLabel=Розрахунок захисного шару&elementName=<elementName>&elementType=<elementType>&reinforcementPresence=<reinforcementPresence>&currentExposureClass=<currentExposureClass>
+```
+
+On return, the future cover calculator:
+
+- sets its `exposureClass` select to `<governing_cover_exposure_class>`;
+- shows that the value came from `concrete-exposure-class`;
+- may show `sourceExposureClasses` as the full exposure class set.
 
 ## Outputs
 
@@ -642,3 +676,26 @@ If `returnTo` is absent, show link button:
 Використати в розрахунку захисного шару
 ```
 
+## Contract Self-Review
+
+Checked against the agreed chat decisions:
+
+- The calculator is documented as standalone.
+- The integration direction is documented as future concrete cover durability calculator -> this calculator -> future concrete cover durability calculator.
+- The requested future calculator 1 UX is documented: exposure class select plus a button that opens this calculator.
+- Shared data prefill is documented for `elementName`, `elementType`, `reinforcementPresence`, and `currentExposureClass`.
+- Return behavior is documented with `returnTo`, `returnField`, `returnLabel`, `sourceExposureClasses`, and `sourceCalculator`.
+- The agreed input fields are present.
+- The chemical attack labels include XA explanations: weak, moderate, strong, and unknown requiring analysis.
+- All 11 agreed report steps are present.
+- Step 2 includes the agreed X0 restriction for reinforced concrete.
+- Step 3 includes XC mapping.
+- Step 4 includes XD mapping and makes `moderate_humidity` valid for `chloride_moisture_condition`.
+- Step 5 includes XS mapping and the agreed `wet_rarely_dry => XS2` rule.
+- Step 6 includes XF mapping and the additional durability requirement.
+- Step 7 includes XA mapping, the no-analysis warning, and the rule that XA is not calculated from concentrations in this version.
+- Step 8 keeps `exposure_classes` free of `not_defined` and `XA_unknown`.
+- Step 9 uses the agreed rank-based governing class selection and tie order.
+- Step 10 keeps XF and XA as additional requirements.
+- Step 11 defines the conclusion and return/use button behavior.
+- The contract states that implementation plans and tests must use this file as the source of truth.
