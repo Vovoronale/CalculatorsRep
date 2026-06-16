@@ -1143,26 +1143,32 @@ describe("CalculatorShell", () => {
     const css = readFileSync("app/globals.css", "utf8");
 
     expect(css).toMatch(
-      /\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*1\.9rem\s+3\.5rem\s+minmax\(8\.5rem,\s*0\.85fr\)\s+minmax\(9rem,\s*1fr\)\s+4\.85rem;/,
+      /\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*1\.9rem\s+3\.5rem\s+minmax\(8\.5rem,\s*0\.85fr\)\s+minmax\(9rem,\s*1fr\)\s+4\.85rem\s+2\.15rem;/,
     );
     expect(css).toMatch(/\.input-schema-field\s*{[\s\S]*?min-height:\s*34px;/);
     expect(css).toMatch(/\.input-schema-field__prefix\s*{[\s\S]*?justify-content:\s*center;/);
     expect(css).toMatch(
       /\.input-schema-field__control\s*{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)\s+4\.85rem;/,
     );
+    expect(css).toMatch(
+      /\.input-schema-field__calculator-action\s*{[\s\S]*?justify-content:\s*center;/,
+    );
     expect(css).toMatch(/\.input-schema-field__unit\s*{[\s\S]*?width:\s*100%;/);
     expect(css).toMatch(/\.input-schema-field input\[type="text"\],[\s\S]*?height:\s*28px;/);
     expect(css).toMatch(
-      /@media\s*\(max-width:\s*720px\)\s*{[\s\S]*?\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+minmax\(0,\s*1fr\);/,
+      /@media\s*\(max-width:\s*720px\)\s*{[\s\S]*?\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+minmax\(0,\s*1fr\)\s+2\.15rem;/,
     );
     expect(css).toMatch(/\.input-schema-field__prefix\[data-empty="true"\]\s*{[\s\S]*?display:\s*none;/);
+    expect(css).toMatch(
+      /\.soil-resistance-controls\s+\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*1\.65rem\s+3rem\s+minmax\(6\.7rem,\s*0\.8fr\)\s+minmax\(7\.5rem,\s*1fr\)\s+4\.4rem\s+2rem;/,
+    );
   });
 
   it("keeps soil resistance inspector fields stacked on narrow screens", () => {
     const css = readFileSync("app/globals.css", "utf8");
 
     expect(css).toMatch(
-      /@media\s*\(max-width:\s*720px\)\s*{[\s\S]*?\.soil-resistance-controls\s+\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+minmax\(0,\s*1fr\);/,
+      /@media\s*\(max-width:\s*720px\)\s*{[\s\S]*?\.soil-resistance-controls\s+\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*2\.5rem\s+minmax\(0,\s*1fr\)\s+2\.15rem;/,
     );
     expect(css).toMatch(
       /@media\s*\(max-width:\s*720px\)\s*{[\s\S]*?\.soil-resistance-controls\s+\.input-schema-field__control\s*{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\);/,

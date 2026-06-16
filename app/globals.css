@@ -1699,7 +1699,7 @@ textarea {
 
 .input-schema-field {
   display: grid;
-  grid-template-columns: 1.9rem 3.5rem minmax(8.5rem, 0.85fr) minmax(9rem, 1fr) 4.85rem;
+  grid-template-columns: 1.9rem 3.5rem minmax(8.5rem, 0.85fr) minmax(9rem, 1fr) 4.85rem 2.15rem;
   align-items: stretch;
   min-height: 34px;
   border-bottom: 1px solid var(--border);
@@ -1716,7 +1716,8 @@ textarea {
 .input-schema-field__actions,
 .input-schema-field__prefix,
 .input-schema-field__name,
-.input-schema-field__control {
+.input-schema-field__control,
+.input-schema-field__calculator-action {
   display: flex;
   align-items: center;
   min-width: 0;
@@ -1725,13 +1726,18 @@ textarea {
 
 .input-schema-field__actions,
 .input-schema-field__prefix,
-.input-schema-field__name {
+.input-schema-field__name,
+.input-schema-field__control {
   border-right: 1px solid var(--border);
 }
 
 .input-schema-field__actions {
   justify-content: center;
   gap: 3px;
+}
+
+.input-schema-field__calculator-action {
+  justify-content: center;
 }
 
 .input-schema-field__prefix {
@@ -1858,8 +1864,12 @@ textarea {
   color: var(--accent);
 }
 
+.input-schema-field__icon--calculator {
+  border-radius: 6px;
+}
+
 .input-schema-field__details {
-  grid-column: 3 / 6;
+  grid-column: 3 / 7;
   display: grid;
   gap: 6px;
   padding: 0 9px 7px;
@@ -1880,11 +1890,17 @@ textarea {
 
 @media (max-width: 720px) {
   .input-schema-field {
-    grid-template-columns: 2.5rem minmax(0, 1fr);
+    grid-template-columns: 2.5rem minmax(0, 1fr) 2.15rem;
   }
 
   .input-schema-field__actions {
     grid-row: 1 / 3;
+  }
+
+  .input-schema-field__calculator-action {
+    grid-column: 3 / 4;
+    grid-row: 1 / 4;
+    border-left: 1px solid var(--border);
   }
 
   .input-schema-field__prefix,
@@ -3228,13 +3244,14 @@ textarea {
 }
 
 .soil-resistance-controls .input-schema-field {
-  grid-template-columns: 1.65rem 3rem minmax(6.7rem, 0.8fr) minmax(7.5rem, 1fr) 4.4rem;
+  grid-template-columns: 1.65rem 3rem minmax(6.7rem, 0.8fr) minmax(7.5rem, 1fr) 4.4rem 2rem;
 }
 
 .soil-resistance-controls .input-schema-field__actions,
 .soil-resistance-controls .input-schema-field__prefix,
 .soil-resistance-controls .input-schema-field__name,
-.soil-resistance-controls .input-schema-field__control {
+.soil-resistance-controls .input-schema-field__control,
+.soil-resistance-controls .input-schema-field__calculator-action {
   padding-inline: 5px;
 }
 
@@ -3255,7 +3272,7 @@ textarea {
 
 @media (max-width: 720px) {
   .soil-resistance-controls .input-schema-field {
-    grid-template-columns: 2.5rem minmax(0, 1fr);
+    grid-template-columns: 2.5rem minmax(0, 1fr) 2.15rem;
   }
 
   .soil-resistance-controls .input-schema-field__control {
