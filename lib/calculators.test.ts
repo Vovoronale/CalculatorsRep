@@ -134,6 +134,10 @@ describe("calculator data model", () => {
         slug: "foundation-base-pressure",
         extraCategories: ["perevirka-dbn", "normatyvni-obgruntuvannya"],
       },
+      {
+        slug: "concrete-exposure-class",
+        extraCategories: ["beton", "normy-perevirky", "normatyvni-obgruntuvannya"],
+      },
     ]);
   });
 
@@ -217,6 +221,22 @@ describe("calculator data model", () => {
       nativeCalculator: "foundation-base-pressure",
       icon: "Layers",
       standard: "Методика визначення крайових напружень під прямокутною підошвою фундаменту",
+    });
+  });
+
+  it("registers the concrete exposure class calculator as a native reinforced concrete calculator", () => {
+    const calculator = getCalculatorBySlug("concrete-exposure-class");
+
+    expect(calculator).toMatchObject({
+      title: "Клас впливу середовища для бетону",
+      shortDescription:
+        "Визначення XC, XD, XS, XF та XA для бетонного або залізобетонного елемента з передачею керівного класу в розрахунок захисного шару.",
+      mainCategory: "zalizobeton",
+      extraCategories: ["beton", "normy-perevirky", "normatyvni-obgruntuvannya"],
+      displayMode: "native",
+      nativeCalculator: "concrete-exposure-class",
+      icon: "ShieldCheck",
+      standard: "ДБН В.2.6-98:2009 / ДСТУ ENV 206:2018",
     });
   });
 

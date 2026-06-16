@@ -146,7 +146,7 @@ describe("CalculatorShell", () => {
     render(<CalculatorShell />);
 
     await user.click(screen.getByRole("button", { name: "Розгорнути Конструкції" }));
-    await user.click(screen.getByRole("link", { name: "Конструкції 8" }));
+    await user.click(screen.getByRole("link", { name: "Конструкції 9" }));
 
     expect(screen.getByRole("heading", { name: "Конструкції" })).toBeInTheDocument();
     const table = screen.getByRole("table", {
@@ -1121,6 +1121,27 @@ describe("CalculatorShell", () => {
 
     expect(updatedTopLoadLine).toBeDefined();
     expect(110 - getNumericAttribute(updatedTopLoadLine!, "y1")).toBeCloseTo(0);
+  });
+
+  it("renders the native concrete exposure class calculator", () => {
+    const calculator = getCalculatorBySlug("concrete-exposure-class");
+
+    if (!calculator) {
+      throw new Error("Expected native concrete exposure class calculator to exist");
+    }
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Клас впливу середовища для бетону",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Калькулятор класу впливу середовища для бетону"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
   });
 
   it("stacks native cassoon load input fields vertically", () => {
