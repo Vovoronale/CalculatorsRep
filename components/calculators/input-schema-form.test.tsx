@@ -101,6 +101,55 @@ const defaultValues: CalculatorInputValues = {
   variant: "a",
 };
 
+const schemaWithCalculatorAction: CalculatorInputSchema = {
+  groups: [
+    {
+      id: "geometry",
+      title: "Геометрія",
+      fields: [
+        {
+          id: "spanM",
+          kind: "number",
+          prefix: { text: "l", subscript: "k", ariaLabel: "lk" },
+          name: "Короткий проліт",
+          defaultValue: "3",
+          min: 0,
+          step: "0.1",
+          description: "Короткий проліт у вибраних одиницях.",
+          quantity: "length",
+          baseUnit: "m",
+          defaultDisplayUnit: "m",
+          calculatorAction: {
+            label: "Розрахувати короткий проліт",
+          },
+        },
+        {
+          id: "mode",
+          kind: "select",
+          name: "Режим",
+          defaultValue: "auto",
+          options: [
+            { value: "auto", label: "Авто" },
+            { value: "manual", label: "Вручну" },
+          ],
+          calculatorAction: {
+            label: "Підібрати режим",
+          },
+        },
+        {
+          id: "derived",
+          kind: "derived",
+          name: "Похідне",
+          getValue: (values) => `${values.spanM} м`,
+          calculatorAction: {
+            label: "Перерахувати похідне",
+          },
+        },
+      ],
+    },
+  ],
+};
+
 afterEach(() => {
   cleanup();
 });
@@ -240,6 +289,60 @@ describe("InputSchemaForm", () => {
     expect(screen.getByRole("checkbox", { name: "Увімкнути?" })).not.toBeChecked();
     expect(screen.getByRole("radio", { name: "Item1" })).toBeChecked();
     expect(screen.getByText("3 м")).toBeInTheDocument();
+  });
+
+  it("renders right-side calculator actions and reports field clicks generically", async () => {
+    const user = userEvent.setup();
+    const onFieldCalculatorAction = vi.fn();
+
+    render(
+      <InputSchemaForm
+        schema={schemaWithCalculatorAction}
+        values={defaultValues}
+        onValuesChange={vi.fn()}
+        onFieldCalculatorAction={onFieldCalculatorAction}
+      />,
+    );
+
+    const spanAction = screen.getByRole("button", {
+      name: "Розрахувати короткий проліт",
+    });
+
+    expect(spanAction).toHaveAttribute("title", "Розрахувати короткий проліт");
+    expect(spanAction.closest(".input-schema-field__calculator-action")).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Підібрати режим" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Перерахувати похідне" })).toBeInTheDocument();
+
+    await user.click(spanAction);
+
+    expect(onFieldCalculatorAction).toHaveBeenCalledTimes(1);
+    expect(onFieldCalculatorAction).toHaveBeenCalledWith({
+      fieldId: "spanM",
+      field: expect.objectContaining({
+        id: "spanM",
+        kind: "number",
+        name: "Короткий проліт",
+        calculatorAction: { label: "Розрахувати короткий проліт" },
+      }),
+      values: defaultValues,
+    });
+  });
+
+  it("does not render inactive calculator action buttons without a handler", () => {
+    render(
+      <InputSchemaForm
+        schema={schemaWithCalculatorAction}
+        values={defaultValues}
+        onValuesChange={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", { name: "Розрахувати короткий проліт" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Показати опис поля Короткий проліт" }),
+    ).toBeInTheDocument();
   });
 
   it("updates number values as normalized base values and keeps invalid drafts", async () => {
