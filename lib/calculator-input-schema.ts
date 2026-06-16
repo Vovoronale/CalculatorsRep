@@ -38,6 +38,10 @@ export type CalculatorInputCondition =
       in: CalculatorInputPrimitiveValue[];
     };
 
+export type CalculatorInputCalculatorAction = {
+  label: string;
+};
+
 type BaseCalculatorInputField = {
   id: string;
   name: string;
@@ -46,6 +50,7 @@ type BaseCalculatorInputField = {
   required?: boolean;
   showWhen?: CalculatorInputCondition | CalculatorInputCondition[];
   hidden?: boolean;
+  calculatorAction?: CalculatorInputCalculatorAction;
 };
 
 export type CalculatorNumberInputField = BaseCalculatorInputField & {

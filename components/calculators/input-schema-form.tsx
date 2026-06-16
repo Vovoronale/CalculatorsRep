@@ -1,5 +1,6 @@
 "use client";
 
+import { Calculator } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import {
@@ -19,11 +20,18 @@ import { resolveCalculatorInputUnits } from "@/lib/calculator-units";
 
 import { MathNotation } from "./math-notation";
 
+export type InputSchemaFieldCalculatorActionEvent = {
+  fieldId: string;
+  field: CalculatorInputField;
+  values: CalculatorInputValues;
+};
+
 type InputSchemaFormProps = {
   schema: CalculatorInputSchema;
   values: CalculatorInputValues;
   onValuesChange: (values: CalculatorInputValues) => void;
   validationErrors?: CalculatorInputValidationErrors;
+  onFieldCalculatorAction?: (event: InputSchemaFieldCalculatorActionEvent) => void;
 };
 
 function getNotationText(prefix: CalculatorInputNotation): string {
@@ -82,6 +90,7 @@ export function InputSchemaForm({
   values,
   onValuesChange,
   validationErrors,
+  onFieldCalculatorAction,
 }: InputSchemaFormProps) {
   const [expandedDetails, setExpandedDetails] = useState<Record<string, "help" | "error">>({});
   const [displayUnits, setDisplayUnits] = useState<Record<string, string>>(() =>
@@ -298,6 +307,25 @@ export function InputSchemaForm({
                     </label>
                   )}
                   <div className="input-schema-field__control">{renderFieldControl(field)}</div>
+                  <div className="input-schema-field__calculator-action">
+                    {field.calculatorAction && onFieldCalculatorAction ? (
+                      <button
+                        type="button"
+                        className="input-schema-field__icon input-schema-field__icon--calculator"
+                        aria-label={field.calculatorAction.label}
+                        title={field.calculatorAction.label}
+                        onClick={() =>
+                          onFieldCalculatorAction({
+                            fieldId: field.id,
+                            field,
+                            values,
+                          })
+                        }
+                      >
+                        <Calculator size={13} aria-hidden="true" strokeWidth={2.25} />
+                      </button>
+                    ) : null}
+                  </div>
                   {detailsMode ? (
                     <div className="input-schema-field__details" id={detailsId}>
                       {field.description ? <p>{field.description}</p> : null}
