@@ -296,6 +296,69 @@ export class DistributedLoad extends BaseAnnotation {
   }
 }
 
+export class Force extends BaseAnnotation {
+  build(_context: BuildContext): ResolvedObject {
+    const x = numberParam(this.params, "x", 0);
+    const y = numberParam(this.params, "y", 0);
+    const angle = numberParam(this.params, "angle", -90);
+    const directionSign = numberParam(this.params, "direction", 1) < 0 ? -1 : 1;
+    const axis = directionFromAngle(angle, directionSign);
+    const length = forceVisibleLength(this.params);
+    const arrowSize = numberParam(this.params, "arrowSize", 10);
+    const textOffset = numberParam(this.params, "textOffset", 16);
+    const fontSize = numberParam(this.params, "fontSize", 14);
+    const effectiveTextOffset = Math.max(textOffset, fontSize * 0.9);
+    const fontFamily = stringParam(this.params, "fontFamily", "ISOCPEUR, ISOCP, 'Arial Narrow', Arial, sans-serif");
+    const prefix = stringParam(this.params, "prefix", "");
+    const suffix = stringParam(this.params, "suffix", "");
+    const textPosition = stringParam(this.params, "textPosition", "tail");
+    const textPlacement = stringParam(this.params, "textPlacement", "auto");
+    const labelRotation = stringParam(this.params, "labelRotation", "horizontal");
+    const target = point(x, y);
+    const tail = point(x - axis.x * length, y - axis.y * length);
+    const mid = point((target.x + tail.x) / 2, (target.y + tail.y) / 2);
+    const labelBase = forceLabelBase(textPosition, target, tail, mid);
+    const normal = { x: -axis.y, y: axis.x };
+    const labelDirection = forceLabelDirection(textPlacement, axis, normal);
+    const labelPoint = point(labelBase.x + labelDirection.x * effectiveTextOffset, labelBase.y + labelDirection.y * effectiveTextOffset);
+    const headBack = point(target.x - axis.x * arrowSize, target.y - axis.y * arrowSize);
+    const headHalfWidth = arrowSize / 2;
+    const firstHead = point(headBack.x - normal.x * headHalfWidth, headBack.y - normal.y * headHalfWidth);
+    const secondHead = point(headBack.x + normal.x * headHalfWidth, headBack.y + normal.y * headHalfWidth);
+    const attrs = lineVisualAttrs(this.params, { color: "black", strokeWidth: 0.6 });
+    const color = stringParam(this.params, "color", "black");
+    const label = `${prefix}${displayValue(this.params.value)}${suffix}`;
+    const rotation = labelRotation === "axis" ? readableTextAngle(angle + (directionSign < 0 ? 180 : 0)) : 0;
+    const anchors = {
+      target,
+      tail,
+      mid,
+      label: labelPoint
+    };
+    const node = svgElement("g", {}, [
+      svgElement("line", { x1: tail.x, y1: tail.y, x2: target.x, y2: target.y, ...attrs }),
+      svgElement("line", { x1: firstHead.x, y1: firstHead.y, x2: target.x, y2: target.y, ...attrs }),
+      svgElement("line", { x1: secondHead.x, y1: secondHead.y, x2: target.x, y2: target.y, ...attrs }),
+      svgElement(
+        "text",
+        {
+          x: labelPoint.x,
+          y: labelPoint.y,
+          fill: color,
+          "text-anchor": "middle",
+          "dominant-baseline": "middle",
+          "font-family": fontFamily,
+          "font-size": fontSize,
+          transform: `rotate(${formatNumber(rotation)} ${formatNumber(labelPoint.x)} ${formatNumber(labelPoint.y)})`
+        },
+        [label]
+      )
+    ]);
+
+    return { id: this.id, type: this.type, params: this.params, style: this.style, anchors, children: [], node };
+  }
+}
+
 export class BreakLine extends BaseAnnotation {
   build(_context: BuildContext): ResolvedObject {
     const x1 = numberParam(this.params, "x1", 0);
@@ -419,6 +482,69 @@ function distributedLoadHeight(params: ParamMap): number | undefined {
 
   const minHeight = numberParam(params, "minHeight", 0);
   return Math.max(minHeight, Math.abs(value) * heightScale);
+}
+
+function directionFromAngle(angle: number, directionSign: number): { x: number; y: number } {
+  const radians = angle * (Math.PI / 180);
+  return normalize({ x: Math.cos(radians) * directionSign, y: Math.sin(radians) * directionSign });
+}
+
+function forceVisibleLength(params: ParamMap): number {
+  const explicitLength = numberParam(params, "length", Number.NaN);
+  const minLength = Math.max(0, numberParam(params, "minLength", 0));
+  const minVisibleLength = Math.max(0, numberParam(params, "minVisibleLength", 20));
+  let calculatedLength = Number.NaN;
+
+  if (!Number.isNaN(explicitLength)) {
+    calculatedLength = Math.abs(explicitLength);
+  } else if (typeof params.value === "number") {
+    const lengthScale = numberParam(params, "lengthScale", Number.NaN);
+    if (!Number.isNaN(lengthScale)) calculatedLength = Math.abs(params.value) * Math.abs(lengthScale);
+  }
+
+  if (Number.isNaN(calculatedLength)) calculatedLength = minVisibleLength;
+
+  return roundSvg(Math.max(calculatedLength, minLength, minVisibleLength));
+}
+
+function forceLabelBase(
+  textPosition: string,
+  target: { x: number; y: number },
+  tail: { x: number; y: number },
+  mid: { x: number; y: number }
+): { x: number; y: number } {
+  if (textPosition === "tip") return target;
+  if (textPosition === "middle") return mid;
+  return tail;
+}
+
+function forceLabelDirection(
+  textPlacement: string,
+  axis: { x: number; y: number },
+  normal: { x: number; y: number }
+): { x: number; y: number } {
+  if (textPlacement === "left") return normalize({ x: -normal.x, y: -normal.y });
+  if (textPlacement === "right") return normalize(normal);
+  if (textPlacement === "above") return { x: 0, y: -1 };
+  if (textPlacement === "below") return { x: 0, y: 1 };
+  if (textPlacement === "tail") return normalize({ x: -axis.x, y: -axis.y });
+  if (textPlacement === "tip") return normalize(axis);
+
+  const candidates = [normal, { x: -normal.x, y: -normal.y }];
+  const preferred = candidates.reduce((best, candidate) => {
+    if (candidate.y < best.y - 0.000001) return candidate;
+    if (Math.abs(candidate.y - best.y) <= 0.000001 && candidate.x > best.x) return candidate;
+    return best;
+  });
+
+  return normalize(preferred);
+}
+
+function readableTextAngle(angle: number): number {
+  const normalized = normalizeAngle(angle);
+  if (normalized > 90) return normalizeAngle(normalized - 180);
+  if (normalized < -90) return normalizeAngle(normalized + 180);
+  return normalized;
 }
 
 function formatNumber(value: number): string {

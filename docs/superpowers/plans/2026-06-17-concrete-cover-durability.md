@@ -1182,7 +1182,7 @@ In `data/content.json`, add this calculator near the existing concrete exposure 
     "inputParameters": ["Клас впливу середовища", "Тип арматури", "Діаметр або канал для cmin,b", "Клас конструкції S", "Поправки Δcdur і Δcdev"],
     "formulas": ["cmin = max(cmin,b; cmin,dur + Δcdur,γ - Δcdur,st - Δcdur,add; 10 мм)", "cnom = cmin + Δcdev"],
     "example": "Для XC1, звичайної арматури Ø16 мм, S3 і Δcdev = 10 мм калькулятор отримує cmin = 16 мм і cnom = 26 мм.",
-    "limitations": ["Не виконує розрахунок вогнестійкості.", "Тимчасово без рисунку перерізу."],
+    "limitations": ["Не виконує розрахунок вогнестійкості."],
     "standards": ["ДБН В.2.6-98:2009, п. 4.4"]
   },
   "standard": "ДБН В.2.6-98:2009, п. 4.4",
@@ -1287,5 +1287,6 @@ If no files changed during verification, do not create an empty commit.
 - Spec coverage: the plan covers the core, UI, inspector action, query-param handoff, DOCX adapter, catalog registration, sitemap loop, warnings, validation, and final verification.
 - Source of truth: report strings and formulas are tested against exact strings from `2026-06-17-concrete-cover-durability-report-contract.md`.
 - Type consistency: the plan uses `ConcreteCoverDurabilityInput`, `ConcreteCoverDurabilityReport`, `ConcreteCoverConstructionClass`, and `CoverExposureClass` consistently.
-- Scope: the drawing remains out of scope; no task adds a diagram.
+- Scope update: the first implementation plan did not include a drawing; a later
+  UI update adds the SVGParametric notation diagram.
 - Placeholder scan: searched for planning placeholders and found none.

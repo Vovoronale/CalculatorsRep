@@ -7,6 +7,7 @@ export * from "./core/scene";
 export * from "./core/svg";
 export * from "./objects/annotations";
 export * from "./objects/basementFoundation";
+export * from "./objects/cornerRebarDetail";
 export * from "./objects/defaultRegistry";
 export * from "./objects/foundation";
 export * from "./objects/loadedFoundation";

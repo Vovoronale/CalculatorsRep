@@ -30,14 +30,14 @@ export class LoadedFoundation implements ParametricObject {
     const { x, groundY, width, depth, baseHeight, stemWidth, stemHeightAboveGround, bottomY, baseTopY, stemLeft, stemRight, stemTopY, centerX } = geometry;
     const depthDimensionOffset = numberParam(this.params, "depthDimensionOffset", Math.max(32, width * 0.1));
     const widthDimensionOffset = numberParam(this.params, "widthDimensionOffset", 34);
-    const depthDimensionScale = numberParam(this.params, "depthDimensionScale", 1);
-    const widthDimensionScale = numberParam(this.params, "widthDimensionScale", 1);
-    const dimensionSuffix = stringParam(this.params, "dimensionSuffix", "");
     const loadGap = numberParam(this.params, "loadGap", widthDimensionOffset + 28);
     const loadHeight = effectiveLoadHeight(this.params, 34);
     const loadValue = loadValueParam(this.params, "loadValue", "R");
     const loadPrefix = stringParam(this.params, "loadPrefix", "");
     const loadSuffix = stringParam(this.params, "loadSuffix", "");
+    const dimensionSuffix = stringParam(this.params, "dimensionSuffix", "");
+    const depthDimensionScale = numberParam(this.params, "depthDimensionScale", 1);
+    const widthDimensionScale = numberParam(this.params, "widthDimensionScale", 1);
     const showDimensions = booleanParam(this.params, "showDimensions", context.mode === "detailed" || context.mode === "debug");
     const showLoad = booleanParam(this.params, "showLoad", context.mode === "detailed" || context.mode === "debug");
     const showGround = booleanParam(this.params, "showGround", true);
@@ -85,11 +85,11 @@ export class LoadedFoundation implements ParametricObject {
       childObjects.push(
         new Dimension(`${this.id}.dimension.depth`, {
           type: "Dimension",
-          params: { x1: x, y1: groundY, x2: x, y2: bottomY, offset: depthDimensionOffset, scale: depthDimensionScale, prefix: "d1=", suffix: dimensionSuffix, ...visualParams }
+          params: { x1: x, y1: groundY, x2: x, y2: bottomY, offset: depthDimensionOffset, prefix: "d1=", suffix: dimensionSuffix, scale: depthDimensionScale, ...visualParams }
         }),
         new Dimension(`${this.id}.dimension.width`, {
           type: "Dimension",
-          params: { x1: x, y1: bottomY, x2: x + width, y2: bottomY, offset: widthDimensionOffset, scale: widthDimensionScale, prefix: "b=", suffix: dimensionSuffix, ...visualParams }
+          params: { x1: x, y1: bottomY, x2: x + width, y2: bottomY, offset: widthDimensionOffset, prefix: "b=", suffix: dimensionSuffix, scale: widthDimensionScale, ...visualParams }
         })
       );
     }

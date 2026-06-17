@@ -42,16 +42,16 @@ export class BasementFoundation implements ParametricObject {
     const floorDimensionOffset = numberParam(this.params, "floorDimensionOffset", dimensionChainOffset);
     const baseHeightDimensionOffset = numberParam(this.params, "baseHeightDimensionOffset", dimensionChainOffset);
     const widthDimensionOffset = numberParam(this.params, "widthDimensionOffset", 34);
-    const widthDimensionScale = numberParam(this.params, "widthDimensionScale", 1);
-    const baseHeightDimensionScale = numberParam(this.params, "baseHeightDimensionScale", 1);
-    const floorTopDepthDimensionScale = numberParam(this.params, "floorTopDepthDimensionScale", 1);
-    const floorThicknessDimensionScale = numberParam(this.params, "floorThicknessDimensionScale", 1);
-    const dimensionSuffix = stringParam(this.params, "dimensionSuffix", "");
     const loadGap = numberParam(this.params, "loadGap", widthDimensionOffset + 28);
     const loadHeight = effectiveLoadHeight(this.params, 34);
     const loadValue = loadValueParam(this.params, "loadValue", "R");
     const loadPrefix = stringParam(this.params, "loadPrefix", "");
     const loadSuffix = stringParam(this.params, "loadSuffix", "");
+    const dimensionSuffix = stringParam(this.params, "dimensionSuffix", "");
+    const widthDimensionScale = numberParam(this.params, "widthDimensionScale", 1);
+    const baseHeightDimensionScale = numberParam(this.params, "baseHeightDimensionScale", 1);
+    const floorTopDepthDimensionScale = numberParam(this.params, "floorTopDepthDimensionScale", 1);
+    const floorThicknessDimensionScale = numberParam(this.params, "floorThicknessDimensionScale", 1);
     const showDimensions = booleanParam(this.params, "showDimensions", context.mode === "detailed" || context.mode === "debug");
     const showFloorDimensions = booleanParam(this.params, "showFloorDimensions", showDimensions);
     const showBasementDimensions = booleanParam(this.params, "showBasementDimensions", showDimensions);
@@ -128,11 +128,11 @@ export class BasementFoundation implements ParametricObject {
       childObjects.push(
         new Dimension(`${this.id}.dimension.width`, {
           type: "Dimension",
-          params: { x1: x, y1: bottomY, x2: x + width, y2: bottomY, offset: widthDimensionOffset, scale: widthDimensionScale, prefix: "b=", suffix: dimensionSuffix, ...visualParams }
+          params: { x1: x, y1: bottomY, x2: x + width, y2: bottomY, offset: widthDimensionOffset, prefix: "b=", suffix: dimensionSuffix, scale: widthDimensionScale, ...visualParams }
         }),
         new Dimension(`${this.id}.dimension.baseHeight`, {
           type: "Dimension",
-          params: { x1: basementRight, y1: roundSvg(baseTopY), x2: basementRight, y2: roundSvg(bottomY), offset: baseHeightDimensionOffset, scale: baseHeightDimensionScale, prefix: "h_p=", suffix: dimensionSuffix, ...visualParams }
+          params: { x1: basementRight, y1: roundSvg(baseTopY), x2: basementRight, y2: roundSvg(bottomY), offset: baseHeightDimensionOffset, prefix: "h_p=", suffix: dimensionSuffix, scale: baseHeightDimensionScale, ...visualParams }
         })
       );
     }
@@ -141,7 +141,7 @@ export class BasementFoundation implements ParametricObject {
       childObjects.push(
         new Dimension(`${this.id}.dimension.floorTopDepth`, {
           type: "Dimension",
-          params: { x1: basementRight, y1: groundY, x2: basementRight, y2: floorTopY, offset: depthDimensionOffset, scale: floorTopDepthDimensionScale, prefix: "dB=", suffix: dimensionSuffix, ...visualParams }
+          params: { x1: basementRight, y1: groundY, x2: basementRight, y2: floorTopY, offset: depthDimensionOffset, prefix: "dB=", suffix: dimensionSuffix, scale: floorTopDepthDimensionScale, ...visualParams }
         })
       );
     }
@@ -150,7 +150,7 @@ export class BasementFoundation implements ParametricObject {
       childObjects.push(
         new Dimension(`${this.id}.dimension.floorThickness`, {
           type: "Dimension",
-          params: { x1: basementRight, y1: floorTopY, x2: basementRight, y2: floorBottomY, offset: floorDimensionOffset, scale: floorThicknessDimensionScale, prefix: "h_cf=", suffix: dimensionSuffix, ...visualParams }
+          params: { x1: basementRight, y1: floorTopY, x2: basementRight, y2: floorBottomY, offset: floorDimensionOffset, prefix: "h_cf=", suffix: dimensionSuffix, scale: floorThicknessDimensionScale, ...visualParams }
         })
       );
     }

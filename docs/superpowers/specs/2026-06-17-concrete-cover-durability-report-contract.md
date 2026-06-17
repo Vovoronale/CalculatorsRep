@@ -370,6 +370,28 @@ Rules:
 - Invalid data returns a stable report with source inputs and errors.
 - Invalid data must not render formulas with `NaN` or `Infinity`.
 
+## Parametric Figure UI
+
+The calculator page must include a right-side diagram section titled:
+
+```text
+Позначення величин
+```
+
+Figure caption for the default example:
+
+```text
+Параметричний вузол: cnom = 26 мм; d = 16 мм; a = 34 мм.
+```
+
+Rules:
+
+- The figure uses the `CornerRebarDetail` object from the vendored SVGParametric library.
+- `d` is the active diameter/controlling size for the selected `cmin,b` mode:
+  bar diameter, strand equivalent diameter, round duct diameter, `max(aduct; bduct / 2)` for a rectangular duct, or the pre-tensioned element diameter.
+- `a = cnom + d / 2` and is passed to the object as `coverToCenter`.
+- The SVG `aria-label` must include `cnom`, `d`, and `a`.
+
 ## Normative References UI
 
 The calculator page must include a section titled:

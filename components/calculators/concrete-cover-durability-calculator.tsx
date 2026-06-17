@@ -24,6 +24,11 @@ import {
   type CalculatorInputValues,
 } from "@/lib/calculator-input-schema";
 import { getConcreteClasses } from "@/lib/materials/concrete";
+import {
+  buildScene,
+  createDefaultRegistry,
+  type SceneDefinition,
+} from "@/lib/vendor/svgparametric";
 
 import {
   InputSchemaForm,
@@ -73,6 +78,7 @@ const CONCRETE_CLASS_OPTIONS = getConcreteClasses().map((className) => ({
 
 const DELTA_CDEV_DESCRIPTION =
   "Допуск на відхил Δcdev додається до мінімального захисного шару для визначення номінального захисного шару cnom. За п. 4.4.3 ДБН В.2.6-98:2009 товщину мінімального захисного шару необхідно збільшити на абсолютне значення допустимого від'ємного відхилу. Рекомендоване значення за приміткою до п. 4.4.3: Δcdev = 10 мм.";
+const SVG_PARAMETRIC_REGISTRY = createDefaultRegistry();
 
 export const CONCRETE_COVER_DURABILITY_INPUT_SCHEMA: CalculatorInputSchema = {
   groups: [
@@ -535,6 +541,141 @@ export function buildConcreteCoverDurabilityDocxReport(
   });
 }
 
+type ConcreteCoverDetailFigure = {
+  title: string;
+  caption: string;
+  svg: string;
+};
+
+function formatDiagramNumber(value: number): string {
+  if (!Number.isFinite(value)) return "0";
+  return new Intl.NumberFormat("uk-UA", {
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
+function sanitizePositiveDiagramValue(value: number, fallback: number): number {
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function getCoverDetailDiameterMm(input: ConcreteCoverDurabilityInput): number {
+  switch (input.bondCoverMode) {
+    case "strand":
+      return input.strandEquivalentDiameterMm;
+    case "round-duct":
+      return input.roundDuctDiameterMm;
+    case "rectangular-duct":
+      return Math.max(input.rectangularDuctShortSideMm, input.rectangularDuctLongSideMm / 2);
+    case "pre-tensioned-wire":
+    case "pre-tensioned-bar":
+      return input.preTensionedElementDiameterMm;
+    case "bar":
+    default:
+      return input.barDiameterMm;
+  }
+}
+
+function getConcreteCoverDetailScene({
+  coverToCenterMm,
+  diameterMm,
+}: {
+  coverToCenterMm: number;
+  diameterMm: number;
+}): SceneDefinition {
+  const safeDiameterMm = sanitizePositiveDiagramValue(diameterMm, 16);
+  const safeCoverToCenterMm = Math.max(
+    safeDiameterMm / 2,
+    sanitizePositiveDiagramValue(coverToCenterMm, 34),
+  );
+  const rebarCenterX = 68 + safeCoverToCenterMm;
+  const rebarCenterY = 178;
+  const sceneWidth = Math.ceil(rebarCenterX + 370);
+  const sceneHeight = Math.ceil(rebarCenterY + safeCoverToCenterMm + 98);
+
+  return {
+    scene: {
+      width: sceneWidth,
+      height: sceneHeight,
+      mode: "detailed",
+    },
+    objects: {
+      coverDetail: {
+        type: "CornerRebarDetail",
+        params: {
+          x: rebarCenterX,
+          y: rebarCenterY,
+          rebarDiameter: safeDiameterMm,
+          coverToCenter: safeCoverToCenterMm,
+          stirrupDiameter: Math.max(6, Math.min(12, safeDiameterMm / 2)),
+          stirrupGap: 6,
+          stirrupHorizontalLength: 260,
+          stirrupVerticalLength: 190,
+          concreteTopExtension: 210,
+          showDimensions: true,
+          concreteColor: "#1f2937",
+          breakColor: "#64748b",
+          stirrupColor: "#e95a0c",
+          stirrupFill: "#fff7ed",
+          rebarFill: "#d8c4ff",
+          rebarColor: "#7a3ea0",
+          dimensionColor: "#1f2937",
+        },
+      },
+    },
+  };
+}
+
+function buildConcreteCoverDetailFigure(
+  report: ConcreteCoverDurabilityReport,
+): ConcreteCoverDetailFigure | null {
+  if (!report.valid || !report.values) return null;
+
+  const diameterMm = sanitizePositiveDiagramValue(
+    getCoverDetailDiameterMm(report.input),
+    DEFAULT_CONCRETE_COVER_DURABILITY_INPUT.barDiameterMm,
+  );
+  const nominalCoverMm = report.values.nominalCoverMm;
+  const coverToCenterMm = nominalCoverMm + diameterMm / 2;
+  const title = `Параметричний вузол захисного шару: cnom ${formatDiagramNumber(
+    nominalCoverMm,
+  )} мм, d ${formatDiagramNumber(diameterMm)} мм, a ${formatDiagramNumber(
+    coverToCenterMm,
+  )} мм`;
+  const svg = buildScene(
+    getConcreteCoverDetailScene({ coverToCenterMm, diameterMm }),
+    SVG_PARAMETRIC_REGISTRY,
+  ).svg.replace(
+    "<svg ",
+    `<svg role="img" aria-label="${title}" class="concrete-cover-durability-diagram__svg" `,
+  );
+
+  return {
+    title,
+    svg,
+    caption: `Параметричний вузол: cnom = ${formatDiagramNumber(
+      nominalCoverMm,
+    )} мм; d = ${formatDiagramNumber(diameterMm)} мм; a = ${formatDiagramNumber(
+      coverToCenterMm,
+    )} мм.`,
+  };
+}
+
+function ConcreteCoverDetailDiagram({
+  figure,
+}: {
+  figure: ConcreteCoverDetailFigure;
+}) {
+  return (
+    <figure className="concrete-cover-durability-diagram">
+      <div
+        className="concrete-cover-durability-diagram__canvas"
+        dangerouslySetInnerHTML={{ __html: figure.svg }}
+      />
+      <figcaption>{figure.caption}</figcaption>
+    </figure>
+  );
+}
+
 function getExposureCalculatorUrl(values: CalculatorInputValues): string {
   const params = new URLSearchParams();
   params.set("returnTo", "/calculator/concrete-cover-durability");
@@ -640,6 +781,7 @@ export function ConcreteCoverDurabilityCalculator() {
     () => buildConcreteCoverDurabilityDocxReport(report),
     [report],
   );
+  const detailFigure = useMemo(() => buildConcreteCoverDetailFigure(report), [report]);
   const resultSummary =
     report.valid && report.values ? (
       <div className="concrete-cover-durability-summary" aria-live="polite">
@@ -659,6 +801,7 @@ export function ConcreteCoverDurabilityCalculator() {
         { href: "#concrete-cover-bond", label: "Зчеплення" },
         { href: "#concrete-cover-construction-class", label: "Клас S" },
         { href: "#concrete-cover-adjustments", label: "Поправки" },
+        { href: "#native-calculator-diagrams-title", label: "Рисунок" },
         { href: "#concrete-cover-durability-report-title", label: "Звіт" },
         { href: "#concrete-cover-durability-norms-title", label: "Норми" },
       ]}
@@ -673,6 +816,9 @@ export function ConcreteCoverDurabilityCalculator() {
       }
       errors={report.errors}
       warnings={report.warnings}
+      diagrams={
+        detailFigure ? <ConcreteCoverDetailDiagram figure={detailFigure} /> : null
+      }
     >
       <NativeReport
         titleId="concrete-cover-durability-report-title"

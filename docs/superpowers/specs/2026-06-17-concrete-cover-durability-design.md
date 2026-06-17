@@ -9,8 +9,8 @@ implementation planning.
 
 Build a native calculator for the minimum and nominal concrete cover for
 reinforcement according to ДБН В.2.6-98:2009, section 4.4. The calculator must
-follow the same architecture and UX pattern as `soil-design-resistance`, but the
-first version is temporarily without a drawing.
+follow the same architecture and UX pattern as `soil-design-resistance` and use
+a parameterized SVG detail for the concrete cover notation.
 
 The report text, UI labels, display conditions, formulas, warnings, errors, and
 handoff parameters are captured in
@@ -32,6 +32,8 @@ The first screen contains the working input groups and the live result summary:
 - durability adjustment fields;
 - nominal cover deviation `Δcdev`;
 - result summary with `cmin` and `cnom`.
+- a right-side parameterized concrete cover detail showing `cnom`, diameter `d`,
+  and center distance `a`.
 
 The `Клас впливу середовища` field uses the existing inspector calculator
 action: only the calculator icon is visible, with hint/title/aria-label
@@ -50,12 +52,12 @@ In scope:
 - Full durability adjustment inputs.
 - `cmin`, `cnom`, validation messages, warnings, normative references, and DOCX
   report export.
+- A parameterized SVGParametric `CornerRebarDetail` notation diagram.
 - Catalog registration and SEO content for the native calculator.
 - Query-param handoff from and to `concrete-exposure-class`.
 
 Out of scope for the first implementation:
 
-- Drawing or section diagram.
 - Fire-resistance cover calculation.
 - Replacing the standalone `concrete-exposure-class` calculator.
 - Server-side document generation.
@@ -84,6 +86,7 @@ Add a thin React adapter in
 - calculator action click behavior for exposure class;
 - summary, warning/error rendering, `NativeReport`, DOCX action, and normative
   references;
+- SVGParametric scene construction for the right-side notation diagram;
 - a DOCX adapter that maps the same report steps to the shared report-docx
   contract.
 
@@ -137,6 +140,7 @@ The implementation plan must include failing tests before code changes:
 - exact report captions, formulas, notes, validation messages, and step order
   from the contract;
 - UI smoke test through `CalculatorShell`;
+- parameterized diagram rendering and `CornerRebarDetail` library coverage;
 - inspector calculator action for the exposure class field;
 - query-param prefill and return behavior;
 - DOCX adapter mapping.
@@ -173,6 +177,7 @@ app/globals.css
 - The report contract is explicitly referenced as the canonical source.
 - Formula strings are not duplicated in this design as source-of-truth text.
 - The design stays within one native calculator and one existing handoff target.
-- Temporary no-drawing scope is explicit.
+- The parameterized notation diagram is scoped to the page UI and does not alter
+  report formulas.
 - Validation, warnings, and handoff behavior are delegated to the contract.
 - No implementation plan or code changes are included in this document.

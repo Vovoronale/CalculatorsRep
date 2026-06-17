@@ -84,6 +84,25 @@ describe("ConcreteCoverDurabilityCalculator", () => {
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
   });
 
+  it("renders a parametric concrete cover detail from the current result values", () => {
+    const { container } = render(<ConcreteCoverDurabilityCalculator />);
+
+    expect(screen.getByText("Позначення величин")).toBeInTheDocument();
+    expect(
+      screen.getByText("Параметричний вузол: cnom = 26 мм; d = 16 мм; a = 34 мм."),
+    ).toBeInTheDocument();
+
+    const svg = container.querySelector(".concrete-cover-durability-diagram__svg");
+    expect(svg).toHaveAttribute(
+      "aria-label",
+      "Параметричний вузол захисного шару: cnom 26 мм, d 16 мм, a 34 мм",
+    );
+    expect(container.querySelector('[data-role="concrete-left-face"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-role="concrete-bottom-face"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-role="stirrup-outer-edge"]')).toBeInTheDocument();
+    expect(svg?.querySelector("circle")).toHaveAttribute("r", "8");
+  });
+
   it("renders DBN scans in the normative references section", () => {
     render(<ConcreteCoverDurabilityCalculator />);
 
