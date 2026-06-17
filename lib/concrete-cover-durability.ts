@@ -853,9 +853,10 @@ export function getConcreteCoverDurabilityReport(
         key: "conclusion",
         caption:
           "Висновок щодо мінімального та номінального захисного шару бетону (п. 4.4.2-4.4.3 ДБН В.2.6-98:2009):",
-        formula: `cmin => cnom = ${formatNumber(minimumCoverMm)} мм => ${formatNumber(
-          nominalCoverMm,
-        )} мм`,
+        formulas: [
+          `cmin = ${formatNumber(minimumCoverMm)} мм`,
+          `cnom = ${formatNumber(nominalCoverMm)} мм`,
+        ],
       },
     ],
   };

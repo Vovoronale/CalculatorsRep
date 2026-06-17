@@ -48,7 +48,10 @@ describe("concrete cover durability", () => {
       "cmin = max(cmin,b; cdur; 10 мм) = max(16; 10; 10) = 16 мм",
     ]);
     expect(report.steps[5].formula).toBe("cnom = cmin + Δcdev = 16 + 10 = 26 мм");
-    expect(report.steps[6].formula).toBe("cmin => cnom = 16 мм => 26 мм");
+    expect(report.steps[6].formulas).toEqual([
+      "cmin = 16 мм",
+      "cnom = 26 мм",
+    ]);
   });
 
   it("uses table 4.4 for prestressed reinforcement", () => {
