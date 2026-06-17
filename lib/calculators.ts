@@ -88,6 +88,7 @@ export type Calculator = {
     | "foundation-bar-anchorage"
     | "cassoon-load-distribution"
     | "concrete-exposure-class"
+    | "concrete-cover-durability"
     | "soil-design-resistance"
     | "foundation-base-pressure";
   accessLabel: string;

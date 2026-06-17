@@ -1549,6 +1549,66 @@
       "icon": "ShieldCheck"
     },
     {
+      "slug": "concrete-cover-durability",
+      "title": "Захисний шар бетону для арматури",
+      "shortDescription": "Розрахунок мінімального та номінального захисного шару cmin і cnom за ДБН В.2.6-98:2009.",
+      "description": "Нативний калькулятор визначає cmin,b за вимогами зчеплення, клас конструкції S, cmin,dur за таблицями 4.3/4.4, мінімальний cmin і номінальний cnom з урахуванням Δcdev.",
+      "mainCategory": "zalizobeton",
+      "extraCategories": [
+        "beton",
+        "normy-perevirky",
+        "normatyvni-obgruntuvannya"
+      ],
+      "displayMode": "native",
+      "nativeCalculator": "concrete-cover-durability",
+      "accessLabel": "Нативний розрахунок",
+      "openUrl": "/calculator/concrete-cover-durability",
+      "order": 32,
+      "seoContent": {
+        "task": "Розрахунок захисного шару бетону для арматури за ДБН В.2.6-98:2009, розділ 4.4.",
+        "applications": [
+          "Робочі креслення залізобетонних елементів",
+          "Перевірка мінімального захисного шару",
+          "Аудит cmin і cnom"
+        ],
+        "inputParameters": [
+          "Клас впливу середовища",
+          "Тип арматури",
+          "Діаметр або канал для cmin,b",
+          "Клас конструкції S",
+          "Поправки Δcdur і Δcdev"
+        ],
+        "formulas": [
+          "cmin = max(cmin,b; cmin,dur + Δcdur,γ - Δcdur,st - Δcdur,add; 10 мм)",
+          "cnom = cmin + Δcdev"
+        ],
+        "example": "Для XC1, звичайної арматури Ø16 мм, S3 і Δcdev = 10 мм калькулятор отримує cmin = 16 мм і cnom = 26 мм.",
+        "limitations": [
+          "Не виконує розрахунок вогнестійкості.",
+          "Тимчасово без рисунку перерізу."
+        ],
+        "standards": [
+          "ДБН В.2.6-98:2009, п. 4.4"
+        ]
+      },
+      "standard": "ДБН В.2.6-98:2009, п. 4.4",
+      "editorialLabel": "Новий",
+      "useCases": [
+        "Захисний шар арматури",
+        "cmin і cnom",
+        "Перевірка ДБН"
+      ],
+      "tags": [
+        "залізобетон",
+        "захисний шар",
+        "ДБН"
+      ],
+      "tools": [
+        "IVapps"
+      ],
+      "icon": "Shield"
+    },
+    {
       "slug": "rebar-characteristics",
       "title": "Характеристики арматури для розрахунку залізобетонних конструкцій",
       "shortDescription": "Таблиця характеристик арматури за ДСТУ 3760:2006.",

@@ -138,6 +138,10 @@ describe("calculator data model", () => {
         slug: "concrete-exposure-class",
         extraCategories: ["beton", "normy-perevirky", "normatyvni-obgruntuvannya"],
       },
+      {
+        slug: "concrete-cover-durability",
+        extraCategories: ["beton", "normy-perevirky", "normatyvni-obgruntuvannya"],
+      },
     ]);
   });
 
@@ -237,6 +241,22 @@ describe("calculator data model", () => {
       nativeCalculator: "concrete-exposure-class",
       icon: "ShieldCheck",
       standard: "ДБН В.2.6-98:2009 / ДСТУ ENV 206:2018",
+    });
+  });
+
+  it("registers the concrete cover durability calculator as a native reinforced concrete calculator", () => {
+    const calculator = getCalculatorBySlug("concrete-cover-durability");
+
+    expect(calculator).toMatchObject({
+      title: "Захисний шар бетону для арматури",
+      shortDescription:
+        "Розрахунок мінімального та номінального захисного шару cmin і cnom за ДБН В.2.6-98:2009.",
+      mainCategory: "zalizobeton",
+      extraCategories: ["beton", "normy-perevirky", "normatyvni-obgruntuvannya"],
+      displayMode: "native",
+      nativeCalculator: "concrete-cover-durability",
+      icon: "Shield",
+      standard: "ДБН В.2.6-98:2009, п. 4.4",
     });
   });
 

@@ -5,6 +5,7 @@ import { ChevronDown, ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CassoonLoadDistributionCalculator } from "@/components/calculators/cassoon-load-distribution-calculator";
+import { ConcreteCoverDurabilityCalculator } from "@/components/calculators/concrete-cover-durability-calculator";
 import { ConcreteExposureClassCalculator } from "@/components/calculators/concrete-exposure-class-calculator";
 import { ConcreteCharacteristicsCalculator } from "@/components/calculators/concrete-characteristics-calculator";
 import { FoundationBasePressureCalculator } from "@/components/calculators/foundation-base-pressure-calculator";
@@ -547,6 +548,8 @@ function NativeCalculator({ calculator }: { calculator: Calculator }) {
       return <CassoonLoadDistributionCalculator />;
     case "concrete-exposure-class":
       return <ConcreteExposureClassCalculator />;
+    case "concrete-cover-durability":
+      return <ConcreteCoverDurabilityCalculator />;
     case "soil-design-resistance":
       return <SoilDesignResistanceCalculator />;
     case "foundation-base-pressure":

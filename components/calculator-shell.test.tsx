@@ -146,7 +146,7 @@ describe("CalculatorShell", () => {
     render(<CalculatorShell />);
 
     await user.click(screen.getByRole("button", { name: "Розгорнути Конструкції" }));
-    await user.click(screen.getByRole("link", { name: "Конструкції 9" }));
+    await user.click(screen.getByRole("link", { name: "Конструкції 10" }));
 
     expect(screen.getByRole("heading", { name: "Конструкції" })).toBeInTheDocument();
     const table = screen.getByRole("table", {
@@ -1142,6 +1142,28 @@ describe("CalculatorShell", () => {
       screen.getByLabelText("Калькулятор класу впливу середовища для бетону"),
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
+  });
+
+  it("renders the native concrete cover durability calculator", () => {
+    const calculator = getCalculatorBySlug("concrete-cover-durability");
+
+    if (!calculator) {
+      throw new Error("Expected native concrete cover durability calculator to exist");
+    }
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Захисний шар бетону для арматури",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Калькулятор захисного шару бетону для арматури"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Розрахувати клас впливу" })).toBeInTheDocument();
   });
 
   it("stacks native cassoon load input fields vertically", () => {
