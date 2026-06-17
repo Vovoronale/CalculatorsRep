@@ -84,6 +84,45 @@ describe("ConcreteCoverDurabilityCalculator", () => {
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
   });
 
+  it("renders DBN scans in the normative references section", () => {
+    render(<ConcreteCoverDurabilityCalculator />);
+
+    const expectedScans = [
+      [
+        "Скан п. 4.4.2.2 і формули (4.2) з ДБН В.2.6-98:2009",
+        "/dbn/concrete-cover-durability/dbn-4-4-2-2-formula-4-2.png",
+      ],
+      [
+        "Скан п. 4.4.2.3 і таблиці 4.2 з ДБН В.2.6-98:2009",
+        "/dbn/concrete-cover-durability/dbn-table-4-2.png",
+      ],
+      [
+        "Скан таблиці 4.3 з ДБН В.2.6-98:2009",
+        "/dbn/concrete-cover-durability/dbn-table-4-3.png",
+      ],
+      [
+        "Скан таблиці 4.4 з ДБН В.2.6-98:2009",
+        "/dbn/concrete-cover-durability/dbn-table-4-4.png",
+      ],
+      [
+        "Скан таблиці 4.5 з ДБН В.2.6-98:2009",
+        "/dbn/concrete-cover-durability/dbn-table-4-5.png",
+      ],
+      [
+        "Скан п. 4.4.2.4.4 з ДБН В.2.6-98:2009",
+        "/dbn/concrete-cover-durability/dbn-4-4-2-4-4.png",
+      ],
+      [
+        "Скан п. 4.4.3 з ДБН В.2.6-98:2009",
+        "/dbn/concrete-cover-durability/dbn-4-4-3.png",
+      ],
+    ] as const;
+
+    for (const [alt, src] of expectedScans) {
+      expect(screen.getByAltText(alt)).toHaveAttribute("src", src);
+    }
+  });
+
   it("opens the exposure-class calculator through the inspector action", async () => {
     const originalLocation = window.location;
     const assign = vi.fn();

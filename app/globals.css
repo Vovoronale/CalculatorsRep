@@ -3750,6 +3750,97 @@ textarea {
   height: auto;
 }
 
+.concrete-cover-durability-norms__list {
+  display: grid;
+  gap: 10px;
+}
+
+.concrete-cover-durability-norm {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.concrete-cover-durability-norm:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.concrete-cover-durability-norm h4 {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.concrete-cover-durability-norm__scan {
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.concrete-cover-durability-norm__scan summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 34px;
+  padding: 7px 10px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.3;
+  cursor: pointer;
+  user-select: none;
+}
+
+.concrete-cover-durability-norm__scan summary::-webkit-details-marker {
+  display: none;
+}
+
+.concrete-cover-durability-norm__scan summary::marker {
+  content: "";
+}
+
+.concrete-cover-durability-norm__scan summary::after {
+  content: "+";
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-subtle);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.concrete-cover-durability-norm__scan[open] summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.concrete-cover-durability-norm__scan[open] summary::after {
+  content: "-";
+}
+
+.concrete-cover-durability-norm__scan figure {
+  margin: 0;
+  overflow-x: auto;
+  padding: 6px;
+}
+
+.concrete-cover-durability-norm__scan img {
+  display: block;
+  width: 100%;
+  min-width: 720px;
+  height: auto;
+}
+
 @media (max-width: 1320px) {
   .soil-resistance-input-shell {
     grid-template-areas:

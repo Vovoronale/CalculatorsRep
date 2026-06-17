@@ -555,6 +555,17 @@ function handleFieldCalculatorAction(event: InputSchemaFieldCalculatorActionEven
   window.location.assign(getExposureCalculatorUrl(event.values));
 }
 
+function NormScan({ alt, src }: { alt: string; src: string }) {
+  return (
+    <details className="concrete-cover-durability-norm__scan">
+      <summary>Скан фрагмента ДБН</summary>
+      <figure>
+        <img src={src} alt={alt} loading="lazy" decoding="async" />
+      </figure>
+    </details>
+  );
+}
+
 function ConcreteCoverDurabilityNorms() {
   return (
     <section
@@ -564,53 +575,55 @@ function ConcreteCoverDurabilityNorms() {
       <div className="native-report__head">
         <h3 id="concrete-cover-durability-norms-title">Нормативні посилання</h3>
       </div>
-      <div className="native-report__items">
-        <article id="concrete-cover-norm-formula-4-2">
+      <div className="concrete-cover-durability-norms__list">
+        <article className="concrete-cover-durability-norm" id="concrete-cover-norm-formula-4-2">
           <h4>п. 4.4.2.2, формула (4.2) ДБН В.2.6-98:2009</h4>
-          <p>
-            Вибір більшого значення з вимог зчеплення та довговічності з нижньою
-            межею 10 мм.
-          </p>
+          <NormScan
+            alt="Скан п. 4.4.2.2 і формули (4.2) з ДБН В.2.6-98:2009"
+            src="/dbn/concrete-cover-durability/dbn-4-4-2-2-formula-4-2.png"
+          />
         </article>
-        <article id="concrete-cover-norm-table-4-2">
+        <article className="concrete-cover-durability-norm" id="concrete-cover-norm-table-4-2">
           <h4>п. 4.4.2.3, таблиця 4.2 ДБН В.2.6-98:2009</h4>
-          <p>
-            Вимоги до мінімального захисного шару cmin,b для забезпечення
-            зчеплення.
-          </p>
+          <NormScan
+            alt="Скан п. 4.4.2.3 і таблиці 4.2 з ДБН В.2.6-98:2009"
+            src="/dbn/concrete-cover-durability/dbn-table-4-2.png"
+          />
         </article>
-        <article id="concrete-cover-norm-table-4-3">
+        <article className="concrete-cover-durability-norm" id="concrete-cover-norm-table-4-3">
           <h4>п. 4.4.2.4.1, таблиця 4.3 ДБН В.2.6-98:2009</h4>
-          <p>
-            Мінімальна величина захисного шару cmin,dur для арматурної сталі.
-          </p>
+          <NormScan
+            alt="Скан таблиці 4.3 з ДБН В.2.6-98:2009"
+            src="/dbn/concrete-cover-durability/dbn-table-4-3.png"
+          />
         </article>
-        <article id="concrete-cover-norm-table-4-4">
+        <article className="concrete-cover-durability-norm" id="concrete-cover-norm-table-4-4">
           <h4>п. 4.4.2.4.2, таблиця 4.4 ДБН В.2.6-98:2009</h4>
-          <p>
-            Мінімальна величина захисного шару cmin,dur для попередньо напруженої
-            арматурної сталі.
-          </p>
+          <NormScan
+            alt="Скан таблиці 4.4 з ДБН В.2.6-98:2009"
+            src="/dbn/concrete-cover-durability/dbn-table-4-4.png"
+          />
         </article>
-        <article id="concrete-cover-norm-table-4-5">
+        <article className="concrete-cover-durability-norm" id="concrete-cover-norm-table-4-5">
           <h4>п. 4.4.2.4.3, таблиця 4.5 ДБН В.2.6-98:2009</h4>
-          <p>
-            Клас конструкцій залежно від класу впливу середовища та факторів
-            впливу.
-          </p>
+          <NormScan
+            alt="Скан таблиці 4.5 з ДБН В.2.6-98:2009"
+            src="/dbn/concrete-cover-durability/dbn-table-4-5.png"
+          />
         </article>
-        <article id="concrete-cover-norm-45-mm">
+        <article className="concrete-cover-durability-norm" id="concrete-cover-norm-45-mm">
           <h4>п. 4.4.2.4.4 ДБН В.2.6-98:2009</h4>
-          <p>
-            Вимога конструктивного армування захисного шару при товщині понад 45
-            мм.
-          </p>
+          <NormScan
+            alt="Скан п. 4.4.2.4.4 з ДБН В.2.6-98:2009"
+            src="/dbn/concrete-cover-durability/dbn-4-4-2-4-4.png"
+          />
         </article>
-        <article id="concrete-cover-norm-cdev">
+        <article className="concrete-cover-durability-norm" id="concrete-cover-norm-cdev">
           <h4>п. 4.4.3 ДБН В.2.6-98:2009</h4>
-          <p>
-            Допустимі проектні відхили та визначення номінального захисного шару.
-          </p>
+          <NormScan
+            alt="Скан п. 4.4.3 з ДБН В.2.6-98:2009"
+            src="/dbn/concrete-cover-durability/dbn-4-4-3.png"
+          />
         </article>
       </div>
     </section>
