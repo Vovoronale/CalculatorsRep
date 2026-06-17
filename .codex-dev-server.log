@@ -66,3 +66,17 @@
  GET /calculator/concrete-exposure-class 500 in 712ms
  GET /calculator/concrete-exposure-class 500 in 839ms
  GET /calculator/concrete-exposure-class 500 in 752ms
+ GET / 500 in 2046ms
+ ✓ Compiled in 490ms (1267 modules)
+ GET /calculator/concrete-exposure-class 500 in 1786ms
+ GET /calculator/concrete-exposure-class 500 in 3575ms
+ ✓ Compiled in 925ms (1271 modules)
+ GET /calculator/concrete-exposure-class 500 in 562ms
+ ✓ Compiled in 255ms (1271 modules)
+ GET /calculator/concrete-exposure-class 500 in 589ms
+ GET /calculator/concrete-cover-durability 500 in 2401ms
+ GET /calculator/concrete-cover-durability 500 in 35ms
+ GET /calculator/concrete-cover-durability 500 in 1866ms
+ GET /calculator/concrete-cover-durability 500 in 35ms
+ GET /calculator/concrete-cover-durability 500 in 1947ms
+ GET /calculator/concrete-cover-durability 500 in 48ms
