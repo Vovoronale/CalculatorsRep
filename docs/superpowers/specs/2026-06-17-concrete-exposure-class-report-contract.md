@@ -2,25 +2,41 @@
 
 Date: 2026-06-17
 Calculator: `concrete-exposure-class`
-Status: Agreed source of truth for report text and formulas
+Status: Agreed source of truth
 
-This document contains the agreed Ukrainian report captions, display conditions, formula strings, warnings, errors, and handoff behavior for the concrete exposure class calculator. Implementation plans, tests, and code must treat this file as the canonical source for the step-by-step report.
+This document contains the Ukrainian UI labels, report captions, display conditions, item text, formula strings, warning/error text, and handoff behavior for the concrete exposure class calculator.
 
-Normative references must remain flexible before final release because the status of the referenced concrete standards can change. The UI and catalog copy must warn users to verify the current validity of the specific standard before applying the result in a project.
+Implementation plans, tests, and code must treat this file as the canonical source. If any report wording or formula changes during implementation, update this file first and get approval before changing tests or code.
+
+## Source Evidence
+
+Primary source:
+
+```text
+ДБН В.2.6-98:2009, розділ 4.3, таблиця 4.1, зі Зміною № 1.
+PDF pages visually checked: С.29-С.30, rendered from BN01_5212-1786-8542-9081_3b0f018116.pdf.
+```
+
+Evidence notes:
+
+- `X0`, `XC1-XC4`, `XD1-XD3`, `XF1-XF4`, and `XA1-XA3` are table 4.1 rows in the provided DBN PDF.
+- `X0` row includes `Дуже сухий повітряно-вологісний режим (RH <= 30 %)`.
+- `XC1` row includes `Сухий повітряно-вологісний режим (30 % < RH <= 60 %)`.
+- `XC3` row includes `Помірний повітряно-вологісний режим (60 % < RH <= 75 %)`.
+- `XD1` row includes `RH > 75 %`.
+- `XS1-XS3` are not table 4.1 rows in the provided DBN PDF. They are kept as a separate marine-chloride block by DSTU ENV/EN 206 class logic because DBN cover tables group `XD/XS` columns.
+- Tables 4.1(a) and 4.1(b) are not exposure-class mapping tables. They define frost-resistance and water-tightness grades for concrete depending on service conditions.
 
 ## Agreed Decisions From Chat
 
-This contract captures the decisions agreed before implementation:
-
-- The calculator is a standalone native calculator.
+- Use a row-driven UI instead of informal shared moisture buckets.
+- Keep `XS1-XS3` as a separate marine-chloride block, but do not describe them as rows of DBN table 4.1.
+- The calculator remains a standalone native calculator.
 - The calculator is called from the future concrete cover durability calculator, not from the fire cover calculator.
 - The future concrete cover durability calculator keeps its own `exposureClass` select with values `X0`, `XC1`, `XC2`, `XC3`, `XC4`, `XD1`, `XD2`, `XD3`, `XS1`, `XS2`, `XS3`.
-- Next to that select, the future calculator shows a button that opens this exposure class calculator.
-- All shared fields known in the future concrete cover durability calculator must prefill the matching fields in this calculator.
 - The first agreed prefill set is `elementName`, `elementType`, `reinforcementPresence`, and `currentExposureClass`.
 - After this calculator determines the result, the return link fills the `exposureClass` select in the future concrete cover durability calculator.
 - The report uses the existing native report model: `caption`, `items`, `notes`, `formula`, and `formulas`.
-- The report contract is the source of truth for captions, display conditions, formulas, warning text, error text, and handoff behavior.
 - The design spec and implementation plan must reference this contract instead of duplicating or changing report formulas.
 
 ## Inputs
@@ -31,79 +47,180 @@ This contract captures the decisions agreed before implementation:
 Назва елемента: element_name
 Тип елемента: element_type
 Армування або металеві закладні: reinforcement_presence
-Вологісний режим для карбонізації: carbonation_moisture_condition
-Джерело хлоридів: chloride_source
-Вологісний режим для хлоридів: chloride_moisture_condition
-Морозний вплив: freeze_thaw_risk
-Хімічна агресія: chemical_attack_risk
-Є аналіз ґрунту або води: has_soil_or_groundwater_analysis
+Клас X0/XC за таблицею 4.1 ДБН: carbonation_exposure_row
+Хлориди не з морської води XD за таблицею 4.1 ДБН: xd_exposure_row
+Хлориди морського походження XS за ДСТУ ENV/EN 206: xs_exposure_row
+Поперемінне заморожування-відтавання XF за таблицею 4.1 ДБН: xf_exposure_row
+Хімічні та біологічні дії XA за таблицею 4.1 ДБН: xa_exposure_row
+Є підтвердження агресивності середовища за ДСТУ Б В.2.6-145: has_chemical_aggressiveness_confirmation
 ```
 
-### Input Values
+### Input Values And UI Labels
 
 `reinforcement_presence`:
 
 ```text
-reinforced_or_embedded_metal
-plain_concrete_without_metal
+reinforced_or_embedded_metal: Залізобетон або бетон з металевими закладними
+plain_concrete_without_metal: Бетон без арматури і металевих закладних
 ```
 
-`carbonation_moisture_condition`:
+`carbonation_exposure_row`:
 
 ```text
-dry_or_permanently_wet
-wet_rarely_dry
-moderate_or_high_humidity
-cyclic_wet_dry
+X0: X0 — агресивні дії відсутні; дуже сухий повітряно-вологісний режим (RH <= 30 %)
+XC1: XC1 — сухий повітряно-вологісний режим (30 % < RH <= 60 %) або постійна експлуатація у вологонасиченому стані
+XC2: XC2 — водонасичений стан при епізодичному висушуванні
+XC3: XC3 — помірний повітряно-вологісний режим (60 % < RH <= 75 %) або експлуатація в умовах епізодичного вологонасичення
+XC4: XC4 — поперемінне зволоження та висушування
 ```
 
-`chloride_source`:
+`xd_exposure_row`:
 
 ```text
-none
-deicing_salts
-airborne_sea_salts
-sea_water
+none: Немає дії хлоридів не з морської води
+XD1: XD1 — вологий, в умовах повітряно-вологісного стану (RH > 75 %) за відсутності епізодичного водонасичення
+XD2: XD2 — у водонасиченому стані
+XD3: XD3 — поперемінне зволоження і висушування
 ```
 
-`chloride_moisture_condition`:
+`xs_exposure_row`:
 
 ```text
-moderate_humidity
-wet_rarely_dry
-permanently_submerged
-cyclic_wet_dry
-splash_or_spray
+none: Немає дії хлоридів морського походження
+XS1: XS1 — дія солей морського походження в повітрі, без безпосереднього контакту з морською водою
+XS2: XS2 — постійне занурення в морську воду
+XS3: XS3 — зона припливу, бризок або обприскування морською водою
 ```
 
-`freeze_thaw_risk`:
+`xf_exposure_row`:
 
 ```text
-none
-moderate_water_saturation_without_deicing
-moderate_water_saturation_with_deicing
-high_water_saturation_without_deicing
-high_water_saturation_with_deicing_or_sea_water
+none: Немає поперемінного заморожування-відтавання
+XF1: XF1 — епізодичне водонасичення, дія від'ємних температур за відсутності антиобморожувачів
+XF2: XF2 — те саме, у присутності антиобморожувачів
+XF3: XF3 — водонасичений стан, антиобморожувачі не застосовують
+XF4: XF4 — водонасичений стан, застосовують антиобморожувачі
 ```
 
-`chemical_attack_risk`:
+`xa_exposure_row`:
 
 ```text
-none
+none: Немає хімічних або біологічних агресивних дій
+XA1: XA1 — слабоагресивне середовище
+XA2: XA2 — середньоагресивне середовище
+XA3: XA3 — сильноагресивне середовище
+unknown_requires_classification: Невідомо — потрібна класифікація агресивності середовища
+```
+
+`has_chemical_aggressiveness_confirmation`:
+
+```text
+false: ні
+true: так
+```
+
+Display rules:
+
+- Always show `carbonation_exposure_row`.
+- Always show `xd_exposure_row`.
+- Always show `xs_exposure_row`.
+- Always show `xf_exposure_row`.
+- Always show `xa_exposure_row`.
+- Show `has_chemical_aggressiveness_confirmation` only when `xa_exposure_row` is `XA1`, `XA2`, `XA3`, or `unknown_requires_classification`.
+
+## DBN Table 4.1 Row Data
+
+These exact row labels, examples, and minimum concrete classes must be available to the report builder.
+
+### X0/XC rows
+
+```text
+X0
+Характеристика: Відсутнє поперемінно заморожування-відтавання, хімічні дії, стирання тощо. Дуже сухий повітряно-вологісний режим (RH <= 30 %).
+Приклад: Конструкції всередині приміщень із сухим режимом згідно з ДБН В.1.2-2 та ДСТУ Б В.2.6-145.
+Мінімальний клас бетону: C8/10
+
+XC1
+Характеристика: Сухий повітряно-вологісний режим (30 % < RH <= 60 %) або постійна експлуатація у вологонасиченому стані.
+Приклад: Конструкції всередині приміщень із нормальним режимом згідно з ДБН В.1.2-2 та ДСТУ Б В.2.6-145; конструкції, які постійно знаходяться в грунті або під водою.
+Мінімальний клас бетону: C12/15
+
+XC2
+Характеристика: Водонасичений стан при епізодичному висушуванні.
+Приклад: Конструкції, поверхня яких тривалий час контактує з водою.
+Мінімальний клас бетону: C16/20
+
+XC3
+Характеристика: Помірний повітряно-вологісний режим (60 % < RH <= 75 %) або експлуатація в умовах епізодичного вологонасичення.
+Приклад: Конструкції всередині приміщень із вологим режимом згідно з ДБН В.1.2-2 та ДСТУ Б В.2.6-145; надвірні конструкції, захищені від атмосферних опадів (дощу).
+Мінімальний клас бетону: C20/25
+
+XC4
+Характеристика: Поперемінне зволоження та висушування.
+Приклад: Конструкції, поверхні яких контактують з водою, але не відповідають класу XC2.
+Мінімальний клас бетону: C25/30
+```
+
+### XD rows
+
+```text
+XD1
+Характеристика: Вологий, в умовах повітряно-вологісного стану (RH > 75 %) за відсутності епізодичного водонасичення.
+Приклад: Конструкції, поверхні яких контактують із газоподібними середовищами з вмістом хлорид-іонів.
+Мінімальний клас бетону: C25/30
+
+XD2
+Характеристика: У водонасиченому стані.
+Приклад: Залізобетонні конструкції, які контактують з технічною водою, що містить хлорид-іони; басейни для плавання.
+Мінімальний клас бетону: C30/35
+
+XD3
+Характеристика: Поперемінне зволоження і висушування.
+Приклад: Елементи мостових конструкцій; трубопроводи; плити автостоянок тощо.
+Мінімальний клас бетону: C30/35
+```
+
+### XF rows
+
+```text
+XF1
+Характеристика: Епізодичне водонасичення, дія від'ємних температур за відсутності антиобморожувачів.
+Приклад: Конструкції, вертикальні поверхні яких зазнають атмосферних дій.
+Мінімальний клас бетону: C25/30
+
+XF2
+Характеристика: Те саме, у присутності антиобморожувачів.
+Приклад: Конструкції, вертикальні поверхні яких зазнають атмосферних дій та попадання антиобморожувачів, що містяться у повітрі.
+Мінімальний клас бетону: C20/25
+
+XF3
+Характеристика: Водонасичений стан, антиобморожувачі не застосовують.
+Приклад: Конструкції, горизонтальні поверхні яких зазнають атмосферних дій.
+Мінімальний клас бетону: C25/30
+
+XF4
+Характеристика: Водонасичений стан, застосовують антиобморожувачі.
+Приклад: Конструкції, горизонтальні поверхні яких зазнають прямих дій антиобморожувачів; проїзні частини мостів, шляхи.
+Мінімальний клас бетону: C25/30
+```
+
+### XA rows
+
+```text
 XA1
+Характеристика: Слабоагресивне середовище.
+Приклад: Згідно з ДСТУ Б В.2.6-145.
+Мінімальний клас бетону: C25/30
+
 XA2
+Характеристика: Середньоагресивне середовище.
+Приклад: Згідно з ДСТУ Б В.2.6-145.
+Мінімальний клас бетону: C25/30
+
 XA3
-unknown_requires_analysis
-```
-
-UI labels for chemical attack:
-
-```text
-Немає ознак хімічної агресії
-XA1 — слабка хімічна агресія
-XA2 — помірна хімічна агресія
-XA3 — сильна хімічна агресія
-Невідомо — потрібен аналіз ґрунту або води
+Характеристика: Сильноагресивне середовище.
+Приклад: Згідно з ДСТУ Б В.2.6-145.
+Мінімальний клас бетону: C30/35
 ```
 
 ## Handoff Parameters
@@ -141,30 +258,12 @@ If `returnTo` is absent, use the future default:
 /calculator/concrete-cover-durability?exposureClass=<governing_cover_exposure_class>&sourceExposureClasses=<exposure_classes>&sourceCalculator=concrete-exposure-class
 ```
 
-Future concrete cover durability calculator behavior:
-
-```text
-Клас впливу середовища: <select with X0/XC/XD/XS values>
-Button: Визначити клас
-```
-
-The button opens this calculator with all shared data that is already known in the cover calculator:
-
-```text
-/calculator/concrete-exposure-class?returnTo=/calculator/concrete-cover-durability&returnField=exposureClass&returnLabel=Розрахунок захисного шару&elementName=<elementName>&elementType=<elementType>&reinforcementPresence=<reinforcementPresence>&currentExposureClass=<currentExposureClass>
-```
-
-On return, the future cover calculator:
-
-- sets its `exposureClass` select to `<governing_cover_exposure_class>`;
-- shows that the value came from `concrete-exposure-class`;
-- may show `sourceExposureClasses` as the full exposure class set.
-
 ## Outputs
 
 ```text
 exposure_classes
 governing_cover_exposure_class
+dbn_minimum_concrete_classes
 additional_durability_requirements
 warnings
 errors
@@ -174,7 +273,8 @@ report_steps
 
 Rules:
 
-- `exposure_classes` contains only valid classes. Do not put `not_defined` or `XA_unknown` into this array.
+- `exposure_classes` contains only valid classes. Do not put `none`, `not_defined`, or `XA_unknown` into this array.
+- `dbn_minimum_concrete_classes` contains the minimum concrete classes from selected DBN table 4.1 rows. It does not include `XS`, because `XS` is not a table 4.1 row in the provided DBN PDF.
 - `governing_cover_exposure_class` is one class from `X0/XC/XD/XS`.
 - `XF` and `XA` remain visible in `exposure_classes` and `additional_durability_requirements`, but they are not passed as the main `exposureClass` for the concrete cover table.
 - If the result cannot be used, return `valid = false` with stable report steps and no non-finite values.
@@ -186,7 +286,7 @@ Rules:
 Caption:
 
 ```text
-Вихідні дані для визначення класу впливу середовища (ДБН В.2.6-98:2009, розділ 4.3-4.4; ДСТУ ENV 206:2018, класи впливу середовища):
+Вихідні дані для визначення класів впливу середовища (ДБН В.2.6-98:2009, розділ 4.3, таблиця 4.1; ДСТУ ENV/EN 206 для XS):
 ```
 
 Items:
@@ -195,240 +295,176 @@ Items:
 Назва елемента: <element_name>
 Тип елемента: <element_type>
 Армування або металеві закладні: <reinforcement_presence_label>
-Вологісний режим для карбонізації: <carbonation_moisture_condition_label>
-Джерело хлоридів: <chloride_source_label>
-Вологісний режим для хлоридів: <chloride_moisture_condition_label>
-Морозний вплив: <freeze_thaw_risk_label>
-Хімічна агресія: <chemical_attack_risk_label>
-Аналіз ґрунту або води: <has_soil_or_groundwater_analysis_label>
+Клас X0/XC за таблицею 4.1 ДБН: <carbonation_exposure_row_label>
+Хлориди не з морської води XD за таблицею 4.1 ДБН: <xd_exposure_row_label>
+Хлориди морського походження XS за ДСТУ ENV/EN 206: <xs_exposure_row_label>
+Поперемінне заморожування-відтавання XF за таблицею 4.1 ДБН: <xf_exposure_row_label>
+Хімічні та біологічні дії XA за таблицею 4.1 ДБН: <xa_exposure_row_label>
+Підтвердження агресивності середовища за ДСТУ Б В.2.6-145: <has_chemical_aggressiveness_confirmation_label>
 Поточний клас у розрахунку захисного шару: <currentExposureClass>
 ```
 
 Formula:
 
 ```text
-exposure_classes = f(умови карбонізації; хлориди; морозний вплив; хімічна агресія)
+класи впливу = union(X0/XC; XD; XS; XF; XA)
 ```
 
 Rules:
 
-- Show `Вологісний режим для хлоридів` only when `chloride_source != none`.
-- Show `Аналіз ґрунту або води` only when `chemical_attack_risk != none`.
+- Show `Підтвердження агресивності середовища за ДСТУ Б В.2.6-145` only when `xa_exposure_row != none`.
 - Show `Поточний клас у розрахунку захисного шару` only when `currentExposureClass` is provided.
 
-### 2. Перевірка можливості прийняття X0
+### 2. Визначення X0/XC
 
 Caption:
 
 ```text
-Перевірка можливості прийняття класу X0 (ДБН В.2.6-98:2009, класи впливу середовища; ДСТУ ENV 206:2018, група X0):
+Визначення класу X0/XC за карбонізацією або відсутністю агресивних дій (ДБН В.2.6-98:2009, таблиця 4.1, рядки X0, XC1-XC4):
+```
+
+Items when `carbonation_exposure_row` is selected:
+
+```text
+Рядок таблиці 4.1: <carbonation_exposure_class>
+Характеристика середовища: <dbn_characteristic>
+Приклад умов середовища: <dbn_example>
+Мінімальний клас бетону за таблицею 4.1: <dbn_minimum_concrete_class>
 ```
 
 Notes:
 
 ```text
-Клас X0 застосовується для бетону без арматури або металевих закладних, якщо відсутні суттєві агресивні впливи середовища.
-Для залізобетону або бетону з металевими закладними X0 не приймається як керівний клас, оскільки потрібно враховувати ризик корозії арматури.
-```
-
-Formula when X0 is accepted:
-
-```text
-X0 = plain_concrete_without_metal and XF = none and XA = none = true
-```
-
-Formula when X0 is not accepted:
-
-```text
-X0 = plain_concrete_without_metal and XF = none and XA = none = false
-```
-
-Rules:
-
-- Accept X0 when `reinforcement_presence = plain_concrete_without_metal`, `freeze_thaw_risk = none`, and `chemical_attack_risk = none`.
-- Do not accept X0 when the element has reinforcement or embedded metal.
-- Do not accept X0 when `freeze_thaw_risk != none` or `chemical_attack_risk != none`.
-
-### 3. Визначення XC
-
-Caption:
-
-```text
-Визначення класу впливу за карбонізацією XC (ДБН В.2.6-98:2009, класи впливу середовища; ДСТУ ENV 206:2018, група XC):
-```
-
-Notes:
-
-```text
-Для залізобетонних елементів або бетонних елементів із металевими закладними перевіряється ризик корозії арматури внаслідок карбонізації бетону.
-Клас XC визначається за вологісним режимом експлуатації.
+Рядок X0 допускається для умов без поперемінного заморожування-відтавання, хімічних дій, стирання тощо та для дуже сухого повітряно-вологісного режиму (RH <= 30 %).
+Рядки XC1-XC4 застосовуються для корозійних пошкоджень, викликаних карбонізацією бетону.
 ```
 
 Formula:
 
 ```text
-XC = f(carbonation_moisture_condition) = <carbonation_moisture_condition> => <XC_class>
-```
-
-Formula when XC does not apply:
-
-```text
-XC = not_applicable
+X0/XC = рядок таблиці 4.1: <dbn_characteristic> => <carbonation_exposure_class>
 ```
 
 Rules:
 
 ```text
-reinforcement_presence = plain_concrete_without_metal:
-- XC не визначається
-
-reinforcement_presence = reinforced_or_embedded_metal:
-- dry_or_permanently_wet => XC1
-- wet_rarely_dry => XC2
-- moderate_or_high_humidity => XC3
-- cyclic_wet_dry => XC4
+carbonation_exposure_row = X0 -> X0
+carbonation_exposure_row = XC1 -> XC1
+carbonation_exposure_row = XC2 -> XC2
+carbonation_exposure_row = XC3 -> XC3
+carbonation_exposure_row = XC4 -> XC4
 ```
 
-If `reinforcement_presence = plain_concrete_without_metal`, add note:
+Warning when `carbonation_exposure_row = X0` and `xd_exposure_row != none` or `xf_exposure_row != none` or `xa_exposure_row != none`:
 
 ```text
-Елемент без арматури і металевих закладних, тому клас XC для захисту арматури від карбонізації не призначається.
+Для X0 агресивні дії мають бути відсутні; вибрані додаткові класи впливу перевірте на сумісність із рядком X0 таблиці 4.1.
 ```
 
-### 4. Визначення XD
+### 3. Визначення XD
 
 Caption:
 
 ```text
-Визначення класу дії хлоридів не з морської води XD (ДБН В.2.6-98:2009, класи впливу середовища; ДСТУ ENV 206:2018, група XD):
+Визначення класу дії хлоридів не з морської води XD (ДБН В.2.6-98:2009, таблиця 4.1, рядки XD1-XD3):
+```
+
+Items when `xd_exposure_row != none`:
+
+```text
+Рядок таблиці 4.1: <xd_exposure_class>
+Характеристика середовища: <dbn_characteristic>
+Приклад умов середовища: <dbn_example>
+Мінімальний клас бетону за таблицею 4.1: <dbn_minimum_concrete_class>
 ```
 
 Notes:
 
 ```text
-Клас XD призначається, якщо на конструкцію діють хлориди не з морської води, наприклад протиожеледні солі.
-Ступінь впливу залежить від вологісного режиму, змінного зволоження, висихання, бризок або розпилення.
+Класи XD призначаються для корозійних пошкоджень, викликаних хлоридами не з морської води.
 ```
 
-Formula when `chloride_source = deicing_salts`:
+Formula when `xd_exposure_row != none`:
 
 ```text
-XD = f(chloride_moisture_condition) = <chloride_moisture_condition> => <XD_class>
+XD = рядок таблиці 4.1: <dbn_characteristic> => <xd_exposure_class>
 ```
 
-Formula when XD does not apply:
+Formula when `xd_exposure_row = none`:
 
 ```text
-XD = not_applicable
+XD = не застосовується
 ```
 
-Rules:
-
-```text
-chloride_source = deicing_salts:
-- moderate_humidity => XD1
-- wet_rarely_dry => XD2
-- cyclic_wet_dry => XD3
-- splash_or_spray => XD3
-
-chloride_source = none:
-- XD не визначається
-
-chloride_source = airborne_sea_salts або sea_water:
-- XD не визначається, бо це група XS
-```
-
-### 5. Визначення XS
+### 4. Визначення XS
 
 Caption:
 
 ```text
-Визначення класу дії хлоридів морського походження XS (ДБН В.2.6-98:2009, класи впливу середовища; ДСТУ ENV 206:2018, група XS):
+Визначення класу дії хлоридів морського походження XS (ДСТУ ENV/EN 206, група XS; у ДБН В.2.6-98:2009 таблиці 4.3 і 4.4 класи XS враховані разом із XD):
+```
+
+Items when `xs_exposure_row != none`:
+
+```text
+Клас XS: <xs_exposure_class>
+Характеристика середовища: <xs_exposure_row_label>
 ```
 
 Notes:
 
 ```text
-Клас XS призначається, якщо конструкція зазнає дії морського середовища або хлоридів морського походження.
-Для конструкцій у зоні бризок або змінного зволоження приймається більш жорсткий клас, ніж для постійного занурення.
+У наданому PDF ДБН В.2.6-98:2009 класи XS1-XS3 не наведені як рядки таблиці 4.1.
+Класи XS потрібні для передачі в розрахунок захисного шару, оскільки таблиці 4.3 і 4.4 ДБН групують колонки XD/XS.
 ```
 
-Formula when `chloride_source = airborne_sea_salts`:
+Formula when `xs_exposure_row != none`:
 
 ```text
-XS = airborne_sea_salts => XS1
+XS = клас хлоридів морського походження за ДСТУ ENV/EN 206 => <xs_exposure_class>
 ```
 
-Formula when `chloride_source = sea_water`:
+Formula when `xs_exposure_row = none`:
 
 ```text
-XS = f(chloride_moisture_condition) = <chloride_moisture_condition> => <XS_class>
+XS = не застосовується
 ```
 
-Formula when XS does not apply:
-
-```text
-XS = not_applicable
-```
-
-Rules:
-
-```text
-chloride_source = airborne_sea_salts:
-- XS1
-
-chloride_source = sea_water:
-- permanently_submerged => XS2
-- wet_rarely_dry => XS2
-- cyclic_wet_dry => XS3
-- splash_or_spray => XS3
-
-chloride_source = none:
-- XS не визначається
-
-chloride_source = deicing_salts:
-- XS не визначається, бо це група XD
-```
-
-### 6. Визначення XF
+### 5. Визначення XF
 
 Caption:
 
 ```text
-Визначення класу морозного впливу XF (ДБН В.2.6-98:2009, таблиця 4.1а; ДСТУ ENV 206:2018, група XF):
+Визначення класу поперемінного заморожування-відтавання XF (ДБН В.2.6-98:2009, таблиця 4.1, рядки XF1-XF4):
+```
+
+Items when `xf_exposure_row != none`:
+
+```text
+Рядок таблиці 4.1: <xf_exposure_class>
+Характеристика середовища: <dbn_characteristic>
+Приклад умов середовища: <dbn_example>
+Мінімальний клас бетону за таблицею 4.1: <dbn_minimum_concrete_class>
 ```
 
 Notes:
 
 ```text
-Клас XF призначається, якщо конструкція зазнає циклів заморожування та відтавання.
-Наявність протиожеледних солей або морської води підвищує агресивність впливу.
+Класи XF призначаються для корозійних пошкоджень, викликаних поперемінним заморожуванням-відтаванням.
+Таблиці 4.1(a) і 4.1(b) додатково нормують марки бетону за морозостійкістю та водонепроникністю; вони не замінюють вибір рядка XF у таблиці 4.1.
 Клас XF не передається в калькулятор захисного шару як основний exposure_class, але формує додаткові вимоги до бетону.
 ```
 
-Formula:
+Formula when `xf_exposure_row != none`:
 
 ```text
-XF = f(freeze_thaw_risk) = <freeze_thaw_risk> => <XF_class або not_applicable>
+XF = рядок таблиці 4.1: <dbn_characteristic> => <xf_exposure_class>
 ```
 
-Rules:
+Formula when `xf_exposure_row = none`:
 
 ```text
-freeze_thaw_risk = none:
-- XF не визначається
-
-moderate_water_saturation_without_deicing:
-- XF1
-
-moderate_water_saturation_with_deicing:
-- XF2
-
-high_water_saturation_without_deicing:
-- XF3
-
-high_water_saturation_with_deicing_or_sea_water:
-- XF4
+XF = не застосовується
 ```
 
 Additional requirement when XF1-XF4 applies:
@@ -437,46 +473,59 @@ Additional requirement when XF1-XF4 applies:
 Для класу XF необхідно перевірити вимоги до морозостійкості бетону, водонасичення, водонепроникності, повітровтягування та складу бетонної суміші.
 ```
 
-### 7. Визначення XA
+### 6. Визначення XA
 
 Caption:
 
 ```text
-Визначення класу хімічної агресії XA (ДБН В.2.6-98:2009, таблиця 4.1б; ДСТУ ENV 206:2018, група XA):
+Визначення класу хімічних та біологічних дій XA (ДБН В.2.6-98:2009, таблиця 4.1, рядки XA1-XA3; ДСТУ Б В.2.6-145 для класифікації агресивності середовища):
+```
+
+Items when `xa_exposure_row = XA1/XA2/XA3`:
+
+```text
+Рядок таблиці 4.1: <xa_exposure_class>
+Характеристика середовища: <dbn_characteristic>
+Приклад умов середовища: <dbn_example>
+Мінімальний клас бетону за таблицею 4.1: <dbn_minimum_concrete_class>
 ```
 
 Notes:
 
 ```text
-Клас XA призначається, якщо бетон контактує з хімічно агресивним ґрунтом, підземною водою, промисловими стоками або іншим агресивним середовищем.
-Остаточне призначення XA потребує даних аналізу ґрунту або води.
+Клас XA призначається для корозійних пошкоджень, викликаних хімічними та біологічними діями.
+Агресивність середовища для XA має бути класифікована за ДСТУ Б В.2.6-145.
 Клас XA не передається в калькулятор захисного шару як основний exposure_class, але формує додаткові вимоги до бетону або спеціального захисту.
 ```
 
-Formula:
+Formula when `xa_exposure_row = XA1/XA2/XA3`:
 
 ```text
-XA = f(chemical_attack_risk; has_soil_or_groundwater_analysis) = <chemical_attack_risk>; <has_soil_or_groundwater_analysis> => <XA_class або warning>
+XA = рядок таблиці 4.1: <dbn_characteristic>; підтвердження = <так/ні> => <xa_exposure_class>
 ```
 
-Rules:
+Formula when `xa_exposure_row = unknown_requires_classification`:
 
 ```text
-chemical_attack_risk = none:
-- XA не визначається
+XA = потрібна класифікація агресивності середовища за ДСТУ Б В.2.6-145
+```
 
-chemical_attack_risk = XA1:
-- exposure class: XA1 — слабка хімічна агресія
+Formula when `xa_exposure_row = none`:
 
-chemical_attack_risk = XA2:
-- exposure class: XA2 — помірна хімічна агресія
+```text
+XA = не застосовується
+```
 
-chemical_attack_risk = XA3:
-- exposure class: XA3 — сильна хімічна агресія
+Warning when `xa_exposure_row = unknown_requires_classification`:
 
-chemical_attack_risk = unknown_requires_analysis:
-- XA не призначається остаточно
-- warning: Для визначення класу XA потрібен аналіз ґрунту або води.
+```text
+Для визначення класу XA потрібна класифікація агресивності середовища за ДСТУ Б В.2.6-145.
+```
+
+Warning when `xa_exposure_row = XA1/XA2/XA3` and `has_chemical_aggressiveness_confirmation = false`:
+
+```text
+Клас XA прийнято за вибором користувача. Для остаточного призначення класу хімічної агресії потрібне підтвердження агресивності середовища за ДСТУ Б В.2.6-145.
 ```
 
 Additional requirement when XA1-XA3 applies:
@@ -485,18 +534,12 @@ Additional requirement when XA1-XA3 applies:
 Для класу XA необхідно перевірити хімічну агресивність середовища та потребу у спеціальному захисті бетону.
 ```
 
-Additional warning when `chemical_attack_risk = XA1/XA2/XA3` and `has_soil_or_groundwater_analysis = false`:
-
-```text
-Клас XA прийнято за вибором користувача. Для остаточного призначення класу хімічної агресії потрібен аналіз ґрунту або води.
-```
-
-### 8. Формування повного набору класів
+### 7. Формування повного набору класів
 
 Caption:
 
 ```text
-Формування повного набору класів впливу середовища (ДБН В.2.6-98:2009, розділ 4.3-4.4; ДСТУ ENV 206:2018, класи впливу середовища):
+Формування повного набору класів впливу середовища (ДБН В.2.6-98:2009, таблиця 4.1; ДСТУ ENV/EN 206 для XS):
 ```
 
 Notes:
@@ -509,16 +552,16 @@ Notes:
 Formula:
 
 ```text
-exposure_classes = union(X0; XC; XD; XS; XF; XA) = [<classes>]
+класи впливу = union(X0/XC; XD; XS; XF; XA) = [<classes>]
 ```
 
 Rules:
 
 - Remove duplicates.
 - Keep stable output order: `X0`, `XC`, `XD`, `XS`, `XF`, `XA`.
+- Do not use `none`, `not_defined`, or `XA_unknown` as `exposure_classes` items.
+- If `xa_exposure_row = unknown_requires_classification`, do not add `XA_unknown` to `exposure_classes`; keep the requirement in `warnings`.
 - If no classes are defined, set `valid = false`, `exposure_classes = []`, and add the error below.
-- Do not use `not_defined` as an `exposure_classes` item.
-- Do not add `XA_unknown` to `exposure_classes`; keep it in `warnings`.
 
 Error:
 
@@ -529,8 +572,41 @@ Error:
 Example formulas:
 
 ```text
-exposure_classes = union(XC4; XD3; XF4) = [XC4, XD3, XF4]
-exposure_classes = union(XC2; XA_unknown) = [XC2]
+класи впливу = union(XC4; XD3; XF4) = [XC4, XD3, XF4]
+класи впливу = union(XC2; XA потребує класифікації) = [XC2]
+```
+
+### 8. Мінімальні класи бетону за таблицею 4.1
+
+Caption:
+
+```text
+Фіксація мінімальних класів бетону за вибраними рядками ДБН (ДБН В.2.6-98:2009, таблиця 4.1):
+```
+
+Items:
+
+```text
+<selected_dbn_exposure_class>: мінімальний клас бетону <dbn_minimum_concrete_class>
+```
+
+Notes:
+
+```text
+Цей крок фіксує тільки мінімальні класи бетону, прямо наведені у таблиці 4.1 для вибраних рядків X0/XC, XD, XF та XA.
+Для XS у цьому кроці значення не додається, оскільки XS1-XS3 не наведені як рядки таблиці 4.1 у наданому PDF ДБН.
+```
+
+Formula when at least one DBN table 4.1 row is selected:
+
+```text
+мінімальні класи бетону за таблицею 4.1 = [<class>: <minimum>; ...]
+```
+
+Formula when no DBN table 4.1 row is selected:
+
+```text
+мінімальні класи бетону за таблицею 4.1 = []
 ```
 
 ### 9. Вибір керівного класу для захисного шару
@@ -552,7 +628,7 @@ Notes:
 Formula:
 
 ```text
-governing_cover_exposure_class = max_rank(X0; XC; XD; XS) = max_rank([<cover_candidate_classes>]) = <governing_cover_exposure_class>
+керівний клас = max([<cover_candidate_classes>]) = <governing_cover_exposure_class>
 ```
 
 Ranks:
@@ -578,16 +654,10 @@ Tie rule:
 X0, XC1, XC2, XC3, XC4, XD1, XS1, XD2, XS2, XD3, XS3.
 ```
 
-Error when `cover_candidate_classes` is empty and `reinforcement_presence = reinforced_or_embedded_metal`:
+Error when `cover_candidate_classes` is empty:
 
 ```text
-Для залізобетонного елемента не визначено клас із груп X0/XC/XD/XS. Потрібно уточнити вологісний режим або дію хлоридів.
-```
-
-Warning when `cover_candidate_classes` is empty and `reinforcement_presence = plain_concrete_without_metal`:
-
-```text
-Для бетону без арматури і металевих закладних попередньо прийнято X0 для передачі в калькулятор захисного шару.
+Для елемента не визначено клас із груп X0/XC/XD/XS. Потрібно уточнити умови експлуатації для захисного шару.
 ```
 
 ### 10. Додаткові вимоги до довговічності
@@ -595,7 +665,7 @@ Warning when `cover_candidate_classes` is empty and `reinforcement_presence = pl
 Caption:
 
 ```text
-Додаткові вимоги до довговічності (ДБН В.2.6-98:2009, таблиці 4.1а, 4.1б; ДСТУ ENV 206:2018, групи XF та XA):
+Додаткові вимоги до довговічності (ДБН В.2.6-98:2009, таблиці 4.1, 4.1(a), 4.1(b); ДСТУ Б В.2.6-145 для XA):
 ```
 
 Notes:
@@ -608,7 +678,7 @@ Notes:
 Formula:
 
 ```text
-additional_requirements = f(XF; XA) = [<additional_durability_requirements>]
+додаткові вимоги = f(XF; XA) = [<additional_durability_requirements>]
 ```
 
 Rules:
@@ -625,16 +695,16 @@ If XA1-XA3 exists, add:
 Для класу XA необхідно перевірити хімічну агресивність середовища та потребу у спеціальному захисті бетону.
 ```
 
-If `chemical_attack_risk = unknown_requires_analysis`, add:
+If `xa_exposure_row = unknown_requires_classification`, add:
 
 ```text
-Для визначення класу XA потрібен аналіз ґрунту або води.
+Для визначення класу XA потрібна класифікація агресивності середовища за ДСТУ Б В.2.6-145.
 ```
 
 If no additional requirements exist:
 
 ```text
-additional_requirements = []
+додаткові вимоги = []
 ```
 
 ### 11. Висновок
@@ -642,7 +712,7 @@ additional_requirements = []
 Caption:
 
 ```text
-Висновок щодо класу впливу середовища (ДБН В.2.6-98:2009, розділ 4.3-4.4; ДСТУ ENV 206:2018, класи впливу середовища):
+Висновок щодо класів впливу середовища (ДБН В.2.6-98:2009, розділ 4.3-4.4; ДСТУ ENV/EN 206 для XS):
 ```
 
 Notes:
@@ -654,7 +724,7 @@ Notes:
 Formula:
 
 ```text
-exposure_classes -> governing_cover_exposure_class = [<exposure_classes>] -> <governing_cover_exposure_class>
+класи впливу => керівний клас = [<exposure_classes>] => <governing_cover_exposure_class>
 ```
 
 UI result:
@@ -676,26 +746,41 @@ If `returnTo` is absent, show link button:
 Використати в розрахунку захисного шару
 ```
 
+## Normative References UI
+
+The calculator page must include a section titled:
+
+```text
+Нормативні посилання
+```
+
+Items:
+
+```text
+ДБН В.2.6-98:2009, розділ 4.3, таблиця 4.1
+Рядки X0, XC1-XC4, XD1-XD3, XF1-XF4 та XA1-XA3 для визначення класів умов експлуатації конструкцій.
+
+ДБН В.2.6-98:2009, таблиці 4.1(a) і 4.1(b)
+Марки бетону за морозостійкістю та водонепроникністю залежно від режиму експлуатації; ці таблиці не замінюють вибір класів XF у таблиці 4.1.
+
+ДСТУ ENV/EN 206, група XS
+Класи хлоридів морського походження XS1-XS3; у ДБН В.2.6-98:2009 таблиці 4.3 і 4.4 вони враховані в колонках XD/XS для захисного шару.
+
+ДСТУ Б В.2.6-145
+Класифікація агресивності середовища для прийняття XA1-XA3.
+```
+
 ## Contract Self-Review
 
-Checked against the agreed chat decisions:
+Checked before user confirmation:
 
-- The calculator is documented as standalone.
-- The integration direction is documented as future concrete cover durability calculator -> this calculator -> future concrete cover durability calculator.
-- The requested future calculator 1 UX is documented: exposure class select plus a button that opens this calculator.
-- Shared data prefill is documented for `elementName`, `elementType`, `reinforcementPresence`, and `currentExposureClass`.
-- Return behavior is documented with `returnTo`, `returnField`, `returnLabel`, `sourceExposureClasses`, and `sourceCalculator`.
-- The agreed input fields are present.
-- The chemical attack labels include XA explanations: weak, moderate, strong, and unknown requiring analysis.
-- All 11 agreed report steps are present.
-- Step 2 includes the agreed X0 restriction for reinforced concrete.
-- Step 3 includes XC mapping.
-- Step 4 includes XD mapping and makes `moderate_humidity` valid for `chloride_moisture_condition`.
-- Step 5 includes XS mapping and the agreed `wet_rarely_dry => XS2` rule.
-- Step 6 includes XF mapping and the additional durability requirement.
-- Step 7 includes XA mapping, the no-analysis warning, and the rule that XA is not calculated from concentrations in this version.
-- Step 8 keeps `exposure_classes` free of `not_defined` and `XA_unknown`.
-- Step 9 uses the agreed rank-based governing class selection and tie order.
-- Step 10 keeps XF and XA as additional requirements.
-- Step 11 defines the conclusion and return/use button behavior.
-- The contract states that implementation plans and tests must use this file as the source of truth.
+- The contract no longer uses informal moisture labels such as `сухо`, `постійно мокро`, or `помірна вологість` as DBN substitutes.
+- X0 includes the formal DBN text `дуже сухий повітряно-вологісний режим (RH <= 30 %)`.
+- XC1 includes `30 % < RH <= 60 %`.
+- XC3 includes `60 % < RH <= 75 %`.
+- XD1 includes `RH > 75 %`.
+- XF and XA are tied to DBN table 4.1, not to 4.1(a) or 4.1(b).
+- XS is documented as a separate DSTU ENV/EN 206 block, not as DBN table 4.1 rows.
+- The future cover handoff still supports `X0/XC/XD/XS`.
+- The report contains exact captions, formula strings, warnings, errors, and display rules.
+- This file is marked `Agreed source of truth` after user confirmation.

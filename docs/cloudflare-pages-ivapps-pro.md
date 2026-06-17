@@ -37,9 +37,28 @@ Recommended value for this project:
 ivapps-pro
 ```
 
+The workflow falls back to `ivapps-pro` if this variable is not set, but keeping the variable configured makes the deployed Pages project explicit in GitHub.
+
 If you choose a different Cloudflare Pages project name, update [wrangler.jsonc](/I:/CalculatorsRep/wrangler.jsonc) so its `name` matches.
 
-## 4. Attach the custom domain
+## 4. Deployment failure diagnostics
+
+If the GitHub Actions run fails in `Deploy to Cloudflare Pages`, first expand the preceding `Validate Cloudflare deployment configuration` step.
+
+That step checks:
+
+- `CLOUDFLARE_API_TOKEN` repository secret is present.
+- `CLOUDFLARE_ACCOUNT_ID` repository secret is present.
+- `CLOUDFLARE_PAGES_PROJECT_NAME` repository variable is present or the workflow fallback is available.
+- `out/` exists after `npm run build`.
+
+If those checks pass but Wrangler still fails, verify in Cloudflare that:
+
+- the Pages project already exists;
+- the project name matches `CLOUDFLARE_PAGES_PROJECT_NAME` or `ivapps-pro`;
+- the token has `Account` -> `Cloudflare Pages` -> `Edit` permission for the account that owns the project.
+
+## 5. Attach the custom domain
 
 After the first successful deployment:
 
@@ -49,7 +68,7 @@ After the first successful deployment:
 
 Because `ivapps.pro` is already managed in the same Cloudflare account, Cloudflare should create or adjust the required DNS record automatically during domain setup.
 
-## 5. Optional redirect
+## 6. Optional redirect
 
 If you want only `https://ivapps.pro` to be public, configure a redirect from the default `*.pages.dev` URL to `https://ivapps.pro`.
 

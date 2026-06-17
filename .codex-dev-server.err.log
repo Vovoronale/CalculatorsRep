@@ -1,0 +1,267 @@
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ TypeError: Cannot read properties of undefined (reading 'exposureClass')
+    at formatDbnRowItems (lib\concrete-exposure-class.ts:373:31)
+    at buildX0XcStep (lib\concrete-exposure-class.ts:428:12)
+    at getConcreteExposureClassReport (lib\concrete-exposure-class.ts:723:5)
+    at ConcreteExposureClassCalculator.useMemo[report] (components\calculators\concrete-exposure-class-calculator.tsx:414:62)
+    at ConcreteExposureClassCalculator (components\calculators\concrete-exposure-class-calculator.tsx:414:25)
+  371 | function formatDbnRowItems(row: DbnRow): string[] {
+  372 |   return [
+> 373 |     `Рядок таблиці 4.1: ${row.exposureClass}`,
+      |                               ^
+  374 |     `Характеристика середовища: ${row.characteristic}`,
+  375 |     `Приклад з таблиці 4.1: ${row.example}`,
+  376 |     `Мінімальний клас бетону за таблицею 4.1: ${row.minimumConcreteClass}`, {
+  digest: '2106159786'
+}
+ ⨯ TypeError: Cannot read properties of undefined (reading 'exposureClass')
+    at formatDbnRowItems (lib\concrete-exposure-class.ts:373:31)
+    at buildX0XcStep (lib\concrete-exposure-class.ts:428:12)
+    at getConcreteExposureClassReport (lib\concrete-exposure-class.ts:723:5)
+    at ConcreteExposureClassCalculator.useMemo[report] (components\calculators\concrete-exposure-class-calculator.tsx:414:62)
+    at ConcreteExposureClassCalculator (components\calculators\concrete-exposure-class-calculator.tsx:414:25)
+  371 | function formatDbnRowItems(row: DbnRow): string[] {
+  372 |   return [
+> 373 |     `Рядок таблиці 4.1: ${row.exposureClass}`,
+      |                               ^
+  374 |     `Характеристика середовища: ${row.characteristic}`,
+  375 |     `Приклад з таблиці 4.1: ${row.example}`,
+  376 |     `Мінімальний клас бетону за таблицею 4.1: ${row.minimumConcreteClass}`, {
+  digest: '2106159786'
+}
+ ⨯ TypeError: Cannot read properties of undefined (reading 'exposureClass')
+    at formatDbnRowItems (lib\concrete-exposure-class.ts:373:31)
+    at buildX0XcStep (lib\concrete-exposure-class.ts:428:12)
+    at getConcreteExposureClassReport (lib\concrete-exposure-class.ts:723:5)
+    at ConcreteExposureClassCalculator.useMemo[report] (components\calculators\concrete-exposure-class-calculator.tsx:414:62)
+    at ConcreteExposureClassCalculator (components\calculators\concrete-exposure-class-calculator.tsx:414:25)
+  371 | function formatDbnRowItems(row: DbnRow): string[] {
+  372 |   return [
+> 373 |     `Рядок таблиці 4.1: ${row.exposureClass}`,
+      |                               ^
+  374 |     `Характеристика середовища: ${row.characteristic}`,
+  375 |     `Приклад з таблиці 4.1: ${row.example}`,
+  376 |     `Мінімальний клас бетону за таблицею 4.1: ${row.minimumConcreteClass}`, {
+  digest: '2106159786'
+}
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ TypeError: Cannot read properties of undefined (reading 'exposureClass')
+    at formatDbnRowItems (lib\concrete-exposure-class.ts:373:31)
+    at buildX0XcStep (lib\concrete-exposure-class.ts:428:12)
+    at getConcreteExposureClassReport (lib\concrete-exposure-class.ts:723:5)
+    at ConcreteExposureClassCalculator.useMemo[report] (components\calculators\concrete-exposure-class-calculator.tsx:460:62)
+    at ConcreteExposureClassCalculator (components\calculators\concrete-exposure-class-calculator.tsx:460:25)
+  371 | function formatDbnRowItems(row: DbnRow): string[] {
+  372 |   return [
+> 373 |     `Рядок таблиці 4.1: ${row.exposureClass}`,
+      |                               ^
+  374 |     `Характеристика середовища: ${row.characteristic}`,
+  375 |     `Приклад з таблиці 4.1: ${row.example}`,
+  376 |     `Мінімальний клас бетону за таблицею 4.1: ${row.minimumConcreteClass}`, {
+  digest: '29318573'
+}
+ ⨯ TypeError: Cannot read properties of undefined (reading 'exposureClass')
+    at formatDbnRowItems (lib\concrete-exposure-class.ts:373:31)
+    at buildX0XcStep (lib\concrete-exposure-class.ts:428:12)
+    at getConcreteExposureClassReport (lib\concrete-exposure-class.ts:723:5)
+    at ConcreteExposureClassCalculator.useMemo[report] (components\calculators\concrete-exposure-class-calculator.tsx:460:62)
+    at ConcreteExposureClassCalculator (components\calculators\concrete-exposure-class-calculator.tsx:460:25)
+  371 | function formatDbnRowItems(row: DbnRow): string[] {
+  372 |   return [
+> 373 |     `Рядок таблиці 4.1: ${row.exposureClass}`,
+      |                               ^
+  374 |     `Характеристика середовища: ${row.characteristic}`,
+  375 |     `Приклад з таблиці 4.1: ${row.example}`,
+  376 |     `Мінімальний клас бетону за таблицею 4.1: ${row.minimumConcreteClass}`, {
+  digest: '29318573'
+}
+ ⨯ TypeError: Cannot read properties of undefined (reading 'exposureClass')
+    at formatDbnRowItems (lib\concrete-exposure-class.ts:373:31)
+    at buildX0XcStep (lib\concrete-exposure-class.ts:428:12)
+    at getConcreteExposureClassReport (lib\concrete-exposure-class.ts:723:5)
+    at ConcreteExposureClassCalculator.useMemo[report] (components\calculators\concrete-exposure-class-calculator.tsx:460:62)
+    at ConcreteExposureClassCalculator (components\calculators\concrete-exposure-class-calculator.tsx:460:25)
+  371 | function formatDbnRowItems(row: DbnRow): string[] {
+  372 |   return [
+> 373 |     `Рядок таблиці 4.1: ${row.exposureClass}`,
+      |                               ^
+  374 |     `Характеристика середовища: ${row.characteristic}`,
+  375 |     `Приклад з таблиці 4.1: ${row.example}`,
+  376 |     `Мінімальний клас бетону за таблицею 4.1: ${row.minimumConcreteClass}`, {
+  digest: '29318573'
+}
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ Failed to generate static paths for /calculator/[slug]:
+[Error: Cannot find module './vendor-chunks/next.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+ ⨯ [Error: Cannot find module './vendor-chunks/next.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/calculator/concrete-exposure-class'
+}
+ ⨯ [Error: Cannot find module './vendor-chunks/katex.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/calculator/concrete-exposure-class'
+}
+ ⨯ [Error: Cannot find module './vendor-chunks/katex.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/calculator/concrete-exposure-class'
+}
+ ⨯ [Error: Cannot find module './vendor-chunks/katex.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/calculator/concrete-exposure-class'
+}
+ ⨯ [Error: Cannot find module './vendor-chunks/katex.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/calculator/concrete-exposure-class'
+}
+ ⨯ [Error: Cannot find module './vendor-chunks/katex.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/calculator/concrete-exposure-class'
+}
+ ⨯ [Error: Cannot find module './vendor-chunks/katex.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/calculator/concrete-exposure-class'
+}
+ ⨯ [Error: Cannot find module './vendor-chunks/katex.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/calculator/concrete-exposure-class'
+}
+ ⨯ [Error: Cannot find module './vendor-chunks/katex.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/calculator/concrete-exposure-class'
+}
+ ⨯ [Error: Cannot find module './vendor-chunks/katex.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/calculator/concrete-exposure-class'
+}
+ ⨯ [Error: Cannot find module './vendor-chunks/katex.js'
+Require stack:
+- I:\CalculatorsRep\.next\server\webpack-runtime.js
+- I:\CalculatorsRep\.next\server\app\calculator\[slug]\page.js
+- I:\CalculatorsRep\node_modules\next\dist\server\require.js
+- I:\CalculatorsRep\node_modules\next\dist\server\load-components.js
+- I:\CalculatorsRep\node_modules\next\dist\build\utils.js
+- I:\CalculatorsRep\node_modules\next\dist\server\dev\static-paths-worker.js
+- I:\CalculatorsRep\node_modules\next\dist\compiled\jest-worker\processChild.js] {
+  type: 'Error',
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array],
+  page: '/calculator/concrete-exposure-class'
+}

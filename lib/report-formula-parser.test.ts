@@ -17,6 +17,16 @@ describe("reportSymbolToLatex", () => {
     expect(reportSymbolToLatex("db,input")).toBe("d_{b,input}");
     expect(reportSymbolToLatex("L/H")).toBe("\\frac{L}{H}");
   });
+
+  it("keeps concrete exposure class labels as uppercase class tokens", () => {
+    expect(reportSymbolToLatex("XC")).toBe("\\mathrm{XC}");
+    expect(reportSymbolToLatex("XC1")).toBe("\\mathrm{XC1}");
+    expect(reportSymbolToLatex("XD3")).toBe("\\mathrm{XD3}");
+    expect(reportSymbolToLatex("XS2")).toBe("\\mathrm{XS2}");
+    expect(reportSymbolToLatex("XF4")).toBe("\\mathrm{XF4}");
+    expect(reportSymbolToLatex("XA1")).toBe("\\mathrm{XA1}");
+    expect(reportSymbolToLatex("X0")).toBe("\\mathrm{X0}");
+  });
 });
 
 describe("parseReportFormula", () => {
@@ -153,6 +163,18 @@ describe("parseReportFormula", () => {
     expect(minMax.lines[0].latex).toContain("A_{s,min}");
     expect(comparison.lines[0].latex).toContain("\\le");
     expect(comparison.lines[0].latex).toContain("\\Rightarrow");
+  });
+
+  it("renders concrete exposure formulas without subscripting the class group letter", () => {
+    const result = parseReportFormula(
+      "XC = f(вологісний режим) = сухо => XC1",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines[0].latex).toContain("\\mathrm{XC}");
+    expect(result.lines[0].latex).toContain("\\mathrm{XC1}");
+    expect(result.lines[0].latex).not.toContain("X_{C");
   });
 
   it("renders foundation anchorage formulas with the original mathematical notation", () => {

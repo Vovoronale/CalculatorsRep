@@ -20,13 +20,49 @@ UI не повинен містити інженерної логіки. Він 
 2. Узгодити кожен підпис над формулою.
 3. Узгодити нормативне посилання для кожного кроку.
 4. Узгодити формат формульного рядка: символи, підстановка, результат, одиниці.
-5. Записати специфікацію в `docs/superpowers/specs/`.
-6. Записати implementation plan в `docs/superpowers/plans/`.
-7. Додати failing tests.
-8. Реалізувати розрахункове ядро.
-9. Додати UI з математичним рендерингом формул.
-10. Зареєструвати калькулятор у каталозі.
-11. Запустити `npm run test`, `npm run typecheck`, `npm run build`.
+5. Записати окремий report contract у `docs/superpowers/specs/YYYY-MM-DD-<calculator>-report-contract.md`.
+6. Звірити report contract із погодженими повідомленнями й отримати підтвердження користувача, що погоджені пункти перенесені коректно.
+7. Записати design spec у `docs/superpowers/specs/` з посиланням на report contract як на джерело істини.
+8. Записати implementation plan в `docs/superpowers/plans/`.
+9. Додати failing tests.
+10. Реалізувати розрахункове ядро.
+11. Додати UI з математичним рендерингом формул.
+12. Зареєструвати калькулятор у каталозі.
+13. Запустити `npm run test`, `npm run typecheck`, `npm run build`.
+
+## Report Contract Gate
+
+Для нового нормативного калькулятора report contract є результатом роботи з погодження по кроках. Не починай implementation plan, поки contract не створений і не підтверджений користувачем.
+
+Report contract має містити тільки погоджені речі:
+
+- UI labels, option labels, default values і правила показу полів;
+- порядок кроків звіту;
+- `caption` для кожного кроку з нормативним посиланням;
+- `display condition` для умовних кроків;
+- `items` для вихідних даних і табличних пояснень;
+- `notes` для застосовності норм, рядків/граф таблиць, приміток і пояснень;
+- точні plain-text `formula` або `formulas`;
+- warning/error text;
+- handoff/query parameters між калькуляторами, якщо результат передається далі.
+
+Шаблон верхнього блоку contract-файлу:
+
+```text
+# <Calculator Name> Report Contract
+
+Date: YYYY-MM-DD
+Calculator: `<calculator-slug>`
+Status: Agreed source of truth for report text and formulas
+
+This file contains the agreed UI labels, report captions, display conditions,
+items, notes, formula strings, warning/error text, and handoff parameters.
+Implementation plans, tests, and code must treat this file as canonical.
+If any report wording or formula changes during implementation, update this
+file first and get approval before changing tests or code.
+```
+
+Design spec може коротко описувати архітектуру й UX, але не замінює contract. Якщо design spec і report contract розходяться, правильним вважається report contract.
 
 ## Розрахункове ядро
 

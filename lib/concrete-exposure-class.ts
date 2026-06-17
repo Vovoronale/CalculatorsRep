@@ -1,5 +1,5 @@
 export const CONCRETE_EXPOSURE_CLASS_SOURCE =
-  "ДБН В.2.6-98:2009 / ДСТУ ENV 206:2018";
+  "ДБН В.2.6-98:2009 / ДСТУ ENV/EN 206";
 
 export type CoverExposureClass =
   | "X0"
@@ -13,6 +13,16 @@ export type CoverExposureClass =
   | "XS1"
   | "XS2"
   | "XS3";
+
+export type DbnTable41ExposureClass =
+  | Exclude<CoverExposureClass, "XS1" | "XS2" | "XS3">
+  | "XF1"
+  | "XF2"
+  | "XF3"
+  | "XF4"
+  | "XA1"
+  | "XA2"
+  | "XA3";
 
 export type ExposureClass =
   | CoverExposureClass
@@ -38,68 +48,52 @@ export type ReinforcementPresence =
   | "reinforced_or_embedded_metal"
   | "plain_concrete_without_metal";
 
-export type CarbonationMoistureCondition =
-  | "dry_or_permanently_wet"
-  | "wet_rarely_dry"
-  | "moderate_or_high_humidity"
-  | "cyclic_wet_dry";
-
-export type ChlorideSource =
-  | "none"
-  | "deicing_salts"
-  | "airborne_sea_salts"
-  | "sea_water";
-
-export type ChlorideMoistureCondition =
-  | "moderate_humidity"
-  | "wet_rarely_dry"
-  | "permanently_submerged"
-  | "cyclic_wet_dry"
-  | "splash_or_spray";
-
-export type FreezeThawRisk =
-  | "none"
-  | "moderate_water_saturation_without_deicing"
-  | "moderate_water_saturation_with_deicing"
-  | "high_water_saturation_without_deicing"
-  | "high_water_saturation_with_deicing_or_sea_water";
-
-export type ChemicalAttackRisk =
+export type CarbonationExposureRow = "X0" | "XC1" | "XC2" | "XC3" | "XC4";
+export type XdExposureRow = "none" | "XD1" | "XD2" | "XD3";
+export type XsExposureRow = "none" | "XS1" | "XS2" | "XS3";
+export type XfExposureRow = "none" | "XF1" | "XF2" | "XF3" | "XF4";
+export type XaExposureRow =
   | "none"
   | "XA1"
   | "XA2"
   | "XA3"
-  | "unknown_requires_analysis";
+  | "unknown_requires_classification";
 
 export type ConcreteExposureClassInput = {
   elementName: string;
   elementType: ConcreteExposureElementType;
   reinforcementPresence: ReinforcementPresence;
-  carbonationMoistureCondition: CarbonationMoistureCondition;
-  chlorideSource: ChlorideSource;
-  chlorideMoistureCondition: ChlorideMoistureCondition;
-  freezeThawRisk: FreezeThawRisk;
-  chemicalAttackRisk: ChemicalAttackRisk;
-  hasSoilOrGroundwaterAnalysis: boolean;
+  carbonationExposureRow: CarbonationExposureRow;
+  xdExposureRow: XdExposureRow;
+  xsExposureRow: XsExposureRow;
+  xfExposureRow: XfExposureRow;
+  xaExposureRow: XaExposureRow;
+  hasChemicalAggressivenessConfirmation: boolean;
   currentExposureClass?: CoverExposureClass;
+};
+
+export type DbnMinimumConcreteClass = {
+  exposureClass: DbnTable41ExposureClass;
+  minimumConcreteClass: string;
 };
 
 export type ConcreteExposureClassValues = {
   exposureClasses: ExposureClass[];
   governingCoverExposureClass: CoverExposureClass;
+  dbnMinimumConcreteClasses: DbnMinimumConcreteClass[];
   additionalDurabilityRequirements: string[];
 };
 
 export type ConcreteExposureClassReportStep = {
   key:
     | "inputs"
-    | "x0-check"
-    | "xc-carbonation"
+    | "x0-xc"
     | "xd-chlorides"
     | "xs-marine-chlorides"
     | "xf-freeze-thaw"
     | "xa-chemical-attack"
     | "class-set"
+    | "dbn-minimum-concrete"
     | "governing-cover-class"
     | "additional-requirements"
     | "conclusion";
@@ -123,12 +117,12 @@ export const DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT: ConcreteExposureClassInput =
   elementName: "Елемент",
   elementType: "column",
   reinforcementPresence: "reinforced_or_embedded_metal",
-  carbonationMoistureCondition: "dry_or_permanently_wet",
-  chlorideSource: "none",
-  chlorideMoistureCondition: "moderate_humidity",
-  freezeThawRisk: "none",
-  chemicalAttackRisk: "none",
-  hasSoilOrGroundwaterAnalysis: false,
+  carbonationExposureRow: "X0",
+  xdExposureRow: "none",
+  xsExposureRow: "none",
+  xfExposureRow: "none",
+  xaExposureRow: "none",
+  hasChemicalAggressivenessConfirmation: false,
 };
 
 const ELEMENT_TYPE_LABELS: Record<ConcreteExposureElementType, string> = {
@@ -148,47 +142,127 @@ const REINFORCEMENT_PRESENCE_LABELS: Record<ReinforcementPresence, string> = {
   plain_concrete_without_metal: "бетон без арматури і металевих закладних",
 };
 
-const CARBONATION_MOISTURE_LABELS: Record<
-  CarbonationMoistureCondition,
-  string
-> = {
-  dry_or_permanently_wet: "сухо або постійно мокро",
-  wet_rarely_dry: "волого, рідко сухо",
-  moderate_or_high_humidity: "помірна або висока вологість",
-  cyclic_wet_dry: "циклічне зволоження і висихання",
+type DbnRow = {
+  exposureClass: DbnTable41ExposureClass;
+  characteristic: string;
+  example: string;
+  minimumConcreteClass: string;
 };
 
-const CHLORIDE_SOURCE_LABELS: Record<ChlorideSource, string> = {
-  none: "немає",
-  deicing_salts: "протиожеледні солі",
-  airborne_sea_salts: "морські солі в повітрі",
-  sea_water: "морська вода",
+const DBN_TABLE_41_ROWS: Record<DbnTable41ExposureClass, DbnRow> = {
+  X0: {
+    exposureClass: "X0",
+    characteristic:
+      "Відсутнє поперемінно заморожування-відтавання, хімічні дії, стирання тощо. Дуже сухий повітряно-вологісний режим (RH <= 30 %).",
+    example:
+      "Конструкції всередині приміщень із сухим режимом згідно з ДБН В.1.2-2 та ДСТУ Б В.2.6-145.",
+    minimumConcreteClass: "C8/10",
+  },
+  XC1: {
+    exposureClass: "XC1",
+    characteristic:
+      "Сухий повітряно-вологісний режим (30 % < RH <= 60 %) або постійна експлуатація у вологонасиченому стані.",
+    example:
+      "Конструкції всередині приміщень із нормальним режимом згідно з ДБН В.1.2-2 та ДСТУ Б В.2.6-145; конструкції, які постійно знаходяться в грунті або під водою.",
+    minimumConcreteClass: "C12/15",
+  },
+  XC2: {
+    exposureClass: "XC2",
+    characteristic: "Водонасичений стан при епізодичному висушуванні.",
+    example:
+      "Поверхні бетону, які тривалий час контактують з водою; фундаменти.",
+    minimumConcreteClass: "C16/20",
+  },
+  XC3: {
+    exposureClass: "XC3",
+    characteristic:
+      "Помірний повітряно-вологісний режим (60 % < RH <= 75 %) або експлуатація в умовах епізодичного вологонасичення.",
+    example:
+      "Конструкції всередині приміщень із вологим режимом; зовнішні конструкції, захищені від дощу.",
+    minimumConcreteClass: "C20/25",
+  },
+  XC4: {
+    exposureClass: "XC4",
+    characteristic: "Поперемінне зволоження та висушування.",
+    example:
+      "Поверхні бетону, що контактують з водою, але не належать до класу XC2.",
+    minimumConcreteClass: "C25/30",
+  },
+  XD1: {
+    exposureClass: "XD1",
+    characteristic:
+      "Вологий, в умовах повітряно-вологісного стану (RH > 75 %) за відсутності епізодичного водонасичення.",
+    example: "Поверхні бетону, що зазнають дії хлоридів з повітря.",
+    minimumConcreteClass: "C25/30",
+  },
+  XD2: {
+    exposureClass: "XD2",
+    characteristic: "У водонасиченому стані.",
+    example: "Елементи басейнів; бетон, що контактує з промисловими водами.",
+    minimumConcreteClass: "C30/35",
+  },
+  XD3: {
+    exposureClass: "XD3",
+    characteristic: "Поперемінне зволоження і висушування.",
+    example:
+      "Елементи мостів, що зазнають дії бризок з хлоридами; покриття автостоянок.",
+    minimumConcreteClass: "C30/35",
+  },
+  XF1: {
+    exposureClass: "XF1",
+    characteristic:
+      "Епізодичне водонасичення, дія від'ємних температур за відсутності антиобморожувачів.",
+    example: "Вертикальні поверхні, що зазнають дощу та замерзання.",
+    minimumConcreteClass: "C25/30",
+  },
+  XF2: {
+    exposureClass: "XF2",
+    characteristic: "Те саме, у присутності антиобморожувачів.",
+    example:
+      "Вертикальні поверхні дорожніх споруд, що зазнають дії антиобморожувачів.",
+    minimumConcreteClass: "C20/25",
+  },
+  XF3: {
+    exposureClass: "XF3",
+    characteristic: "Водонасичений стан, антиобморожувачі не застосовують.",
+    example:
+      "Горизонтальні поверхні, що зазнають дощу та замерзання.",
+    minimumConcreteClass: "C25/30",
+  },
+  XF4: {
+    exposureClass: "XF4",
+    characteristic: "Водонасичений стан, застосовують антиобморожувачі.",
+    example:
+      "Дорожні та мостові конструкції, що зазнають дії антиобморожувачів.",
+    minimumConcreteClass: "C25/30",
+  },
+  XA1: {
+    exposureClass: "XA1",
+    characteristic: "Слабоагресивне середовище.",
+    example:
+      "Середовище з хімічною агресивністю, класифікованою за ДСТУ Б В.2.6-145.",
+    minimumConcreteClass: "C25/30",
+  },
+  XA2: {
+    exposureClass: "XA2",
+    characteristic: "Середньоагресивне середовище.",
+    example:
+      "Середовище з хімічною агресивністю, класифікованою за ДСТУ Б В.2.6-145.",
+    minimumConcreteClass: "C25/30",
+  },
+  XA3: {
+    exposureClass: "XA3",
+    characteristic: "Сильноагресивне середовище.",
+    example:
+      "Середовище з хімічною агресивністю, класифікованою за ДСТУ Б В.2.6-145.",
+    minimumConcreteClass: "C30/35",
+  },
 };
 
-const CHLORIDE_MOISTURE_LABELS: Record<ChlorideMoistureCondition, string> = {
-  moderate_humidity: "помірна вологість",
-  wet_rarely_dry: "волого, рідко сухо",
-  permanently_submerged: "постійне занурення",
-  cyclic_wet_dry: "циклічне зволоження і висихання",
-  splash_or_spray: "бризки або розпилення",
-};
-
-const FREEZE_THAW_LABELS: Record<FreezeThawRisk, string> = {
-  none: "немає",
-  moderate_water_saturation_without_deicing:
-    "помірне водонасичення без солей",
-  moderate_water_saturation_with_deicing: "помірне водонасичення з солями",
-  high_water_saturation_without_deicing: "високе водонасичення без солей",
-  high_water_saturation_with_deicing_or_sea_water:
-    "високе водонасичення з солями або морською водою",
-};
-
-const CHEMICAL_ATTACK_LABELS: Record<ChemicalAttackRisk, string> = {
-  none: "немає ознак хімічної агресії",
-  XA1: "XA1 — слабка хімічна агресія",
-  XA2: "XA2 — помірна хімічна агресія",
-  XA3: "XA3 — сильна хімічна агресія",
-  unknown_requires_analysis: "невідомо — потрібен аналіз ґрунту або води",
+const XS_ROW_LABELS: Record<Exclude<XsExposureRow, "none">, string> = {
+  XS1: "Повітря з морськими солями, але без прямого контакту з морською водою.",
+  XS2: "Постійне занурення у морську воду.",
+  XS3: "Зони припливу, бризок або розпилення морської води.",
 };
 
 const COVER_EXPOSURE_RANK: Record<CoverExposureClass, number> = {
@@ -244,14 +318,12 @@ const XF_REQUIREMENT =
   "Для класу XF необхідно перевірити вимоги до морозостійкості бетону, водонасичення, водонепроникності, повітровтягування та складу бетонної суміші.";
 const XA_REQUIREMENT =
   "Для класу XA необхідно перевірити хімічну агресивність середовища та потребу у спеціальному захисті бетону.";
-const XA_ANALYSIS_WARNING =
-  "Для визначення класу XA потрібен аналіз ґрунту або води.";
-const XA_USER_SELECTED_WARNING =
-  "Клас XA прийнято за вибором користувача. Для остаточного призначення класу хімічної агресії потрібен аналіз ґрунту або води.";
-const PLAIN_CONCRETE_X0_WARNING =
-  "Для бетону без арматури і металевих закладних попередньо прийнято X0 для передачі в калькулятор захисного шару.";
-const REINFORCED_NO_COVER_ERROR =
-  "Для залізобетонного елемента не визначено клас із груп X0/XC/XD/XS. Потрібно уточнити вологісний режим або дію хлоридів.";
+const X0_AGGRESSIVE_WARNING =
+  "Для X0 агресивні дії мають бути відсутні; вибрані додаткові класи впливу перевірте на сумісність із рядком X0 таблиці 4.1.";
+const XA_CLASSIFICATION_WARNING =
+  "Для визначення класу XA потрібна класифікація агресивності середовища за ДСТУ Б В.2.6-145.";
+const XA_CONFIRMATION_WARNING =
+  "Клас XA прийнято за вибором користувача. Для остаточного призначення класу хімічної агресії потрібне підтвердження агресивності середовища за ДСТУ Б В.2.6-145.";
 
 function addUnique<T>(items: T[], item: T | null): void {
   if (item !== null && !items.includes(item)) {
@@ -259,108 +331,14 @@ function addUnique<T>(items: T[], item: T | null): void {
   }
 }
 
-function getX0Class(input: ConcreteExposureClassInput): "X0" | null {
-  if (
-    input.reinforcementPresence === "plain_concrete_without_metal" &&
-    input.freezeThawRisk === "none" &&
-    input.chemicalAttackRisk === "none"
-  ) {
-    return "X0";
-  }
-
-  return null;
-}
-
-function getXcClass(
-  input: ConcreteExposureClassInput,
-): "XC1" | "XC2" | "XC3" | "XC4" | null {
-  if (input.reinforcementPresence === "plain_concrete_without_metal") {
-    return null;
-  }
-
-  if (input.carbonationMoistureCondition === "dry_or_permanently_wet") {
-    return "XC1";
-  }
-  if (input.carbonationMoistureCondition === "wet_rarely_dry") return "XC2";
-  if (input.carbonationMoistureCondition === "moderate_or_high_humidity") {
-    return "XC3";
-  }
-
-  return "XC4";
-}
-
-function getXdClass(
-  input: ConcreteExposureClassInput,
-): "XD1" | "XD2" | "XD3" | null {
-  if (input.chlorideSource !== "deicing_salts") return null;
-  if (input.chlorideMoistureCondition === "moderate_humidity") return "XD1";
-  if (input.chlorideMoistureCondition === "wet_rarely_dry") return "XD2";
-  if (
-    input.chlorideMoistureCondition === "cyclic_wet_dry" ||
-    input.chlorideMoistureCondition === "splash_or_spray"
-  ) {
-    return "XD3";
-  }
-
-  return null;
-}
-
-function getXsClass(
-  input: ConcreteExposureClassInput,
-): "XS1" | "XS2" | "XS3" | null {
-  if (input.chlorideSource === "airborne_sea_salts") return "XS1";
-  if (input.chlorideSource !== "sea_water") return null;
-  if (
-    input.chlorideMoistureCondition === "permanently_submerged" ||
-    input.chlorideMoistureCondition === "wet_rarely_dry"
-  ) {
-    return "XS2";
-  }
-  if (
-    input.chlorideMoistureCondition === "cyclic_wet_dry" ||
-    input.chlorideMoistureCondition === "splash_or_spray"
-  ) {
-    return "XS3";
-  }
-
-  return null;
-}
-
-function getXfClass(
-  input: ConcreteExposureClassInput,
-): "XF1" | "XF2" | "XF3" | "XF4" | null {
-  if (input.freezeThawRisk === "moderate_water_saturation_without_deicing") {
-    return "XF1";
-  }
-  if (input.freezeThawRisk === "moderate_water_saturation_with_deicing") {
-    return "XF2";
-  }
-  if (input.freezeThawRisk === "high_water_saturation_without_deicing") {
-    return "XF3";
-  }
-  if (input.freezeThawRisk === "high_water_saturation_with_deicing_or_sea_water") {
-    return "XF4";
-  }
-
-  return null;
-}
-
-function getXaClass(
-  input: ConcreteExposureClassInput,
-): "XA1" | "XA2" | "XA3" | null {
-  if (
-    input.chemicalAttackRisk === "XA1" ||
-    input.chemicalAttackRisk === "XA2" ||
-    input.chemicalAttackRisk === "XA3"
-  ) {
-    return input.chemicalAttackRisk;
-  }
-
-  return null;
-}
-
 function isCoverExposureClass(cls: ExposureClass): cls is CoverExposureClass {
   return COVER_EXPOSURE_ORDER.includes(cls as CoverExposureClass);
+}
+
+function isDbnTable41ExposureClass(
+  cls: ExposureClass,
+): cls is DbnTable41ExposureClass {
+  return cls in DBN_TABLE_41_ROWS;
 }
 
 function getGoverningCoverExposureClass(
@@ -378,25 +356,6 @@ function getGoverningCoverExposureClass(
   );
 }
 
-function buildAdditionalRequirements(
-  classes: ExposureClass[],
-  input: ConcreteExposureClassInput,
-): string[] {
-  const requirements: string[] = [];
-
-  if (classes.some((cls) => cls.startsWith("XF"))) {
-    addUnique(requirements, XF_REQUIREMENT);
-  }
-  if (classes.some((cls) => cls.startsWith("XA"))) {
-    addUnique(requirements, XA_REQUIREMENT);
-  }
-  if (input.chemicalAttackRisk === "unknown_requires_analysis") {
-    addUnique(requirements, XA_ANALYSIS_WARNING);
-  }
-
-  return requirements;
-}
-
 function sortExposureClasses(classes: ExposureClass[]): ExposureClass[] {
   return EXPOSURE_CLASS_OUTPUT_ORDER.filter((cls) => classes.includes(cls));
 }
@@ -405,13 +364,17 @@ function formatClasses(classes: string[]): string {
   return classes.join(", ");
 }
 
-function getClassSetFormula(
-  classes: ExposureClass[],
-  rawParts: string[],
-): string {
-  return `exposure_classes = union(${rawParts.join("; ")}) = [${formatClasses(
-    classes,
-  )}]`;
+function formatBooleanLabel(value: boolean): string {
+  return value ? "так" : "ні";
+}
+
+function formatDbnRowItems(row: DbnRow): string[] {
+  return [
+    `Рядок таблиці 4.1: ${row.exposureClass}`,
+    `Характеристика середовища: ${row.characteristic}`,
+    `Приклад з таблиці 4.1: ${row.example}`,
+    `Мінімальний клас бетону за таблицею 4.1: ${row.minimumConcreteClass}`,
+  ];
 }
 
 function buildInputStep(
@@ -423,28 +386,18 @@ function buildInputStep(
     `Армування або металеві закладні: ${
       REINFORCEMENT_PRESENCE_LABELS[input.reinforcementPresence]
     }`,
-    `Вологісний режим для карбонізації: ${
-      CARBONATION_MOISTURE_LABELS[input.carbonationMoistureCondition]
-    }`,
-    `Джерело хлоридів: ${CHLORIDE_SOURCE_LABELS[input.chlorideSource]}`,
+    `Рядок X0/XC таблиці 4.1: ${input.carbonationExposureRow}`,
+    `Рядок XD таблиці 4.1: ${input.xdExposureRow === "none" ? "не застосовується" : input.xdExposureRow}`,
+    `Клас XS за ДСТУ ENV/EN 206: ${input.xsExposureRow === "none" ? "не застосовується" : input.xsExposureRow}`,
+    `Рядок XF таблиці 4.1: ${input.xfExposureRow === "none" ? "не застосовується" : input.xfExposureRow}`,
+    `Рядок XA таблиці 4.1: ${input.xaExposureRow === "none" ? "не застосовується" : input.xaExposureRow}`,
   ];
 
-  if (input.chlorideSource !== "none") {
+  if (input.xaExposureRow !== "none") {
     items.push(
-      `Вологісний режим для хлоридів: ${
-        CHLORIDE_MOISTURE_LABELS[input.chlorideMoistureCondition]
-      }`,
-    );
-  }
-
-  items.push(`Морозний вплив: ${FREEZE_THAW_LABELS[input.freezeThawRisk]}`);
-  items.push(`Хімічна агресія: ${CHEMICAL_ATTACK_LABELS[input.chemicalAttackRisk]}`);
-
-  if (input.chemicalAttackRisk !== "none") {
-    items.push(
-      `Аналіз ґрунту або води: ${
-        input.hasSoilOrGroundwaterAnalysis ? "є" : "немає"
-      }`,
+      `Підтвердження агресивності середовища за ДСТУ Б В.2.6-145: ${formatBooleanLabel(
+        input.hasChemicalAggressivenessConfirmation,
+      )}`,
     );
   }
 
@@ -457,138 +410,135 @@ function buildInputStep(
   return {
     key: "inputs",
     caption:
-      "Вихідні дані для визначення класу впливу середовища (ДБН В.2.6-98:2009, розділ 4.3-4.4; ДСТУ ENV 206:2018, класи впливу середовища):",
+      "Вихідні дані для визначення класів впливу середовища (ДБН В.2.6-98:2009, розділ 4.3, таблиця 4.1; ДСТУ ENV/EN 206 для XS):",
     items,
-    formula:
-      "exposure_classes = f(умови карбонізації; хлориди; морозний вплив; хімічна агресія)",
+    formula: "класи впливу = f(X0/XC; XD; XS; XF; XA)",
   };
 }
 
-function buildX0Step(x0Class: "X0" | null): ConcreteExposureClassReportStep {
-  return {
-    key: "x0-check",
-    caption:
-      "Перевірка можливості прийняття класу X0 (ДБН В.2.6-98:2009, класи впливу середовища; ДСТУ ENV 206:2018, група X0):",
-    notes: [
-      "Клас X0 застосовується для бетону без арматури або металевих закладних, якщо відсутні суттєві агресивні впливи середовища.",
-      "Для залізобетону або бетону з металевими закладними X0 не приймається як керівний клас, оскільки потрібно враховувати ризик корозії арматури.",
-    ],
-    formula: `X0 = plain_concrete_without_metal and XF = none and XA = none = ${
-      x0Class === "X0" ? "true" : "false"
-    }`,
-  };
-}
-
-function buildXcStep(
-  input: ConcreteExposureClassInput,
-  xcClass: ReturnType<typeof getXcClass>,
+function buildX0XcStep(
+  rowKey: CarbonationExposureRow,
 ): ConcreteExposureClassReportStep {
-  const notes = [
-    "Для залізобетонних елементів або бетонних елементів із металевими закладними перевіряється ризик корозії арматури внаслідок карбонізації бетону.",
-    "Клас XC визначається за вологісним режимом експлуатації.",
-  ];
+  const row = DBN_TABLE_41_ROWS[rowKey];
 
-  if (input.reinforcementPresence === "plain_concrete_without_metal") {
-    notes.push(
-      "Елемент без арматури і металевих закладних, тому клас XC для захисту арматури від карбонізації не призначається.",
-    );
+  return {
+    key: "x0-xc",
+    caption:
+      "Визначення класу X0/XC за карбонізацією або відсутністю агресивних дій (ДБН В.2.6-98:2009, таблиця 4.1, рядки X0, XC1-XC4):",
+    items: formatDbnRowItems(row),
+    formula: `X0/XC = рядок таблиці 4.1: ${row.characteristic} => ${row.exposureClass}`,
+  };
+}
+
+function buildXdStep(rowKey: XdExposureRow): ConcreteExposureClassReportStep {
+  if (rowKey === "none") {
+    return {
+      key: "xd-chlorides",
+      caption:
+        "Визначення класу дії хлоридів не з морської води XD (ДБН В.2.6-98:2009, таблиця 4.1, рядки XD1-XD3):",
+      notes: ["Хлориди не з морської води не задані."],
+      formula: "XD = не застосовується",
+    };
   }
 
-  return {
-    key: "xc-carbonation",
-    caption:
-      "Визначення класу впливу за карбонізацією XC (ДБН В.2.6-98:2009, класи впливу середовища; ДСТУ ENV 206:2018, група XC):",
-    notes,
-    formula: xcClass
-      ? `XC = f(carbonation_moisture_condition) = ${input.carbonationMoistureCondition} => ${xcClass}`
-      : "XC = not_applicable",
-  };
-}
+  const row = DBN_TABLE_41_ROWS[rowKey];
 
-function buildXdStep(
-  input: ConcreteExposureClassInput,
-  xdClass: ReturnType<typeof getXdClass>,
-): ConcreteExposureClassReportStep {
   return {
     key: "xd-chlorides",
     caption:
-      "Визначення класу дії хлоридів не з морської води XD (ДБН В.2.6-98:2009, класи впливу середовища; ДСТУ ENV 206:2018, група XD):",
-    notes: [
-      "Клас XD призначається, якщо на конструкцію діють хлориди не з морської води, наприклад протиожеледні солі.",
-      "Ступінь впливу залежить від вологісного режиму, змінного зволоження, висихання, бризок або розпилення.",
-    ],
-    formula: xdClass
-      ? `XD = f(chloride_moisture_condition) = ${input.chlorideMoistureCondition} => ${xdClass}`
-      : "XD = not_applicable",
+      "Визначення класу дії хлоридів не з морської води XD (ДБН В.2.6-98:2009, таблиця 4.1, рядки XD1-XD3):",
+    items: formatDbnRowItems(row),
+    formula: `XD = рядок таблиці 4.1: ${row.characteristic} => ${row.exposureClass}`,
   };
 }
 
-function buildXsStep(
-  input: ConcreteExposureClassInput,
-  xsClass: ReturnType<typeof getXsClass>,
-): ConcreteExposureClassReportStep {
-  let formula = "XS = not_applicable";
-  if (input.chlorideSource === "airborne_sea_salts") {
-    formula = "XS = airborne_sea_salts => XS1";
-  } else if (xsClass) {
-    formula = `XS = f(chloride_moisture_condition) = ${input.chlorideMoistureCondition} => ${xsClass}`;
+function buildXsStep(rowKey: XsExposureRow): ConcreteExposureClassReportStep {
+  if (rowKey === "none") {
+    return {
+      key: "xs-marine-chlorides",
+      caption:
+        "Визначення класу дії хлоридів морського походження XS (ДСТУ ENV/EN 206, група XS; у ДБН В.2.6-98:2009 таблиці 4.3 і 4.4 класи XS враховані разом із XD):",
+      notes: [
+        "У наданому PDF ДБН В.2.6-98:2009 класи XS1-XS3 не наведені як рядки таблиці 4.1.",
+        "Дія хлоридів морського походження не задана.",
+      ],
+      formula: "XS = не застосовується",
+    };
   }
 
   return {
     key: "xs-marine-chlorides",
     caption:
-      "Визначення класу дії хлоридів морського походження XS (ДБН В.2.6-98:2009, класи впливу середовища; ДСТУ ENV 206:2018, група XS):",
-    notes: [
-      "Клас XS призначається, якщо конструкція зазнає дії морського середовища або хлоридів морського походження.",
-      "Для конструкцій у зоні бризок або змінного зволоження приймається більш жорсткий клас, ніж для постійного занурення.",
+      "Визначення класу дії хлоридів морського походження XS (ДСТУ ENV/EN 206, група XS; у ДБН В.2.6-98:2009 таблиці 4.3 і 4.4 класи XS враховані разом із XD):",
+    items: [
+      `Клас XS: ${rowKey}`,
+      `Характеристика середовища: ${XS_ROW_LABELS[rowKey]}`,
     ],
-    formula,
+    notes: [
+      "У наданому PDF ДБН В.2.6-98:2009 класи XS1-XS3 не наведені як рядки таблиці 4.1.",
+      "Для розрахунку захисного шару ДБН таблиці 4.3 і 4.4 враховують XD/XS спільно.",
+    ],
+    formula: `XS = клас хлоридів морського походження за ДСТУ ENV/EN 206 => ${rowKey}`,
   };
 }
 
-function buildXfStep(
-  input: ConcreteExposureClassInput,
-  xfClass: ReturnType<typeof getXfClass>,
-): ConcreteExposureClassReportStep {
+function buildXfStep(rowKey: XfExposureRow): ConcreteExposureClassReportStep {
+  if (rowKey === "none") {
+    return {
+      key: "xf-freeze-thaw",
+      caption:
+        "Визначення класу поперемінного заморожування-відтавання XF (ДБН В.2.6-98:2009, таблиця 4.1, рядки XF1-XF4):",
+      notes: ["Поперемінне заморожування-відтавання не задане."],
+      formula: "XF = не застосовується",
+    };
+  }
+
+  const row = DBN_TABLE_41_ROWS[rowKey];
+
   return {
     key: "xf-freeze-thaw",
     caption:
-      "Визначення класу морозного впливу XF (ДБН В.2.6-98:2009, таблиця 4.1а; ДСТУ ENV 206:2018, група XF):",
-    notes: [
-      "Клас XF призначається, якщо конструкція зазнає циклів заморожування та відтавання.",
-      "Наявність протиожеледних солей або морської води підвищує агресивність впливу.",
-      "Клас XF не передається в калькулятор захисного шару як основний exposure_class, але формує додаткові вимоги до бетону.",
-    ],
-    formula: `XF = f(freeze_thaw_risk) = ${input.freezeThawRisk} => ${
-      xfClass ?? "not_applicable"
-    }`,
+      "Визначення класу поперемінного заморожування-відтавання XF (ДБН В.2.6-98:2009, таблиця 4.1, рядки XF1-XF4):",
+    items: formatDbnRowItems(row),
+    formula: `XF = рядок таблиці 4.1: ${row.characteristic} => ${row.exposureClass}`,
   };
 }
 
 function buildXaStep(
-  input: ConcreteExposureClassInput,
-  xaClass: ReturnType<typeof getXaClass>,
+  rowKey: XaExposureRow,
+  hasChemicalAggressivenessConfirmation: boolean,
 ): ConcreteExposureClassReportStep {
-  const notes = [
-    "Клас XA призначається, якщо бетон контактує з хімічно агресивним ґрунтом, підземною водою, промисловими стоками або іншим агресивним середовищем.",
-    "Остаточне призначення XA потребує даних аналізу ґрунту або води.",
-    "Клас XA не передається в калькулятор захисного шару як основний exposure_class, але формує додаткові вимоги до бетону або спеціального захисту.",
-  ];
-  let result = "not_applicable";
-
-  if (input.chemicalAttackRisk === "unknown_requires_analysis") {
-    result = "warning";
-    notes.push("XA не призначається остаточно.");
-  } else if (xaClass) {
-    result = CHEMICAL_ATTACK_LABELS[xaClass];
+  if (rowKey === "none") {
+    return {
+      key: "xa-chemical-attack",
+      caption:
+        "Визначення класу хімічних та біологічних дій XA (ДБН В.2.6-98:2009, таблиця 4.1, рядки XA1-XA3; ДСТУ Б В.2.6-145 для класифікації агресивності середовища):",
+      notes: ["Хімічні та біологічні дії не задані."],
+      formula: "XA = не застосовується",
+    };
   }
+
+  if (rowKey === "unknown_requires_classification") {
+    return {
+      key: "xa-chemical-attack",
+      caption:
+        "Визначення класу хімічних та біологічних дій XA (ДБН В.2.6-98:2009, таблиця 4.1, рядки XA1-XA3; ДСТУ Б В.2.6-145 для класифікації агресивності середовища):",
+      notes: [XA_CLASSIFICATION_WARNING],
+      formula:
+        "XA = потрібна класифікація агресивності середовища за ДСТУ Б В.2.6-145",
+    };
+  }
+
+  const row = DBN_TABLE_41_ROWS[rowKey];
 
   return {
     key: "xa-chemical-attack",
     caption:
-      "Визначення класу хімічної агресії XA (ДБН В.2.6-98:2009, таблиця 4.1б; ДСТУ ENV 206:2018, група XA):",
-    notes,
-    formula: `XA = f(chemical_attack_risk; has_soil_or_groundwater_analysis) = ${input.chemicalAttackRisk}; ${input.hasSoilOrGroundwaterAnalysis} => ${result}`,
+      "Визначення класу хімічних та біологічних дій XA (ДБН В.2.6-98:2009, таблиця 4.1, рядки XA1-XA3; ДСТУ Б В.2.6-145 для класифікації агресивності середовища):",
+    items: formatDbnRowItems(row),
+    formula: `XA = рядок таблиці 4.1: ${row.characteristic}; підтвердження = ${formatBooleanLabel(
+      hasChemicalAggressivenessConfirmation,
+    )} => ${row.exposureClass}`,
   };
 }
 
@@ -599,12 +549,30 @@ function buildClassSetStep(
   return {
     key: "class-set",
     caption:
-      "Формування повного набору класів впливу середовища (ДБН В.2.6-98:2009, розділ 4.3-4.4; ДСТУ ENV 206:2018, класи впливу середовища):",
+      "Формування повного набору класів впливу середовища (ДБН В.2.6-98:2009, розділ 4.3, таблиця 4.1; ДСТУ ENV/EN 206 для XS):",
     notes: [
       "Для одного елемента може бути призначено кілька класів впливу одночасно.",
-      "Класи XF та XA залишаються у повному наборі класів і не повинні втрачатися після вибору класу для захисного шару.",
+      "Класи XF та XA залишаються у повному наборі класів і формують додаткові вимоги до бетону.",
     ],
-    formula: getClassSetFormula(classes, rawParts),
+    formula: `класи впливу = union(${rawParts.join("; ")}) = [${formatClasses(
+      classes,
+    )}]`,
+  };
+}
+
+function buildDbnMinimumConcreteStep(
+  dbnMinimumConcreteClasses: DbnMinimumConcreteClass[],
+): ConcreteExposureClassReportStep {
+  return {
+    key: "dbn-minimum-concrete",
+    caption:
+      "Мінімальні класи бетону за рядками таблиці 4.1 ДБН В.2.6-98:2009:",
+    notes: [
+      "Класи XS не наведені як окремі рядки таблиці 4.1 у наданому PDF, тому в цьому пункті не мають мінімального класу бетону за таблицею 4.1.",
+    ],
+    formula: `мінімальні класи бетону за таблицею 4.1 = [${dbnMinimumConcreteClasses
+      .map((item) => `${item.exposureClass}: ${item.minimumConcreteClass}`)
+      .join("; ")}]`,
   };
 }
 
@@ -623,9 +591,9 @@ function buildGoverningStep(
       "Якщо для елемента одночасно призначено кілька таких класів, для калькулятора захисного шару передається найбільш несприятливий клас.",
       "Класи XF та XA не використовуються як основний exposure_class для таблиці захисного шару, але залишаються додатковими вимогами.",
     ],
-    formula: `governing_cover_exposure_class = max_rank(X0; XC; XD; XS) = max_rank([${formatClasses(
+    formula: `керівний клас = max([${formatClasses(
       candidates,
-    )}]) = ${governingClass ?? "not_defined"}`,
+    )}]) = ${governingClass ?? "не визначено"}`,
   };
 }
 
@@ -635,14 +603,17 @@ function buildAdditionalRequirementsStep(
   return {
     key: "additional-requirements",
     caption:
-      "Додаткові вимоги до довговічності (ДБН В.2.6-98:2009, таблиці 4.1а, 4.1б; ДСТУ ENV 206:2018, групи XF та XA):",
+      "Додаткові вимоги до довговічності (ДБН В.2.6-98:2009, таблиця 4.1; ДСТУ Б В.2.6-145 для XA):",
     notes: [
       "Класи XF та XA не повинні ігноруватися після вибору керівного класу для захисного шару.",
       "Вони формують додаткові вимоги до бетону, морозостійкості, водонепроникності, складу бетонної суміші або спеціального захисту конструкції.",
     ],
-    formula: `additional_requirements = f(XF; XA) = [${additionalDurabilityRequirements.join(
-      "; ",
-    )}]`,
+    formula:
+      additionalDurabilityRequirements.length > 0
+        ? `додаткові вимоги = f(XF; XA) = [${additionalDurabilityRequirements.join(
+            "; ",
+          )}]`
+        : "додаткові вимоги = []",
   };
 }
 
@@ -653,14 +624,36 @@ function buildConclusionStep(
   return {
     key: "conclusion",
     caption:
-      "Висновок щодо класу впливу середовища (ДБН В.2.6-98:2009, розділ 4.3-4.4; ДСТУ ENV 206:2018, класи впливу середовища):",
+      "Висновок щодо класів впливу середовища (ДБН В.2.6-98:2009, розділ 4.3-4.4; ДСТУ ENV/EN 206 для XS):",
     notes: [
       "За результатами аналізу умов експлуатації визначено повний набір класів впливу середовища та керівний клас для подальшого розрахунку захисного шару бетону.",
     ],
-    formula: `exposure_classes -> governing_cover_exposure_class = [${formatClasses(
+    formula: `класи впливу => керівний клас = [${formatClasses(
       classes,
-    )}] -> ${governingClass ?? "not_defined"}`,
+    )}] => ${governingClass ?? "не визначено"}`,
   };
+}
+
+function getDbnMinimumConcreteClasses(
+  classes: ExposureClass[],
+): DbnMinimumConcreteClass[] {
+  return classes.filter(isDbnTable41ExposureClass).map((exposureClass) => ({
+    exposureClass,
+    minimumConcreteClass: DBN_TABLE_41_ROWS[exposureClass].minimumConcreteClass,
+  }));
+}
+
+function buildAdditionalRequirements(classes: ExposureClass[]): string[] {
+  const requirements: string[] = [];
+
+  if (classes.some((cls) => cls.startsWith("XF"))) {
+    addUnique(requirements, XF_REQUIREMENT);
+  }
+  if (classes.some((cls) => cls.startsWith("XA"))) {
+    addUnique(requirements, XA_REQUIREMENT);
+  }
+
+  return requirements;
 }
 
 export function getConcreteExposureClassReport(
@@ -668,75 +661,75 @@ export function getConcreteExposureClassReport(
 ): ConcreteExposureClassReport {
   const warnings: string[] = [];
   const errors: string[] = [];
-  const rawParts: string[] = [];
+  const rawParts: string[] = [input.carbonationExposureRow];
   const classes: ExposureClass[] = [];
 
-  const x0Class = getX0Class(input);
-  const xcClass = getXcClass(input);
-  const xdClass = getXdClass(input);
-  const xsClass = getXsClass(input);
-  const xfClass = getXfClass(input);
-  const xaClass = getXaClass(input);
-
-  addUnique(classes, x0Class);
-  addUnique(classes, xcClass);
-  addUnique(classes, xdClass);
-  addUnique(classes, xsClass);
-  addUnique(classes, xfClass);
-  addUnique(classes, xaClass);
-
-  for (const cls of [x0Class, xcClass, xdClass, xsClass, xfClass, xaClass]) {
-    if (cls) rawParts.push(cls);
+  addUnique(classes, input.carbonationExposureRow);
+  if (input.xdExposureRow !== "none") {
+    addUnique(classes, input.xdExposureRow);
+    rawParts.push(input.xdExposureRow);
   }
-  if (input.chemicalAttackRisk === "unknown_requires_analysis") {
-    rawParts.push("XA_unknown");
-    addUnique(warnings, XA_ANALYSIS_WARNING);
+  if (input.xsExposureRow !== "none") {
+    addUnique(classes, input.xsExposureRow);
+    rawParts.push(input.xsExposureRow);
+  }
+  if (input.xfExposureRow !== "none") {
+    addUnique(classes, input.xfExposureRow);
+    rawParts.push(input.xfExposureRow);
   }
   if (
-    xaClass &&
-    input.hasSoilOrGroundwaterAnalysis === false
+    input.xaExposureRow !== "none" &&
+    input.xaExposureRow !== "unknown_requires_classification"
   ) {
-    addUnique(warnings, XA_USER_SELECTED_WARNING);
+    addUnique(classes, input.xaExposureRow);
+    rawParts.push(input.xaExposureRow);
+  }
+  if (input.xaExposureRow === "unknown_requires_classification") {
+    rawParts.push("XA потребує класифікації");
+    addUnique(warnings, XA_CLASSIFICATION_WARNING);
+  }
+  if (
+    input.xaExposureRow !== "none" &&
+    input.xaExposureRow !== "unknown_requires_classification" &&
+    input.hasChemicalAggressivenessConfirmation === false
+  ) {
+    addUnique(warnings, XA_CONFIRMATION_WARNING);
+  }
+  if (
+    input.carbonationExposureRow === "X0" &&
+    (input.xdExposureRow !== "none" ||
+      input.xfExposureRow !== "none" ||
+      input.xaExposureRow !== "none")
+  ) {
+    addUnique(warnings, X0_AGGRESSIVE_WARNING);
   }
 
   const exposureClasses = sortExposureClasses(classes);
-  let governingCoverExposureClass =
+  const governingCoverExposureClass =
     getGoverningCoverExposureClass(exposureClasses);
 
-  if (
-    governingCoverExposureClass === null &&
-    input.reinforcementPresence === "plain_concrete_without_metal"
-  ) {
-    governingCoverExposureClass = "X0";
-    addUnique(warnings, PLAIN_CONCRETE_X0_WARNING);
-  }
-
-  if (exposureClasses.length === 0) {
+  if (governingCoverExposureClass === null) {
     errors.push(
-      "Клас впливу середовища не визначено. Потрібно уточнити умови експлуатації.",
+      "Керівний клас для розрахунку захисного шару не визначено. Потрібно вибрати рядок X0/XC або клас XD/XS.",
     );
   }
 
-  if (
-    governingCoverExposureClass === null &&
-    input.reinforcementPresence === "reinforced_or_embedded_metal"
-  ) {
-    errors.push(REINFORCED_NO_COVER_ERROR);
-  }
-
-  const additionalDurabilityRequirements = buildAdditionalRequirements(
-    exposureClasses,
-    input,
-  );
+  const dbnMinimumConcreteClasses =
+    getDbnMinimumConcreteClasses(exposureClasses);
+  const additionalDurabilityRequirements =
+    buildAdditionalRequirements(exposureClasses);
   const steps: ConcreteExposureClassReportStep[] = [
     buildInputStep(input),
-    buildX0Step(x0Class),
-    buildXcStep(input, xcClass),
-    buildXdStep(input, xdClass),
-    buildXsStep(input, xsClass),
-    buildXfStep(input, xfClass),
-    buildXaStep(input, xaClass),
+    buildX0XcStep(input.carbonationExposureRow),
+    buildXdStep(input.xdExposureRow),
+    buildXsStep(input.xsExposureRow),
+    buildXfStep(input.xfExposureRow),
+    buildXaStep(
+      input.xaExposureRow,
+      input.hasChemicalAggressivenessConfirmation,
+    ),
     buildClassSetStep(exposureClasses, rawParts),
+    buildDbnMinimumConcreteStep(dbnMinimumConcreteClasses),
     buildGoverningStep(exposureClasses, governingCoverExposureClass),
     buildAdditionalRequirementsStep(additionalDurabilityRequirements),
     buildConclusionStep(exposureClasses, governingCoverExposureClass),
@@ -751,6 +744,7 @@ export function getConcreteExposureClassReport(
       ? {
           exposureClasses,
           governingCoverExposureClass,
+          dbnMinimumConcreteClasses,
           additionalDurabilityRequirements,
         }
       : null,

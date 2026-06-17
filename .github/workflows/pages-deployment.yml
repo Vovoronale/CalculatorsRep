@@ -35,11 +35,45 @@ jobs:
       - name: Build static site
         run: npm run build
 
+      - name: Validate Cloudflare deployment configuration
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_PAGES_PROJECT_NAME: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'ivapps-pro' }}
+        run: |
+          missing=0
+
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error title=Missing Cloudflare API token::Add repository secret CLOUDFLARE_API_TOKEN with Account -> Cloudflare Pages -> Edit permission."
+            missing=1
+          fi
+
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error title=Missing Cloudflare account ID::Add repository secret CLOUDFLARE_ACCOUNT_ID with the Cloudflare account ID that owns the Pages project."
+            missing=1
+          fi
+
+          if [ -z "$CLOUDFLARE_PAGES_PROJECT_NAME" ]; then
+            echo "::error title=Missing Cloudflare Pages project name::Add repository variable CLOUDFLARE_PAGES_PROJECT_NAME or keep the ivapps-pro fallback in the workflow."
+            missing=1
+          fi
+
+          if [ ! -d out ]; then
+            echo "::error title=Missing static export::The Next.js build did not create the out/ directory."
+            missing=1
+          fi
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+          echo "Cloudflare deployment configuration is present."
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4"
-          command: pages deploy out --project-name=ivapps-pro
+          command: pages deploy out --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME || 'ivapps-pro' }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}

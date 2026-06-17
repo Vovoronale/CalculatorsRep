@@ -7,16 +7,16 @@ import {
   DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT,
   getConcreteExposureClassReport,
   getConcreteExposureClassReturnUrl,
-  type CarbonationMoistureCondition,
-  type ChemicalAttackRisk,
-  type ChlorideMoistureCondition,
-  type ChlorideSource,
+  type CarbonationExposureRow,
   type ConcreteExposureClassInput,
   type ConcreteExposureElementType,
   type CoverExposureClass,
   type ExposureClass,
-  type FreezeThawRisk,
   type ReinforcementPresence,
+  type XaExposureRow,
+  type XdExposureRow,
+  type XfExposureRow,
+  type XsExposureRow,
 } from "@/lib/concrete-exposure-class";
 import {
   getDefaultInputSchemaValues,
@@ -25,14 +25,33 @@ import {
 } from "@/lib/calculator-input-schema";
 
 import { InputSchemaForm } from "./input-schema-form";
+import {
+  buildNativeDocxReport,
+  formatDocxFileDate,
+} from "./native-report-docx";
 import { NativeCalculatorLayout } from "./native-calculator-layout";
-import { NativeReport } from "./native-report";
+import { NativeReport, type NativeReportStep } from "./native-report";
+import { ReportDocxButton } from "./report-docx-button";
 
 type ReturnParams = {
   returnTo?: string;
   returnField?: string;
   returnLabel?: string;
 };
+
+export function buildConcreteExposureClassDocxReport({
+  date = new Date(),
+  steps,
+}: {
+  date?: Date;
+  steps: NativeReportStep[];
+}) {
+  return buildNativeDocxReport({
+    title: "Покроковий звіт",
+    fileBaseName: `klas-vplyvu-seredovyshcha-${formatDocxFileDate(date)}`,
+    steps,
+  });
+}
 
 export const CONCRETE_EXPOSURE_CLASS_INPUT_SCHEMA: CalculatorInputSchema = {
   groups: [
@@ -45,13 +64,16 @@ export const CONCRETE_EXPOSURE_CLASS_INPUT_SCHEMA: CalculatorInputSchema = {
           kind: "text",
           name: "Назва елемента",
           defaultValue: DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.elementName,
-          description: "Назва елемента для звіту та передачі між калькуляторами.",
+          description:
+            "Службова назва для звіту та передачі між калькуляторами; не використовується для вибору рядка таблиць ДБН.",
         },
         {
           id: "elementType",
           kind: "select",
           name: "Тип елемента",
           defaultValue: DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.elementType,
+          description:
+            "Тип елемента потрібен для аудиту прийнятої схеми та передачі між калькуляторами; сам по собі не визначає рядок таблиці 4.1 ДБН В.2.6-98:2009.",
           options: [
             { value: "slab", label: "Плита" },
             { value: "beam", label: "Балка" },
@@ -66,14 +88,16 @@ export const CONCRETE_EXPOSURE_CLASS_INPUT_SCHEMA: CalculatorInputSchema = {
       ],
     },
     {
-      id: "concrete-exposure-corrosion",
-      title: "Корозія арматури",
+      id: "concrete-exposure-x0-xc",
+      title: "X0/XC за таблицею 4.1",
       fields: [
         {
           id: "reinforcementPresence",
           kind: "select",
           name: "Армування або металеві закладні",
           defaultValue: DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.reinforcementPresence,
+          description:
+            "Наявність арматури визначає, чи можна прийняти X0 для бетону без металу або потрібно визначати XC для захисту арматури; використовуються рядки X0, XC1-XC4 табл. 4.1 ДБН В.2.6-98:2009.",
           options: [
             {
               value: "reinforced_or_embedded_metal",
@@ -86,21 +110,36 @@ export const CONCRETE_EXPOSURE_CLASS_INPUT_SCHEMA: CalculatorInputSchema = {
           ],
         },
         {
-          id: "carbonationMoistureCondition",
+          id: "carbonationExposureRow",
           kind: "select",
-          name: "Вологісний режим для карбонізації",
-          defaultValue:
-            DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.carbonationMoistureCondition,
+          name: "Рядок X0/XC таблиці 4.1",
+          defaultValue: DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.carbonationExposureRow,
+          description:
+            "Формальний вибір рядка ДБН В.2.6-98:2009, таблиця 4.1, рядки X0, XC1-XC4. Використовуйте наведені в ДБН повітряно-вологісні режими та межі RH.",
           options: [
-            { value: "dry_or_permanently_wet", label: "Сухо або постійно мокро" },
-            { value: "wet_rarely_dry", label: "Волого, рідко сухо" },
             {
-              value: "moderate_or_high_humidity",
-              label: "Помірна або висока вологість",
+              value: "X0",
+              label:
+                "X0 — дуже сухий повітряно-вологісний режим (RH <= 30 %)",
             },
             {
-              value: "cyclic_wet_dry",
-              label: "Циклічне зволоження і висихання",
+              value: "XC1",
+              label:
+                "XC1 — сухий режим (30 % < RH <= 60 %) або постійно вологонасичений стан",
+            },
+            {
+              value: "XC2",
+              label:
+                "XC2 — водонасичений стан при епізодичному висушуванні",
+            },
+            {
+              value: "XC3",
+              label:
+                "XC3 — помірний режим (60 % < RH <= 75 %) або епізодичне вологонасичення",
+            },
+            {
+              value: "XC4",
+              label: "XC4 — поперемінне зволоження та висушування",
             },
           ],
         },
@@ -111,89 +150,110 @@ export const CONCRETE_EXPOSURE_CLASS_INPUT_SCHEMA: CalculatorInputSchema = {
       title: "Хлориди",
       fields: [
         {
-          id: "chlorideSource",
+          id: "xdExposureRow",
           kind: "select",
-          name: "Джерело хлоридів",
-          defaultValue: DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.chlorideSource,
+          name: "Рядок XD таблиці 4.1",
+          defaultValue: DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.xdExposureRow,
+          description:
+            "Формальний вибір рядка ДБН В.2.6-98:2009, таблиця 4.1, рядки XD1-XD3 для хлоридів не з морської води.",
           options: [
-            { value: "none", label: "Немає" },
-            { value: "deicing_salts", label: "Протиожеледні солі" },
-            { value: "airborne_sea_salts", label: "Морські солі в повітрі" },
-            { value: "sea_water", label: "Морська вода" },
+            { value: "none", label: "Не застосовується" },
+            {
+              value: "XD1",
+              label:
+                "XD1 — вологий повітряно-вологісний стан (RH > 75 %)",
+            },
+            { value: "XD2", label: "XD2 — водонасичений стан" },
+            {
+              value: "XD3",
+              label: "XD3 — поперемінне зволоження і висушування",
+            },
           ],
         },
         {
-          id: "chlorideMoistureCondition",
+          id: "xsExposureRow",
           kind: "select",
-          name: "Вологісний режим для хлоридів",
-          defaultValue:
-            DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.chlorideMoistureCondition,
-          showWhen: { fieldId: "chlorideSource", notEquals: "none" },
+          name: "Клас XS за ДСТУ ENV/EN 206",
+          defaultValue: DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.xsExposureRow,
+          description:
+            "Окремий вибір класів XS1-XS3 за ДСТУ ENV/EN 206. У наданому PDF ДБН В.2.6-98:2009 класи XS1-XS3 не наведені як рядки таблиці 4.1, але таблиці 4.3 і 4.4 враховують XD/XS разом.",
           options: [
-            { value: "moderate_humidity", label: "Помірна вологість" },
-            { value: "wet_rarely_dry", label: "Волого, рідко сухо" },
-            { value: "permanently_submerged", label: "Постійне занурення" },
+            { value: "none", label: "Не застосовується" },
             {
-              value: "cyclic_wet_dry",
-              label: "Циклічне зволоження і висихання",
+              value: "XS1",
+              label:
+                "XS1 — повітря з морськими солями без прямого контакту з морською водою",
             },
-            { value: "splash_or_spray", label: "Бризки або розпилення" },
+            { value: "XS2", label: "XS2 — постійне занурення у морську воду" },
+            {
+              value: "XS3",
+              label: "XS3 — зона припливу, бризок або розпилення",
+            },
           ],
         },
       ],
     },
     {
       id: "concrete-exposure-freeze-chemical",
-      title: "Мороз і хімічна агресія",
+      title: "XF та XA за таблицею 4.1",
       fields: [
         {
-          id: "freezeThawRisk",
+          id: "xfExposureRow",
           kind: "select",
-          name: "Морозний вплив",
-          defaultValue: DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.freezeThawRisk,
+          name: "Рядок XF таблиці 4.1",
+          defaultValue: DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.xfExposureRow,
+          description:
+            "Формальний вибір рядка ДБН В.2.6-98:2009, таблиця 4.1, рядки XF1-XF4 для поперемінного заморожування-відтавання.",
           options: [
-            { value: "none", label: "Немає" },
+            { value: "none", label: "Не застосовується" },
             {
-              value: "moderate_water_saturation_without_deicing",
-              label: "Помірне водонасичення без солей",
+              value: "XF1",
+              label:
+                "XF1 — епізодичне водонасичення без антиобморожувачів",
             },
             {
-              value: "moderate_water_saturation_with_deicing",
-              label: "Помірне водонасичення з солями",
+              value: "XF2",
+              label:
+                "XF2 — епізодичне водонасичення з антиобморожувачами",
             },
             {
-              value: "high_water_saturation_without_deicing",
-              label: "Високе водонасичення без солей",
+              value: "XF3",
+              label: "XF3 — водонасичений стан без антиобморожувачів",
             },
             {
-              value: "high_water_saturation_with_deicing_or_sea_water",
-              label: "Високе водонасичення з солями або морською водою",
+              value: "XF4",
+              label: "XF4 — водонасичений стан з антиобморожувачами",
             },
           ],
         },
         {
-          id: "chemicalAttackRisk",
+          id: "xaExposureRow",
           kind: "select",
-          name: "Хімічна агресія",
-          defaultValue: DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.chemicalAttackRisk,
+          name: "Рядок XA таблиці 4.1",
+          defaultValue: DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.xaExposureRow,
+          description:
+            "Формальний вибір рядка ДБН В.2.6-98:2009, таблиця 4.1, рядки XA1-XA3. Класифікацію агресивності середовища потрібно підтвердити за ДСТУ Б В.2.6-145.",
           options: [
-            { value: "none", label: "Немає ознак хімічної агресії" },
-            { value: "XA1", label: "XA1 — слабка хімічна агресія" },
-            { value: "XA2", label: "XA2 — помірна хімічна агресія" },
-            { value: "XA3", label: "XA3 — сильна хімічна агресія" },
+            { value: "none", label: "Не застосовується" },
+            { value: "XA1", label: "XA1 — слабоагресивне середовище" },
+            { value: "XA2", label: "XA2 — середньоагресивне середовище" },
+            { value: "XA3", label: "XA3 — сильноагресивне середовище" },
             {
-              value: "unknown_requires_analysis",
-              label: "Невідомо — потрібен аналіз ґрунту або води",
+              value: "unknown_requires_classification",
+              label:
+                "Невідомо — потрібна класифікація за ДСТУ Б В.2.6-145",
             },
           ],
         },
         {
-          id: "hasSoilOrGroundwaterAnalysis",
+          id: "hasChemicalAggressivenessConfirmation",
           kind: "checkbox",
-          name: "Є аналіз ґрунту або води",
+          name: "Класифікацію агресивності підтверджено за ДСТУ Б В.2.6-145",
           defaultValue:
-            DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.hasSoilOrGroundwaterAnalysis,
-          showWhen: { fieldId: "chemicalAttackRisk", notEquals: "none" },
+            DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.hasChemicalAggressivenessConfirmation,
+          description:
+            "Підтверджує, що вибір XA1-XA3 або потребу в XA-класифікації звірено з ДСТУ Б В.2.6-145.",
+          showWhen: { fieldId: "xaExposureRow", notEquals: "none" },
         },
       ],
     },
@@ -298,33 +358,33 @@ function inputFromValues(values: CalculatorInputValues): ConcreteExposureClassIn
       "reinforcementPresence",
       DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.reinforcementPresence,
     ) as ReinforcementPresence,
-    carbonationMoistureCondition: getStringValue(
+    carbonationExposureRow: getStringValue(
       values,
-      "carbonationMoistureCondition",
-      DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.carbonationMoistureCondition,
-    ) as CarbonationMoistureCondition,
-    chlorideSource: getStringValue(
+      "carbonationExposureRow",
+      DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.carbonationExposureRow,
+    ) as CarbonationExposureRow,
+    xdExposureRow: getStringValue(
       values,
-      "chlorideSource",
-      DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.chlorideSource,
-    ) as ChlorideSource,
-    chlorideMoistureCondition: getStringValue(
+      "xdExposureRow",
+      DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.xdExposureRow,
+    ) as XdExposureRow,
+    xsExposureRow: getStringValue(
       values,
-      "chlorideMoistureCondition",
-      DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.chlorideMoistureCondition,
-    ) as ChlorideMoistureCondition,
-    freezeThawRisk: getStringValue(
+      "xsExposureRow",
+      DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.xsExposureRow,
+    ) as XsExposureRow,
+    xfExposureRow: getStringValue(
       values,
-      "freezeThawRisk",
-      DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.freezeThawRisk,
-    ) as FreezeThawRisk,
-    chemicalAttackRisk: getStringValue(
+      "xfExposureRow",
+      DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.xfExposureRow,
+    ) as XfExposureRow,
+    xaExposureRow: getStringValue(
       values,
-      "chemicalAttackRisk",
-      DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.chemicalAttackRisk,
-    ) as ChemicalAttackRisk,
-    hasSoilOrGroundwaterAnalysis:
-      values.hasSoilOrGroundwaterAnalysis === true,
+      "xaExposureRow",
+      DEFAULT_CONCRETE_EXPOSURE_CLASS_INPUT.xaExposureRow,
+    ) as XaExposureRow,
+    hasChemicalAggressivenessConfirmation:
+      values.hasChemicalAggressivenessConfirmation === true,
     ...(isCoverExposureClass(String(values.currentExposureClass ?? ""))
       ? { currentExposureClass: values.currentExposureClass as CoverExposureClass }
       : {}),
@@ -372,6 +432,30 @@ function ConcreteExposureClassSummary({
   );
 }
 
+function ConcreteExposureClassNorms() {
+  return (
+    <section className="native-report concrete-exposure-class-norms" aria-labelledby="concrete-exposure-class-norms-title">
+      <div className="native-report__head">
+        <h3 id="concrete-exposure-class-norms-title">Нормативні посилання</h3>
+      </div>
+      <div className="native-report__items">
+        <article id="concrete-exposure-norm-table-4-1">
+          <h4>таблиця 4.1 ДБН В.2.6-98:2009</h4>
+          <p>Рядки X0, XC1-XC4, XD1-XD3, XF1-XF4 та XA1-XA3 для визначення класів впливу середовища.</p>
+        </article>
+        <article id="concrete-exposure-norm-xs">
+          <h4>ДСТУ ENV/EN 206</h4>
+          <p>Класи XS1-XS3 для хлоридів морського походження; у ДБН таблиці 4.3 і 4.4 вони враховані разом із XD.</p>
+        </article>
+        <article id="concrete-exposure-norm-dstu-145">
+          <h4>ДСТУ Б В.2.6-145</h4>
+          <p>Класифікація агресивності середовища для підтвердження класів XA1-XA3.</p>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 export function ConcreteExposureClassCalculator() {
   const [inputValues, setInputValues] = useState<CalculatorInputValues>(() =>
     getConcreteExposureClassInitialValues(),
@@ -379,6 +463,10 @@ export function ConcreteExposureClassCalculator() {
   const returnParams = useMemo(() => getReturnParams(), []);
   const input = useMemo(() => inputFromValues(inputValues), [inputValues]);
   const report = useMemo(() => getConcreteExposureClassReport(input), [input]);
+  const docxReport = useMemo(
+    () => buildConcreteExposureClassDocxReport({ steps: report.steps }),
+    [report.steps],
+  );
   const summary = (
     <ConcreteExposureClassSummary report={report} returnParams={returnParams} />
   );
@@ -388,10 +476,11 @@ export function ConcreteExposureClassCalculator() {
       ariaLabel="Калькулятор класу впливу середовища для бетону"
       navLinks={[
         { href: "#concrete-exposure-element", label: "Елемент" },
-        { href: "#concrete-exposure-corrosion", label: "Корозія" },
+        { href: "#concrete-exposure-x0-xc", label: "X0/XC" },
         { href: "#concrete-exposure-chlorides", label: "Хлориди" },
-        { href: "#concrete-exposure-freeze-chemical", label: "Мороз / XA" },
+        { href: "#concrete-exposure-freeze-chemical", label: "XF / XA" },
         { href: "#concrete-exposure-class-report-title", label: "Звіт" },
+        { href: "#concrete-exposure-class-norms-title", label: "Норми" },
       ]}
       summary={summary}
       controls={
@@ -408,7 +497,9 @@ export function ConcreteExposureClassCalculator() {
         titleId="concrete-exposure-class-report-title"
         title="Покроковий звіт"
         steps={report.steps}
+        actions={<ReportDocxButton report={docxReport} />}
       />
+      <ConcreteExposureClassNorms />
     </NativeCalculatorLayout>
   );
 }

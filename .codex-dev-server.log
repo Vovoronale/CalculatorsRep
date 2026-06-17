@@ -1,15 +1,68 @@
 
 > construction-calculators-hub@0.1.0 dev
-> next dev -p 3002
+> next dev --hostname 127.0.0.1 --port 3000
 
    ▲ Next.js 15.5.15
-   - Local:        http://localhost:3002
-   - Network:      http://192.168.1.19:3002
+   - Local:        http://127.0.0.1:3000
+   - Network:      http://127.0.0.1:3000
 
  ✓ Starting...
- ✓ Ready in 1951ms
+ ✓ Ready in 2.1s
+ ○ Compiling /calculator/[slug] ...
+ ✓ Compiled /calculator/[slug] in 1216ms (918 modules)
+ GET /calculator/concrete-exposure-class 200 in 2680ms
  ○ Compiling / ...
- ✓ Compiled / in 1141ms (847 modules)
- GET / 200 in 1893ms
- ✓ Compiled /calculator/[slug] in 286ms (858 modules)
- GET /calculator/soil-design-resistance 200 in 960ms
+ ✓ Compiled / in 650ms (920 modules)
+ GET / 200 in 1100ms
+ GET / 200 in 1283ms
+ GET /calculator/concrete-exposure-class 200 in 253ms
+ GET /calculator/concrete-exposure-class 200 in 43ms
+ GET /calculator/concrete-exposure-class 200 in 196ms
+ GET /calculator/concrete-exposure-class 200 in 204ms
+ GET /calculator/concrete-exposure-class 200 in 242ms
+ GET /calculator/concrete-exposure-class 200 in 129ms
+ GET /calculator/concrete-exposure-class 200 in 270ms
+ ✓ Compiled in 424ms (920 modules)
+ GET /calculator/concrete-exposure-class 500 in 845ms
+ GET /calculator/concrete-exposure-class 500 in 847ms
+ GET /calculator/concrete-exposure-class 500 in 394ms
+ ✓ Compiled in 359ms (920 modules)
+ GET /calculator/concrete-exposure-class 500 in 902ms
+ GET /calculator/concrete-exposure-class 500 in 910ms
+ GET /calculator/concrete-exposure-class 500 in 306ms
+ ✓ Compiled in 239ms (920 modules)
+ GET /calculator/concrete-exposure-class 200 in 527ms
+ GET /calculator/concrete-exposure-class 200 in 531ms
+ GET /calculator/concrete-exposure-class 200 in 216ms
+ ✓ Compiled in 224ms (920 modules)
+ GET /calculator/concrete-exposure-class 200 in 255ms
+ GET /calculator/concrete-exposure-class 200 in 32ms
+ GET /calculator/concrete-exposure-class 200 in 31ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 544ms (924 modules)
+ GET /index.txt 404 in 711ms
+ GET /calculator/concrete-cover-durability.txt?exposureClass=X0&sourceExposureClasses=X0&sourceCalculator=concrete-exposure-class 404 in 718ms
+ GET /calculator/concrete-cover-durability.txt?exposureClass=X0&sourceExposureClasses=X0&sourceCalculator=concrete-exposure-class 404 in 9ms
+ GET /index.txt 404 in 23ms
+ GET /author.txt 404 in 22ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 591ms (1270 modules)
+ GET /calculator/concrete-exposure-class 500 in 1774ms
+ GET /calculator/concrete-exposure-class 500 in 1392ms
+ GET /calculator/concrete-exposure-class 500 in 412ms
+ GET /calculator/concrete-exposure-class 500 in 771ms
+ GET /calculator/concrete-exposure-class 500 in 669ms
+ GET / 200 in 819ms
+ GET / 200 in 148ms
+ GET / 200 in 180ms
+ GET / 200 in 111ms
+ GET /calculator/concrete-exposure-class 500 in 860ms
+ GET /calculator/concrete-exposure-class 500 in 779ms
+ GET / 200 in 151ms
+ GET / 200 in 111ms
+ GET / 200 in 324ms
+ GET / 200 in 178ms
+ GET /calculator/concrete-exposure-class 500 in 839ms
+ GET /calculator/concrete-exposure-class 500 in 712ms
+ GET /calculator/concrete-exposure-class 500 in 839ms
+ GET /calculator/concrete-exposure-class 500 in 752ms
