@@ -93,6 +93,7 @@ const FALLBACK_CATEGORY_ICONS: Record<CategorySlug, LucideIcon> = {
   "teplovi-mistky-fem": Network,
   povitropronyknist: Wind,
   konstruktsiyi: Triangle,
+  "stalevi-konstruktsiyi": Hammer,
   zalizobeton: Building,
   armatura: Drill,
   beton: Box,

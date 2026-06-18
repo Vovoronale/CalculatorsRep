@@ -275,6 +275,28 @@ describe("calculator input schema", () => {
 });
 
 describe("InputSchemaForm", () => {
+  it("supports controlled display units", async () => {
+    const user = userEvent.setup();
+    const onDisplayUnitsChange = vi.fn();
+
+    render(
+      <InputSchemaForm
+        schema={schema}
+        values={{ ...defaultValues, spanM: "1.25" }}
+        onValuesChange={vi.fn()}
+        displayUnits={{ spanM: "cm" }}
+        onDisplayUnitsChange={onDisplayUnitsChange}
+      />,
+    );
+
+    expect(screen.getByRole("textbox", { name: "Короткий проліт" })).toHaveValue("125");
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Одиниця Короткий проліт" }),
+      "mm",
+    );
+    expect(onDisplayUnitsChange).toHaveBeenCalledWith({ spanM: "mm" });
+  });
+
   it("renders inspector groups, prefixes, names, units, controls, and derived values", () => {
     render(<InputSchemaForm schema={schema} values={defaultValues} onValuesChange={vi.fn()} />);
 

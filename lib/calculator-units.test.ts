@@ -41,6 +41,14 @@ describe("calculator unit registry", () => {
         { value: "m", label: "м", factorToBase: 1000 },
       ],
     });
+    expectRegistryEntry("thickness", {
+      baseUnit: "mm",
+      units: [
+        { value: "mm", label: "мм", factorToBase: 1 },
+        { value: "cm", label: "см", factorToBase: 10 },
+        { value: "m", label: "м", factorToBase: 1000 },
+      ],
+    });
     expectRegistryEntry("area", {
       baseUnit: "mm2",
       units: [

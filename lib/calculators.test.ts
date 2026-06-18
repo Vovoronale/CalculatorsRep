@@ -23,6 +23,7 @@ describe("calculator data model", () => {
       "teplovi-mistky-fem",
       "povitropronyknist",
       "konstruktsiyi",
+      "stalevi-konstruktsiyi",
       "zalizobeton",
       "armatura",
       "beton",
@@ -135,6 +136,10 @@ describe("calculator data model", () => {
         extraCategories: ["perevirka-dbn", "normatyvni-obgruntuvannya"],
       },
       {
+        slug: "steel-structure-category-group",
+        extraCategories: ["normy-perevirky", "dovidkovi-tablytsi"],
+      },
+      {
         slug: "concrete-exposure-class",
         extraCategories: ["beton", "normy-perevirky", "normatyvni-obgruntuvannya"],
       },
@@ -157,6 +162,26 @@ describe("calculator data model", () => {
       "foundation-base-pressure",
     ]);
     expect(getCalculatorsForCategory("asystenty-pidhotovky-poyasnen")).toHaveLength(0);
+  });
+
+  it("registers the steel category/group calculator in the steel category", () => {
+    const calculator = getCalculatorBySlug("steel-structure-category-group");
+    const category = calculatorCategories.find(
+      (item) => item.slug === "stalevi-konstruktsiyi",
+    );
+
+    expect(category).toMatchObject({
+      parentSlug: "konstruktsiyi",
+      title: "Сталеві конструкції",
+      icon: "Hammer",
+    });
+    expect(calculator).toMatchObject({
+      mainCategory: "stalevi-konstruktsiyi",
+      extraCategories: ["normy-perevirky", "dovidkovi-tablytsi"],
+      displayMode: "native",
+      nativeCalculator: "steel-structure-category-group",
+      standard: "ДБН В.2.6-198:2014",
+    });
   });
 
   it("registers the soil design resistance calculator as a native foundation calculator", () => {

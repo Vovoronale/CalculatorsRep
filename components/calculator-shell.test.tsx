@@ -146,7 +146,7 @@ describe("CalculatorShell", () => {
     render(<CalculatorShell />);
 
     await user.click(screen.getByRole("button", { name: "Розгорнути Конструкції" }));
-    await user.click(screen.getByRole("link", { name: "Конструкції 10" }));
+    await user.click(screen.getByRole("link", { name: "Конструкції 11" }));
 
     expect(screen.getByRole("heading", { name: "Конструкції" })).toBeInTheDocument();
     const table = screen.getByRole("table", {
@@ -799,6 +799,19 @@ describe("CalculatorShell", () => {
 
     expect(screen.getByLabelText(ariaLabel)).toHaveClass("native-calculator");
     expect(screen.getByRole("heading", { name: diagramHeading })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
+  });
+
+  it("renders the steel structure category/group native calculator", () => {
+    const calculator = getCalculatorBySlug("steel-structure-category-group");
+    if (!calculator) throw new Error("Expected steel-structure-category-group to exist");
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(
+      screen.getByLabelText("Калькулятор категорій і груп сталевих конструкцій"),
+    ).toHaveClass("native-calculator");
     expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
   });

@@ -32,6 +32,8 @@ type InputSchemaFormProps = {
   onValuesChange: (values: CalculatorInputValues) => void;
   validationErrors?: CalculatorInputValidationErrors;
   onFieldCalculatorAction?: (event: InputSchemaFieldCalculatorActionEvent) => void;
+  displayUnits?: Record<string, string>;
+  onDisplayUnitsChange?: (displayUnits: Record<string, string>) => void;
 };
 
 function getNotationText(prefix: CalculatorInputNotation): string {
@@ -91,11 +93,14 @@ export function InputSchemaForm({
   onValuesChange,
   validationErrors,
   onFieldCalculatorAction,
+  displayUnits: controlledDisplayUnits,
+  onDisplayUnitsChange,
 }: InputSchemaFormProps) {
   const [expandedDetails, setExpandedDetails] = useState<Record<string, "help" | "error">>({});
-  const [displayUnits, setDisplayUnits] = useState<Record<string, string>>(() =>
+  const [internalDisplayUnits, setInternalDisplayUnits] = useState<Record<string, string>>(() =>
     getInitialDisplayUnits(schema),
   );
+  const displayUnits = controlledDisplayUnits ?? internalDisplayUnits;
   const schemaErrors = useMemo(
     () => validateInputSchemaValues(schema, values),
     [schema, values],
@@ -162,12 +167,17 @@ export function InputSchemaForm({
               disabled={resolvedUnits.length === 1}
               aria-readonly={resolvedUnits.length === 1 ? "true" : undefined}
               value={selectedUnit?.value ?? resolvedUnits[0].value}
-              onChange={(event) =>
-                setDisplayUnits((current) => ({
-                  ...current,
+              onChange={(event) => {
+                const nextDisplayUnits = {
+                  ...displayUnits,
                   [field.id]: event.target.value,
-                }))
-              }
+                };
+                if (controlledDisplayUnits) {
+                  onDisplayUnitsChange?.(nextDisplayUnits);
+                } else {
+                  setInternalDisplayUnits(nextDisplayUnits);
+                }
+              }}
               aria-label={`Одиниця ${field.name}`}
             >
               {resolvedUnits.map((unit) => (

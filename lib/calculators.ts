@@ -10,6 +10,7 @@ export type CategorySlug =
   | "teplovi-mistky-fem"
   | "povitropronyknist"
   | "konstruktsiyi"
+  | "stalevi-konstruktsiyi"
   | "zalizobeton"
   | "armatura"
   | "beton"
@@ -90,7 +91,8 @@ export type Calculator = {
     | "concrete-exposure-class"
     | "concrete-cover-durability"
     | "soil-design-resistance"
-    | "foundation-base-pressure";
+    | "foundation-base-pressure"
+    | "steel-structure-category-group";
   accessLabel: string;
   embedUrl?: string;
   openUrl: string;

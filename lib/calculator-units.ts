@@ -3,6 +3,7 @@ import type { CalculatorInputDisplayUnit } from "./calculator-input-schema";
 export type CalculatorInputQuantity =
   | "length"
   | "diameter"
+  | "thickness"
   | "area"
   | "force"
   | "linearLoad"
@@ -30,6 +31,14 @@ export const CALCULATOR_UNIT_REGISTRY: Record<
     ],
   },
   diameter: {
+    baseUnit: "mm",
+    units: [
+      { value: "mm", label: "мм", factorToBase: 1 },
+      { value: "cm", label: "см", factorToBase: 10 },
+      { value: "m", label: "м", factorToBase: 1000 },
+    ],
+  },
+  thickness: {
     baseUnit: "mm",
     units: [
       { value: "mm", label: "мм", factorToBase: 1 },
