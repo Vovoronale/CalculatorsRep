@@ -42,6 +42,7 @@ import { ReportDocxButton } from "./report-docx-button";
 type SchemaValues = Partial<CalculatorInputValues>;
 
 const yesNoDescription = "Оберіть відповідь за відповідною нормативною умовою.";
+const steelGradeStandardDescription = "Оберіть фактичну марку сталі та стандарт, за яким виготовлено прокат. Ці дані беруть із сертифіката якості на метал або зі специфікації проєкту. Калькулятор перевіряє, чи відповідає вибрана марка заданому класу міцності, виду та товщині прокату за таблицею Г.5 ДБН В.2.6-198:2014, а також визначає коефіцієнт надійності за матеріалом γm для розрахунку Ry = Ryn / γm за таблицею 7.2.";
 
 function checkbox(id: string, name: string, defaultValue: boolean, description: string): CalculatorInputField {
   return { id, kind: "checkbox", name, defaultValue, description };
@@ -159,7 +160,7 @@ export function buildSteelStructureCategoryGroupInputSchema(values: SchemaValues
         { id: "serviceCondition", kind: "select", name: "Умови експлуатації", defaultValue: "heated", description: "ДБН В.2.6-198:2014, таблиця Г.1, примітки а, б і 3.", options: [{ value: "heated", label: "Опалювана споруда" }, { value: "unheated", label: "Неопалювана споруда" }, { value: "open_air", label: "Конструкція на відкритому повітрі" }] },
         { id: "productType", kind: "select", name: "Вид прокату", defaultValue: productType, description: "ДБН В.2.6-198:2014, таблиця Г.5; використовується для фільтрації марки сталі.", options: [{ value: "section", label: "Фасонний" }, { value: "long", label: "Сортовий" }, { value: "sheet", label: "Листовий" }, { value: "universal_plate", label: "Широкосмуговий універсальний" }, { value: "cold_formed", label: "Холодногнутий профіль" }] },
         { id: "steelClass", kind: "select", name: "Клас міцності сталі", defaultValue: steelClass, description: "ДБН В.2.6-198:2014, таблиці 7.1, 7.2, Г.1 і Г.5.", options: STEEL_STRENGTH_CLASSES.map((item) => ({ value: item, label: item })) },
-        { id: "steelGradeStandardId", kind: "select", name: "Марка сталі та нормативний документ", defaultValue: gradeOptions[0]?.id ?? "", description: "ДБН В.2.6-198:2014, Додаток Г, таблиця Г.5.", options: gradeOptions.map((item) => ({ value: item.id, label: item.label })) },
+        { id: "steelGradeStandardId", kind: "select", name: "Марка сталі та нормативний документ", defaultValue: gradeOptions[0]?.id ?? "", description: steelGradeStandardDescription, options: gradeOptions.map((item) => ({ value: item.id, label: item.label })) },
         { id: "thicknessMm", kind: "number", name: "Товщина прокату", prefix: "t", defaultValue: "10", min: 0, quantity: "thickness", baseUnit: "mm", defaultDisplayUnit: "mm", description: "ДБН В.2.6-198:2014, пункт А.2, другий абзац; таблиця Г.5 та примітки таблиці Г.1." },
       ] },
       { id: "steel-a2", title: "Чинники А.2", fields: [

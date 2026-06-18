@@ -39,6 +39,12 @@ describe("steel structure category/group schema", () => {
       baseUnit: "mm",
       defaultDisplayUnit: "mm",
     });
+    expect(fields.find((field) => field.id === "steelGradeStandardId")?.description).toContain(
+      "сертифіката якості на метал або зі специфікації проєкту",
+    );
+    expect(fields.find((field) => field.id === "steelGradeStandardId")?.description).toContain(
+      "визначає коефіцієнт надійності за матеріалом γm для розрахунку Ry = Ryn / γm",
+    );
   });
 });
 
