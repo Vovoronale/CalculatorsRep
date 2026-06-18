@@ -1209,7 +1209,7 @@ textarea {
 .calculator-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 760px;
+  min-width: 900px;
   color: var(--text);
 }
 
@@ -1242,7 +1242,7 @@ textarea {
 }
 
 .calculator-table tbody th {
-  width: 68%;
+  width: 58%;
   font-weight: 600;
 }
 
@@ -1250,6 +1250,45 @@ textarea {
   font-size: 13px;
   line-height: 1.5;
   color: var(--text-muted);
+}
+
+.calculator-table__number-heading,
+.calculator-table__image-heading,
+.calculator-table__number-cell,
+.calculator-table__image-cell {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.calculator-table__number-cell {
+  vertical-align: middle;
+}
+
+.calculator-table__number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.2rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-subtle);
+}
+
+.calculator-table__image-cell {
+  vertical-align: middle;
+}
+
+.calculator-table__image {
+  display: block;
+  width: 44px;
+  height: 44px;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  object-fit: cover;
+  box-shadow: var(--shadow-sm);
 }
 
 .calculator-table__link {
@@ -5410,6 +5449,8 @@ textarea {
 
   .calculator-table tbody tr {
     display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    align-items: start;
     gap: 8px;
     padding: 14px;
     border: 1px solid var(--border);
@@ -5425,6 +5466,35 @@ textarea {
 
   .calculator-table tbody th {
     width: auto;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .calculator-table__number-cell {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  .calculator-table__image-cell {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .calculator-table__number {
+    min-width: 40px;
+    height: 18px;
+    justify-content: flex-start;
+    font-size: 11px;
+  }
+
+  .calculator-table__image {
+    width: 40px;
+    height: 40px;
+  }
+
+  .calculator-table tbody td:last-child {
+    grid-column: 1 / -1;
   }
 
   .calculator-table__title-row {
@@ -5447,7 +5517,7 @@ textarea {
     color: var(--text-subtle);
   }
 
-  .calculator-table td:nth-child(2)::before {
+  .calculator-table td:nth-child(4)::before {
     content: "Норматив";
   }
 

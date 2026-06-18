@@ -77,6 +77,8 @@ describe("CalculatorShell", () => {
     const table = within(workspace).getByRole("table", {
       name: "Розрахунки категорії Теплотехніка",
     });
+    expect(within(table).getByRole("columnheader", { name: "№" })).toBeInTheDocument();
+    expect(within(table).getByRole("columnheader", { name: "Іконка" })).toBeInTheDocument();
     expect(within(table).getByRole("columnheader", { name: "Розрахунок" })).toBeInTheDocument();
     expect(
       within(table).queryByRole("columnheader", { name: "Що рахується" }),
@@ -89,6 +91,16 @@ describe("CalculatorShell", () => {
     const externalEnvelopeRow = within(table).getByRole("row", {
       name: /Теплотехнічний розрахунок огороджувальної конструкції будівлі/,
     });
+    expect(
+      externalEnvelopeRow.querySelector(".calculator-table__number"),
+    ).toHaveTextContent("01");
+    const calculatorImage = within(externalEnvelopeRow).getByRole("img", {
+      name: "Іконка: Теплотехнічний розрахунок огороджувальної конструкції будівлі",
+    });
+    expect(calculatorImage).toHaveAttribute(
+      "src",
+      "/calculator-icons/cadee-external.svg",
+    );
     expect(
       within(externalEnvelopeRow).getByRole("link", {
         name: /Теплотехнічний розрахунок огороджувальної конструкції будівлі/,

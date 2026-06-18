@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Розрахунок коефіцієнтів теплопровідного включення зовнішнього кута однорідної стіни">
+  <rect width="96" height="96" rx="16" fill="#f3f6ef"/>
+  <path d="M14 18h68v60H14z" fill="none" stroke="#d5e2c7" stroke-width="2"/>
+  <g fill="none" stroke="#26371c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    
+      <path d="M22 25h52M22 43h52M22 61h52M30 18v54M48 18v54M66 18v54" />
+      <path d="M49 18v54" class="accent" />
+      <circle cx="49" cy="43" r="5" class="fill-accent" />
+  </g>
+  <rect x="13" y="13" width="28" height="18" rx="5" fill="#26371c"/>
+  <text x="27" y="26" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" font-weight="700" fill="#fff">Ψ</text>
+  <style>
+    .accent{stroke:#5f7f30}
+    .fill-accent{fill:#5f7f30;stroke:none}
+  </style>
+</svg>

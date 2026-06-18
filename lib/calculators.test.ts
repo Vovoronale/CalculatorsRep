@@ -1,3 +1,6 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -274,6 +277,17 @@ describe("calculator data model", () => {
   it("every calculator has a standard label for the category table", () => {
     for (const calculator of calculators) {
       expect(calculator.standard, calculator.slug).toBeTruthy();
+    }
+  });
+
+  it("has a catalog image asset for every calculator", () => {
+    for (const calculator of calculators) {
+      expect(
+        existsSync(
+          join(process.cwd(), "public", "calculator-icons", `${calculator.slug}.svg`),
+        ),
+        calculator.slug,
+      ).toBe(true);
     }
   });
 

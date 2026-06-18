@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Захисний шар бетону для арматури">
+  <rect width="96" height="96" rx="16" fill="#f3f6ef"/>
+  <path d="M14 18h68v60H14z" fill="none" stroke="#d5e2c7" stroke-width="2"/>
+  <g fill="none" stroke="#26371c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    
+      <path d="M24 28h48v38H24z" />
+      <path d="M31 37h34M31 48h34M31 59h34" />
+      <path d="M72 28l-9 9M72 44l-9 9M72 60l-6 6" class="accent" />
+  </g>
+  <rect x="13" y="13" width="28" height="18" rx="5" fill="#26371c"/>
+  <text x="27" y="26" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" font-weight="700" fill="#fff">C</text>
+  <style>
+    .accent{stroke:#5f7f30}
+    .fill-accent{fill:#5f7f30;stroke:none}
+  </style>
+</svg>

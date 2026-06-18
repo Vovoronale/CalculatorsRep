@@ -291,17 +291,33 @@ function CalculatorCategoryTable({
       >
         <thead>
           <tr>
+            <th className="calculator-table__number-heading" scope="col">№</th>
+            <th className="calculator-table__image-heading" scope="col">Іконка</th>
             <th scope="col">Розрахунок</th>
             <th scope="col">Норматив</th>
           </tr>
         </thead>
         <tbody>
-          {calculators.map((calculator) => {
+          {calculators.map((calculator, index) => {
             const detailsId = `calculator-details-${calculator.slug}`;
             const isExpanded = expandedDetails.includes(calculator.slug);
+            const rowNumber = String(index + 1).padStart(2, "0");
 
             return (
               <tr key={calculator.slug}>
+                <td className="calculator-table__number-cell">
+                  <span className="calculator-table__number">{rowNumber}</span>
+                </td>
+                <td className="calculator-table__image-cell">
+                  <img
+                    className="calculator-table__image"
+                    src={`/calculator-icons/${calculator.slug}.svg`}
+                    alt={`Іконка: ${calculator.title}`}
+                    width="44"
+                    height="44"
+                    loading="lazy"
+                  />
+                </td>
                 <th scope="row">
                   <div className="calculator-table__title-row">
                     <span className="calculator-table__title-main">
