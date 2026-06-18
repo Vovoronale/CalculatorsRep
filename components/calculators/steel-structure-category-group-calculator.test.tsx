@@ -81,7 +81,12 @@ describe("SteelStructureCategoryGroupCalculator", () => {
     expect(screen.queryByRole("textbox", { name: "Коефіцієнт умов роботи" })).not.toBeInTheDocument();
 
     await user.selectOptions(mode, "manual");
-    expect(screen.getByRole("textbox", { name: "Коефіцієнт умов роботи" })).toHaveValue("1");
+    const manualPreset = screen.getByRole("combobox", { name: "Значення γc" });
+    expect(manualPreset).toHaveValue("1");
+    expect(screen.queryByRole("textbox", { name: "Коефіцієнт умов роботи" })).not.toBeInTheDocument();
     expect(screen.queryByRole("combobox", { name: "Позиція таблиці 5.1" })).not.toBeInTheDocument();
+
+    await user.selectOptions(manualPreset, "custom");
+    expect(screen.getByRole("textbox", { name: "Коефіцієнт умов роботи" })).toHaveValue("1");
   });
 });

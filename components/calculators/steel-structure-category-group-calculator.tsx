@@ -124,6 +124,7 @@ export function buildSteelStructureCategoryGroupInputSchema(values: SchemaValues
   const productType = String(values.productType ?? "section") as ProductType;
   const gradeOptions = getSteelGradeOptions(steelClass, productType);
   const gammaCMode = String(values.gammaCMode ?? "automatic") as GammaCMode;
+  const gammaCManualPreset = String(values.gammaCManualPreset ?? "1");
   const conditions = gammaCMode === "automatic" && entry ? table51Fields(entry.table51Profiles) : [];
   const gammaCFields: CalculatorInputField[] = [
     { id: "gammaCMode", kind: "select", name: "Режим визначення γc", defaultValue: gammaCMode, description: "ДБН В.2.6-198:2014, пункт 5.4.1 і таблиця 5.1.", options: [
@@ -132,7 +133,15 @@ export function buildSteelStructureCategoryGroupInputSchema(values: SchemaValues
       { value: "manual", label: "Вручну" },
     ] },
     ...(gammaCMode === "table" ? [{ id: "gammaCTableOptionId", kind: "select" as const, name: "Позиція таблиці 5.1", defaultValue: "note5", description: "Оберіть нормативний рядок таблиці 5.1; значення γc підставляється автоматично.", options: GAMMA_C_TABLE_OPTIONS.map((option) => ({ value: option.id, label: option.label })) }] : []),
-    ...(gammaCMode === "manual" ? [{ id: "gammaCManual", kind: "number" as const, name: "Коефіцієнт умов роботи", prefix: { text: "γ", subscript: "c", ariaLabel: "γc" }, defaultValue: "1", min: 0.000001, description: "Значення γc приймається користувачем і має бути більше 0." }] : []),
+    ...(gammaCMode === "manual" ? [
+      { id: "gammaCManualPreset", kind: "select" as const, name: "Значення γc", defaultValue: gammaCManualPreset, description: "Оберіть типове значення або перейдіть до довільного вводу.", options: [
+        { value: "0.75", label: "0,75" }, { value: "0.8", label: "0,80" }, { value: "0.9", label: "0,90" },
+        { value: "0.95", label: "0,95" }, { value: "1", label: "1,00" }, { value: "1.05", label: "1,05" },
+        { value: "1.1", label: "1,10" }, { value: "1.15", label: "1,15" }, { value: "1.2", label: "1,20" },
+        { value: "custom", label: "Інше значення" },
+      ] },
+      ...(gammaCManualPreset === "custom" ? [{ id: "gammaCManual", kind: "number" as const, name: "Коефіцієнт умов роботи", prefix: { text: "γ", subscript: "c", ariaLabel: "γc" }, defaultValue: "1", min: 0.000001, description: "Значення γc приймається користувачем і має бути більше 0." }] : []),
+    ] : []),
     ...conditions,
   ];
 
@@ -233,7 +242,9 @@ function inputFromValues(values: CalculatorInputValues, units: Record<string, st
     hasHighInitialStress: boolValue(values, "hasHighInitialStress"),
     gammaCMode: stringValue(values, "gammaCMode", "automatic") as GammaCMode,
     gammaCTableOptionId: stringValue(values, "gammaCTableOptionId", "note5") as GammaCTableOptionId,
-    gammaCManual: numberValue(values, "gammaCManual", 1),
+    gammaCManual: stringValue(values, "gammaCManualPreset", "1") === "custom"
+      ? numberValue(values, "gammaCManual", 1)
+      : Number(stringValue(values, "gammaCManualPreset", "1")),
     table51: qualifierInput(values),
     displayUnits: { thickness: units.thicknessMm ?? "mm", sigmaDyn: units.sigmaDynKpa ?? "mpa", sigmaSum: units.sigmaSumKpa ?? "mpa", sigmaC: units.sigmaCKpa ?? "mpa" },
   };
