@@ -17,46 +17,23 @@ describe("calculator data model", () => {
       "energoefektyvnist-teplotekhnika",
       "ogorodzhuvalni-konstruktsiyi",
       "pidlohy",
-      "voloha-tochka-rosy",
-      "temperatura-poverkhni",
-      "teplova-inertsiya",
       "teplovi-mistky-fem",
-      "povitropronyknist",
       "konstruktsiyi",
-      "stalevi-konstruktsiyi",
       "zalizobeton",
-      "armatura",
-      "beton",
-      "balky-plyty",
       "fundamenty",
-      "ankeruvannya",
-      "dovidkovi-tablytsi",
+      "stalevi-konstruktsiyi",
+      "budivelna-mekhanika",
       "normy-perevirky",
       "normokontrol",
       "klas-naslidkiv",
       "perevirka-dbn",
       "normatyvni-obgruntuvannya",
-      "ai-asystenty-z-norm",
       "inzhenerni-merezhi",
       "elektryka",
-      "opalennya",
-      "ventylyatsiya",
-      "vodopostachannya",
-      "enerhospozhyvannya",
       "cad-gis-dani",
       "dxf-geojson",
-      "konvertery",
-      "heometriya",
-      "import-eksport",
-      "dovidnyky",
-      "dovidnyk-beton",
-      "dovidnyk-armatura",
-      "materialy",
-      "normatyvni-kharakterystyky",
       "ai-instrumenty",
       "asystenty-dbn",
-      "asystenty-perevirky-rishen",
-      "asystenty-pidhotovky-poyasnen",
     ]);
   });
 
@@ -70,12 +47,12 @@ describe("calculator data model", () => {
     expect(slugs).toContain("cadee-bridge-homogeneous-wall-floor");
   });
 
-  it("keeps thermal calculators in specific subcategories", () => {
+  it("groups thermal envelope calculators under envelope structures", () => {
     const parent = calculatorCategories.find(
       (category) => category.slug === "energoefektyvnist-teplotekhnika",
     );
-    const femCategory = calculatorCategories.find(
-      (category) => category.slug === "teplovi-mistky-fem",
+    const envelopeCategory = calculatorCategories.find(
+      (category) => category.slug === "ogorodzhuvalni-konstruktsiyi",
     );
     const envelopeSlugs = getCalculatorsForCategory("ogorodzhuvalni-konstruktsiyi").map(
       (calculator) => calculator.slug,
@@ -88,25 +65,41 @@ describe("calculator data model", () => {
     );
 
     expect(parent?.parentSlug).toBeUndefined();
-    expect(femCategory?.parentSlug).toBe("energoefektyvnist-teplotekhnika");
+    expect(envelopeCategory?.parentSlug).toBe("energoefektyvnist-teplotekhnika");
     expect(envelopeSlugs).toEqual([
       "cadee-external",
       "cadee-heat-transfer-resistance",
+      "cadee-heat-humid-state",
+      "cadee-vapor-permeability-resistance",
+      "cadee-heat-inertia",
+      "cadee-summer-thermo-resistance",
+      "cadee-dewpoint-temperature",
+      "cadee-delta-surface-temperature",
+      "cadee-air-permeability",
     ]);
     expect(floorSlugs).toContain("cadee-floor-ground");
     expect(femSlugs).toContain("cadee-bridge-homogeneous-wall-floor");
   });
 
-  it("moves reference calculators into reference subcategories", () => {
-    expect(
-      getCalculatorsForCategory("dovidnyk-armatura").map((calculator) => calculator.slug),
-    ).toEqual(["rebar-characteristics"]);
-    expect(
-      getCalculatorsForCategory("dovidnyk-beton").map((calculator) => calculator.slug),
-    ).toEqual(["concrete-characteristics"]);
-    expect(
-      getCalculatorsForCategory("dovidnyky").map((calculator) => calculator.slug),
-    ).toEqual(["rebar-characteristics", "concrete-characteristics"]);
+  it("moves reference calculators into reinforced concrete", () => {
+    const categorySlugs = calculatorCategories.map((category) => category.slug);
+    const reinforcedConcreteSlugs = getCalculatorsForCategory("zalizobeton").map(
+      (calculator) => calculator.slug,
+    );
+
+    expect(categorySlugs).not.toContain("dovidnyky");
+    expect(categorySlugs).not.toContain("dovidnyk-armatura");
+    expect(categorySlugs).not.toContain("dovidnyk-beton");
+    expect(reinforcedConcreteSlugs).toEqual([
+      "armcon",
+      "minimum-reinforcement-area",
+      "foundation-bar-anchorage",
+      "rebar-area-bars",
+      "concrete-exposure-class",
+      "rebar-characteristics",
+      "concrete-characteristics",
+      "concrete-cover-durability",
+    ]);
   });
 
   it("places each calculator in a primary category and limits extra category duplication", () => {
@@ -137,31 +130,61 @@ describe("calculator data model", () => {
       },
       {
         slug: "steel-structure-category-group",
-        extraCategories: ["normy-perevirky", "dovidkovi-tablytsi"],
+        extraCategories: ["normy-perevirky"],
       },
       {
         slug: "concrete-exposure-class",
-        extraCategories: ["beton", "normy-perevirky", "normatyvni-obgruntuvannya"],
+        extraCategories: ["normy-perevirky", "normatyvni-obgruntuvannya"],
       },
       {
         slug: "concrete-cover-durability",
-        extraCategories: ["beton", "normy-perevirky", "normatyvni-obgruntuvannya"],
+        extraCategories: ["normy-perevirky", "normatyvni-obgruntuvannya"],
       },
     ]);
   });
 
-  it("allows empty prepared subcategories while keeping top-level categories populated", () => {
+  it("keeps only populated category branches", () => {
     const topLevelCategories = calculatorCategories.filter((category) => !category.parentSlug);
+    const removedSlugs = [
+      "voloha-tochka-rosy",
+      "temperatura-poverkhni",
+      "teplova-inertsiya",
+      "povitropronyknist",
+      "armatura",
+      "beton",
+      "balky-plyty",
+      "ankeruvannya",
+      "dovidkovi-tablytsi",
+      "ai-asystenty-z-norm",
+      "opalennya",
+      "ventylyatsiya",
+      "vodopostachannya",
+      "enerhospozhyvannya",
+      "konvertery",
+      "heometriya",
+      "import-eksport",
+      "dovidnyky",
+      "dovidnyk-beton",
+      "dovidnyk-armatura",
+      "materialy",
+      "normatyvni-kharakterystyky",
+      "asystenty-perevirky-rishen",
+      "asystenty-pidhotovky-poyasnen",
+    ];
+    const categorySlugs = calculatorCategories.map((category) => category.slug);
 
     for (const category of topLevelCategories) {
       expect(getCalculatorsForCategory(category.slug).length, category.slug).toBeGreaterThan(0);
+    }
+
+    for (const removedSlug of removedSlugs) {
+      expect(categorySlugs).not.toContain(removedSlug);
     }
 
     expect(getCalculatorsForCategory("perevirka-dbn").map((calculator) => calculator.slug)).toEqual([
       "soil-design-resistance",
       "foundation-base-pressure",
     ]);
-    expect(getCalculatorsForCategory("asystenty-pidhotovky-poyasnen")).toHaveLength(0);
   });
 
   it("registers the steel category/group calculator in the steel category", () => {
@@ -177,11 +200,28 @@ describe("calculator data model", () => {
     });
     expect(calculator).toMatchObject({
       mainCategory: "stalevi-konstruktsiyi",
-      extraCategories: ["normy-perevirky", "dovidkovi-tablytsi"],
+      extraCategories: ["normy-perevirky"],
       displayMode: "native",
       nativeCalculator: "steel-structure-category-group",
       standard: "ДБН В.2.6-198:2014",
     });
+  });
+
+  it("registers structural mechanics calculators under construction mechanics", () => {
+    const category = calculatorCategories.find(
+      (item) => item.slug === "budivelna-mekhanika",
+    );
+
+    expect(category).toMatchObject({
+      parentSlug: "konstruktsiyi",
+      title: "Будівельна механіка",
+      icon: "Activity",
+    });
+    expect(
+      getCalculatorsForCategory("budivelna-mekhanika").map(
+        (calculator) => calculator.slug,
+      ),
+    ).toEqual(["cassoon-load-distribution", "livebeamcalculator"]);
   });
 
   it("registers the soil design resistance calculator as a native foundation calculator", () => {
@@ -261,7 +301,7 @@ describe("calculator data model", () => {
       shortDescription:
         "Визначення XC, XD, XS, XF та XA для бетонного або залізобетонного елемента з передачею керівного класу в розрахунок захисного шару.",
       mainCategory: "zalizobeton",
-      extraCategories: ["beton", "normy-perevirky", "normatyvni-obgruntuvannya"],
+      extraCategories: ["normy-perevirky", "normatyvni-obgruntuvannya"],
       displayMode: "native",
       nativeCalculator: "concrete-exposure-class",
       icon: "ShieldCheck",
@@ -277,7 +317,7 @@ describe("calculator data model", () => {
       shortDescription:
         "Розрахунок мінімального та номінального захисного шару cmin і cnom за ДБН В.2.6-98:2009.",
       mainCategory: "zalizobeton",
-      extraCategories: ["beton", "normy-perevirky", "normatyvni-obgruntuvannya"],
+      extraCategories: ["normy-perevirky", "normatyvni-obgruntuvannya"],
       displayMode: "native",
       nativeCalculator: "concrete-cover-durability",
       icon: "Shield",
@@ -302,9 +342,9 @@ describe("calculator data model", () => {
     }
 
     expect(buildCalculatorSeoMetadata(soil, siteContent.brand.umbrella)).toEqual({
-      title: "Розрахунковий опір ґрунту основи | Фундаменти | IVapps.pro",
+      title: "Розрахунковий опір ґрунту основи | Фундаменти та основи | IVapps.pro",
       description:
-        "Розрахунковий опір ґрунту основи у категорії «Фундаменти»: Обчислення розрахункового опору ґрунту основи R за додатком Е ДБН В.2.1-10-2009.",
+        "Розрахунковий опір ґрунту основи у категорії «Фундаменти та основи»: Обчислення розрахункового опору ґрунту основи R за додатком Е ДБН В.2.1-10-2009.",
     });
   });
 
@@ -400,7 +440,7 @@ describe("calculator data model", () => {
           {
             "@type": "ListItem",
             position: 3,
-            name: "Фундаменти",
+            name: "Фундаменти та основи",
             item: "https://ivapps.pro/#fundamenty",
           },
           {
@@ -434,7 +474,7 @@ describe("calculator data model", () => {
     expect(calculator?.title).toBe(
       "Повітропроникність огороджувальної конструкції будівлі",
     );
-    expect(calculator?.mainCategory).toBe("povitropronyknist");
+    expect(calculator?.mainCategory).toBe("ogorodzhuvalni-konstruktsiyi");
     expect(calculator?.displayMode).toBe("embed");
     expect(calculator?.embedUrl).toBe(
       "https://cadee.pro/?thermalcalc=air-permeability",

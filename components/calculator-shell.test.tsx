@@ -146,7 +146,7 @@ describe("CalculatorShell", () => {
     render(<CalculatorShell />);
 
     await user.click(screen.getByRole("button", { name: "Розгорнути Конструкції" }));
-    await user.click(screen.getByRole("link", { name: "Конструкції 11" }));
+    await user.click(screen.getByRole("link", { name: "Конструкції 13" }));
 
     expect(screen.getByRole("heading", { name: "Конструкції" })).toBeInTheDocument();
     const table = screen.getByRole("table", {
@@ -186,10 +186,7 @@ describe("CalculatorShell", () => {
 
     expect(cadToggle).toHaveAttribute("aria-expanded", "true");
     expect(within(rail).getByRole("link", { name: "DXF / GeoJSON 1" })).toBeInTheDocument();
-    expect(within(rail).getByRole("link", { name: "Конвертери 0" })).toHaveAttribute(
-      "data-count-state",
-      "empty",
-    );
+    expect(within(rail).queryByRole("link", { name: "Конвертери 0" })).not.toBeInTheDocument();
     expect(within(rail).getByRole("link", { name: "DXF / GeoJSON 1" })).toHaveAttribute(
       "data-count-state",
       "filled",
@@ -235,7 +232,7 @@ describe("CalculatorShell", () => {
 
     render(<CalculatorShell />);
 
-    window.location.hash = "#armatura";
+    window.location.hash = "#zalizobeton";
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
     expect(screen.getByRole("complementary", { name: "Каталог калькуляторів" })).toHaveAttribute(
@@ -264,7 +261,7 @@ describe("CalculatorShell", () => {
       within(rail).getByRole("link", { name: "Теплотехніка 20" }),
     ).not.toHaveAttribute("aria-current");
     expect(
-      within(rail).getByRole("link", { name: "Огороджувальні конструкції 2" }),
+      within(rail).getByRole("link", { name: "Огороджувальні конструкції 9" }),
     ).toHaveAttribute("aria-current", "page");
     expect(
       within(rail).queryByRole("link", {
