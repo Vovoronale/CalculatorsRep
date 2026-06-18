@@ -98,6 +98,42 @@ describe("steel structure category/group core", () => {
     expect(report.values?.groupA2).toBe(4);
   });
 
+  it("uses a semi-automatic table 5.1 option", () => {
+    const report = getSteelStructureCategoryGroupReport({
+      ...DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT,
+      gammaCMode: "table",
+      gammaCTableOptionId: "p9b",
+    });
+
+    expect(report.values?.gammaC).toBe(1.15);
+    expect(report.steps.find((step) => step.key === "gamma-c")?.items).toContain(
+      "Режим визначення γc: Напівавтоматично — вибір позиції таблиці 5.1",
+    );
+    expect(report.steps.find((step) => step.key === "gamma-c")?.formula).toBe(
+      "γc = 1.15 (таблиця 5.1, 9б)",
+    );
+  });
+
+  it("uses and validates a manual gamma c value", () => {
+    const manual = getSteelStructureCategoryGroupReport({
+      ...DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT,
+      gammaCMode: "manual",
+      gammaCManual: 0.83,
+    });
+    const invalid = getSteelStructureCategoryGroupReport({
+      ...DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT,
+      gammaCMode: "manual",
+      gammaCManual: 0,
+    });
+
+    expect(manual.values?.gammaC).toBe(0.83);
+    expect(manual.steps.find((step) => step.key === "gamma-c")?.formula).toBe(
+      "γc = 0.83 (прийнято користувачем)",
+    );
+    expect(invalid.valid).toBe(false);
+    expect(invalid.errors).toContain("Коефіцієнт умов роботи γc у ручному режимі має бути більше 0.");
+  });
+
   it("preserves the result but fails validity for an incompatible G.1 class/group", () => {
     const report = getSteelStructureCategoryGroupReport({
       ...DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT,

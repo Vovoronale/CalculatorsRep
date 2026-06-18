@@ -53,6 +53,11 @@ describe("SteelStructureCategoryGroupCalculator", () => {
     expect(screen.getByText(/Уточнена група: 3/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
+    expect(screen.getByAltText("Скан таблиці 5.1 з ДБН В.2.6-198:2014")).toHaveAttribute(
+      "src",
+      "/dbn/steel-structure-category-group/dbn-table-5-1-part-1.png",
+    );
+    expect(screen.getAllByText("Скан фрагмента ДБН")).toHaveLength(10);
   });
 
   it("filters and resets the structure selector when section changes", async () => {
@@ -64,5 +69,19 @@ describe("SteelStructureCategoryGroupCalculator", () => {
     const structure = screen.getByRole("combobox", { name: "Конструкція або елемент" });
     expect(structure).toHaveValue("a1-06-01");
     expect(screen.getByRole("option", { name: /Стояки — Б\/II/ })).toBeInTheDocument();
+  });
+
+  it("switches between semi-automatic and manual gamma c controls", async () => {
+    const user = userEvent.setup();
+    render(<SteelStructureCategoryGroupCalculator />);
+
+    const mode = screen.getByRole("combobox", { name: "Режим визначення γc" });
+    await user.selectOptions(mode, "table");
+    expect(screen.getByRole("combobox", { name: "Позиція таблиці 5.1" })).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Коефіцієнт умов роботи" })).not.toBeInTheDocument();
+
+    await user.selectOptions(mode, "manual");
+    expect(screen.getByRole("textbox", { name: "Коефіцієнт умов роботи" })).toHaveValue("1");
+    expect(screen.queryByRole("combobox", { name: "Позиція таблиці 5.1" })).not.toBeInTheDocument();
   });
 });

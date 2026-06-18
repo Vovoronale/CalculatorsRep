@@ -17,6 +17,28 @@ import { CALCULATOR_UNIT_REGISTRY } from "./calculator-units";
 export type ResponsibilityClass = "CC1" | "CC2" | "CC3";
 export type LoadType = "static" | "dynamic";
 export type ServiceCondition = "heated" | "unheated" | "open_air";
+export type GammaCMode = "automatic" | "table" | "manual";
+
+export const GAMMA_C_TABLE_OPTIONS = [
+  { id: "p1", position: "1", value: 0.9, label: "1 — Балки та стиснуті елементи ферм перекриттів — γc = 0,90" },
+  { id: "p2", position: "2", value: 0.95, label: "2 — Колони громадських споруд і опор водонапірних башт — γc = 0,95" },
+  { id: "p3", position: "3", value: 1.05, label: "3 — Колони одноповерхових виробничих споруд із мостовими кранами — γc = 1,05" },
+  { id: "p4", position: "4", value: 0.8, label: "4 — Стиснуті основні елементи решітки зварних ферм — γc = 0,80" },
+  { id: "p5", position: "5", value: 0.9, label: "5 — Затяжки, тяги, відтяжки та підвіски — γc = 0,90" },
+  { id: "p6a", position: "6а", value: 1.1, label: "6а — Суцільні балки і колони, переріз послаблений отворами — γc = 1,10" },
+  { id: "p6b", position: "6б", value: 1.05, label: "6б — Стрижневі конструкції покриттів та перекриттів, переріз послаблений отворами — γc = 1,05" },
+  { id: "p7a-diagonal-a", position: "7а", value: 0.9, label: "7а — Розкоси за рисунком 13.3а — γc = 0,90" },
+  { id: "p7a-strut", position: "7а", value: 0.9, label: "7а — Розпірки за рисунками 13.3б, 13.3в або 13.3е — γc = 0,90" },
+  { id: "p7a-diagonal-vgde", position: "7а", value: 0.8, label: "7а — Розкоси за рисунками 13.3в, 13.3г, 13.3д або 13.3е — γc = 0,80" },
+  { id: "p7b", position: "7б", value: 0.75, label: "7б — Кріплення одним болтом або через фасонку — γc = 0,75" },
+  { id: "p8", position: "8", value: 0.75, label: "8 — Елементи плоских ферм і стиснуті елементи з одиночних кутиків — γc = 0,75" },
+  { id: "p9a", position: "9а", value: 1.2, label: "9а — Опорні плити до 40 мм включно — γc = 1,20" },
+  { id: "p9b", position: "9б", value: 1.15, label: "9б — Опорні плити понад 40 до 60 мм включно — γc = 1,15" },
+  { id: "p9c", position: "9в", value: 1.1, label: "9в — Опорні плити понад 60 до 80 мм включно — γc = 1,10" },
+  { id: "note5", position: "примітка 5", value: 1, label: "Примітка 5 — випадок не обумовлений нормами — γc = 1,00" },
+] as const;
+
+export type GammaCTableOptionId = (typeof GAMMA_C_TABLE_OPTIONS)[number]["id"];
 
 export type Table51QualifierInput = {
   floorLocation?: string;
@@ -66,6 +88,9 @@ export type SteelStructureCategoryGroupInput = {
   hasGuillotineEdges: boolean;
   hasUnaccountedColdWork: boolean;
   hasHighInitialStress: boolean;
+  gammaCMode: GammaCMode;
+  gammaCTableOptionId: GammaCTableOptionId;
+  gammaCManual: number;
   table51: Table51QualifierInput;
   displayUnits: {
     thickness: string;
@@ -138,6 +163,9 @@ export const DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT: SteelStructureCategor
   hasGuillotineEdges: false,
   hasUnaccountedColdWork: false,
   hasHighInitialStress: false,
+  gammaCMode: "automatic",
+  gammaCTableOptionId: "note5",
+  gammaCManual: 1,
   table51: {
     position6MemberType: "solid_beam",
     isStrengthCheck: true,
@@ -264,7 +292,15 @@ function resolveGammaC(
   profiles: Table51Profile[],
   input: SteelStructureCategoryGroupInput,
   rynMpa: number,
-): { value: number; applicable: ProfileValue[] } {
+): { value: number; applicable: ProfileValue[]; selectedTableOption?: (typeof GAMMA_C_TABLE_OPTIONS)[number] } {
+  if (input.gammaCMode === "manual") {
+    return { value: Number.isFinite(input.gammaCManual) && input.gammaCManual > 0 ? input.gammaCManual : 1, applicable: [] };
+  }
+  if (input.gammaCMode === "table") {
+    const selectedTableOption = GAMMA_C_TABLE_OPTIONS.find((option) => option.id === input.gammaCTableOptionId)
+      ?? GAMMA_C_TABLE_OPTIONS[GAMMA_C_TABLE_OPTIONS.length - 1];
+    return { value: selectedTableOption.value, applicable: [], selectedTableOption };
+  }
   const applicable = profiles
     .map((profile) => evaluateProfile(profile, input, rynMpa))
     .filter((result): result is ProfileValue => Boolean(result));
@@ -328,6 +364,9 @@ export function getSteelStructureCategoryGroupReport(
   if (input.loadType === "static" && (!Number.isFinite(input.sigmaCKpa) || (input.sigmaCKpa ?? -1) < 0)) {
     errors.push("Нормальне напруження стиску σc має бути невід’ємним значенням.");
   }
+  if (input.gammaCMode === "manual" && (!Number.isFinite(input.gammaCManual) || input.gammaCManual <= 0)) {
+    errors.push("Коефіцієнт умов роботи γc у ручному режимі має бути більше 0.");
+  }
 
   const visibleInputItems = [
     `Розділ таблиці А.1: ${section?.title ?? input.sectionId}`,
@@ -366,7 +405,7 @@ export function getSteelStructureCategoryGroupReport(
     : 1.05;
   const ryMpa = rynMpa / gammaM;
   const gammaResult = resolveGammaC(entry.table51Profiles, input, rynMpa);
-  if (entry.table51Profiles.includes("p9") && input.thicknessMm > 80) {
+  if (input.gammaCMode === "automatic" && entry.table51Profiles.includes("p9") && input.thicknessMm > 80) {
     warnings.push("Для опорної плити завтовшки понад 80 мм таблиця 5.1 не встановлює значення γc у позиції 9; застосовність коефіцієнта потрібно обґрунтувати окремо.");
   }
 
@@ -455,8 +494,18 @@ export function getSteelStructureCategoryGroupReport(
     {
       key: "gamma-c",
       caption: "Визначення коефіцієнта умов роботи γc (ДБН В.2.6-198:2014, пункт 5.4.1, таблиця 5.1 та примітки 1–5):",
-      items: [`Кандидатні позиції таблиці 5.1 за погодженою матрицею: ${entry.table51Profiles.join(", ")}`, `Застосовні позиції таблиці 5.1: ${gammaResult.applicable.map((item) => item.source).join(", ") || "немає"}`],
-      formula: gammaResult.applicable.length ? `γc = ${format(gammaResult.value, 3)}` : "γc = 1,0 (таблиця 5.1, примітка 5)",
+      items: input.gammaCMode === "automatic"
+        ? ["Режим визначення γc: Автоматично за вибраною конструкцією", `Кандидатні позиції таблиці 5.1 за погодженою матрицею: ${entry.table51Profiles.join(", ")}`, `Застосовні позиції таблиці 5.1: ${gammaResult.applicable.map((item) => item.source).join(", ") || "немає"}`]
+        : input.gammaCMode === "table"
+          ? ["Режим визначення γc: Напівавтоматично — вибір позиції таблиці 5.1", `Вибрана позиція таблиці 5.1: ${gammaResult.selectedTableOption?.label}`]
+          : ["Режим визначення γc: Вручну", `Значення γc прийняте користувачем: ${format(gammaResult.value, 3)}`],
+      formula: input.gammaCMode === "manual"
+        ? `γc = ${format(gammaResult.value, 3)} (прийнято користувачем)`
+        : input.gammaCMode === "table"
+          ? `γc = ${format(gammaResult.value, 3)} (таблиця 5.1, ${gammaResult.selectedTableOption?.position})`
+          : gammaResult.applicable.length
+            ? `γc = ${format(gammaResult.value, 3)}`
+            : "γc = 1,0 (таблиця 5.1, примітка 5)",
     },
     {
       key: "stress-category-a2",

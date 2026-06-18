@@ -608,6 +608,52 @@ Determine `gamma_m` from table 7.2 using selected grade/standard and product:
 
 ### Conditional Table 5.1 Fields
 
+The `Умови γc` group starts with:
+
+```text
+Режим визначення γc: gamma_c_mode
+Автоматично за вибраною конструкцією
+Напівавтоматично — вибір позиції таблиці 5.1
+Вручну
+Default: Автоматично за вибраною конструкцією
+```
+
+Automatic mode shows the conditional fields below and uses the A.1-to-5.1
+candidate matrix.
+
+Semi-automatic mode hides the automatic qualifiers and shows:
+
+```text
+Позиція таблиці 5.1: gamma_c_table_option
+1 — Балки та стиснуті елементи ферм перекриттів — γc = 0,90
+2 — Колони громадських споруд і опор водонапірних башт — γc = 0,95
+3 — Колони одноповерхових виробничих споруд із мостовими кранами — γc = 1,05
+4 — Стиснуті основні елементи решітки зварних ферм — γc = 0,80
+5 — Затяжки, тяги, відтяжки та підвіски — γc = 0,90
+6а — Суцільні балки і колони, переріз послаблений отворами — γc = 1,10
+6б — Стрижневі конструкції покриттів та перекриттів, переріз послаблений отворами — γc = 1,05
+7а — Розкоси за рисунком 13.3а — γc = 0,90
+7а — Розпірки за рисунками 13.3б, 13.3в або 13.3е — γc = 0,90
+7а — Розкоси за рисунками 13.3в, 13.3г, 13.3д або 13.3е — γc = 0,80
+7б — Кріплення одним болтом або через фасонку — γc = 0,75
+8 — Елементи плоских ферм і стиснуті елементи з одиночних кутиків — γc = 0,75
+9а — Опорні плити до 40 мм включно — γc = 1,20
+9б — Опорні плити понад 40 до 60 мм включно — γc = 1,15
+9в — Опорні плити понад 60 до 80 мм включно — γc = 1,10
+Примітка 5 — випадок не обумовлений нормами — γc = 1,00
+Default: Примітка 5 — випадок не обумовлений нормами — γc = 1,00
+```
+
+Manual mode hides automatic qualifiers and shows:
+
+```text
+Коефіцієнт умов роботи: gamma_c_manual
+Symbol: γc
+Unit: none
+Default: 1,00
+Validation: finite value greater than 0
+```
+
 Every field below includes a description citing `ДБН В.2.6-198:2014,
 таблиця 5.1, позиція <number>` and any relevant note or figure.
 
@@ -1034,9 +1080,26 @@ Items:
 
 ```text
 Вибрана конструкція або елемент: <structure_label>
+Режим визначення γc: <Автоматично за вибраною конструкцією / Напівавтоматично — вибір позиції таблиці 5.1 / Вручну>
+```
+
+Automatic-mode items:
+
+```text
 Кандидатні позиції таблиці 5.1 за погодженою матрицею: <candidate_rows або немає>
-<кожна показана додаткова ознака>: <answer>
 Застосовні позиції таблиці 5.1: <applicable_rows або немає>
+```
+
+Semi-automatic-mode item:
+
+```text
+Вибрана позиція таблиці 5.1: <option_label>
+```
+
+Manual-mode item:
+
+```text
+Значення γc прийняте користувачем: <manual_value>
 ```
 
 For each applicable position:
@@ -1061,6 +1124,24 @@ No applicable position:
 
 ```text
 γc = 1,0 (таблиця 5.1, примітка 5)
+```
+
+Semi-automatic final formula:
+
+```text
+γc = <selected_value> (таблиця 5.1, позиція <selected_position>)
+```
+
+Manual final formula:
+
+```text
+γc = <manual_value> (прийнято користувачем)
+```
+
+Manual-mode error:
+
+```text
+Коефіцієнт умов роботи γc у ручному режимі має бути більше 0.
 ```
 
 Notes:
@@ -1317,6 +1398,10 @@ Items:
 ДБН В.2.6-198:2014, Додаток Г, таблиці Г.1 і Г.5
 Відповідність марок класам міцності та перевірка застосування сталі для уточненої групи конструкцій.
 ```
+
+Each applicable normative-reference article contains a collapsed `Скан
+фрагмента ДБН` block with local PNG assets. Include scans of table А.1, table
+А.2, table 5.1 with notes 1–5, table Г.1, and table Г.5.
 
 ## Catalog Registration Requirement
 

@@ -15,7 +15,10 @@ import {
 } from "@/lib/steel-structure-category-group-data";
 import {
   DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT,
+  GAMMA_C_TABLE_OPTIONS,
   getSteelStructureCategoryGroupReport,
+  type GammaCMode,
+  type GammaCTableOptionId,
   type LoadType,
   type ResponsibilityClass,
   type ServiceCondition,
@@ -120,7 +123,18 @@ export function buildSteelStructureCategoryGroupInputSchema(values: SchemaValues
   const steelClass = String(values.steelClass ?? "С245") as SteelStrengthClass;
   const productType = String(values.productType ?? "section") as ProductType;
   const gradeOptions = getSteelGradeOptions(steelClass, productType);
-  const conditions = entry ? table51Fields(entry.table51Profiles) : [];
+  const gammaCMode = String(values.gammaCMode ?? "automatic") as GammaCMode;
+  const conditions = gammaCMode === "automatic" && entry ? table51Fields(entry.table51Profiles) : [];
+  const gammaCFields: CalculatorInputField[] = [
+    { id: "gammaCMode", kind: "select", name: "Режим визначення γc", defaultValue: gammaCMode, description: "ДБН В.2.6-198:2014, пункт 5.4.1 і таблиця 5.1.", options: [
+      { value: "automatic", label: "Автоматично за вибраною конструкцією" },
+      { value: "table", label: "Напівавтоматично — вибір позиції таблиці 5.1" },
+      { value: "manual", label: "Вручну" },
+    ] },
+    ...(gammaCMode === "table" ? [{ id: "gammaCTableOptionId", kind: "select" as const, name: "Позиція таблиці 5.1", defaultValue: "note5", description: "Оберіть нормативний рядок таблиці 5.1; значення γc підставляється автоматично.", options: GAMMA_C_TABLE_OPTIONS.map((option) => ({ value: option.id, label: option.label })) }] : []),
+    ...(gammaCMode === "manual" ? [{ id: "gammaCManual", kind: "number" as const, name: "Коефіцієнт умов роботи", prefix: { text: "γ", subscript: "c", ariaLabel: "γc" }, defaultValue: "1", min: 0.000001, description: "Значення γc приймається користувачем і має бути більше 0." }] : []),
+    ...conditions,
+  ];
 
   return {
     groups: [
@@ -147,7 +161,7 @@ export function buildSteelStructureCategoryGroupInputSchema(values: SchemaValues
         checkbox("hasUnaccountedColdWork", "Є неврахований у розрахунку наклеп від деформування в холодному стані?", false, "ДБН В.2.6-198:2014, пункт А.2, другий абзац."),
         checkbox("hasHighInitialStress", "Є високі початкові напруження, у тому числі зварювальні?", false, "ДБН В.2.6-198:2014, пункт А.2, другий абзац."),
       ] },
-      ...(conditions.length ? [{ id: "steel-gamma-c", title: "Умови γc", fields: conditions }] : []),
+      { id: "steel-gamma-c", title: "Умови γc", fields: gammaCFields },
     ],
   };
 }
@@ -217,6 +231,9 @@ function inputFromValues(values: CalculatorInputValues, units: Record<string, st
     hasGuillotineEdges: boolValue(values, "hasGuillotineEdges"),
     hasUnaccountedColdWork: boolValue(values, "hasUnaccountedColdWork"),
     hasHighInitialStress: boolValue(values, "hasHighInitialStress"),
+    gammaCMode: stringValue(values, "gammaCMode", "automatic") as GammaCMode,
+    gammaCTableOptionId: stringValue(values, "gammaCTableOptionId", "note5") as GammaCTableOptionId,
+    gammaCManual: numberValue(values, "gammaCManual", 1),
     table51: qualifierInput(values),
     displayUnits: { thickness: units.thicknessMm ?? "mm", sigmaDyn: units.sigmaDynKpa ?? "mpa", sigmaSum: units.sigmaSumKpa ?? "mpa", sigmaC: units.sigmaCKpa ?? "mpa" },
   };
@@ -226,8 +243,33 @@ export function buildSteelStructureCategoryGroupDocxReport(steps: ReturnType<typ
   return buildNativeDocxReport({ title: "Покроковий звіт", fileBaseName: `kategorii-ta-grupy-stalevykh-konstruktsii-${formatDocxFileDate(date)}`, steps });
 }
 
+function NormScan({ alt, src }: { alt: string; src: string }) {
+  return <details className="steel-structure-norm__scan"><summary>Скан фрагмента ДБН</summary><figure><img src={src} alt={alt} loading="lazy" decoding="async" /></figure></details>;
+}
+
 function NormativeReferences() {
-  return <section className="native-report" aria-labelledby="steel-structure-norms-title"><div className="native-report__head"><h3 id="steel-structure-norms-title">Нормативні посилання</h3></div><div className="native-report__items"><article><h4>ДБН В.2.6-198:2014, Додаток А</h4><p>Таблиці А.1, А.2 та пункти А.1-А.2 для категорій, показників і груп.</p></article><article><h4>ДБН В.2.6-198:2014, таблиця 5.1</h4><p>Коефіцієнти умов роботи γc та примітки 1-5.</p></article><article><h4>ДБН В.2.6-198:2014, Додаток Г</h4><p>Таблиці Г.1 і Г.5 для сталі та її застосовності.</p></article></div></section>;
+  return <section className="native-report" aria-labelledby="steel-structure-norms-title">
+    <div className="native-report__head"><h3 id="steel-structure-norms-title">Нормативні посилання</h3></div>
+    <div className="native-report__items">
+      <article><h4>ДБН В.2.6-198:2014, Додаток А, таблиця А.1</h4><p>Категорії конструкцій за призначенням і за напруженим станом.</p>
+        <NormScan src="/dbn/steel-structure-category-group/dbn-table-a-1-part-1.png" alt="Скан таблиці А.1 з ДБН В.2.6-198:2014, частина 1" />
+        <NormScan src="/dbn/steel-structure-category-group/dbn-table-a-1-part-2.png" alt="Скан таблиці А.1 з ДБН В.2.6-198:2014, частина 2" />
+        <NormScan src="/dbn/steel-structure-category-group/dbn-table-a-1-part-3.png" alt="Скан таблиці А.1 з ДБН В.2.6-198:2014, частина 3" />
+      </article>
+      <article><h4>ДБН В.2.6-198:2014, Додаток А, таблиця А.2</h4><p>Показники S1–S5, початкова група та її уточнення.</p><NormScan src="/dbn/steel-structure-category-group/dbn-table-a-2.png" alt="Скан таблиці А.2 з ДБН В.2.6-198:2014" /></article>
+      <article><h4>ДБН В.2.6-198:2014, пункт 5.4.1, таблиця 5.1</h4><p>Коефіцієнти умов роботи γc та примітки 1–5.</p>
+        <NormScan src="/dbn/steel-structure-category-group/dbn-table-5-1-part-1.png" alt="Скан таблиці 5.1 з ДБН В.2.6-198:2014" />
+        <NormScan src="/dbn/steel-structure-category-group/dbn-table-5-1-part-2-notes.png" alt="Скан приміток 1–5 до таблиці 5.1 з ДБН В.2.6-198:2014" />
+      </article>
+      <article><h4>ДБН В.2.6-198:2014, пункти 7.1–7.2, таблиці 7.1–7.2</h4><p>Визначення Ry = Ryn / γm і коефіцієнта надійності за матеріалом γm.</p></article>
+      <article><h4>ДБН В.2.6-198:2014, Додаток Г, таблиці Г.1 і Г.5</h4><p>Відповідність марок класам міцності та застосування сталі.</p>
+        <NormScan src="/dbn/steel-structure-category-group/dbn-table-g-1-part-1.png" alt="Скан таблиці Г.1 з ДБН В.2.6-198:2014, частина 1" />
+        <NormScan src="/dbn/steel-structure-category-group/dbn-table-g-1-part-2-notes.png" alt="Скан таблиці Г.1 з ДБН В.2.6-198:2014, частина 2 і примітки" />
+        <NormScan src="/dbn/steel-structure-category-group/dbn-table-g-5-part-1.png" alt="Скан таблиці Г.5 з ДБН В.2.6-198:2014, частина 1" />
+        <NormScan src="/dbn/steel-structure-category-group/dbn-table-g-5-part-2.png" alt="Скан таблиці Г.5 з ДБН В.2.6-198:2014, частина 2" />
+      </article>
+    </div>
+  </section>;
 }
 
 export function SteelStructureCategoryGroupCalculator() {
