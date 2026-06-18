@@ -6,6 +6,7 @@ import {
   SteelStructureCategoryGroupCalculator,
   buildSteelStructureCategoryGroupInputSchema,
 } from "./steel-structure-category-group-calculator";
+import { STEEL_STRUCTURE_CATALOG } from "@/lib/steel-structure-category-group-data";
 
 afterEach(cleanup);
 
@@ -45,6 +46,28 @@ describe("steel structure category/group schema", () => {
     expect(fields.find((field) => field.id === "steelGradeStandardId")?.description).toContain(
       "визначає коефіцієнт надійності за матеріалом γm для розрахунку Ry = Ryn / γm",
     );
+  });
+
+  it("gives every input a practical explanation and a normative source", () => {
+    const schemas = STEEL_STRUCTURE_CATALOG.map((entry) => buildSteelStructureCategoryGroupInputSchema({
+      sectionId: entry.sectionId,
+      structureId: entry.id,
+      steelClass: "С245",
+      productType: "section",
+      gammaCMode: "automatic",
+    }));
+    schemas.push(
+      buildSteelStructureCategoryGroupInputSchema({ gammaCMode: "table" }),
+      buildSteelStructureCategoryGroupInputSchema({ gammaCMode: "manual" }),
+      buildSteelStructureCategoryGroupInputSchema({ gammaCMode: "manual", gammaCManualPreset: "custom" }),
+    );
+
+    for (const field of schemas.flatMap((schema) => schema.groups.flatMap((group) => group.fields))) {
+      expect(field.description, field.id).toBeDefined();
+      expect(field.description!.length, field.id).toBeGreaterThan(100);
+      expect(field.description, field.id).toMatch(/Оберіть|Виберіть|Введіть|Вкажіть|Звірте|Підтвердьте/);
+      expect(field.description, field.id).toContain("ДБН В.2.6-198:2014");
+    }
   });
 });
 

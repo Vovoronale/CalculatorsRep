@@ -336,6 +336,19 @@ Every normative field description must cite its source as precisely as the
 source structure permits: document, clause, table position/subrow, note, and
 paragraph. Tests must assert the important references below.
 
+Every `?` description must also answer three user questions in plain language:
+
+```text
+1. What must be selected or entered, and where can the user obtain it?
+2. Which score, category, coefficient, validation, or formula uses the value?
+3. What exact DBN clause, table, row, note, or figure is the source?
+```
+
+Descriptions that contain only a normative citation are not acceptable. The
+schema test must enumerate all 155 A.1 entries and every gamma-c mode and assert
+that each resulting field has a practical instruction and cites
+`ДБН В.2.6-198:2014`.
+
 ### Base Fields
 
 ```text
@@ -676,6 +689,17 @@ Validation: finite value greater than 0
 
 Every field below includes a description citing `ДБН В.2.6-198:2014,
 таблиця 5.1, позиція <number>` and any relevant note or figure.
+
+The canonical description pattern for ordinary table 5.1 qualifiers is:
+
+```text
+Звірте цю ознаку з розрахунковою схемою, перерізом і способом закріплення елемента. Відповідь визначає, чи застосовується коефіцієнт умов роботи γc за позицією <number> таблиці 5.1 ДБН В.2.6-198:2014.
+```
+
+Fields for slenderness, figure 13.3, support plates, gamma-c modes, material
+selection, and A.2 stresses must replace the generic pattern with a specific
+instruction that names the input source and the exact downstream formula or
+decision.
 
 #### Position 1
 

@@ -41,7 +41,6 @@ import { ReportDocxButton } from "./report-docx-button";
 
 type SchemaValues = Partial<CalculatorInputValues>;
 
-const yesNoDescription = "Оберіть відповідь за відповідною нормативною умовою.";
 const steelGradeStandardDescription = "Оберіть фактичну марку сталі та стандарт, за яким виготовлено прокат. Ці дані беруть із сертифіката якості на метал або зі специфікації проєкту. Калькулятор перевіряє, чи відповідає вибрана марка заданому класу міцності, виду та товщині прокату за таблицею Г.5 ДБН В.2.6-198:2014, а також визначає коефіцієнт надійності за матеріалом γm для розрахунку Ry = Ryn / γm за таблицею 7.2.";
 
 function checkbox(id: string, name: string, defaultValue: boolean, description: string): CalculatorInputField {
@@ -50,7 +49,7 @@ function checkbox(id: string, name: string, defaultValue: boolean, description: 
 
 function table51Fields(profiles: string[]): CalculatorInputField[] {
   const fields: CalculatorInputField[] = [];
-  const source = (position: string) => `ДБН В.2.6-198:2014, таблиця 5.1, позиція ${position}. ${yesNoDescription}`;
+  const source = (position: string) => `Звірте цю ознаку з розрахунковою схемою, перерізом і способом закріплення елемента. Відповідь визначає, чи застосовується коефіцієнт умов роботи γc за позицією ${position} таблиці 5.1 ДБН В.2.6-198:2014.`;
 
   if (profiles.includes("p1")) {
     fields.push(
@@ -73,7 +72,7 @@ function table51Fields(profiles: string[]): CalculatorInputField[] {
   if (profiles.includes("p3")) {
     fields.push(
       checkbox("isSingleStoreyIndustrialCraneColumn", "Це колона одноповерхової виробничої споруди з мостовими кранами?", false, source("3")),
-      checkbox("isPlateForSingleStoreyIndustrialCraneColumn", "Опорна плита належить колоні одноповерхової виробничої споруди з мостовими кранами?", false, "ДБН В.2.6-198:2014, таблиця 5.1, позиції 3 і 9, примітка 3."),
+      checkbox("isPlateForSingleStoreyIndustrialCraneColumn", "Опорна плита належить колоні одноповерхової виробничої споруди з мостовими кранами?", false, "Звірте призначення плити з опорним вузлом колони. Відповідь дає змогу сумісно врахувати γc позицій 9 і 3 згідно з приміткою 3 до таблиці 5.1 ДБН В.2.6-198:2014."),
     );
   }
   if (profiles.includes("p4")) {
@@ -82,7 +81,7 @@ function table51Fields(profiles: string[]): CalculatorInputField[] {
       checkbox("isWeldedRoofOrFloorTruss", "Елемент належить зварній фермі покриття або перекриття?", false, source("4")),
       checkbox("isBuiltUpTeeFromTwoAngles", "Переріз елемента — складений тавр із двох кутиків?", false, source("4")),
       checkbox("isStabilityCheck", "Розрахунок виконується на стійкість?", false, source("4")),
-      { id: "slendernessLambda", kind: "number", name: "Гнучкість елемента", prefix: "λ", defaultValue: "60", min: 0, quantity: "coefficient", description: "ДБН В.2.6-198:2014, таблиця 5.1, позиція 4: λ ≥ 60." },
+      { id: "slendernessLambda", kind: "number", name: "Гнучкість елемента", prefix: "λ", defaultValue: "60", min: 0, quantity: "coefficient", description: "Введіть розрахункову гнучкість λ, отриману під час перевірки стійкості елемента. Позиція 4 таблиці 5.1 ДБН В.2.6-198:2014 застосовується лише при λ ≥ 60 і дає γc = 0,80." },
     );
   }
   if (profiles.includes("p5")) {
@@ -102,7 +101,7 @@ function table51Fields(profiles: string[]): CalculatorInputField[] {
       { id: "position7Profile", kind: "select", name: "Профіль елемента", defaultValue: "other", description: source("7"), options: [{ value: "equal_angle", label: "Одиночний рівнополичковий кутик" }, { value: "unequal_angle", label: "Одиночний нерівнополичковий кутик" }, { value: "other", label: "Інший профіль" }] },
       checkbox("unequalAngleAttachedByLargerLeg", "Нерівнополичковий кутик прикріплений більшою полицею?", false, source("7")),
       { id: "position7Connection", kind: "select", name: "Спосіб кріплення", defaultValue: "other", description: source("7"), options: [{ value: "welded", label: "Безпосередньо до пояса зварними швами" }, { value: "two_plus_bolts", label: "Безпосередньо до пояса двома або більше болтами вздовж кутика" }, { value: "one_bolt", label: "Безпосередньо до пояса одним болтом" }, { value: "gusset", label: "Через фасонку" }, { value: "other", label: "Інший спосіб" }] },
-      { id: "position7FigureCase", kind: "select", name: "Схема елемента за рисунком 13.3", defaultValue: "diagonal_a", description: "ДБН В.2.6-198:2014, таблиця 5.1, позиція 7, рисунок 13.3.", options: [{ value: "diagonal_a", label: "Розкіс — рисунок 13.3а" }, { value: "strut_bve", label: "Розпірка — рисунок 13.3б, 13.3в або 13.3е" }, { value: "diagonal_vgde", label: "Розкіс — рисунок 13.3в, 13.3г, 13.3д або 13.3е" }] },
+      { id: "position7FigureCase", kind: "select", name: "Схема елемента за рисунком 13.3", defaultValue: "diagonal_a", description: "Оберіть схему, яка відповідає положенню розкосу або розпірки у просторовій решітці. Від схеми залежить значення γc = 0,90 або 0,80 за позицією 7а таблиці 5.1 ДБН В.2.6-198:2014 і рисунком 13.3.", options: [{ value: "diagonal_a", label: "Розкіс — рисунок 13.3а" }, { value: "strut_bve", label: "Розпірка — рисунок 13.3б, 13.3в або 13.3е" }, { value: "diagonal_vgde", label: "Розкіс — рисунок 13.3в, 13.3г, 13.3д або 13.3е" }] },
     );
   }
   if (profiles.includes("p8")) {
@@ -112,7 +111,7 @@ function table51Fields(profiles: string[]): CalculatorInputField[] {
       checkbox("unequalAngleAttachedBySmallerLeg", "Нерівнополичковий кутик прикріплений меншою полицею?", false, source("8")),
     );
   }
-  if (profiles.includes("p9")) fields.push(checkbox("isSupportPlate", "Елемент є опорною плитою?", true, "ДБН В.2.6-198:2014, таблиця 5.1, позиція 9 та примітка 3."));
+  if (profiles.includes("p9")) fields.push(checkbox("isSupportPlate", "Елемент є опорною плитою?", true, "Підтвердьте, що розраховується плита, яка передає опорну реакцію на нижню конструкцію. Для такої плити γc залежить від товщини за позицією 9 таблиці 5.1 ДБН В.2.6-198:2014; примітка 3 дозволяє окремі сполучення."));
   return fields;
 }
 
@@ -128,20 +127,20 @@ export function buildSteelStructureCategoryGroupInputSchema(values: SchemaValues
   const gammaCManualPreset = String(values.gammaCManualPreset ?? "1");
   const conditions = gammaCMode === "automatic" && entry ? table51Fields(entry.table51Profiles) : [];
   const gammaCFields: CalculatorInputField[] = [
-    { id: "gammaCMode", kind: "select", name: "Режим визначення γc", defaultValue: gammaCMode, description: "ДБН В.2.6-198:2014, пункт 5.4.1 і таблиця 5.1.", options: [
+    { id: "gammaCMode", kind: "select", name: "Режим визначення γc", defaultValue: gammaCMode, description: "Оберіть спосіб отримання γc. Автоматичний режим перевіряє умови кандидатних позицій для вибраної конструкції; напівавтоматичний приймає обрану вами позицію таблиці 5.1; ручний використовує задане вами число. γc входить до перевірки статичного стиску за пунктом А.2. Джерело: пункт 5.4.1 і таблиця 5.1 ДБН В.2.6-198:2014.", options: [
       { value: "automatic", label: "Автоматично за вибраною конструкцією" },
       { value: "table", label: "Напівавтоматично — вибір позиції таблиці 5.1" },
       { value: "manual", label: "Вручну" },
     ] },
-    ...(gammaCMode === "table" ? [{ id: "gammaCTableOptionId", kind: "select" as const, name: "Позиція таблиці 5.1", defaultValue: "note5", description: "Оберіть нормативний рядок таблиці 5.1; значення γc підставляється автоматично.", options: GAMMA_C_TABLE_OPTIONS.map((option) => ({ value: option.id, label: option.label })) }] : []),
+    ...(gammaCMode === "table" ? [{ id: "gammaCTableOptionId", kind: "select" as const, name: "Позиція таблиці 5.1", defaultValue: "note5", description: "Оберіть рядок, умови якого ви вже перевірили за розрахунковою схемою. Калькулятор візьме наведене в цьому рядку γc без автоматичної перевірки ознак конструкції та використає його у подальших формулах. Джерело: таблиця 5.1 ДБН В.2.6-198:2014.", options: GAMMA_C_TABLE_OPTIONS.map((option) => ({ value: option.id, label: option.label })) }] : []),
     ...(gammaCMode === "manual" ? [
-      { id: "gammaCManualPreset", kind: "select" as const, name: "Значення γc", defaultValue: gammaCManualPreset, description: "Оберіть типове значення або перейдіть до довільного вводу.", options: [
+      { id: "gammaCManualPreset", kind: "select" as const, name: "Значення γc", defaultValue: gammaCManualPreset, description: "Оберіть прийняте вами значення γc. Список містить значення з таблиці 5.1; варіант «Інше значення» відкриває довільний ввід. Калькулятор не перевіряє нормативну застосовність ручного значення, але використовує його у перевірці статичного стиску за пунктом А.2 ДБН В.2.6-198:2014.", options: [
         { value: "0.75", label: "0,75" }, { value: "0.8", label: "0,80" }, { value: "0.9", label: "0,90" },
         { value: "0.95", label: "0,95" }, { value: "1", label: "1,00" }, { value: "1.05", label: "1,05" },
         { value: "1.1", label: "1,10" }, { value: "1.15", label: "1,15" }, { value: "1.2", label: "1,20" },
         { value: "custom", label: "Інше значення" },
       ] },
-      ...(gammaCManualPreset === "custom" ? [{ id: "gammaCManual", kind: "number" as const, name: "Коефіцієнт умов роботи", prefix: { text: "γ", subscript: "c", ariaLabel: "γc" }, defaultValue: "1", min: 0.000001, description: "Значення γc приймається користувачем і має бути більше 0." }] : []),
+      ...(gammaCManualPreset === "custom" ? [{ id: "gammaCManual", kind: "number" as const, name: "Коефіцієнт умов роботи", prefix: { text: "γ", subscript: "c", ariaLabel: "γc" }, defaultValue: "1", min: 0.000001, description: "Введіть обґрунтоване вами додатне значення γc. Воно буде прийняте без нормативного підбору й використане в умові σc ≤ 0,4 Ry γc за пунктом А.2 ДБН В.2.6-198:2014; відповідальність за вибір значення залишається за користувачем." }] : []),
     ] : []),
     ...conditions,
   ];
@@ -149,27 +148,27 @@ export function buildSteelStructureCategoryGroupInputSchema(values: SchemaValues
   return {
     groups: [
       { id: "steel-structure-selection", title: "Конструкція", fields: [
-        { id: "sectionId", kind: "select", name: "Розділ таблиці А.1", defaultValue: sectionId, description: "ДБН В.2.6-198:2014, Додаток А, таблиця А.1: групування атомарних позицій.", options: STEEL_STRUCTURE_SECTIONS.map((section) => ({ value: section.id, label: `${section.number}. ${section.title}` })) },
-        { id: "structureId", kind: "select", name: "Конструкція або елемент", defaultValue: entry?.id ?? "", description: "ДБН В.2.6-198:2014, Додаток А, таблиця А.1. Категорії визначаються з вибраного атомарного рядка.", options: structures.map((item) => ({ value: item.id, label: `${item.label} — ${item.purposeCategory}/${item.stressCategory}` })) },
-        { id: "responsibilityClass", kind: "select", name: "Клас відповідальності", defaultValue: "CC2", description: "ДБН В.2.6-198:2014, таблиця А.2, показник S1.", options: [{ value: "CC1", label: "СС1" }, { value: "CC2", label: "СС2" }, { value: "CC3", label: "СС3" }] },
-        { id: "loadType", kind: "select", name: "Характер навантаження", defaultValue: entry?.inferredLoadType ?? "static", description: "ДБН В.2.6-198:2014, пункт А.2; використовується для α та перевірки статичного стиску.", options: [{ value: "static", label: "Статичне" }, { value: "dynamic", label: "Динамічне" }] },
-        checkbox("hasTensileStress", "Є розтягувальні напруження від розрахункового навантаження?", true, "ДБН В.2.6-198:2014, таблиця А.2, показник S4."),
-        checkbox("hasAdverseWeldEffect", "Є несприятливий вплив зварних з’єднань?", false, "ДБН В.2.6-198:2014, таблиця А.2, показник S5 і примітка до таблиці."),
+        { id: "sectionId", kind: "select", name: "Розділ таблиці А.1", defaultValue: sectionId, description: "Оберіть загальний тип споруди або конструктивної системи. Це звужує наступний список до елементів відповідного розділу таблиці А.1, але саме по собі ще не визначає категорії. Джерело: Додаток А, таблиця А.1 ДБН В.2.6-198:2014.", options: STEEL_STRUCTURE_SECTIONS.map((section) => ({ value: section.id, label: `${section.number}. ${section.title}` })) },
+        { id: "structureId", kind: "select", name: "Конструкція або елемент", defaultValue: entry?.id ?? "", description: "Оберіть конкретний елемент, який перевіряється, а не всю споруду загалом. Вибраний атомарний рядок таблиці А.1 задає категорії за призначенням і напруженим станом та перелік можливих позицій таблиці 5.1 для γc. Джерело: Додаток А, таблиця А.1 ДБН В.2.6-198:2014.", options: structures.map((item) => ({ value: item.id, label: `${item.label} — ${item.purposeCategory}/${item.stressCategory}` })) },
+        { id: "responsibilityClass", kind: "select", name: "Клас відповідальності", defaultValue: "CC2", description: "Оберіть клас наслідків (відповідальності) будівлі або споруди, встановлений у проєктній документації. Він формує показник S1: для СС3 — 4 бали, для СС2 і СС1 — 0 балів, тому впливає на групу конструкції. Джерело: таблиця А.2 ДБН В.2.6-198:2014.", options: [{ value: "CC1", label: "СС1" }, { value: "CC2", label: "СС2" }, { value: "CC3", label: "СС3" }] },
+        { id: "loadType", kind: "select", name: "Характер навантаження", defaultValue: entry?.inferredLoadType ?? "static", description: "Вкажіть, чи розрахунковий ефект створюється статичним навантаженням, чи містить динамічну складову. Вибір керує полем σdyn, уточненням категорії через α та можливістю зменшення показника групи при статичному стиску. Джерело: пункт А.2 ДБН В.2.6-198:2014.", options: [{ value: "static", label: "Статичне" }, { value: "dynamic", label: "Динамічне" }] },
+        checkbox("hasTensileStress", "Є розтягувальні напруження від розрахункового навантаження?", true, "Виберіть «Так», якщо хоча б у частині розрахункового перерізу від розрахункової комбінації виникають нормальні розтягувальні напруження. Це задає S4 = 7 балів замість 2 і вмикає уточнення категорії за α. Джерело: таблиця А.2 і пункт А.2 ДБН В.2.6-198:2014."),
+        checkbox("hasAdverseWeldEffect", "Є несприятливий вплив зварних з’єднань?", false, "Виберіть «Так», якщо зварні шви розташовані в зоні значних розрахункових розтягувальних напружень або міцність з’єднання визначає придатність конструкції в цілому. Це задає S5 = 6 балів замість 2. Джерело: таблиця А.2 та примітка до неї в ДБН В.2.6-198:2014."),
       ] },
       { id: "steel-material", title: "Сталь", fields: [
-        { id: "serviceCondition", kind: "select", name: "Умови експлуатації", defaultValue: "heated", description: "ДБН В.2.6-198:2014, таблиця Г.1, примітки а, б і 3.", options: [{ value: "heated", label: "Опалювана споруда" }, { value: "unheated", label: "Неопалювана споруда" }, { value: "open_air", label: "Конструкція на відкритому повітрі" }] },
-        { id: "productType", kind: "select", name: "Вид прокату", defaultValue: productType, description: "ДБН В.2.6-198:2014, таблиця Г.5; використовується для фільтрації марки сталі.", options: [{ value: "section", label: "Фасонний" }, { value: "long", label: "Сортовий" }, { value: "sheet", label: "Листовий" }, { value: "universal_plate", label: "Широкосмуговий універсальний" }, { value: "cold_formed", label: "Холодногнутий профіль" }] },
-        { id: "steelClass", kind: "select", name: "Клас міцності сталі", defaultValue: steelClass, description: "ДБН В.2.6-198:2014, таблиці 7.1, 7.2, Г.1 і Г.5.", options: STEEL_STRENGTH_CLASSES.map((item) => ({ value: item, label: item })) },
+        { id: "serviceCondition", kind: "select", name: "Умови експлуатації", defaultValue: "heated", description: "Оберіть фактичне температурне середовище елемента: всередині опалюваної чи неопалюваної споруди або просто неба. Ця ознака змінює допустимість окремих класів сталі для груп конструкцій за примітками а, б і 3 таблиці Г.1 ДБН В.2.6-198:2014.", options: [{ value: "heated", label: "Опалювана споруда" }, { value: "unheated", label: "Неопалювана споруда" }, { value: "open_air", label: "Конструкція на відкритому повітрі" }] },
+        { id: "productType", kind: "select", name: "Вид прокату", defaultValue: productType, description: "Оберіть форму металопродукції за специфікацією або сертифікатом: фасонний профіль, сортовий, лист, універсальна смуга чи холодногнутий профіль. Вибір фільтрує допустимі марки й межі товщини за таблицею Г.5 та бере участь у визначенні γm за таблицею 7.2 ДБН В.2.6-198:2014.", options: [{ value: "section", label: "Фасонний" }, { value: "long", label: "Сортовий" }, { value: "sheet", label: "Листовий" }, { value: "universal_plate", label: "Широкосмуговий універсальний" }, { value: "cold_formed", label: "Холодногнутий профіль" }] },
+        { id: "steelClass", kind: "select", name: "Клас міцності сталі", defaultValue: steelClass, description: "Оберіть клас міцності, зазначений у специфікації або сертифікаті прокату, наприклад С245. З числової частини класу калькулятор приймає Ryn, перевіряє допустимість сталі для уточненої групи за Г.1 і фільтрує марки за Г.5. Джерело: таблиці 7.1, 7.2, Г.1 і Г.5 ДБН В.2.6-198:2014.", options: STEEL_STRENGTH_CLASSES.map((item) => ({ value: item, label: item })) },
         { id: "steelGradeStandardId", kind: "select", name: "Марка сталі та нормативний документ", defaultValue: gradeOptions[0]?.id ?? "", description: steelGradeStandardDescription, options: gradeOptions.map((item) => ({ value: item.id, label: item.label })) },
-        { id: "thicknessMm", kind: "number", name: "Товщина прокату", prefix: "t", defaultValue: "10", min: 0, quantity: "thickness", baseUnit: "mm", defaultDisplayUnit: "mm", description: "ДБН В.2.6-198:2014, пункт А.2, другий абзац; таблиця Г.5 та примітки таблиці Г.1." },
+        { id: "thicknessMm", kind: "number", name: "Товщина прокату", prefix: "t", defaultValue: "10", min: 0, quantity: "thickness", baseUnit: "mm", defaultDisplayUnit: "mm", description: "Введіть фактичну товщину розрахункового елемента за сортаментом, кресленням або сертифікатом. Товщина перевіряє межі застосування марки за Г.5, окремі умови Г.1 і позиції 9 таблиці 5.1, а понад 20 мм збільшує поправку до показника групи за пунктом А.2 ДБН В.2.6-198:2014." },
       ] },
       { id: "steel-a2", title: "Чинники А.2", fields: [
-        { id: "sigmaDynKpa", kind: "number", name: "Найбільше нормальне розтягувальне напруження від динамічних навантажень", prefix: { text: "σ", subscript: "dyn", ariaLabel: "σdyn" }, defaultValue: "0", min: 0, quantity: "pressure", baseUnit: "kpa", defaultDisplayUnit: "mpa", description: "ДБН В.2.6-198:2014, пункт А.2, перший абзац: чисельник α.", showWhen: [{ fieldId: "loadType", equals: "dynamic" }, { fieldId: "hasTensileStress", equals: true }] },
-        { id: "sigmaSumKpa", kind: "number", name: "Найбільше сумарне нормальне розтягувальне напруження від усіх навантажень", prefix: { text: "σ", subscript: "sum", ariaLabel: "σsum" }, defaultValue: "100000", min: 0, quantity: "pressure", baseUnit: "kpa", defaultDisplayUnit: "mpa", description: "ДБН В.2.6-198:2014, пункт А.2, перший абзац: знаменник α.", showWhen: { fieldId: "hasTensileStress", equals: true } },
-        { id: "sigmaCKpa", kind: "number", name: "Нормальне напруження стиску з урахуванням φ, φe, φb", prefix: { text: "σ", subscript: "c", ariaLabel: "σc" }, defaultValue: "100000", min: 0, quantity: "pressure", baseUnit: "kpa", defaultDisplayUnit: "mpa", description: "ДБН В.2.6-198:2014, пункт А.2, третій абзац; вводиться невід’ємний модуль.", showWhen: { fieldId: "loadType", equals: "static" } },
-        checkbox("hasGuillotineEdges", "Є кромки після гільйотинного різання?", false, "ДБН В.2.6-198:2014, пункт А.2, другий абзац."),
-        checkbox("hasUnaccountedColdWork", "Є неврахований у розрахунку наклеп від деформування в холодному стані?", false, "ДБН В.2.6-198:2014, пункт А.2, другий абзац."),
-        checkbox("hasHighInitialStress", "Є високі початкові напруження, у тому числі зварювальні?", false, "ДБН В.2.6-198:2014, пункт А.2, другий абзац."),
+        { id: "sigmaDynKpa", kind: "number", name: "Найбільше нормальне розтягувальне напруження від динамічних навантажень", prefix: { text: "σ", subscript: "dyn", ariaLabel: "σdyn" }, defaultValue: "0", min: 0, quantity: "pressure", baseUnit: "kpa", defaultDisplayUnit: "mpa", description: "Введіть найбільший модуль нормального розтягувального напруження лише від динамічної складової навантажень, отриманий із розрахунку вже підібраного перерізу. Це чисельник α = |σdyn| / |σsum|, за яким уточнюється категорія напруженого стану. Джерело: пункт А.2 ДБН В.2.6-198:2014.", showWhen: [{ fieldId: "loadType", equals: "dynamic" }, { fieldId: "hasTensileStress", equals: true }] },
+        { id: "sigmaSumKpa", kind: "number", name: "Найбільше сумарне нормальне розтягувальне напруження від усіх навантажень", prefix: { text: "σ", subscript: "sum", ariaLabel: "σsum" }, defaultValue: "100000", min: 0, quantity: "pressure", baseUnit: "kpa", defaultDisplayUnit: "mpa", description: "Введіть найбільший модуль сумарного нормального розтягувального напруження від усіх розрахункових навантажень у тій самій точці й для того самого перерізу. Це знаменник α; значення має бути додатним і не меншим за σdyn. Джерело: пункт А.2 ДБН В.2.6-198:2014.", showWhen: { fieldId: "hasTensileStress", equals: true } },
+        { id: "sigmaCKpa", kind: "number", name: "Нормальне напруження стиску з урахуванням φ, φe, φb", prefix: { text: "σ", subscript: "c", ariaLabel: "σc" }, defaultValue: "100000", min: 0, quantity: "pressure", baseUnit: "kpa", defaultDisplayUnit: "mpa", description: "Введіть невід’ємний модуль нормального стискального напруження з розрахунку підібраного перерізу, вже приведений з урахуванням відповідного коефіцієнта стійкості φ, φe або φb. Калькулятор перевіряє умову σc ≤ 0,4 Ry γc для зменшення показника на 4 бали. Джерело: пункт А.2 ДБН В.2.6-198:2014.", showWhen: { fieldId: "loadType", equals: "static" } },
+        checkbox("hasGuillotineEdges", "Є кромки після гільйотинного різання?", false, "Виберіть «Так», якщо розрахунковий елемент має кромки після гільйотинного різання і їхній вплив не усунуто подальшою обробкою. Калькулятор додає 1 бал до поправки показника групи. Джерело: пункт А.2, другий абзац ДБН В.2.6-198:2014."),
+        checkbox("hasUnaccountedColdWork", "Є неврахований у розрахунку наклеп від деформування в холодному стані?", false, "Виберіть «Так», якщо виготовлення спричинило наклеп від холодного деформування, а його вплив не врахований у розрахункових характеристиках. Калькулятор додає 1 бал до поправки показника групи. Джерело: пункт А.2, другий абзац ДБН В.2.6-198:2014."),
+        checkbox("hasHighInitialStress", "Є високі початкові напруження, у тому числі зварювальні?", false, "Виберіть «Так», якщо в елементі очікуються високі початкові або залишкові зварювальні напруження, які не враховані окремо. Калькулятор додає 1 бал до поправки показника групи. Джерело: пункт А.2, другий абзац ДБН В.2.6-198:2014."),
       ] },
       { id: "steel-gamma-c", title: "Умови γc", fields: gammaCFields },
     ],
