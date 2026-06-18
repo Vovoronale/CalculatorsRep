@@ -1,7 +1,7 @@
 "use client";
 
 import { Calculator } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 import {
   convertBaseNumberToDisplay,
@@ -34,6 +34,7 @@ type InputSchemaFormProps = {
   onFieldCalculatorAction?: (event: InputSchemaFieldCalculatorActionEvent) => void;
   displayUnits?: Record<string, string>;
   onDisplayUnitsChange?: (displayUnits: Record<string, string>) => void;
+  renderDescription?: (description: string) => ReactNode;
 };
 
 function getNotationText(prefix: CalculatorInputNotation): string {
@@ -95,6 +96,7 @@ export function InputSchemaForm({
   onFieldCalculatorAction,
   displayUnits: controlledDisplayUnits,
   onDisplayUnitsChange,
+  renderDescription = (description) => description,
 }: InputSchemaFormProps) {
   const [expandedDetails, setExpandedDetails] = useState<Record<string, "help" | "error">>({});
   const [internalDisplayUnits, setInternalDisplayUnits] = useState<Record<string, string>>(() =>
@@ -338,7 +340,7 @@ export function InputSchemaForm({
                   </div>
                   {detailsMode ? (
                     <div className="input-schema-field__details" id={detailsId}>
-                      {field.description ? <p>{field.description}</p> : null}
+                      {field.description ? <p>{renderDescription(field.description)}</p> : null}
                       {detailsMode === "error" && errors.length > 0 ? (
                         <ul>
                           {errors.map((error) => (

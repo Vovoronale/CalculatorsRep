@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 import {
   STEEL_STRENGTH_CLASSES,
@@ -40,6 +40,64 @@ import { NativeReport } from "./native-report";
 import { ReportDocxButton } from "./report-docx-button";
 
 type SchemaValues = Partial<CalculatorInputValues>;
+
+const STEEL_NORM_LINKS = [
+  { text: "таблиці 7.1 і 7.2", id: "steel-norm-table-7-1" },
+  { text: "таблицею 7.2", id: "steel-norm-table-7-2" },
+  { text: "таблицею 5.1", id: "steel-norm-table-5-1" },
+  { text: "таблицею А.1", id: "steel-norm-table-a-1" },
+  { text: "таблицею А.2", id: "steel-norm-table-a-2" },
+  { text: "таблицею Г.1", id: "steel-norm-table-g-1" },
+  { text: "таблицею Г.5", id: "steel-norm-table-g-5" },
+  { text: "пункти 7.1–7.2", id: "steel-norm-table-7-1" },
+  { text: "пункт 5.4.1", id: "steel-norm-table-5-1" },
+  { text: "примітками 1–5", id: "steel-norm-table-5-1-notes" },
+  { text: "примітки 1–5", id: "steel-norm-table-5-1-notes" },
+  { text: "таблиці А.1", id: "steel-norm-table-a-1" },
+  { text: "таблиця А.1", id: "steel-norm-table-a-1" },
+  { text: "таблиці А.2", id: "steel-norm-table-a-2" },
+  { text: "таблиця А.2", id: "steel-norm-table-a-2" },
+  { text: "пункти А.1 і А.2", id: "steel-norm-a-1-a-2" },
+  { text: "пункт А.1", id: "steel-norm-a-1-a-2" },
+  { text: "пункт А.2", id: "steel-norm-a-1-a-2" },
+  { text: "таблиці Г.1", id: "steel-norm-table-g-1" },
+  { text: "таблиця Г.1", id: "steel-norm-table-g-1" },
+  { text: "таблиці Г.5", id: "steel-norm-table-g-5" },
+  { text: "таблиця Г.5", id: "steel-norm-table-g-5" },
+  { text: "таблиця 7.1", id: "steel-norm-table-7-1" },
+  { text: "таблиця 7.2", id: "steel-norm-table-7-2" },
+  { text: "таблиці 7.1", id: "steel-norm-table-7-1" },
+  { text: "таблиці 7.2", id: "steel-norm-table-7-2" },
+  { text: "таблиця 5.1", id: "steel-norm-table-5-1" },
+  { text: "таблиці 5.1", id: "steel-norm-table-5-1" },
+  { text: "Додаток А", id: "steel-norm-table-a-1" },
+  { text: "Додаток Г", id: "steel-norm-table-g-1" },
+  { text: "Г.1", id: "steel-norm-table-g-1" },
+  { text: "Г.5", id: "steel-norm-table-g-5" },
+] as const;
+
+function renderSteelNormText(text: string): ReactNode {
+  const pattern = new RegExp(STEEL_NORM_LINKS.map((link) => link.text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g");
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(pattern)) {
+    if (match.index === undefined) continue;
+    if (match.index > lastIndex) nodes.push(<span key={`text:${lastIndex}`}>{text.slice(lastIndex, match.index)}</span>);
+    const link = STEEL_NORM_LINKS.find((item) => item.text === match[0]);
+    if (link) {
+      nodes.push(<a key={`${link.id}:${match.index}`} href={`#${link.id}`} onClick={() => {
+        const target = document.getElementById(link.id);
+        const details = (target?.tagName === "DETAILS" ? target : target?.querySelector("details")) as HTMLDetailsElement | null | undefined;
+        if (details) details.open = true;
+      }}>{link.text}</a>);
+    }
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) nodes.push(<span key={`text:${lastIndex}`}>{text.slice(lastIndex)}</span>);
+  return <>{nodes}</>;
+}
 
 const steelGradeStandardDescription = "Оберіть фактичну марку сталі та стандарт, за яким виготовлено прокат. Ці дані беруть із сертифіката якості на метал або зі специфікації проєкту. Калькулятор перевіряє, чи відповідає вибрана марка заданому класу міцності, виду та товщині прокату за таблицею Г.5 ДБН В.2.6-198:2014, а також визначає коефіцієнт надійності за матеріалом γm для розрахунку Ry = Ryn / γm за таблицею 7.2.";
 
@@ -254,8 +312,8 @@ export function buildSteelStructureCategoryGroupDocxReport(steps: ReturnType<typ
   return buildNativeDocxReport({ title: "Покроковий звіт", fileBaseName: `kategorii-ta-grupy-stalevykh-konstruktsii-${formatDocxFileDate(date)}`, steps });
 }
 
-function NormScan({ alt, src }: { alt: string; src: string }) {
-  return <details className="steel-structure-norm__scan"><summary>Скан фрагмента ДБН</summary><figure><img src={src} alt={alt} loading="lazy" decoding="async" /></figure></details>;
+function NormScan({ alt, id, src }: { alt: string; id?: string; src: string }) {
+  return <details className="steel-structure-norm__scan" id={id}><summary>Скан фрагмента ДБН</summary><figure><img src={src} alt={alt} loading="lazy" decoding="async" /></figure></details>;
 }
 
 function NormativeReferences() {
@@ -263,20 +321,29 @@ function NormativeReferences() {
     <div className="native-report__head"><h3 id="steel-structure-norms-title">Нормативні посилання</h3></div>
     <div className="native-report__items">
       <article><h4>ДБН В.2.6-198:2014, Додаток А, таблиця А.1</h4><p>Категорії конструкцій за призначенням і за напруженим станом.</p>
-        <NormScan src="/dbn/steel-structure-category-group/dbn-table-a-1-part-1.png" alt="Скан таблиці А.1 з ДБН В.2.6-198:2014, частина 1" />
+        <NormScan id="steel-norm-table-a-1" src="/dbn/steel-structure-category-group/dbn-table-a-1-part-1.png" alt="Скан таблиці А.1 з ДБН В.2.6-198:2014, частина 1" />
         <NormScan src="/dbn/steel-structure-category-group/dbn-table-a-1-part-2.png" alt="Скан таблиці А.1 з ДБН В.2.6-198:2014, частина 2" />
         <NormScan src="/dbn/steel-structure-category-group/dbn-table-a-1-part-3.png" alt="Скан таблиці А.1 з ДБН В.2.6-198:2014, частина 3" />
       </article>
-      <article><h4>ДБН В.2.6-198:2014, Додаток А, таблиця А.2</h4><p>Показники S1–S5, початкова група та її уточнення.</p><NormScan src="/dbn/steel-structure-category-group/dbn-table-a-2.png" alt="Скан таблиці А.2 з ДБН В.2.6-198:2014" /></article>
-      <article><h4>ДБН В.2.6-198:2014, пункт 5.4.1, таблиця 5.1</h4><p>Коефіцієнти умов роботи γc та примітки 1–5.</p>
-        <NormScan src="/dbn/steel-structure-category-group/dbn-table-5-1-part-1.png" alt="Скан таблиці 5.1 з ДБН В.2.6-198:2014" />
-        <NormScan src="/dbn/steel-structure-category-group/dbn-table-5-1-part-2-notes.png" alt="Скан приміток 1–5 до таблиці 5.1 з ДБН В.2.6-198:2014" />
+      <article><h4>ДБН В.2.6-198:2014, Додаток А, таблиця А.2</h4><p>Показники S1–S5, початкова група та її уточнення.</p>
+        <NormScan id="steel-norm-table-a-2" src="/dbn/steel-structure-category-group/dbn-table-a-2.png" alt="Скан таблиці А.2 з ДБН В.2.6-198:2014" />
+        <NormScan id="steel-norm-a-1-a-2" src="/dbn/steel-structure-category-group/dbn-a-1-a-2-rules-part-1.png" alt="Скан пунктів А.1 і А.2 з ДБН В.2.6-198:2014, частина 1" />
+        <NormScan src="/dbn/steel-structure-category-group/dbn-a-1-a-2-rules-part-2.png" alt="Скан пункту А.2 з ДБН В.2.6-198:2014, частина 2" />
       </article>
-      <article><h4>ДБН В.2.6-198:2014, пункти 7.1–7.2, таблиці 7.1–7.2</h4><p>Визначення Ry = Ryn / γm і коефіцієнта надійності за матеріалом γm.</p></article>
-      <article><h4>ДБН В.2.6-198:2014, Додаток Г, таблиці Г.1 і Г.5</h4><p>Відповідність марок класам міцності та застосування сталі.</p>
-        <NormScan src="/dbn/steel-structure-category-group/dbn-table-g-1-part-1.png" alt="Скан таблиці Г.1 з ДБН В.2.6-198:2014, частина 1" />
+      <article><h4>ДБН В.2.6-198:2014, пункт 5.4.1, таблиця 5.1</h4><p>Коефіцієнти умов роботи γc та примітки 1–5.</p>
+        <NormScan id="steel-norm-table-5-1" src="/dbn/steel-structure-category-group/dbn-table-5-1-part-1.png" alt="Скан таблиці 5.1 з ДБН В.2.6-198:2014" />
+        <NormScan id="steel-norm-table-5-1-notes" src="/dbn/steel-structure-category-group/dbn-table-5-1-part-2-notes.png" alt="Скан приміток 1–5 до таблиці 5.1 з ДБН В.2.6-198:2014" />
+      </article>
+      <article><h4>ДБН В.2.6-198:2014, пункти 7.1–7.2, таблиці 7.1–7.2</h4><p>Визначення Ry = Ryn / γm і коефіцієнта надійності за матеріалом γm.</p>
+        <NormScan id="steel-norm-table-7-1" src="/dbn/steel-structure-category-group/dbn-table-7-1.png" alt="Скан пункту 7.1 і таблиці 7.1 з ДБН В.2.6-198:2014" />
+        <NormScan id="steel-norm-table-7-2" src="/dbn/steel-structure-category-group/dbn-table-7-2.png" alt="Скан таблиці 7.2 з ДБН В.2.6-198:2014" />
+      </article>
+      <article><h4>ДБН В.2.6-198:2014, Додаток Г, таблиця Г.1</h4><p>Допустимість класів сталі для груп конструкцій.</p>
+        <NormScan id="steel-norm-table-g-1" src="/dbn/steel-structure-category-group/dbn-table-g-1-part-1.png" alt="Скан таблиці Г.1 з ДБН В.2.6-198:2014, частина 1" />
         <NormScan src="/dbn/steel-structure-category-group/dbn-table-g-1-part-2-notes.png" alt="Скан таблиці Г.1 з ДБН В.2.6-198:2014, частина 2 і примітки" />
-        <NormScan src="/dbn/steel-structure-category-group/dbn-table-g-5-part-1.png" alt="Скан таблиці Г.5 з ДБН В.2.6-198:2014, частина 1" />
+      </article>
+      <article><h4>ДБН В.2.6-198:2014, Додаток Г, таблиця Г.5</h4><p>Відповідність марок сталі класам міцності, виду і товщині прокату.</p>
+        <NormScan id="steel-norm-table-g-5" src="/dbn/steel-structure-category-group/dbn-table-g-5-part-1.png" alt="Скан таблиці Г.5 з ДБН В.2.6-198:2014, частина 1" />
         <NormScan src="/dbn/steel-structure-category-group/dbn-table-g-5-part-2.png" alt="Скан таблиці Г.5 з ДБН В.2.6-198:2014, частина 2" />
       </article>
     </div>
@@ -313,5 +380,5 @@ export function SteelStructureCategoryGroupCalculator() {
   const docx = useMemo(() => buildSteelStructureCategoryGroupDocxReport(report.steps), [report.steps]);
   const summary = report.values ? <div className="steel-structure-category-summary"><p>Категорії: {report.values.purposeCategory}/{report.values.stressCategoryBase}</p><p>Початкова група: {report.values.groupBase}, Stot = {report.values.totalBase}</p><p>Уточнена група: {report.values.groupA2}, Stot = {report.values.totalA2}</p><p>γc = {report.values.gammaC}; Ry = {report.values.ryMpa.toFixed(2)} МПа</p><p>Сталь за Г.1: {report.values.steelAllowed ? "дозволено" : "не дозволено"}</p></div> : null;
 
-  return <NativeCalculatorLayout ariaLabel="Калькулятор категорій і груп сталевих конструкцій" navLinks={[{ href: "#steel-structure-selection", label: "Конструкція" }, { href: "#steel-material", label: "Сталь" }, { href: "#steel-a2", label: "Чинники А.2" }, { href: "#steel-gamma-c", label: "Умови γc" }, { href: "#steel-structure-report-title", label: "Звіт" }, { href: "#steel-structure-norms-title", label: "Норми" }]} summary={summary} controls={<InputSchemaForm schema={schema} values={values} onValuesChange={setNormalizedValues} displayUnits={displayUnits} onDisplayUnitsChange={setDisplayUnits} />} errors={report.errors} warnings={report.warnings}><NativeReport titleId="steel-structure-report-title" title="Покроковий звіт" steps={report.steps} actions={<ReportDocxButton report={docx} />} /><NormativeReferences /></NativeCalculatorLayout>;
+  return <NativeCalculatorLayout ariaLabel="Калькулятор категорій і груп сталевих конструкцій" navLinks={[{ href: "#steel-structure-selection", label: "Конструкція" }, { href: "#steel-material", label: "Сталь" }, { href: "#steel-a2", label: "Чинники А.2" }, { href: "#steel-gamma-c", label: "Умови γc" }, { href: "#steel-structure-report-title", label: "Звіт" }, { href: "#steel-structure-norms-title", label: "Норми" }]} summary={summary} controls={<InputSchemaForm schema={schema} values={values} onValuesChange={setNormalizedValues} displayUnits={displayUnits} onDisplayUnitsChange={setDisplayUnits} renderDescription={renderSteelNormText} />} errors={report.errors} warnings={report.warnings}><NativeReport titleId="steel-structure-report-title" title="Покроковий звіт" steps={report.steps} actions={<ReportDocxButton report={docx} />} renderText={renderSteelNormText} /><NormativeReferences /></NativeCalculatorLayout>;
 }

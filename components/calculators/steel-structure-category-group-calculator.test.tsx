@@ -86,7 +86,21 @@ describe("SteelStructureCategoryGroupCalculator", () => {
       "src",
       "/dbn/steel-structure-category-group/dbn-table-5-1-part-1.png",
     );
-    expect(screen.getAllByText("Скан фрагмента ДБН")).toHaveLength(10);
+    expect(screen.getAllByText("Скан фрагмента ДБН")).toHaveLength(14);
+  });
+
+  it("links field guidance to and opens the corresponding DBN scan", async () => {
+    const user = userEvent.setup();
+    render(<SteelStructureCategoryGroupCalculator />);
+
+    await user.click(screen.getByRole("button", { name: "Показати опис поля Марка сталі та нормативний документ" }));
+    const link = screen.getByRole("link", { name: "таблицею Г.5" });
+    expect(link).toHaveAttribute("href", "#steel-norm-table-g-5");
+
+    const scan = document.getElementById("steel-norm-table-g-5");
+    expect(scan).not.toHaveAttribute("open");
+    await user.click(link);
+    expect(scan).toHaveAttribute("open");
   });
 
   it("filters and resets the structure selector when section changes", async () => {

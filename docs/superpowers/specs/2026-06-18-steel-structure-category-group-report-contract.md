@@ -1445,7 +1445,31 @@ Items:
 
 Each applicable normative-reference article contains a collapsed `Скан
 фрагмента ДБН` block with local PNG assets. Include scans of table А.1, table
-А.2, table 5.1 with notes 1–5, table Г.1, and table Г.5.
+А.2, clauses А.1–А.2, table 5.1 with notes 1–5, tables 7.1–7.2, table Г.1,
+and table Г.5.
+
+Normative citations in field descriptions and report captions/items/notes are
+internal links to the matching scan. Activating a link must:
+
+```text
+1. Navigate to the corresponding normative-reference fragment on the same page.
+2. Open the target "Скан фрагмента ДБН" details element automatically.
+3. Keep all calculation inputs and report state unchanged.
+```
+
+Required targets:
+
+```text
+table А.1 -> #steel-norm-table-a-1
+table А.2 -> #steel-norm-table-a-2
+clauses А.1–А.2 -> #steel-norm-a-1-a-2
+table 5.1 -> #steel-norm-table-5-1
+notes 1–5 to table 5.1 -> #steel-norm-table-5-1-notes
+table 7.1 -> #steel-norm-table-7-1
+table 7.2 -> #steel-norm-table-7-2
+table Г.1 -> #steel-norm-table-g-1
+table Г.5 -> #steel-norm-table-g-5
+```
 
 ## Catalog Registration Requirement
 

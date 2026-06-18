@@ -3752,10 +3752,33 @@ textarea {
 
 .steel-structure-norm__scan {
   max-width: 100%;
+  scroll-margin-top: 96px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface);
   overflow: hidden;
+}
+
+.native-report__caption a,
+.native-report__items a,
+.native-report__notes a,
+.input-schema-field__details a {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.native-report__caption a:hover,
+.native-report__caption a:focus-visible,
+.native-report__items a:hover,
+.native-report__items a:focus-visible,
+.native-report__notes a:hover,
+.native-report__notes a:focus-visible,
+.input-schema-field__details a:hover,
+.input-schema-field__details a:focus-visible {
+  color: var(--accent-strong);
 }
 
 .steel-structure-norm__scan summary {
