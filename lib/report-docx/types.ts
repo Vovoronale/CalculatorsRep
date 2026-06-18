@@ -5,6 +5,7 @@ export type DocxReportStep = {
   notes?: string[];
   formula?: string;
   formulas?: string[];
+  resultItems?: string[];
 };
 
 export type DocxReportFigure = {

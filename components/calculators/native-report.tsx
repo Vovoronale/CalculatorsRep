@@ -11,6 +11,7 @@ export type NativeReportStep = {
   notes?: string[];
   formula?: string;
   formulas?: string[];
+  resultItems?: string[];
 };
 
 type NativeReportProps = {
@@ -65,6 +66,13 @@ export function NativeReport({
                   key={formula}
                 />
               ))}
+              {step.resultItems?.length ? (
+                <ul className="native-report__result-items">
+                  {step.resultItems.map((item) => (
+                    <li key={item}>{renderText(item)}</li>
+                  ))}
+                </ul>
+              ) : null}
             </li>
           );
         })}

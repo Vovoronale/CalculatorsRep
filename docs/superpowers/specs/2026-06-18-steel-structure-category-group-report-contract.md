@@ -11,6 +11,12 @@ tests, and code must treat this file as canonical. If any wording, mapping, or
 formula changes during implementation, update this file first and get approval
 before changing tests or code.
 
+Revision note:
+
+```text
+2026-06-18 readability revision: report steps should show table-derived values as report items and keep only arithmetic checks as formulas. This avoids long mixed text/math formula rows.
+```
+
 ## Source Evidence
 
 Primary source:
@@ -1039,14 +1045,14 @@ Caption:
 Визначення показників окремих чинників S1–S5 (ДБН В.2.6-198:2014, Додаток А, таблиця А.2):
 ```
 
-Formulas:
+Items:
 
 ```text
-S1 = f(клас відповідальності = <СС1/СС2/СС3>) = <0/4> балів
-S2 = f(категорія за призначенням = <А/Б/В>) = <11/4/1> балів
-S3,base = f(категорія за напруженим станом = <I/II/III>) = <8/5/1> балів
-S4 = f(розтягувальні напруження = <є/немає>) = <7/2> балів
-S5 = f(несприятливий вплив зварних з’єднань = <є/немає>) = <6/2> балів
+S1 = <0/4> балів — клас відповідальності <СС1/СС2/СС3>
+S2 = <11/4/1> балів — категорія за призначенням <А/Б/В>
+S3,base = <8/5/1> балів — категорія за напруженим станом <I/II/III>
+S4 = <7/2> балів — розтягувальні напруження <є/немає>
+S5 = <6/2> балів — несприятливий вплив зварних з’єднань <є/немає>
 ```
 
 Note:
@@ -1067,7 +1073,12 @@ Formulas:
 
 ```text
 Stot,base = S1 + S2 + S3,base + S4 + S5 = <S1> + <S2> + <S3,base> + <S4> + <S5> = <Stot,base> балів
-Stot,base = <Stot,base> => група <1/2/3/4>
+```
+
+Result item:
+
+```text
+Початкова група: <1/2/3/4> (Stot,base = <Stot,base> балів)
 ```
 
 Note:
@@ -1215,23 +1226,38 @@ Dynamic load with tensile stress:
 
 ```text
 α = |σdyn| / |σsum| = <σdyn> / <σsum> = <alpha>
-α = <alpha> => категорія за напруженим станом = <I/II/III>
-S3,A2 = f(<I/II/III>) = <8/5/1> балів
+```
+
+Dynamic load result items:
+
+```text
+Категорія за напруженим станом після уточнення: <I/II/III> (α = <alpha>)
+S3,A2 = <8/5/1> балів — категорія за напруженим станом <I/II/III>
 ```
 
 Static load with tensile stress:
 
 ```text
 α = |σdyn| / |σsum| = 0 / <σsum> = 0
-α = 0 => категорія за напруженим станом = III
-S3,A2 = f(III) = 1 бал
+```
+
+Static load result items:
+
+```text
+Категорія за напруженим станом після уточнення: III (α = 0)
+S3,A2 = 1 бал — категорія за напруженим станом III
 ```
 
 No tensile stress:
 
 ```text
 α = не визначається, оскільки розтягувальні напруження відсутні
-S3,A2 = S3,base = <value> балів
+```
+
+No tensile stress result item:
+
+```text
+S3,A2 = S3,base = <value> балів — категорія за напруженим станом не уточнюється
 ```
 
 Note:
@@ -1255,14 +1281,19 @@ Caption:
 Визначення додатних поправок до показника групи після підбору перерізу (ДБН В.2.6-198:2014, Додаток А, пункт А.2, другий абзац):
 ```
 
+Items:
+
+```text
+ΔSt = <0/+1/+2> балів — товщина прокату t = <t_mm> мм
+ΔSguillotine = <+1/0> балів — кромки після гільйотинного різання <є/немає>
+ΔScold = <+1/0> балів — неврахований наклеп <є/немає>
+ΔSinitial = <+1/0> балів — високі початкові напруження <є/немає>
+```
+
 Formulas:
 
 ```text
-ΔSt = f(t = <t_mm> мм) = <0/+1/+2> балів
-ΔSguillotine = f(кромки після гільйотинного різання = <є/немає>) = <+1/0> балів
-ΔScold = f(неврахований наклеп = <є/немає>) = <+1/0> балів
-ΔSinitial = f(високі початкові напруження = <є/немає>) = <+1/0> балів
-ΔS+ = ΔSt + ΔSguillotine + ΔScold + ΔSinitial = <numeric substitution> = <result> балів
+ΔS+ = ΔSt + ΔSguillotine + ΔScold + ΔSinitial = <ΔSt> + <ΔSguillotine> + <ΔScold> + <ΔSinitial> = <result> балів
 ```
 
 Rule:
@@ -1289,7 +1320,13 @@ Static load formulas:
 
 ```text
 σlimit = 0,4 * Ry * γc = 0,4 * <Ry_display> * <γc> = <σlimit_display> <selected_unit>
-σc = <σc_display> <selected_unit> ≤ σlimit = <σlimit_display> <selected_unit> => <виконується/не виконується>
+σc = <σc_display> <selected_unit> ≤ σlimit = <σlimit_display> <selected_unit>
+```
+
+Static load result items:
+
+```text
+Умова зменшення показника групи при статичному стиску: <виконується/не виконується>
 ΔScompression = <-4/0> балів
 ```
 
@@ -1323,10 +1360,15 @@ Formulas:
 
 ```text
 ΔS3 = S3,A2 - S3,base = <S3,A2> - <S3,base> = <result> балів
-ΔSraw = ΔS3 + ΔS+ + ΔScompression = <numeric substitution> = <result> балів
-ΔS = clamp(ΔSraw; -4; +4) = <result> балів
+ΔSraw = ΔS3 + ΔS+ + ΔScompression = <ΔS3> + <ΔS+> + <ΔScompression> = <result> балів
+ΔS = обмежити(ΔSraw; -4; +4) = <result> балів
 Stot,A2 = Stot,base + ΔS = <Stot,base> + <ΔS> = <Stot,A2> балів
-Stot,A2 = <Stot,A2> => уточнена група <1/2/3/4>
+```
+
+Result item:
+
+```text
+Уточнена група: <1/2/3/4> (Stot,A2 = <Stot,A2> балів)
 ```
 
 Notes:
@@ -1356,10 +1398,10 @@ Items:
 Застосована примітка: <note_number або не застосовується>
 ```
 
-Formula:
+Result item:
 
 ```text
-допустимість сталі = G.1(<steel_class>; група <group>; <conditions>) = <дозволено/не дозволено>
+Застосовність сталі за таблицею Г.1: <дозволено/не дозволено>
 ```
 
 Success text:
@@ -1384,10 +1426,14 @@ Caption:
 Висновок щодо категорій, групи конструкції та застосовності сталі (ДБН В.2.6-198:2014, Додаток А, пункти А.1 і А.2; Додаток Г, таблиця Г.1):
 ```
 
-Formula:
+Items:
 
 ```text
-<structure_label> => категорії <purpose_category>/<stress_category_base> => Stot,base = <value>, група <base_group> => Stot,A2 = <value>, уточнена група <refined_group>; сталь <steel_class> — <дозволено/не дозволено>
+Конструкція або елемент: <structure_label>
+Категорії за таблицею А.1: <purpose_category>/<stress_category_base>
+Початкова група: <base_group> (Stot,base = <value> балів)
+Уточнена група: <refined_group> (Stot,A2 = <value> балів)
+Сталь <steel_class>: <дозволено/не дозволено> за таблицею Г.1
 ```
 
 UI result:

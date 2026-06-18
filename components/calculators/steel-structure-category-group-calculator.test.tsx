@@ -78,8 +78,8 @@ describe("SteelStructureCategoryGroupCalculator", () => {
     expect(screen.getByLabelText("Калькулятор категорій і груп сталевих конструкцій")).toHaveClass(
       "native-calculator",
     );
-    expect(screen.getByText(/Початкова група: 3/)).toBeInTheDocument();
-    expect(screen.getByText(/Уточнена група: 3/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Початкова група: 3/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Уточнена група: 3/).length).toBeGreaterThan(0);
     expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
     expect(screen.getByAltText("Скан таблиці 5.1 з ДБН В.2.6-198:2014")).toHaveAttribute(

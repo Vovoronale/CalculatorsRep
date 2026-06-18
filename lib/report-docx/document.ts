@@ -72,6 +72,12 @@ function stepParagraphs(step: DocxReportStep, index: number): Paragraph[] {
     ),
     ...(step.notes ?? []).map((note) => textParagraph(note, { italic: true })),
     ...formulas.flatMap(formulaParagraphs),
+    ...(step.resultItems ?? []).map((item) =>
+      new Paragraph({
+        bullet: { level: 0 },
+        children: [new TextRun({ text: item, bold: true })],
+      }),
+    ),
   ];
 }
 

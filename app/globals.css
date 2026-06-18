@@ -3848,6 +3848,18 @@ textarea {
   line-height: 1.45;
 }
 
+.native-report__result-items {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  border-left: 2px solid var(--accent);
+  padding-left: 12px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
 .concrete-cover-durability-norms__list {
   display: grid;
   gap: 10px;

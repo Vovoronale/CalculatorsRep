@@ -26,6 +26,7 @@ export function buildNativeDocxReport({
       ...(step.notes ? { notes: [...step.notes] } : {}),
       ...(step.formula ? { formula: step.formula } : {}),
       ...(step.formulas ? { formulas: [...step.formulas] } : {}),
+      ...(step.resultItems ? { resultItems: [...step.resultItems] } : {}),
     })),
   };
 }

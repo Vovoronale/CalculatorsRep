@@ -107,6 +107,7 @@ export type SteelStructureCategoryGroupReportStep = {
   notes?: string[];
   formula?: string;
   formulas?: string[];
+  resultItems?: string[];
 };
 
 export type SteelStructureCategoryGroupValues = {
@@ -472,18 +473,19 @@ export function getSteelStructureCategoryGroupReport(
     {
       key: "scores-a2",
       caption: "Визначення показників окремих чинників S1–S5 (ДБН В.2.6-198:2014, Додаток А, таблиця А.2):",
-      formulas: [
-        `S1 = f(клас відповідальності = ${input.responsibilityClass.replace("CC", "СС")}) = ${s1} балів`,
-        `S2 = f(категорія за призначенням = ${entry.purposeCategory}) = ${s2} балів`,
-        `S3,base = f(категорія за напруженим станом = ${entry.stressCategory}) = ${s3Base} балів`,
-        `S4 = f(розтягувальні напруження = ${input.hasTensileStress ? "є" : "немає"}) = ${s4} балів`,
-        `S5 = f(несприятливий вплив зварних з’єднань = ${input.hasAdverseWeldEffect ? "є" : "немає"}) = ${s5} балів`,
+      items: [
+        `S1 = ${s1} балів — клас відповідальності ${input.responsibilityClass.replace("CC", "СС")}`,
+        `S2 = ${s2} балів — категорія за призначенням ${entry.purposeCategory}`,
+        `S3,base = ${s3Base} балів — категорія за напруженим станом ${entry.stressCategory}`,
+        `S4 = ${s4} балів — розтягувальні напруження ${input.hasTensileStress ? "є" : "немає"}`,
+        `S5 = ${s5} балів — несприятливий вплив зварних з’єднань ${input.hasAdverseWeldEffect ? "є" : "немає"}`,
       ],
     },
     {
       key: "base-group",
       caption: "Визначення початкового показника та групи конструкції (ДБН В.2.6-198:2014, Додаток А, пункт А.1):",
-      formulas: [`Stot,base = S1 + S2 + S3,base + S4 + S5 = ${s1} + ${s2} + ${s3Base} + ${s4} + ${s5} = ${totalBase} балів`, `Stot,base = ${totalBase} => група ${groupBase}`],
+      formulas: [`Stot,base = S1 + S2 + S3,base + S4 + S5 = ${s1} + ${s2} + ${s3Base} + ${s4} + ${s5} = ${totalBase} балів`],
+      resultItems: [`Початкова група: ${groupBase} (Stot,base = ${totalBase} балів)`],
     },
     {
       key: "steel-resistance",
@@ -510,32 +512,51 @@ export function getSteelStructureCategoryGroupReport(
     {
       key: "stress-category-a2",
       caption: "Уточнення категорії конструкції за напруженим станом після підбору перерізу (ДБН В.2.6-198:2014, Додаток А, пункт А.2, перший абзац):",
-      formulas: alpha === null ? ["α = не визначається, оскільки розтягувальні напруження відсутні", `S3,A2 = S3,base = ${s3Base} балів`] : [`α = |σdyn| / |σsum| = ${format(sigmaDynDisplay.value)} / ${format(sigmaSumDisplay.value)} = ${format(alpha)}`, `α = ${format(alpha)} => категорія за напруженим станом = ${stressCategoryA2}`, `S3,A2 = f(${stressCategoryA2}) = ${S3_SCORE[stressCategoryA2]} балів`],
+      formulas: alpha === null ? ["α = не визначається, оскільки розтягувальні напруження відсутні"] : [`α = |σdyn| / |σsum| = ${format(sigmaDynDisplay.value)} / ${format(sigmaSumDisplay.value)} = ${format(alpha)}`],
+      resultItems: alpha === null
+        ? [`S3,A2 = S3,base = ${s3Base} балів — категорія за напруженим станом не уточнюється`]
+        : [`Категорія за напруженим станом після уточнення: ${stressCategoryA2} (α = ${format(alpha)})`, `S3,A2 = ${S3_SCORE[stressCategoryA2]} бал — категорія за напруженим станом ${stressCategoryA2}`],
     },
     {
       key: "positive-adjustments",
       caption: "Визначення додатних поправок до показника групи після підбору перерізу (ДБН В.2.6-198:2014, Додаток А, пункт А.2, другий абзац):",
-      formulas: [`ΔSt = f(t = ${format(input.thicknessMm)} мм) = ${thicknessAdjustment} балів`, `ΔSguillotine = ${guillotine} балів`, `ΔScold = ${coldWork} балів`, `ΔSinitial = ${initialStress} балів`, `ΔS+ = ${thicknessAdjustment} + ${guillotine} + ${coldWork} + ${initialStress} = ${positive} балів`],
+      items: [
+        `ΔSt = ${thicknessAdjustment} балів — товщина прокату t = ${format(input.thicknessMm)} мм`,
+        `ΔSguillotine = ${guillotine} балів — кромки після гільйотинного різання ${input.hasGuillotineEdges ? "є" : "немає"}`,
+        `ΔScold = ${coldWork} балів — неврахований наклеп ${input.hasUnaccountedColdWork ? "є" : "немає"}`,
+        `ΔSinitial = ${initialStress} балів — високі початкові напруження ${input.hasHighInitialStress ? "є" : "немає"}`,
+      ],
+      formulas: [`ΔS+ = ΔSt + ΔSguillotine + ΔScold + ΔSinitial = ${thicknessAdjustment} + ${guillotine} + ${coldWork} + ${initialStress} = ${positive} балів`],
     },
     {
       key: "compression-adjustment",
       caption: "Перевірка умови зменшення показника групи при статичному стиску (ДБН В.2.6-198:2014, Додаток А, пункт А.2, третій абзац):",
-      formulas: input.loadType === "static" ? [`σlimit = 0,4 * Ry * γc = 0,4 * ${format(ryDisplay.value, 2)} * ${format(gammaResult.value, 3)} = ${format(sigmaLimitDisplay.value, 2)} ${sigmaLimitDisplay.label}`, `σc = ${format(sigmaCDisplay.value)} ${sigmaCDisplay.label} ≤ σlimit = ${format(sigmaLimitDisplay.value, 2)} ${sigmaLimitDisplay.label} => ${compression === -4 ? "виконується" : "не виконується"}`, `ΔScompression = ${compression} балів`] : ["ΔScompression = 0 балів (умова пункту А.2 застосовується при статичному навантаженні)"],
+      formulas: input.loadType === "static" ? [`σlimit = 0,4 * Ry * γc = 0,4 * ${format(ryDisplay.value, 2)} * ${format(gammaResult.value, 3)} = ${format(sigmaLimitDisplay.value, 2)} ${sigmaLimitDisplay.label}`, `σc = ${format(sigmaCDisplay.value)} ${sigmaCDisplay.label} ≤ σlimit = ${format(sigmaLimitDisplay.value, 2)} ${sigmaLimitDisplay.label}`] : ["ΔScompression = 0 балів (умова пункту А.2 застосовується при статичному навантаженні)"],
+      ...(input.loadType === "static"
+        ? { resultItems: [`Умова зменшення показника групи при статичному стиску: ${compression === -4 ? "виконується" : "не виконується"}`, `ΔScompression = ${compression} балів`] }
+        : {}),
     },
     {
       key: "refined-group",
       caption: "Уточнення показника та групи конструкції після підбору перерізу (ДБН В.2.6-198:2014, Додаток А, пункт А.2):",
-      formulas: [`ΔS3 = S3,A2 - S3,base = ${S3_SCORE[stressCategoryA2]} - ${s3Base} = ${stressAdjustment} балів`, `ΔSraw = ΔS3 + ΔS+ + ΔScompression = ${stressAdjustment} + ${positive} + ${compression} = ${raw} балів`, `ΔS = clamp(ΔSraw; -4; +4) = ${applied} балів`, `Stot,A2 = Stot,base + ΔS = ${totalBase} + ${applied} = ${totalA2} балів`, `Stot,A2 = ${totalA2} => уточнена група ${groupA2}`],
+      formulas: [`ΔS3 = S3,A2 - S3,base = ${S3_SCORE[stressCategoryA2]} - ${s3Base} = ${stressAdjustment} балів`, `ΔSraw = ΔS3 + ΔS+ + ΔScompression = ${stressAdjustment} + ${positive} + ${compression} = ${raw} балів`, `ΔS = обмежити(ΔSraw; -4; +4) = ${applied} балів`, `Stot,A2 = Stot,base + ΔS = ${totalBase} + ${applied} = ${totalA2} балів`],
+      resultItems: [`Уточнена група: ${groupA2} (Stot,A2 = ${totalA2} балів)`],
     },
     {
       key: "steel-compatibility",
       caption: "Перевірка застосування вибраної сталі для уточненої групи конструкцій (ДБН В.2.6-198:2014, Додаток Г, таблиця Г.1 та примітки 1–6):",
-      formula: `допустимість сталі = G.1(${input.steelClass}; група ${groupA2}; ${input.serviceCondition}) = ${isSteelAllowed ? "дозволено" : "не дозволено"}`,
+      resultItems: [`Застосовність сталі за таблицею Г.1: ${isSteelAllowed ? "дозволено" : "не дозволено"}`],
     },
     {
       key: "conclusion",
       caption: "Висновок щодо категорій, групи конструкції та застосовності сталі (ДБН В.2.6-198:2014, Додаток А, пункти А.1 і А.2; Додаток Г, таблиця Г.1):",
-      formula: `${entry.label} => категорії ${entry.purposeCategory}/${entry.stressCategory} => Stot,base = ${totalBase}, група ${groupBase} => Stot,A2 = ${totalA2}, уточнена група ${groupA2}; сталь ${input.steelClass} — ${isSteelAllowed ? "дозволено" : "не дозволено"}`,
+      items: [
+        `Конструкція або елемент: ${entry.label}`,
+        `Категорії за таблицею А.1: ${entry.purposeCategory}/${entry.stressCategory}`,
+        `Початкова група: ${groupBase} (Stot,base = ${totalBase} балів)`,
+        `Уточнена група: ${groupA2} (Stot,A2 = ${totalA2} балів)`,
+        `Сталь ${input.steelClass}: ${isSteelAllowed ? "дозволено" : "не дозволено"} за таблицею Г.1`,
+      ],
     },
   );
 

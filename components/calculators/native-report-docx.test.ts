@@ -15,6 +15,7 @@ describe("buildNativeDocxReport", () => {
           notes: ["note"],
           formula: "R = 120 кПа",
           formulas: ["R = 12 т/м²"],
+          resultItems: ["result"],
         },
       ],
     });
@@ -30,6 +31,7 @@ describe("buildNativeDocxReport", () => {
           notes: ["note"],
           formula: "R = 120 кПа",
           formulas: ["R = 12 т/м²"],
+          resultItems: ["result"],
         },
       ],
     });
