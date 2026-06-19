@@ -150,6 +150,42 @@ describe("ResidentialYardAreasCalculator", () => {
     expect(screen.getAllByText(/Sвідх,руч = 0,08 ар = 8 м²/).length).toBeGreaterThan(0);
     expect(screen.getByText("Sвідх = 8 м²")).toBeInTheDocument();
   });
+
+  it("links report citations to the five normative scans and opens the target", async () => {
+    const user = userEvent.setup();
+    render(<ResidentialYardAreasCalculator />);
+
+    expect(
+      screen.getByRole("heading", { name: "Нормативні посилання" }),
+    ).toBeInTheDocument();
+
+    const expectedScans = [
+      "dbn-b-2-2-12-table-6-4.png",
+      "dbn-b-2-2-12-table-6-4-notes.png",
+      "dbn-b-2-2-12-table-6-5.png",
+      "dbn-b-2-2-12-table-10-5.png",
+      "dbn-v-2-3-15-4-6-table-1.png",
+    ];
+    const images = screen.getAllByRole("img");
+    expect(images).toHaveLength(expectedScans.length);
+    for (const fileName of expectedScans) {
+      expect(images.some((image) => image.getAttribute("src")?.endsWith(fileName))).toBe(
+        true,
+      );
+    }
+
+    const target = document.getElementById(
+      "residential-yard-norm-table-10-5",
+    ) as HTMLDetailsElement;
+    expect(target).not.toHaveAttribute("open");
+    const link = screen.getAllByRole("link", { name: "таблиця 10.5" })[0];
+    expect(link).toHaveAttribute(
+      "href",
+      "#residential-yard-norm-table-10-5",
+    );
+    await user.click(link);
+    expect(target).toHaveAttribute("open");
+  });
 });
 
 describe("residential yard DOCX export", () => {

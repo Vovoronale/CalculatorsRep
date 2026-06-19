@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 import {
   DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
@@ -27,6 +27,77 @@ import {
   formatDocxFileDate,
 } from "./native-report-docx";
 import { ReportDocxButton } from "./report-docx-button";
+
+const RESIDENTIAL_YARD_NORM_LINKS = [
+  {
+    text: "примітка 2 до таблиці 6.4",
+    id: "residential-yard-norm-table-6-4-notes",
+  },
+  {
+    text: "примітки *, **, ***",
+    id: "residential-yard-norm-table-6-4-notes",
+  },
+  { text: "примітка ***", id: "residential-yard-norm-table-6-4-notes" },
+  { text: "примітка **", id: "residential-yard-norm-table-6-4-notes" },
+  { text: "примітка *", id: "residential-yard-norm-table-6-4-notes" },
+  { text: "таблицею 10.5", id: "residential-yard-norm-table-10-5" },
+  { text: "таблиці 10.5", id: "residential-yard-norm-table-10-5" },
+  { text: "таблиця 10.5", id: "residential-yard-norm-table-10-5" },
+  { text: "таблицею 6.5", id: "residential-yard-norm-table-6-5" },
+  { text: "таблиці 6.5", id: "residential-yard-norm-table-6-5" },
+  { text: "таблиця 6.5", id: "residential-yard-norm-table-6-5" },
+  { text: "таблицею 6.4", id: "residential-yard-norm-table-6-4" },
+  { text: "таблиці 6.4", id: "residential-yard-norm-table-6-4" },
+  { text: "таблиця 6.4", id: "residential-yard-norm-table-6-4" },
+  {
+    text: "таблиця 1 ДБН В.2.3-15:2007",
+    id: "residential-yard-norm-parking-4-6-table-1",
+  },
+] as const;
+
+function renderResidentialYardNormText(text: string): ReactNode {
+  const links = [...RESIDENTIAL_YARD_NORM_LINKS].sort(
+    (left, right) => right.text.length - left.text.length,
+  );
+  const pattern = new RegExp(
+    links
+      .map((link) => link.text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+      .join("|"),
+    "g",
+  );
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(pattern)) {
+    if (match.index === undefined) continue;
+    if (match.index > lastIndex) {
+      nodes.push(
+        <span key={`text:${lastIndex}`}>{text.slice(lastIndex, match.index)}</span>,
+      );
+    }
+    const link = links.find((item) => item.text === match[0]);
+    if (link) {
+      nodes.push(
+        <a
+          key={`${link.id}:${match.index}`}
+          href={`#${link.id}`}
+          onClick={() => {
+            const target = document.getElementById(link.id);
+            if (target instanceof HTMLDetailsElement) target.open = true;
+          }}
+        >
+          {link.text}
+        </a>,
+      );
+    }
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    nodes.push(<span key={`text:${lastIndex}`}>{text.slice(lastIndex)}</span>);
+  }
+  return <>{nodes}</>;
+}
 
 const SITE_AREA_UNITS = [
   { value: "m2", label: "м²", factorToBase: 1 },
@@ -394,6 +465,81 @@ export function buildResidentialYardAreasDocxReport(
   });
 }
 
+function ResidentialYardNormScan({
+  alt,
+  id,
+  src,
+}: {
+  alt: string;
+  id: string;
+  src: string;
+}) {
+  return (
+    <details className="residential-yard-norm__scan" id={id}>
+      <summary>Скан фрагмента ДБН</summary>
+      <figure>
+        <img src={src} alt={alt} loading="lazy" decoding="async" />
+      </figure>
+    </details>
+  );
+}
+
+function ResidentialYardNormativeReferences() {
+  return (
+    <section
+      className="native-report residential-yard-norms"
+      aria-labelledby="residential-yard-norms-title"
+    >
+      <div className="native-report__head">
+        <h3 id="residential-yard-norms-title">Нормативні посилання</h3>
+      </div>
+      <div className="residential-yard-norms__list">
+        <article className="residential-yard-norm">
+          <h4>ДБН Б.2.2-12:2019, п. 6.1.21, таблиця 6.4</h4>
+          <p>Питомі розміри майданчиків на одну особу та одну квартиру.</p>
+          <ResidentialYardNormScan
+            id="residential-yard-norm-table-6-4"
+            src="/dbn/residential-yard-areas/dbn-b-2-2-12-table-6-4.png"
+            alt="Скан пункту 6.1.21 і таблиці 6.4 ДБН Б.2.2-12:2019"
+          />
+          <ResidentialYardNormScan
+            id="residential-yard-norm-table-6-4-notes"
+            src="/dbn/residential-yard-areas/dbn-b-2-2-12-table-6-4-notes.png"
+            alt="Скан приміток до таблиці 6.4 ДБН Б.2.2-12:2019"
+          />
+        </article>
+        <article className="residential-yard-norm">
+          <h4>ДБН Б.2.2-12:2019, п. 6.1.22, таблиця 6.5</h4>
+          <p>Вимоги до розміщення майданчиків для збирання побутових відходів.</p>
+          <ResidentialYardNormScan
+            id="residential-yard-norm-table-6-5"
+            src="/dbn/residential-yard-areas/dbn-b-2-2-12-table-6-5.png"
+            alt="Скан пункту 6.1.22, таблиці 6.5 та приміток ДБН Б.2.2-12:2019"
+          />
+        </article>
+        <article className="residential-yard-norm">
+          <h4>ДБН Б.2.2-12:2019, п. 10.8.1, таблиця 10.5</h4>
+          <p>Нормативні показники гостьових машиномісць для житлової забудови.</p>
+          <ResidentialYardNormScan
+            id="residential-yard-norm-table-10-5"
+            src="/dbn/residential-yard-areas/dbn-b-2-2-12-table-10-5.png"
+            alt="Скан таблиці 10.5 ДБН Б.2.2-12:2019"
+          />
+        </article>
+        <article className="residential-yard-norm">
+          <h4>ДБН В.2.3-15:2007, п. 4.6, таблиця 1</h4>
+          <p>Площа земельної ділянки відкритої автостоянки на одне машиномісце.</p>
+          <ResidentialYardNormScan
+            id="residential-yard-norm-parking-4-6-table-1"
+            src="/dbn/residential-yard-areas/dbn-v-2-3-15-4-6-table-1.png"
+            alt="Скан пункту 4.6 і таблиці 1 ДБН В.2.3-15:2007"
+          />
+        </article>
+      </div>
+    </section>
+  );
+}
+
 export function ResidentialYardAreasCalculator() {
   const [values, setValues] = useState<CalculatorInputValues>(() =>
     getDefaultInputSchemaValues(RESIDENTIAL_YARD_AREAS_INPUT_SCHEMA),
@@ -412,6 +558,8 @@ export function ResidentialYardAreasCalculator() {
     { href: "#residential-yard-physical-culture", label: "Фізкультура" },
     { href: "#residential-yard-waste", label: "Відходи" },
     { href: "#residential-yard-household", label: "Господарські" },
+    { href: "#residential-yard-report-title", label: "Звіт" },
+    { href: "#residential-yard-norms-title", label: "Норми" },
   ];
 
   return (
@@ -433,6 +581,7 @@ export function ResidentialYardAreasCalculator() {
           validationErrors={fieldErrors}
           displayUnits={displayUnits}
           onDisplayUnitsChange={setDisplayUnits}
+          renderDescription={renderResidentialYardNormText}
         />
       }
       errors={report.errors}
@@ -504,7 +653,9 @@ export function ResidentialYardAreasCalculator() {
         actions={
           <ReportDocxButton report={buildResidentialYardAreasDocxReport(report)} />
         }
+        renderText={renderResidentialYardNormText}
       />
+      <ResidentialYardNormativeReferences />
     </NativeCalculatorLayout>
   );
 }

@@ -3789,7 +3789,8 @@ textarea {
   height: auto;
 }
 
-.steel-structure-norm__scan {
+.steel-structure-norm__scan,
+.residential-yard-norm__scan {
   max-width: 100%;
   scroll-margin-top: 96px;
   border: 1px solid var(--border);
@@ -3820,7 +3821,8 @@ textarea {
   color: var(--accent-strong);
 }
 
-.steel-structure-norm__scan summary {
+.steel-structure-norm__scan summary,
+.residential-yard-norm__scan summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3837,8 +3839,11 @@ textarea {
 
 .steel-structure-norm__scan summary::-webkit-details-marker { display: none; }
 .steel-structure-norm__scan summary::marker { content: ""; }
+.residential-yard-norm__scan summary::-webkit-details-marker { display: none; }
+.residential-yard-norm__scan summary::marker { content: ""; }
 
-.steel-structure-norm__scan summary::after {
+.steel-structure-norm__scan summary::after,
+.residential-yard-norm__scan summary::after {
   content: "+";
   display: inline-grid;
   flex: 0 0 auto;
@@ -3857,6 +3862,10 @@ textarea {
 .steel-structure-norm__scan[open] summary::after { content: "-"; }
 .steel-structure-norm__scan figure { margin: 0; overflow-x: auto; padding: 6px; }
 .steel-structure-norm__scan img { display: block; width: 100%; min-width: 720px; height: auto; }
+.residential-yard-norm__scan[open] summary { border-bottom: 1px solid var(--border); }
+.residential-yard-norm__scan[open] summary::after { content: "-"; }
+.residential-yard-norm__scan figure { margin: 0; overflow-x: auto; padding: 6px; }
+.residential-yard-norm__scan img { display: block; width: 100%; min-width: 720px; height: auto; }
 
 .concrete-cover-durability-diagram {
   display: grid;
@@ -3943,6 +3952,38 @@ textarea {
 
 .residential-yard-result--outside {
   border-style: dashed;
+}
+
+.residential-yard-norms__list,
+.residential-yard-norm {
+  display: grid;
+  gap: 10px;
+}
+
+.residential-yard-norm {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.residential-yard-norm:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.residential-yard-norm h4,
+.residential-yard-norm p {
+  margin: 0;
+}
+
+.residential-yard-norm h4 {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.residential-yard-norm p {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .concrete-cover-durability-norms__list {
