@@ -26,6 +26,7 @@ describe("calculator data model", () => {
       "fundamenty",
       "stalevi-konstruktsiyi",
       "budivelna-mekhanika",
+      "mistobuduvannya-blahoustriy",
       "normy-perevirky",
       "normokontrol",
       "klas-naslidkiv",
@@ -278,6 +279,27 @@ describe("calculator data model", () => {
     for (const calculator of calculators) {
       expect(calculator.standard, calculator.slug).toBeTruthy();
     }
+  });
+
+  it("registers the residential yard calculator in the urban planning category", () => {
+    const category = calculatorCategories.find(
+      (item) => item.slug === ("mistobuduvannya-blahoustriy" as string),
+    );
+    const calculator = calculators.find(
+      (item) => item.slug === "residential-yard-areas",
+    );
+
+    expect(category).toMatchObject({
+      title: "Містобудування та благоустрій",
+      icon: "MapPinned",
+    });
+    expect(calculator).toMatchObject({
+      mainCategory: "mistobuduvannya-blahoustriy",
+      extraCategories: [],
+      displayMode: "native",
+      nativeCalculator: "residential-yard-areas",
+      icon: "LandPlot",
+    });
   });
 
   it("has a catalog image asset for every calculator", () => {

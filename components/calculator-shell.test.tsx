@@ -825,6 +825,22 @@ describe("CalculatorShell", () => {
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
   });
 
+  it("renders the residential yard areas native calculator", () => {
+    const calculator = getCalculatorBySlug("residential-yard-areas");
+    if (!calculator) throw new Error("Expected residential-yard-areas to exist");
+
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    expect(
+      screen.getByLabelText("Калькулятор площ прибудинкових майданчиків"),
+    ).toHaveClass("native-calculator");
+    expect(
+      within(
+        screen.getByLabelText("Результати розрахунку площ майданчиків"),
+      ).getByText("Sприбуд = 457,2 м²"),
+    ).toBeInTheDocument();
+  });
+
   it("renders the native soil design resistance calculator with a DBN report", async () => {
     const user = userEvent.setup();
     const calculator = getCalculatorBySlug("soil-design-resistance");

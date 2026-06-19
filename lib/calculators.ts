@@ -10,6 +10,7 @@ export type CategorySlug =
   | "fundamenty"
   | "stalevi-konstruktsiyi"
   | "budivelna-mekhanika"
+  | "mistobuduvannya-blahoustriy"
   | "normy-perevirky"
   | "normokontrol"
   | "klas-naslidkiv"
@@ -69,6 +70,7 @@ export type Calculator = {
     | "concrete-cover-durability"
     | "soil-design-resistance"
     | "foundation-base-pressure"
+    | "residential-yard-areas"
     | "steel-structure-category-group";
   accessLabel: string;
   embedUrl?: string;

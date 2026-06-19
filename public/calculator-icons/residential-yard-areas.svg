@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Площі прибудинкових майданчиків">
+  <rect width="96" height="96" rx="16" fill="#eef6ef"/>
+  <path d="M14 18h68v60H14z" fill="none" stroke="#cfe3d1" stroke-width="2"/>
+  <g fill="none" stroke="#243a28" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M25 31h20v18H25zM51 31h20v18H51zM25 55h46v14H25z"/>
+    <path d="M35 31v18M61 31v18M38 55v14M55 55v14" class="accent"/>
+  </g>
+  <rect x="13" y="13" width="28" height="18" rx="5" fill="#243a28"/>
+  <text x="27" y="26" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" font-weight="700" fill="#fff">S</text>
+  <style>.accent{stroke:#3e8b57}</style>
+</svg>

@@ -13,6 +13,7 @@ import { FoundationBarAnchorageCalculator } from "@/components/calculators/found
 import { MinimumReinforcementCalculator } from "@/components/calculators/minimum-reinforcement-calculator";
 import { RebarAreaBarsCalculator } from "@/components/calculators/rebar-area-bars-calculator";
 import { RebarCharacteristicsCalculator } from "@/components/calculators/rebar-characteristics-calculator";
+import { ResidentialYardAreasCalculator } from "@/components/calculators/residential-yard-areas-calculator";
 import { SoilDesignResistanceCalculator } from "@/components/calculators/soil-design-resistance-calculator";
 import { SteelStructureCategoryGroupCalculator } from "@/components/calculators/steel-structure-category-group-calculator";
 import { CalculatorCard } from "@/components/calculator-card";
@@ -571,6 +572,8 @@ function NativeCalculator({ calculator }: { calculator: Calculator }) {
       return <SoilDesignResistanceCalculator />;
     case "foundation-base-pressure":
       return <FoundationBasePressureCalculator />;
+    case "residential-yard-areas":
+      return <ResidentialYardAreasCalculator />;
     case "steel-structure-category-group":
       return <SteelStructureCategoryGroupCalculator />;
     default:
