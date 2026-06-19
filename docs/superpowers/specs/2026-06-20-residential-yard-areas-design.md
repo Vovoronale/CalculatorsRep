@@ -2,7 +2,7 @@
 
 Date: 2026-06-20
 Calculator: `residential-yard-areas`
-Status: Approved design pending written-spec review
+Status: Approved design
 
 ## Canonical Report Contract
 
