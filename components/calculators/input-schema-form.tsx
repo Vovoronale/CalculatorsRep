@@ -99,6 +99,9 @@ export function InputSchemaForm({
   renderDescription = (description) => description,
 }: InputSchemaFormProps) {
   const [expandedDetails, setExpandedDetails] = useState<Record<string, "help" | "error">>({});
+  const [numberDrafts, setNumberDrafts] = useState<
+    Record<string, { displayValue: string; baseValue: string; unitValue?: string }>
+  >({});
   const [internalDisplayUnits, setInternalDisplayUnits] = useState<Record<string, string>>(() =>
     getInitialDisplayUnits(schema),
   );
@@ -142,9 +145,15 @@ export function InputSchemaForm({
       const resolvedUnits = getFieldDisplayUnits(field);
       const selectedUnit = getSelectedDisplayUnit(field, displayUnits);
       const value = values[field.id] ?? field.defaultValue;
-      const displayValue = selectedUnit
-        ? convertBaseNumberToDisplay(value, selectedUnit)
-        : String(value);
+      const draft = numberDrafts[field.id];
+      const displayValue =
+        draft &&
+        draft.baseValue === String(value) &&
+        draft.unitValue === selectedUnit?.value
+          ? draft.displayValue
+          : selectedUnit
+            ? convertBaseNumberToDisplay(value, selectedUnit)
+            : String(value);
 
       return (
         <>
@@ -153,13 +162,27 @@ export function InputSchemaForm({
             type="text"
             inputMode="decimal"
             value={displayValue}
-            onChange={(event) =>
-              setValue(
-                field.id,
-                selectedUnit
-                  ? convertDisplayNumberToBase(event.target.value, selectedUnit)
-                  : event.target.value,
-              )
+            onChange={(event) => {
+              const nextDisplayValue = event.target.value;
+              const nextBaseValue = selectedUnit
+                ? convertDisplayNumberToBase(nextDisplayValue, selectedUnit)
+                : nextDisplayValue;
+              setNumberDrafts((current) => ({
+                ...current,
+                [field.id]: {
+                  displayValue: nextDisplayValue,
+                  baseValue: nextBaseValue,
+                  unitValue: selectedUnit?.value,
+                },
+              }));
+              setValue(field.id, nextBaseValue);
+            }}
+            onBlur={() =>
+              setNumberDrafts((current) => {
+                const next = { ...current };
+                delete next[field.id];
+                return next;
+              })
             }
             aria-label={field.name}
           />
@@ -170,6 +193,11 @@ export function InputSchemaForm({
               aria-readonly={resolvedUnits.length === 1 ? "true" : undefined}
               value={selectedUnit?.value ?? resolvedUnits[0].value}
               onChange={(event) => {
+                setNumberDrafts((current) => {
+                  const next = { ...current };
+                  delete next[field.id];
+                  return next;
+                });
                 const nextDisplayUnits = {
                   ...displayUnits,
                   [field.id]: event.target.value,

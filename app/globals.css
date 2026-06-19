@@ -3899,6 +3899,52 @@ textarea {
   line-height: 1.45;
 }
 
+.residential-yard-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.residential-yard-result {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  padding: 12px;
+}
+
+.residential-yard-result h4 {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.residential-yard-result strong {
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.residential-yard-result span,
+.residential-yard-result small {
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.residential-yard-result--total {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.residential-yard-result--outside {
+  border-style: dashed;
+}
+
 .concrete-cover-durability-norms__list {
   display: grid;
   gap: 10px;
