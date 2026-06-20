@@ -1,7 +1,7 @@
 # Steel Structure Report Corrections Design
 
 Date: 2026-06-20
-Status: Approved design, pending written-spec review
+Status: Review corrections applied, pending user confirmation
 
 ## Goal
 
@@ -29,7 +29,7 @@ The calculation core remains responsible for applicability, comparisons, score a
 
 The shared plain-text formula parser gains support for `α` at the tokenizer/start-pattern and notation-conversion boundaries. Both KaTeX and DOCX continue to consume the same canonical formula strings.
 
-The report-step shape may gain an explicit normative-basis field only if the implementation can introduce it without duplicating text across web and DOCX. Otherwise, the normative basis is a normal report item with consistent styling in both outputs.
+The shared report-step shape gains `normativeBasis?: string`. Web and DOCX render it once, immediately after the concise caption, prefixed with `Нормативна підстава:`. Normative references must not be duplicated in `caption`, `items`, or formulas.
 
 ## Data Flow
 
@@ -51,6 +51,7 @@ Use TDD for every behavior change.
 - Localization tests: decimal commas, mathematical identifiers, and representative score forms `1 бал`, `2 бали`, `11 балів`, `21 бал`.
 - Table Г.1 tests: allowed and forbidden cases include all row-selection parameters and the cell/note reference.
 - Export tests: the revised title appears once and the step 7 formula is emitted as valid DOCX math.
+- Report renderer tests: `normativeBasis` appears exactly once after its caption in both web and DOCX output.
 - Final verification: targeted Vitest suites, full tests, `npm run typecheck`, `npm run build`, browser inspection, and DOCX inspection.
 
 ## Error Handling
