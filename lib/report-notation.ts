@@ -11,6 +11,7 @@ const GREEK_TO_LATEX: Record<string, string> = {
 };
 
 const NAMED_SYMBOLS: Record<string, string> = {
+  "ΔS_+": "\\Delta_{S,+}",
   "X0": "\\mathrm{X0}",
   "XC": "\\mathrm{XC}",
   "XC1": "\\mathrm{XC1}",

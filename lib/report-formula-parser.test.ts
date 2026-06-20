@@ -246,6 +246,16 @@ describe("parseReportFormula", () => {
     expect(result.lines[0].latex).toContain("\\Delta_{S,compression}");
   });
 
+  it("renders a plus sign in the positive-adjustment subscript", () => {
+    const result = parseReportFormula(
+      "ΔS_+ = ΔS_t + ΔS_guillotine = 0 + 0 = 0",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines[0].latex).toContain("\\Delta_{S,+}");
+  });
+
   it("returns fallback for unsupported prose formulas", () => {
     const result = parseReportFormula("Приймаємо значення з таблиці без математичного виразу");
 

@@ -219,7 +219,11 @@ function tokenize(source: string): Token[] {
       const start = index;
       index += 1;
 
-      while (index < source.length && isIdentifierPart(source[index])) {
+      while (
+        index < source.length &&
+        (isIdentifierPart(source[index]) ||
+          (source[index] === "+" && source[index - 1] === "_"))
+      ) {
         index += 1;
       }
 

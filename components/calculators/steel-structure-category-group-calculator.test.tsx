@@ -85,6 +85,7 @@ describe("SteelStructureCategoryGroupCalculator", () => {
     );
     expect(screen.getAllByText(/Початкова група: 3/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Уточнена група: 3/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Ry = 239,02 МПа/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Розрахунок категорій і групи сталевої конструкції" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Покроковий звіт" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
