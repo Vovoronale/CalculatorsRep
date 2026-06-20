@@ -3906,7 +3906,7 @@ textarea {
   gap: 4px;
   margin: 0;
   border-left: 2px solid var(--accent);
-  padding-left: 12px;
+  padding-left: 18px;
   color: var(--text);
   font-size: 12px;
   font-weight: 750;
