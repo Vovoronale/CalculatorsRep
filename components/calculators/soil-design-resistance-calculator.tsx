@@ -29,6 +29,7 @@ import {
 
 import { InputSchemaForm } from "./input-schema-form";
 import { MathNotation } from "./math-notation";
+import { NativeCalculatorLayout } from "./native-calculator-layout";
 import { ReportDocxButton } from "./report-docx-button";
 import { ReportFormula } from "./report-formula";
 
@@ -905,23 +906,17 @@ export function SoilDesignResistanceCalculator() {
     ) : null;
 
   return (
-    <div
-      className="soil-resistance-calculator"
-      aria-label="Калькулятор розрахункового опору ґрунту основи"
-    >
-      <div className="soil-resistance-input-shell">
-        <aside className="soil-resistance-input-menu" aria-label="Меню вводу">
-          <p className="soil-resistance-input-menu__label">Ввід</p>
-          <nav className="soil-resistance-input-menu__links" aria-label="Розділи вводу">
-            <a href="#soil-resistance-working">Умови</a>
-            <a href="#soil-resistance-strength">Ґрунт</a>
-            <a href="#soil-resistance-geometry">Геометрія</a>
-            <a href="#soil-resistance-basement">Підвал</a>
-            <a href="#soil-resistance-report-title">Звіт</a>
-          </nav>
-          {resultSummary}
-        </aside>
-
+    <NativeCalculatorLayout
+      ariaLabel="Калькулятор розрахункового опору ґрунту основи"
+      navLinks={[
+        { href: "#soil-resistance-working", label: "Умови" },
+        { href: "#soil-resistance-strength", label: "Ґрунт" },
+        { href: "#soil-resistance-geometry", label: "Геометрія" },
+        { href: "#soil-resistance-basement", label: "Підвал" },
+        { href: "#soil-resistance-report-title", label: "Звіт" },
+      ]}
+      summary={resultSummary}
+      controls={
         <div className="soil-resistance-controls">
           <InputSchemaForm
             schema={SOIL_INPUT_SCHEMA}
@@ -929,37 +924,19 @@ export function SoilDesignResistanceCalculator() {
             onValuesChange={setInputValues}
           />
         </div>
-
-        <section className="soil-resistance-diagrams" aria-labelledby="soil-resistance-diagrams-title">
-          <div className="soil-resistance-report__head">
-            <h3 id="soil-resistance-diagrams-title">Позначення величин</h3>
-          </div>
+      }
+      diagramTitle="Позначення величин"
+      diagrams={
           <SoilFoundationDiagram
             input={input}
             soilDesignResistanceKPa={
               report.valid && report.values ? report.values.soilDesignResistanceKPa : undefined
             }
           />
-        </section>
-      </div>
-
-      {report.errors.length > 0 ? (
-        <div className="soil-resistance-errors" role="alert">
-          <ul>
-            {report.errors.map((error) => (
-              <li key={error}>{error}</li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
-      {report.warnings.length > 0 ? (
-        <div className="soil-resistance-warning" role="status">
-          {report.warnings.map((warning) => (
-            <p key={warning}>{warning}</p>
-          ))}
-        </div>
-      ) : null}
+      }
+      errors={report.errors}
+      warnings={report.warnings}
+    >
 
       <section className="soil-resistance-report" aria-labelledby="soil-resistance-report-title">
         <div className="soil-resistance-report__head">
@@ -1052,6 +1029,6 @@ export function SoilDesignResistanceCalculator() {
           </article>
         </div>
       </section>
-    </div>
+    </NativeCalculatorLayout>
   );
 }

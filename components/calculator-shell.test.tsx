@@ -1031,7 +1031,7 @@ describe("CalculatorShell", () => {
     const { container } = render(<CalculatorShell selectedCalculator={calculator} />);
 
     expect(container.querySelector(".workspace-content--native")).toBeInTheDocument();
-    expect(container.querySelector(".workspace-content--soil-resistance")).toBeInTheDocument();
+    expect(container.querySelector(".workspace-content--soil-resistance")).not.toBeInTheDocument();
   });
 
   it("renders the native cassoon load distribution calculator with a step report", async () => {
@@ -1257,20 +1257,12 @@ describe("CalculatorShell", () => {
     );
   });
 
-  it("keeps the soil resistance diagram inside a larger responsive desktop track", () => {
+  it("keeps the soil resistance diagram inside the shared responsive workbench", () => {
     const css = readFileSync("app/globals.css", "utf8");
 
-    expect(css).toMatch(
-      /\.workspace-content--soil-resistance\s*{[\s\S]*?max-width:\s*1280px;/,
-    );
-    expect(css).toMatch(
-      /\.soil-resistance-input-shell\s*{[\s\S]*?grid-template-columns:\s*minmax\(120px,\s*150px\)\s+minmax\(470px,\s*1fr\)\s+minmax\(400px,\s*500px\);/,
-    );
+    expect(css).not.toMatch(/\.soil-resistance-input-shell\s*{/);
     expect(css).toMatch(
       /\.soil-resistance-diagram__canvas\s*{[\s\S]*?max-width:\s*100%;/,
-    );
-    expect(css).toMatch(
-      /@media\s*\(max-width:\s*1320px\)\s*{[\s\S]*?\.soil-resistance-input-shell\s*{[\s\S]*?grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(280px,\s*340px\);/,
     );
   });
 

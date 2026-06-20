@@ -157,9 +157,6 @@ export function CalculatorShell({
                 selectedCalculator.displayMode === "native"
                   ? "workspace-content--native"
                   : null,
-                selectedCalculator.nativeCalculator === "soil-design-resistance"
-                  ? "workspace-content--soil-resistance"
-                  : null,
               ]
                 .filter(Boolean)
                 .join(" ")}

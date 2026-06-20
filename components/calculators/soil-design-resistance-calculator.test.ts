@@ -1,5 +1,5 @@
 import { afterEach } from "vitest";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 
@@ -140,6 +140,21 @@ describe("SoilDesignResistanceCalculator diagrams", () => {
     }
     return diagram;
   }
+
+  it("uses the shared native calculator workbench", () => {
+    render(createElement(SoilDesignResistanceCalculator));
+
+    const calculator = screen.getByLabelText(
+      "Калькулятор розрахункового опору ґрунту основи",
+    );
+
+    expect(calculator).toHaveClass("native-calculator");
+    expect(
+      within(calculator).getByRole("complementary", {
+        name: "Навігація і результат",
+      }),
+    ).toBeInTheDocument();
+  });
 
   function getLoadBand(diagram: SVGElement): Element {
     const loadBand = diagram.querySelector("rect[fill='#f3cccc']");

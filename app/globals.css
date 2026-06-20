@@ -180,10 +180,6 @@ textarea {
   max-width: 1040px;
 }
 
-.workspace-content--soil-resistance {
-  max-width: 1280px;
-}
-
 .workspace-content--native {
   max-width: none;
   padding: 24px;
@@ -3209,76 +3205,6 @@ textarea {
   }
 }
 
-.soil-resistance-calculator {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 16px;
-  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--accent) 4%, var(--surface));
-}
-
-.soil-resistance-input-shell {
-  display: grid;
-  grid-template-areas: "menu controls diagram";
-  grid-template-columns: minmax(120px, 150px) minmax(470px, 1fr) minmax(400px, 500px);
-  gap: 12px;
-  align-items: start;
-}
-
-.soil-resistance-input-menu {
-  grid-area: menu;
-  position: sticky;
-  top: 68px;
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-  border: 1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--accent) 4%, var(--bg));
-  box-shadow: var(--shadow-sm);
-  padding: 9px;
-}
-
-.soil-resistance-input-menu__label {
-  margin: 0;
-  color: var(--text-subtle);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.soil-resistance-input-menu__links {
-  display: grid;
-  gap: 5px;
-}
-
-.soil-resistance-input-menu__links a {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
-  font-size: 12px;
-  font-weight: 800;
-  line-height: 1.25;
-  padding: 7px 8px;
-  text-decoration: none;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease;
-}
-
-.soil-resistance-input-menu__links a:hover,
-.soil-resistance-input-menu__links a:focus-visible {
-  border-color: color-mix(in srgb, var(--accent) 36%, var(--border));
-  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
-  color: var(--accent);
-}
-
 .soil-resistance-controls {
   grid-area: controls;
   display: grid;
@@ -3322,20 +3248,6 @@ textarea {
   .soil-resistance-controls .input-schema-field__control {
     grid-template-columns: minmax(0, 1fr);
   }
-}
-
-.soil-resistance-diagrams {
-  grid-area: diagram;
-  position: sticky;
-  top: 68px;
-  display: grid;
-  gap: 10px;
-  min-width: 0;
-  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--accent) 3%, var(--bg));
-  box-shadow: var(--shadow-sm);
-  padding: 10px;
 }
 
 .soil-resistance-diagram {
@@ -3491,39 +3403,12 @@ textarea {
   text-underline-offset: 2px;
 }
 
-.soil-resistance-summary,
-.soil-resistance-warning,
-.soil-resistance-errors {
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  line-height: 1.5;
-  padding: 9px 10px;
-}
-
 .soil-resistance-summary {
   display: grid;
   gap: 4px;
-  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
-  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
-  color: var(--text);
-  box-shadow: var(--shadow-sm);
 }
 
-.soil-resistance-warning {
-  border: 1px solid color-mix(in srgb, #f97316 34%, var(--border));
-  background: color-mix(in srgb, #f97316 10%, var(--bg));
-  color: var(--text);
-}
-
-.soil-resistance-errors {
-  border: 1px solid color-mix(in srgb, #b91c1c 34%, var(--border));
-  background: color-mix(in srgb, #b91c1c 9%, var(--bg));
-  color: var(--text);
-}
-
-.soil-resistance-summary p,
-.soil-resistance-warning p,
-.soil-resistance-errors ul {
+.soil-resistance-summary p {
   margin: 0;
 }
 
@@ -4082,56 +3967,7 @@ textarea {
   height: auto;
 }
 
-@media (max-width: 1320px) {
-  .soil-resistance-input-shell {
-    grid-template-areas:
-      "menu menu"
-      "controls diagram";
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
-  }
-
-  .soil-resistance-input-menu {
-    position: static;
-  }
-
-  .soil-resistance-input-menu__links {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-
-  .soil-resistance-input-menu__links a {
-    text-align: center;
-  }
-
-  .soil-resistance-diagrams {
-    position: static;
-  }
-}
-
-@media (max-width: 1100px) {
-  .soil-resistance-input-shell {
-    grid-template-columns: minmax(0, 1fr) minmax(240px, 260px);
-  }
-}
-
-@media (max-width: 760px) {
-  .soil-resistance-input-shell {
-    grid-template-areas:
-      "menu"
-      "controls"
-      "diagram";
-    grid-template-columns: 1fr;
-  }
-
-  .soil-resistance-input-menu__links {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 620px) {
-  .soil-resistance-calculator {
-    padding: 12px;
-  }
-
   .soil-resistance-group {
     grid-template-columns: 1fr;
     padding: 12px;
