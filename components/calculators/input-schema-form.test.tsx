@@ -367,6 +367,33 @@ describe("InputSchemaForm", () => {
     ).toBeInTheDocument();
   });
 
+  it("replaces field help with one error action that reveals description and errors", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <InputSchemaForm
+        schema={schema}
+        values={defaultValues}
+        onValuesChange={vi.fn()}
+        validationErrors={{ spanM: ["Значення виходить за допустимі межі."] }}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", { name: "Показати опис поля Короткий проліт" }),
+    ).not.toBeInTheDocument();
+
+    const errorAction = screen.getByRole("button", {
+      name: "Показати помилку поля Короткий проліт",
+    });
+    expect(errorAction).toHaveTextContent("!");
+
+    await user.click(errorAction);
+
+    expect(screen.getByText("Короткий проліт у вибраних одиницях.")).toBeInTheDocument();
+    expect(screen.getByText("Значення виходить за допустимі межі.")).toBeInTheDocument();
+  });
+
   it("updates number values as normalized base values and keeps invalid drafts", async () => {
     const user = userEvent.setup();
     const onValuesChange = vi.fn();
@@ -559,7 +586,7 @@ describe("InputSchemaForm", () => {
     expect(screen.getByRole("textbox", { name: "Коефіцієнт" })).toBeInTheDocument();
   });
 
-  it("opens inline help and field errors from row actions", async () => {
+  it("opens combined inline help and field errors from the error action", async () => {
     const user = userEvent.setup();
 
     render(
@@ -570,9 +597,6 @@ describe("InputSchemaForm", () => {
         validationErrors={{ spanM: ["Значення має бути не менше 0."] }}
       />,
     );
-
-    await user.click(screen.getByRole("button", { name: "Показати опис поля Короткий проліт" }));
-    expect(screen.getByText("Короткий проліт у вибраних одиницях.")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Показати помилку поля Короткий проліт" }));
     const detail = screen

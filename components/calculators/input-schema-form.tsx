@@ -305,18 +305,6 @@ export function InputSchemaForm({
                   key={field.id}
                 >
                   <div className="input-schema-field__actions">
-                    {field.description ? (
-                      <button
-                        type="button"
-                        className="input-schema-field__icon"
-                        aria-controls={detailsId}
-                        aria-expanded={Boolean(detailsMode)}
-                        aria-label={`Показати опис поля ${field.name}`}
-                        onClick={() => toggleDetails(field.id, "help")}
-                      >
-                        ?
-                      </button>
-                    ) : null}
                     {errors.length > 0 ? (
                       <button
                         type="button"
@@ -327,6 +315,17 @@ export function InputSchemaForm({
                         onClick={() => toggleDetails(field.id, "error")}
                       >
                         !
+                      </button>
+                    ) : field.description ? (
+                      <button
+                        type="button"
+                        className="input-schema-field__icon"
+                        aria-controls={detailsId}
+                        aria-expanded={detailsMode === "help"}
+                        aria-label={`Показати опис поля ${field.name}`}
+                        onClick={() => toggleDetails(field.id, "help")}
+                      >
+                        ?
                       </button>
                     ) : null}
                   </div>

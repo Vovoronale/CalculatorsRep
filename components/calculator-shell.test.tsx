@@ -1271,6 +1271,14 @@ describe("CalculatorShell", () => {
     );
   });
 
+  it("caps the wide native calculator inspector at 720px", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+
+    expect(css).toMatch(
+      /@container\s*\(min-width:\s*1180px\)\s*{[\s\S]*?\.native-calculator__input-shell\s*{[\s\S]*?grid-template-columns:\s*260px\s+minmax\(470px,\s*720px\)\s+minmax\(320px,\s*420px\);/,
+    );
+  });
+
   it("keeps soil resistance inspector fields stacked on narrow screens", () => {
     const css = readFileSync("app/globals.css", "utf8");
 

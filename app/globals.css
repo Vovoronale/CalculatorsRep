@@ -3228,7 +3228,7 @@ textarea {
 @container (min-width: 1180px) {
   .native-calculator__input-shell {
     grid-template-areas: "rail controls diagram";
-    grid-template-columns: 260px minmax(470px, 1fr) minmax(320px, 420px);
+    grid-template-columns: 260px minmax(470px, 720px) minmax(320px, 420px);
   }
 
   .native-calculator__diagrams {
