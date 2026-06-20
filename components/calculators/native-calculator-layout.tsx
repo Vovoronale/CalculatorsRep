@@ -62,16 +62,22 @@ export function NativeCalculatorLayout({
   return (
     <div className="native-calculator" aria-label={ariaLabel}>
       <div className="native-calculator__input-shell">
-        <aside className="native-calculator__menu" aria-label="Меню вводу">
-          <p className="native-calculator__menu-label">Ввід</p>
-          <nav className="native-calculator__menu-links" aria-label="Розділи вводу">
-            {navLinks.map((link) => (
-              <a href={link.href} key={link.href}>
-                {link.label}
-              </a>
-            ))}
-          </nav>
-          {summary ? <div className="native-calculator__summary">{summary}</div> : null}
+        <aside className="native-calculator__rail" aria-label="Навігація і результат">
+          <div className="native-calculator__menu">
+            <p className="native-calculator__menu-label">Ввід</p>
+            <nav className="native-calculator__menu-links" aria-label="Розділи вводу">
+              {navLinks.map((link) => (
+                <a href={link.href} key={link.href}>
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+          {summary ? (
+            <div className="native-calculator__summary" aria-label="Поточний результат">
+              {summary}
+            </div>
+          ) : null}
         </aside>
 
         <div className="native-calculator__controls">{controls}</div>

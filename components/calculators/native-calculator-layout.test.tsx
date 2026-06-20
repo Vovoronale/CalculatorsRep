@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -29,8 +31,18 @@ describe("NativeCalculatorLayout", () => {
     );
 
     const calculator = screen.getByLabelText("Тестовий калькулятор");
+    const rail = within(calculator).getByRole("complementary", {
+      name: "Навігація і результат",
+    });
+    const navigation = within(rail).getByRole("navigation", {
+      name: "Розділи вводу",
+    });
+    const summary = within(rail).getByLabelText("Поточний результат");
 
     expect(calculator).toHaveClass("native-calculator");
+    expect(
+      navigation.compareDocumentPosition(summary) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(within(calculator).getAllByText("Ввід")).toHaveLength(2);
     expect(within(calculator).getByRole("link", { name: "Звіт" })).toHaveAttribute(
       "href",
@@ -42,6 +54,17 @@ describe("NativeCalculatorLayout", () => {
     ).toBeInTheDocument();
     expect(within(calculator).getByRole("alert")).toHaveTextContent("Помилка");
     expect(within(calculator).getByText("Попередження")).toBeInTheDocument();
+  });
+
+  it("uses a container-query workbench with a readable result rail", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+
+    expect(css).toMatch(/\.native-calculator\s*{[\s\S]*?container-type:\s*inline-size;/);
+    expect(css).toMatch(
+      /\.native-calculator__rail\s*{[\s\S]*?width:\s*260px;[\s\S]*?min-width:\s*240px;/,
+    );
+    expect(css).toMatch(/@container\s*\(min-width:\s*1180px\)/);
+    expect(css).toMatch(/@container\s*\(max-width:\s*819px\)/);
   });
 });
 

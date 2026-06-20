@@ -1021,7 +1021,7 @@ describe("CalculatorShell", () => {
     ).toBeInTheDocument();
   });
 
-  it("uses a wider workspace for the soil resistance calculator diagram", () => {
+  it("uses the full workspace width for native calculators", () => {
     const calculator = getCalculatorBySlug("soil-design-resistance");
 
     if (!calculator) {
@@ -1030,6 +1030,7 @@ describe("CalculatorShell", () => {
 
     const { container } = render(<CalculatorShell selectedCalculator={calculator} />);
 
+    expect(container.querySelector(".workspace-content--native")).toBeInTheDocument();
     expect(container.querySelector(".workspace-content--soil-resistance")).toBeInTheDocument();
   });
 

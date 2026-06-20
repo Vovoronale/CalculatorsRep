@@ -184,6 +184,11 @@ textarea {
   max-width: 1280px;
 }
 
+.workspace-content--native {
+  max-width: none;
+  padding: 24px;
+}
+
 .workspace-content--embed {
   max-width: none;
   padding: 8px 16px 16px;
@@ -2917,27 +2922,41 @@ textarea {
 }
 
 .native-calculator {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 16px;
-  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--accent) 4%, var(--surface));
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 .native-calculator__input-shell {
   display: grid;
-  grid-template-areas: "menu controls diagram";
-  grid-template-columns: minmax(120px, 150px) minmax(470px, 1fr) minmax(400px, 500px);
+  grid-template-areas:
+    "rail controls"
+    "rail diagram";
+  grid-template-columns: 260px minmax(0, 1fr);
   gap: 12px;
   align-items: start;
+  min-width: 0;
+}
+
+.native-calculator__rail {
+  grid-area: rail;
+  position: sticky;
+  top: 68px;
+  display: grid;
+  gap: 10px;
+  width: 260px;
+  min-width: 240px;
+  max-height: calc(100dvh - 84px);
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .native-calculator__menu {
-  grid-area: menu;
-  position: sticky;
-  top: 68px;
   display: grid;
   gap: 8px;
   min-width: 0;
@@ -2995,15 +3014,15 @@ textarea {
 
 .native-calculator__diagrams {
   grid-area: diagram;
-  position: sticky;
-  top: 68px;
+  position: static;
   display: grid;
   gap: 10px;
   min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
   border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--accent) 3%, var(--bg));
-  box-shadow: var(--shadow-sm);
   padding: 10px;
 }
 
@@ -3020,10 +3039,10 @@ textarea {
   gap: 4px;
   min-width: 0;
   border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
+  border-left: 3px solid var(--accent);
   background: color-mix(in srgb, var(--accent) 8%, var(--surface));
   color: var(--text);
   overflow-wrap: anywhere;
-  box-shadow: var(--shadow-sm);
 }
 
 .native-calculator__summary a {
@@ -3156,51 +3175,37 @@ textarea {
   white-space: normal;
 }
 
-@media (max-width: 1320px) {
+@container (min-width: 1180px) {
   .native-calculator__input-shell {
-    grid-template-areas:
-      "menu menu"
-      "controls diagram";
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+    grid-template-areas: "rail controls diagram";
+    grid-template-columns: 260px minmax(470px, 1fr) minmax(320px, 420px);
   }
 
-  .native-calculator__menu,
   .native-calculator__diagrams {
-    position: static;
-  }
-
-  .native-calculator__menu-links {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-
-  .native-calculator__menu-links a {
-    text-align: center;
+    position: sticky;
+    top: 68px;
   }
 }
 
-@media (max-width: 1100px) {
-  .native-calculator__input-shell {
-    grid-template-columns: minmax(0, 1fr) minmax(240px, 260px);
-  }
-}
-
-@media (max-width: 760px) {
+@container (max-width: 819px) {
   .native-calculator__input-shell {
     grid-template-areas:
-      "menu"
+      "rail"
       "controls"
       "diagram";
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .native-calculator__rail {
+    position: static;
+    width: auto;
+    min-width: 0;
+    max-height: none;
+    overflow: visible;
   }
 
   .native-calculator__menu-links {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 620px) {
-  .native-calculator {
-    padding: 12px;
   }
 }
 
