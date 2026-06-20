@@ -10,7 +10,7 @@ export type ParseReportFormulaResult =
   | { ok: false; reason: string };
 
 const MATH_START_PATTERN =
-  /^(?:[-+()[\]]|∫|\d|[A-Za-zØΣΔА-Яа-яІіЇїЄєҐґλασγφ][A-Za-zØΣΔА-Яа-яІіЇїЄєҐґ0-9_,./′_-]*)/u;
+  /^(?:[-+()[\]]|∫|\d|[A-Za-zØΣΔλασγφ][A-Za-zØΣΔλασγφ0-9_,./′_-]*)/u;
 const SYMBOL_PATTERN = /[A-Za-zØΣΔλασγφ∫][A-Za-zØΣΔλασγφ∫0-9_,.′/_-]*/gu;
 const REPORT_SYMBOL_PATTERN = new RegExp(
   REPORT_SYMBOLS.map((symbol) => symbol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
@@ -18,7 +18,7 @@ const REPORT_SYMBOL_PATTERN = new RegExp(
 );
 const FORMULA_OPERATOR_PATTERN = /(=|<=|>=|<|>|\+|-|\*|\/|\(|\[)/u;
 const UNIT_PATTERN =
-  /(\d(?:[.,]\d+)?)\s?(мм²\/м\.п\.|кН\*м|т\/м³|т\/м²|кг\/см²|кН\/м²|т·м|мм²|см²|м²|м³|МПа|кПа|кН|т|м|%)(?=$|\s=|\s≈|;|\)|\])/gu;
+  /(\d(?:[.,]\d+)?)\s?(мм²\/м\.п\.|кН\*м|т\/м³|т\/м²|кг\/см²|кН\/м²|т·м|мм²|см²|м²|м³|МПа|кПа|кН|балів|бали|бал|т|м|%)(?=$|\s=|\s≈|;|\)|\])/gu;
 const EXPLANATORY_SUFFIX_PATTERNS = [
   ", оскільки",
   " - умова виконується",

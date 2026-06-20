@@ -32,7 +32,7 @@
 - Test: `lib/report-formula-parser.test.ts`
 - Test: `components/calculators/report-formula.test.tsx`
 
-- [ ] **Step 1: Write failing parser tests**
+- [x] **Step 1: Write failing parser tests**
 
 Add tests using the exact canonical formula:
 
@@ -61,7 +61,7 @@ it("preserves decimal commas in steel formulas", () => {
 
 Add a component test that renders the alpha formula and asserts `.katex` exists while `.report-formula--fallback` and `.katex-error` do not.
 
-- [ ] **Step 2: Run tests and confirm RED**
+- [x] **Step 2: Run tests and confirm RED**
 
 Run:
 
@@ -71,7 +71,7 @@ npm test -- lib/report-formula-parser.test.ts components/calculators/report-form
 
 Expected: alpha test fails because `α` is absent from the parser start/symbol patterns and notation map.
 
-- [ ] **Step 3: Add minimal alpha support**
+- [x] **Step 3: Add minimal alpha support**
 
 Add to `GREEK_TO_LATEX`:
 
@@ -81,11 +81,11 @@ Add to `GREEK_TO_LATEX`:
 
 Add `α` to `baseToLatex`, generic-symbol patterns, `MATH_START_PATTERN`, and `SYMBOL_PATTERN` wherever the existing Greek set currently contains `λσγφ`.
 
-- [ ] **Step 4: Run tests and confirm GREEN**
+- [x] **Step 4: Run tests and confirm GREEN**
 
 Run the Task 1 command and expect all targeted tests to pass without KaTeX warnings.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add lib/report-notation.ts lib/report-formula-parser.ts lib/report-formula-parser.test.ts components/calculators/report-formula.test.tsx
@@ -98,7 +98,7 @@ git commit -m "Fix steel report formula rendering"
 - Modify: `lib/steel-structure-category-group.ts`
 - Test: `lib/steel-structure-category-group.test.ts`
 
-- [ ] **Step 1: Write failing localization and applicability tests**
+- [x] **Step 1: Write failing localization and applicability tests**
 
 Add exact tests for:
 
@@ -120,7 +120,7 @@ expect([1, 2, 11, 21, 22, 111].map(formatScoreForReport)).toEqual([
 ]);
 ```
 
-- [ ] **Step 2: Run core tests and confirm RED**
+- [x] **Step 2: Run core tests and confirm RED**
 
 ```powershell
 npm test -- lib/steel-structure-category-group.test.ts
@@ -128,7 +128,7 @@ npm test -- lib/steel-structure-category-group.test.ts
 
 Expected: default compression is `-4` for 90 MPa despite tension; existing strings use fixed `≤`, decimal dots, and incorrect declension.
 
-- [ ] **Step 3: Implement report-format helpers**
+- [x] **Step 3: Implement report-format helpers**
 
 Export a focused helper for testability:
 
@@ -150,7 +150,7 @@ export function formatScoreForReport(value: number): string {
 
 Change numeric `format()` to return decimal commas with `replace(".", ",")` after rounding.
 
-- [ ] **Step 4: Implement the applicability predicate and dynamic comparison**
+- [x] **Step 4: Implement the applicability predicate and dynamic comparison**
 
 Use:
 
@@ -163,11 +163,11 @@ const compression = compressionPasses ? -4 : 0;
 
 Build step 9 with three branches: tensile stress, dynamic load, and applicable static compression. In the applicable branch choose `≤` only when `compressionPasses`, otherwise `>`.
 
-- [ ] **Step 5: Run core tests and confirm GREEN**
+- [x] **Step 5: Run core tests and confirm GREEN**
 
 Run the Task 2 test command. Expect all compression and localization cases to pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add lib/steel-structure-category-group.ts lib/steel-structure-category-group.test.ts
@@ -180,7 +180,7 @@ git commit -m "Fix steel compression report logic"
 - Modify: `lib/steel-structure-category-group.ts`
 - Test: `lib/steel-structure-category-group.test.ts`
 
-- [ ] **Step 1: Replace old expectations with canonical exact strings**
+- [x] **Step 1: Replace old expectations with canonical exact strings**
 
 Assert all 12 captions equal the contract captions and end in `:`. Add forbidden-text coverage:
 
@@ -202,11 +202,11 @@ for (const forbidden of [
 
 Assert the default step 6 text, step 7 definitions and `σ_dyn = 0`, indexed step 8 symbols, exact step 10 prose, and conclusion wording from the contract.
 
-- [ ] **Step 2: Run core tests and confirm RED**
+- [x] **Step 2: Run core tests and confirm RED**
 
 Run the core test file. Expected: old diagnostics and program identifiers remain.
 
-- [ ] **Step 3: Add gamma-c applicability descriptions**
+- [x] **Step 3: Add gamma-c applicability descriptions**
 
 Add a switch that returns user-facing facts without exposing profile IDs:
 
@@ -230,15 +230,15 @@ function describeGammaProfile(result: ProfileValue, input: SteelStructureCategor
 
 Use the exact default main-beam sentence. For table/manual modes use the contract's accepted-value/responsibility sentences.
 
-- [ ] **Step 4: Rewrite all step strings from the canonical contract**
+- [x] **Step 4: Rewrite all step strings from the canonical contract**
 
 Use underscored canonical symbols (`S_tot,base`, `S_3,A2`, `ΔS_guillotine`, `σ_sum`, `σ_c`, `σ_dyn`) in formulas and report items. Use `formatScoreForReport()` everywhere a score is printed. Keep captions inline with the normative source.
 
-- [ ] **Step 5: Run core tests and confirm GREEN**
+- [x] **Step 5: Run core tests and confirm GREEN**
 
 Run the core test file and expect all exact report assertions to pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add lib/steel-structure-category-group.ts lib/steel-structure-category-group.test.ts
@@ -251,15 +251,15 @@ git commit -m "Rewrite steel report for engineering users"
 - Modify: `lib/steel-structure-category-group.ts`
 - Test: `lib/steel-structure-category-group.test.ts`
 
-- [ ] **Step 1: Write failing table-audit tests**
+- [x] **Step 1: Write failing table-audit tests**
 
 For default C245/group 3 assert step 11 contains product type `Фасонний`, thickness `10 мм`, service condition `Опалювана споруда`, matrix cell `+`, group 3, and `застосування ... допускається`. Add a forbidden C245/group 4 case and a `+b` conditional case.
 
-- [ ] **Step 2: Run core tests and confirm RED**
+- [x] **Step 2: Run core tests and confirm RED**
 
 Expected: current evaluator returns only a boolean and cannot report the selected cell/note.
 
-- [ ] **Step 3: Replace the boolean helper with an assessment**
+- [x] **Step 3: Replace the boolean helper with an assessment**
 
 ```ts
 type SteelCompatibilityAssessment = {
@@ -272,15 +272,15 @@ type SteelCompatibilityAssessment = {
 
 Return explicit assessments for special note 3 cases and for matrix cells `+`, `+a`, `+b`, and `-`. Keep `values.steelAllowed = assessment.allowed` for compatibility.
 
-- [ ] **Step 4: Build the audited step 11 text**
+- [x] **Step 4: Build the audited step 11 text**
 
 Populate the exact input items and result sentence from the contract. Put the matrix cell/group/steel or applicable note reference directly in the caption's final source clause.
 
-- [ ] **Step 5: Run core tests and confirm GREEN**
+- [x] **Step 5: Run core tests and confirm GREEN**
 
 Run the core test file and expect all G.1 branches to pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```powershell
 git add lib/steel-structure-category-group.ts lib/steel-structure-category-group.test.ts
@@ -293,7 +293,7 @@ git commit -m "Explain steel compatibility audit path"
 - Modify: `components/calculators/steel-structure-category-group-calculator.tsx`
 - Test: `components/calculators/steel-structure-category-group-calculator.test.tsx`
 
-- [ ] **Step 1: Write failing title tests**
+- [x] **Step 1: Write failing title tests**
 
 Expect the rendered heading and generated DOCX report title to equal:
 
@@ -303,13 +303,13 @@ Expect the rendered heading and generated DOCX report title to equal:
 
 Assert no heading named `Покроковий звіт` is rendered by this calculator.
 
-- [ ] **Step 2: Run component tests and confirm RED**
+- [x] **Step 2: Run component tests and confirm RED**
 
 ```powershell
 npm test -- components/calculators/steel-structure-category-group-calculator.test.tsx
 ```
 
-- [ ] **Step 3: Use one title constant**
+- [x] **Step 3: Use one title constant**
 
 Add:
 
@@ -319,11 +319,11 @@ const REPORT_TITLE = "Розрахунок категорій і групи ст
 
 Pass it to both `NativeReport` and `buildNativeDocxReport`. Do not alter the shared DOCX document heading behavior for unrelated calculators.
 
-- [ ] **Step 4: Run component tests and confirm GREEN**
+- [x] **Step 4: Run component tests and confirm GREEN**
 
 Run the Task 5 command and expect all tests to pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```powershell
 git add components/calculators/steel-structure-category-group-calculator.tsx components/calculators/steel-structure-category-group-calculator.test.tsx
@@ -335,7 +335,7 @@ git commit -m "Rename steel calculation report"
 **Files:**
 - Verify only unless a test exposes a defect.
 
-- [ ] **Step 1: Run targeted suites**
+- [x] **Step 1: Run targeted suites**
 
 ```powershell
 npm test -- lib/report-formula-parser.test.ts components/calculators/report-formula.test.tsx lib/steel-structure-category-group.test.ts components/calculators/steel-structure-category-group-calculator.test.tsx
@@ -343,7 +343,7 @@ npm test -- lib/report-formula-parser.test.ts components/calculators/report-form
 
 Expected: all targeted tests pass with no warnings.
 
-- [ ] **Step 2: Run the full required checks**
+- [x] **Step 2: Run the full required checks**
 
 ```powershell
 npm test
@@ -353,14 +353,14 @@ npm run build
 
 Expected: all commands exit 0.
 
-- [ ] **Step 3: Inspect the browser report**
+- [x] **Step 3: Inspect the browser report**
 
 Run `npm run dev`, open the steel calculator, and verify the default report: one new title, 12 ordered captions with inline sources, no red/fallback KaTeX in step 7, no compression formula when tension exists, and no forbidden diagnostic text.
 
-- [ ] **Step 4: Inspect exported DOCX**
+- [x] **Step 4: Inspect exported DOCX**
 
 Generate DOCX from the default report and verify title, step order, alpha/absolute-value formula, indexed symbols, decimal commas, and comparison branches.
 
-- [ ] **Step 5: Record verification evidence**
+- [x] **Step 5: Record verification evidence**
 
 Update this plan's checkboxes as tasks complete. Do not claim success without the fresh command results from Steps 1–4.

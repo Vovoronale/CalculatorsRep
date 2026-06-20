@@ -64,6 +64,7 @@ export function NativeReport({
                   className="native-report__formula"
                   formula={formula}
                   key={formula}
+                  renderFallback={renderText}
                 />
               ))}
               {step.resultItems?.length ? (

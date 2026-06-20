@@ -34,6 +34,7 @@ import {
 } from "@/lib/calculator-input-schema";
 
 import { InputSchemaForm } from "./input-schema-form";
+import { MathNotation } from "./math-notation";
 import { buildNativeDocxReport, formatDocxFileDate } from "./native-report-docx";
 import { NativeCalculatorLayout } from "./native-calculator-layout";
 import { NativeReport } from "./native-report";
@@ -78,8 +79,45 @@ const STEEL_NORM_LINKS = [
   { text: "Г.5", id: "steel-norm-table-g-5" },
 ] as const;
 
+const STEEL_INLINE_NOTATIONS = [
+  { text: "S_tot,base", base: "S", subscript: "tot,base" },
+  { text: "S_tot,A2", base: "S", subscript: "tot,A2" },
+  { text: "S_3,base", base: "S", subscript: "3,base" },
+  { text: "S_3,A2", base: "S", subscript: "3,A2" },
+  { text: "ΔS_compression", base: "ΔS", subscript: "compression" },
+  { text: "ΔS_guillotine", base: "ΔS", subscript: "guillotine" },
+  { text: "ΔS_initial", base: "ΔS", subscript: "initial" },
+  { text: "ΔS_cold", base: "ΔS", subscript: "cold" },
+  { text: "ΔS_raw", base: "ΔS", subscript: "raw" },
+  { text: "ΔS_+", base: "ΔS", subscript: "+" },
+  { text: "ΔS_3", base: "ΔS", subscript: "3" },
+  { text: "ΔS_t", base: "ΔS", subscript: "t" },
+  { text: "σ_limit", base: "σ", subscript: "limit" },
+  { text: "σ_dyn", base: "σ", subscript: "dyn" },
+  { text: "σ_sum", base: "σ", subscript: "sum" },
+  { text: "σ_c", base: "σ", subscript: "c" },
+  { text: "R_yn", base: "R", subscript: "yn" },
+  { text: "R_y", base: "R", subscript: "y" },
+  { text: "γ_m", base: "γ", subscript: "m" },
+  { text: "γ_c", base: "γ", subscript: "c" },
+  { text: "S_1", base: "S", subscript: "1" },
+  { text: "S_2", base: "S", subscript: "2" },
+  { text: "S_3", base: "S", subscript: "3" },
+  { text: "S_4", base: "S", subscript: "4" },
+  { text: "S_5", base: "S", subscript: "5" },
+  { text: "ΔS", base: "ΔS" },
+] as const;
+
+function escapePattern(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function renderSteelNormText(text: string): ReactNode {
-  const pattern = new RegExp(STEEL_NORM_LINKS.map((link) => link.text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"), "g");
+  const tokens = [
+    ...STEEL_NORM_LINKS.map((link) => link.text),
+    ...STEEL_INLINE_NOTATIONS.map((notation) => notation.text),
+  ].sort((left, right) => right.length - left.length);
+  const pattern = new RegExp(tokens.map(escapePattern).join("|"), "g");
   const nodes: ReactNode[] = [];
   let lastIndex = 0;
 
@@ -93,6 +131,18 @@ function renderSteelNormText(text: string): ReactNode {
         const details = (target?.tagName === "DETAILS" ? target : target?.querySelector("details")) as HTMLDetailsElement | null | undefined;
         if (details) details.open = true;
       }}>{link.text}</a>);
+    } else {
+      const notation = STEEL_INLINE_NOTATIONS.find((item) => item.text === match[0]);
+      if (notation) {
+        nodes.push(
+          <MathNotation
+            ariaLabel={notation.text}
+            base={notation.base}
+            key={`${notation.text}:${match.index}`}
+            subscript={"subscript" in notation ? notation.subscript : undefined}
+          />,
+        );
+      }
     }
     lastIndex = match.index + match[0].length;
   }
@@ -380,7 +430,21 @@ export function SteelStructureCategoryGroupCalculator() {
   const input = useMemo(() => inputFromValues(values, displayUnits), [values, displayUnits]);
   const report = useMemo(() => getSteelStructureCategoryGroupReport(input), [input]);
   const docx = useMemo(() => buildSteelStructureCategoryGroupDocxReport(report.steps), [report.steps]);
-  const summary = report.values ? <div className="steel-structure-category-summary"><p>Категорії: {report.values.purposeCategory}/{report.values.stressCategoryBase}</p><p>Початкова група: {report.values.groupBase}, Stot = {report.values.totalBase}</p><p>Уточнена група: {report.values.groupA2}, Stot = {report.values.totalA2}</p><p>γc = {report.values.gammaC}; Ry = {report.values.ryMpa.toFixed(2).replace(".", ",")} МПа</p><p>Сталь за Г.1: {report.values.steelAllowed ? "дозволено" : "не дозволено"}</p></div> : null;
+  const summary = report.values ? (
+    <div className="steel-structure-category-summary">
+      <p>Категорії: {report.values.purposeCategory}/{report.values.stressCategoryBase}</p>
+      <p>
+        Початкова група: {report.values.groupBase}, <MathNotation base="S" subscript="tot,base" ariaLabel="S_tot,base" /> = {report.values.totalBase}
+      </p>
+      <p>
+        Уточнена група: {report.values.groupA2}, <MathNotation base="S" subscript="tot,A2" ariaLabel="S_tot,A2" /> = {report.values.totalA2}
+      </p>
+      <p>
+        <MathNotation base="γ" subscript="c" ariaLabel="γ_c" /> = {report.values.gammaC}; <MathNotation base="R" subscript="y" ariaLabel="R_y" /> = {report.values.ryMpa.toFixed(2).replace(".", ",")} МПа
+      </p>
+      <p>Сталь за Г.1: {report.values.steelAllowed ? "дозволено" : "не дозволено"}</p>
+    </div>
+  ) : null;
 
   return <NativeCalculatorLayout ariaLabel="Калькулятор категорій і груп сталевих конструкцій" navLinks={[{ href: "#steel-structure-selection", label: "Конструкція" }, { href: "#steel-material", label: "Сталь" }, { href: "#steel-a2", label: "Чинники А.2" }, { href: "#steel-gamma-c", label: "Умови γc" }, { href: "#steel-structure-report-title", label: "Звіт" }, { href: "#steel-structure-norms-title", label: "Норми" }]} summary={summary} controls={<InputSchemaForm schema={schema} values={values} onValuesChange={setNormalizedValues} displayUnits={displayUnits} onDisplayUnitsChange={setDisplayUnits} renderDescription={renderSteelNormText} />} errors={report.errors} warnings={report.warnings}><NativeReport titleId="steel-structure-report-title" title={REPORT_TITLE} steps={report.steps} actions={<ReportDocxButton report={docx} />} renderText={renderSteelNormText} /><NormativeReferences /></NativeCalculatorLayout>;
 }

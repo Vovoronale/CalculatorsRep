@@ -1,3 +1,5 @@
+import { Packer } from "docx";
+import JSZip from "jszip";
 import { describe, expect, it } from "vitest";
 
 import { buildReportDocxDocument, getFormulaRenderPlan } from "./document";
@@ -20,6 +22,15 @@ const documentModel: DocxReportDocument = {
 describe("buildReportDocxDocument", () => {
   it("builds a docx document from report steps", () => {
     expect(() => buildReportDocxDocument(documentModel)).not.toThrow();
+  });
+
+  it("adds a centered current-page number to the footer", async () => {
+    const buffer = await Packer.toBuffer(buildReportDocxDocument(documentModel));
+    const zip = await JSZip.loadAsync(buffer);
+    const footer = await zip.file("word/footer1.xml")?.async("string");
+
+    expect(footer).toContain("Сторінка");
+    expect(footer).toContain("PAGE");
   });
 
   it("plans math paragraphs for supported formulas", () => {

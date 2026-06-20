@@ -112,6 +112,19 @@ describe("parseDocxFormula", () => {
     });
   });
 
+  it("parses score units used by category and group reports", () => {
+    const result = parseDocxFormula(
+      "ΔS_3 = 0 балів; S_tot,base = 1 бал; S_tot,A2 = 2 бали",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.statements).toHaveLength(3);
+    for (const statement of result.statements) {
+      expect(statement.expression.type).toBe("chain");
+    }
+  });
+
   it("parses underscore symbols and foundation pressure units", () => {
     const result = parseDocxFormula(
       "G_fund = γ * b * l * h_gr = 17.28 т; Mx_base = |Mx + Qy * h_fund| = 2.80 т·м; γ = 2.00 т/м³; P_lift = 20.2%",

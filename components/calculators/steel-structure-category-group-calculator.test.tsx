@@ -85,10 +85,14 @@ describe("SteelStructureCategoryGroupCalculator", () => {
     );
     expect(screen.getAllByText(/Початкова група: 3/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Уточнена група: 3/).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Ry = 239,02 МПа/)).toBeInTheDocument();
+    const ryNotation = screen.getAllByLabelText("R_y")[0];
+    expect(ryNotation.closest("p")).toHaveTextContent("239,02 МПа");
     expect(screen.getByRole("heading", { name: "Розрахунок категорій і групи сталевої конструкції" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Покроковий звіт" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
+    expect(screen.getAllByLabelText("S_tot,base").length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText("S_3,A2").length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText("ΔS_raw").length).toBeGreaterThan(0);
     expect(screen.getByAltText("Скан таблиці 5.1 з ДБН В.2.6-198:2014")).toHaveAttribute(
       "src",
       "/dbn/steel-structure-category-group/dbn-table-5-1-part-1.png",

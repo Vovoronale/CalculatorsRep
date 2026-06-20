@@ -59,4 +59,17 @@ describe("ReportFormula", () => {
     expect(element).toHaveTextContent(formula);
     expect(element.querySelector(".katex")).not.toBeInTheDocument();
   });
+
+  it("uses the supplied inline renderer for fallback text", () => {
+    const formula = "Пояснення для ΔS_raw = 0";
+
+    render(
+      <ReportFormula
+        formula={formula}
+        renderFallback={(text) => <span data-testid="formatted-fallback">{text}</span>}
+      />,
+    );
+
+    expect(screen.getByTestId("formatted-fallback")).toHaveTextContent(formula);
+  });
 });

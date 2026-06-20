@@ -1,7 +1,10 @@
 import {
+  AlignmentType,
   Document,
+  Footer,
   HeadingLevel,
   ImageRun,
+  PageNumber,
   Paragraph,
   TextRun,
 } from "docx";
@@ -112,6 +115,20 @@ export function buildReportDocxDocument(report: DocxReportDocument): Document {
     sections: [
       {
         children,
+        footers: {
+          default: new Footer({
+            children: [
+              new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun({
+                    children: ["Сторінка ", PageNumber.CURRENT],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        },
       },
     ],
   });

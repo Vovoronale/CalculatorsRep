@@ -235,6 +235,19 @@ describe("parseReportFormula", () => {
     expect(result.lines[0].latex).toContain("239,02\\ \\text{МПа}");
   });
 
+  it("renders score units as spaced text", () => {
+    const result = parseReportFormula(
+      "ΔS_3 = 0 балів; S_tot,base = 1 бал; S_tot,A2 = 2 бали",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    const latex = result.lines.map((line) => line.latex).join("\n");
+    expect(latex).toContain("0\\ \\text{балів}");
+    expect(latex).toContain("1\\ \\text{бал}");
+    expect(latex).toContain("2\\ \\text{бали}");
+  });
+
   it("renders indexed delta adjustments", () => {
     const result = parseReportFormula(
       "ΔS_raw = ΔS_3 + ΔS_+ + ΔS_compression = 0 + 0 + 0 = 0",
@@ -258,6 +271,17 @@ describe("parseReportFormula", () => {
 
   it("returns fallback for unsupported prose formulas", () => {
     const result = parseReportFormula("Приймаємо значення з таблиці без математичного виразу");
+
+    expect(result).toEqual({
+      ok: false,
+      reason: "Formula does not start with a supported mathematical token.",
+    });
+  });
+
+  it("returns fallback for explanatory prose that contains mathematical values", () => {
+    const result = parseReportFormula(
+      "Відповідно до пункту А.2 сумарна зміна показника приймається в межах від −4 до +4 балів. Оскільки розрахункове значення ΔS_raw = 0, прийнято ΔS = 0 балів.",
+    );
 
     expect(result).toEqual({
       ok: false,
