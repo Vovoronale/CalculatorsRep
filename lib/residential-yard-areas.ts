@@ -435,16 +435,6 @@ function formatApartmentCountFormula(
   )} = ${formatCount(apartmentCount)} квартир`;
 }
 
-function getCommonCountItems(
-  input: ResidentialYardAreasInput,
-  apartmentCount: number,
-): string[] {
-  return [
-    `Кількість мешканців: Nосіб = ${formatCount(input.residents)} осіб`,
-    `Кількість квартир: ${formatApartmentCountFormula(input, apartmentCount)}`,
-  ];
-}
-
 function buildDualFormulas(
   symbol: string,
   personRateSymbol: string,
@@ -562,7 +552,6 @@ function buildChildrenStep(
     caption:
       "Визначення площі майданчиків для ігор дітей дошкільного і молодшого шкільного віку (п. 6.1.21, таблиця 6.4 ДБН Б.2.2-12:2019):",
     items: [
-      ...getCommonCountItems(input, values.apartmentCount),
       "Питомий розмір на одну особу: qдіт,ос = 0,7 м²/особу",
       "Питомий розмір на одну квартиру: qдіт,кв = 1,75 м²/квартиру",
     ],
@@ -598,7 +587,6 @@ function buildAdultRecreationStep(
     caption:
       "Визначення площі майданчиків для відпочинку дорослого населення (п. 6.1.21, таблиця 6.4 ДБН Б.2.2-12:2019):",
     items: [
-      ...getCommonCountItems(input, values.apartmentCount),
       "Питомий розмір на одну особу: qвідп,ос = 0,2 м²/особу",
       "Питомий розмір на одну квартиру: qвідп,кв = 0,5 м²/квартиру",
     ],
@@ -633,7 +621,6 @@ function buildPhysicalCultureStep(
   const personRate = reduced ? 0.2 : 2;
   const apartmentRate = reduced ? 0.5 : 5;
   const items = [
-    ...getCommonCountItems(input, values.apartmentCount),
     `Режим розрахунку: ${reduced ? "зменшений норматив" : "повний норматив"}`,
   ];
   if (reduced) {
@@ -698,8 +685,6 @@ function buildGuestParkingStep(
     caption:
       "Визначення кількості та площі місць тимчасового зберігання автомобілів — гостьової стоянки (п. 6.1.21, таблиця 6.4, п. 10.8.1 і таблиця 10.5 ДБН Б.2.2-12:2019; п. 4.6 і таблиця 1 ДБН В.2.3-15:2007):",
     items: [
-      `Кількість однокімнатних квартир: N₁ = ${oneRoom} квартир`,
-      `Кількість дво- та більше кімнатних квартир: N₂+ = ${multiRoom} квартир`,
       "Норматив для гостьових стоянок: 0,15 машиномісця на дво- або більше кімнатну квартиру",
       "Коефіцієнт для однокімнатних квартир: 0,5",
       "Площа земельної ділянки відкритої стоянки на один автомобіль: 25 м²/автомобіль",
@@ -739,7 +724,6 @@ function buildBicycleParkingStep(
     caption:
       "Визначення площі майданчиків для тимчасової стоянки велосипедів (п. 6.1.21, таблиця 6.4 ДБН Б.2.2-12:2019):",
     items: [
-      ...getCommonCountItems(input, values.apartmentCount),
       "Питомий розмір на одну особу: qвел,ос = 0,1 м²/особу",
       "Питомий розмір на одну квартиру: qвел,кв = 0,25 м²/квартиру",
     ],
@@ -777,7 +761,6 @@ function buildWasteCollectionStep(
         ? "підземний"
         : "вакуумний";
   const items = [
-    ...getCommonCountItems(input, values.apartmentCount),
     `Спосіб збирання побутових відходів: ${methodLabel}`,
   ];
   let formulas: string[] | undefined;
@@ -847,7 +830,6 @@ function buildPetWalkingStep(
     caption:
       "Визначення площі майданчиків для вигулу домашніх тварин (п. 6.1.21, таблиця 6.4 та примітка *** ДБН Б.2.2-12:2019):",
     items: [
-      ...getCommonCountItems(input, values.apartmentCount),
       "Питомий розмір на одну особу: qтвар,ос = 0,3 м²/особу",
       "Питомий розмір на одну квартиру: qтвар,кв = 0,3 м²/квартиру",
     ],
@@ -890,7 +872,6 @@ function buildHouseholdPurposeStep(
   let formula: string | undefined;
   if (enabled) {
     items.push(
-      ...getCommonCountItems(input, values.apartmentCount),
       `Прийнятий питомий розмір на одну особу: ${formatManualArea(
         "qгосп,ос",
         input.householdAreaPerPersonM2,
@@ -1033,7 +1014,6 @@ function buildTerritorialNeedStep(
 }
 
 function buildConclusionStep(
-  input: ResidentialYardAreasInput,
   values: ResidentialYardAreasValues,
 ): ResidentialYardAreasReportStep {
   return {
@@ -1041,10 +1021,6 @@ function buildConclusionStep(
     caption:
       "Висновок щодо площ майданчиків у складі прибудинкової території:",
     items: [
-      `Розрахункова кількість мешканців: ${formatCount(input.residents)} осіб`,
-      `Загальна кількість квартир: ${formatCount(
-        values.apartmentCount,
-      )} квартир`,
       `Дитячі майданчики: ${formatResidentialYardAreaNumber(
         values.children.adoptedM2,
       )} м²`,
@@ -1109,7 +1085,7 @@ export function getResidentialYardAreasReport(
       buildHouseholdPurposeStep(safeInput, values),
       buildInsideBoundaryStep(values),
       buildTerritorialNeedStep(values),
-      buildConclusionStep(safeInput, values),
+      buildConclusionStep(values),
     ],
   };
 }

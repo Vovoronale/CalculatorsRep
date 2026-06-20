@@ -240,6 +240,24 @@ describe("getResidentialYardAreasReport", () => {
     );
   });
 
+  it("lists source data as standalone items only in the input step", () => {
+    const report = getResidentialYardAreasReport({
+      ...DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
+      hasHouseholdPurposeAreas: true,
+    });
+
+    const repeatedSourceData = report.steps
+      .slice(1)
+      .flatMap((step) => step.items ?? [])
+      .filter((item) =>
+        /^(Кількість мешканців:|Кількість квартир:|Кількість однокімнатних квартир:|Кількість дво-|Розрахункова кількість мешканців:|Загальна кількість квартир:)/.test(
+          item,
+        ),
+      );
+
+    expect(repeatedSourceData).toEqual([]);
+  });
+
   it("reports reduced sport and its prerequisites", () => {
     const report = getResidentialYardAreasReport({
       ...DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
