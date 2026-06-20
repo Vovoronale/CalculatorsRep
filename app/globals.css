@@ -1283,6 +1283,13 @@ textarea {
   vertical-align: middle;
 }
 
+.calculator-table__artwork {
+  position: relative;
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+}
+
 .calculator-table__image {
   display: block;
   width: 44px;
@@ -1292,6 +1299,31 @@ textarea {
   background: var(--surface-2);
   object-fit: cover;
   box-shadow: var(--shadow-sm);
+}
+
+.calculator-table__access-marker {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--surface);
+  border-radius: 4px;
+  color: #fff;
+  box-shadow: 0 2px 5px rgb(20 24 26 / 24%);
+  pointer-events: none;
+}
+
+.calculator-table__access-marker--embed {
+  background: #3e6288;
+}
+
+.calculator-table__access-marker--external {
+  background: #e95f2a;
 }
 
 .calculator-table__link {
@@ -5471,6 +5503,11 @@ textarea {
   }
 
   .calculator-table__image {
+    width: 40px;
+    height: 40px;
+  }
+
+  .calculator-table__artwork {
     width: 40px;
     height: 40px;
   }

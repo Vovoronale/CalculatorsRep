@@ -78,7 +78,9 @@ describe("CalculatorShell", () => {
       name: "Розрахунки категорії Теплотехніка",
     });
     expect(within(table).getByRole("columnheader", { name: "№" })).toBeInTheDocument();
-    expect(within(table).getByRole("columnheader", { name: "Іконка" })).toBeInTheDocument();
+    expect(
+      within(table).queryByRole("columnheader", { name: "Іконка" }),
+    ).not.toBeInTheDocument();
     expect(within(table).getByRole("columnheader", { name: "Розрахунок" })).toBeInTheDocument();
     expect(
       within(table).queryByRole("columnheader", { name: "Що рахується" }),
@@ -101,6 +103,9 @@ describe("CalculatorShell", () => {
       "src",
       "/calculator-icons/cadee-external.svg",
     );
+    expect(
+      externalEnvelopeRow.querySelector(".calculator-table__access-marker--embed"),
+    ).toBeInTheDocument();
     expect(
       within(externalEnvelopeRow).getByRole("link", {
         name: /Теплотехнічний розрахунок огороджувальної конструкції будівлі/,
@@ -167,6 +172,23 @@ describe("CalculatorShell", () => {
     const minimumReinforcementRow = within(table).getByRole("row", {
       name: /Мінімальна площа армування залізобетонної балки або плити/,
     });
+    const armConRow = within(table).getByRole("row", {
+      name: /ArmCon — розрахунок армування залізобетонних конструкцій/,
+    });
+    expect(
+      armConRow.querySelector(".calculator-table__access-marker--external"),
+    ).toBeInTheDocument();
+    expect(
+      minimumReinforcementRow.querySelector(".calculator-table__access-marker"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(minimumReinforcementRow).getByRole("img", {
+        name: "Іконка: Мінімальна площа армування залізобетонної балки або плити",
+      }),
+    ).toHaveAttribute(
+      "src",
+      "/calculator-icons/minimum-reinforcement-area.png",
+    );
     expect(
       minimumReinforcementRow.querySelector(".calculator-table__standard-primary"),
     ).toHaveTextContent("ДСТУ Б В.2.6-156:2010");
@@ -1268,6 +1290,17 @@ describe("CalculatorShell", () => {
     expect(css).toMatch(/\.input-schema-field__prefix\[data-empty="true"\]\s*{[\s\S]*?display:\s*none;/);
     expect(css).toMatch(
       /\.soil-resistance-controls\s+\.input-schema-field\s*{[\s\S]*?grid-template-columns:\s*1\.65rem\s+3rem\s+minmax\(6\.7rem,\s*0\.8fr\)\s+minmax\(7\.5rem,\s*1fr\)\s+4\.4rem\s+2rem;/,
+    );
+  });
+
+  it("uses distinct access marker colors for embedded and external calculators", () => {
+    const css = readFileSync("app/globals.css", "utf8");
+
+    expect(css).toMatch(
+      /\.calculator-table__access-marker--embed\s*{[\s\S]*?background:\s*#3e6288;/i,
+    );
+    expect(css).toMatch(
+      /\.calculator-table__access-marker--external\s*{[\s\S]*?background:\s*#e95f2a;/i,
     );
   });
 

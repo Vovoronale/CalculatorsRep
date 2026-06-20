@@ -1,4 +1,5 @@
-import { existsSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -13,6 +14,7 @@ import {
   getCalculatorSeoSections,
 } from "@/lib/calculators";
 import { siteContent } from "@/lib/site-content";
+import { getCalculatorArtworkPath } from "@/lib/calculator-artwork";
 
 describe("calculator data model", () => {
   it("builds the category navigation in the expected order", () => {
@@ -304,13 +306,46 @@ describe("calculator data model", () => {
 
   it("has a catalog image asset for every calculator", () => {
     for (const calculator of calculators) {
+      const artworkPath = getCalculatorArtworkPath(calculator.slug);
+
       expect(
         existsSync(
-          join(process.cwd(), "public", "calculator-icons", `${calculator.slug}.svg`),
+          join(process.cwd(), "public", artworkPath.slice(1)),
         ),
         calculator.slug,
       ).toBe(true);
     }
+  });
+
+  it("keeps the approved ArmCon and LiveBeamCalculator PNG conversions", () => {
+    const approvedHashes = {
+      armcon: "202fa591cfd4442c2af2952fe357b9f32ac07b87354d067fcd25991843b850b7",
+      livebeamcalculator:
+        "116f41db1f3bac32d910f0d20df418d98b3f347bc9da62f857bf22014744426f",
+    };
+
+    for (const [slug, approvedHash] of Object.entries(approvedHashes)) {
+      const image = readFileSync(
+        join(process.cwd(), "public", "calculator-icons", `${slug}.png`),
+      );
+
+      expect(image.subarray(1, 4).toString("ascii"), slug).toBe("PNG");
+      expect(image.readUInt32BE(16), slug).toBe(512);
+      expect(image.readUInt32BE(20), slug).toBe(512);
+      expect(createHash("sha256").update(image).digest("hex"), slug).toBe(
+        approvedHash,
+      );
+    }
+  });
+
+  it("does not regenerate the supplied ArmCon and LiveBeamCalculator artwork", () => {
+    const generator = readFileSync(
+      join(process.cwd(), "scripts", "generate-construction-urban-icons.mjs"),
+      "utf8",
+    );
+
+    expect(generator).not.toContain('slug: "armcon"');
+    expect(generator).not.toContain('slug: "livebeamcalculator"');
   });
 
   it("registers the foundation base pressure calculator as a native foundation calculator", () => {

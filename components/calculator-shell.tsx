@@ -33,6 +33,7 @@ import {
   type CalculatorSeoSection,
   type CategorySlug,
 } from "@/lib/calculators";
+import { getCalculatorArtworkPath } from "@/lib/calculator-artwork";
 import { siteContent } from "@/lib/site-content";
 
 type CalculatorShellProps = {
@@ -293,7 +294,7 @@ function CalculatorCategoryTable({
         <thead>
           <tr>
             <th className="calculator-table__number-heading" scope="col">№</th>
-            <th className="calculator-table__image-heading" scope="col">Іконка</th>
+            <th className="calculator-table__image-heading" scope="col" />
             <th scope="col">Розрахунок</th>
             <th scope="col">Норматив</th>
           </tr>
@@ -310,14 +311,25 @@ function CalculatorCategoryTable({
                   <span className="calculator-table__number">{rowNumber}</span>
                 </td>
                 <td className="calculator-table__image-cell">
-                  <img
-                    className="calculator-table__image"
-                    src={`/calculator-icons/${calculator.slug}.svg`}
-                    alt={`Іконка: ${calculator.title}`}
-                    width="44"
-                    height="44"
-                    loading="lazy"
-                  />
+                  <span className="calculator-table__artwork">
+                    <img
+                      className="calculator-table__image"
+                      src={getCalculatorArtworkPath(calculator.slug)}
+                      alt={`Іконка: ${calculator.title}`}
+                      width="44"
+                      height="44"
+                      loading="lazy"
+                    />
+                    {calculator.displayMode === "embed" ||
+                    calculator.displayMode === "external" ? (
+                      <span
+                        className={`calculator-table__access-marker calculator-table__access-marker--${calculator.displayMode}`}
+                        aria-hidden
+                      >
+                        <ExternalLink size={10} />
+                      </span>
+                    ) : null}
+                  </span>
                 </td>
                 <th scope="row">
                   <div className="calculator-table__title-row">
