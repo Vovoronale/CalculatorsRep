@@ -322,6 +322,9 @@ describe("CalculatorShell", () => {
     expect(css).toMatch(
       /@media\s*\(max-width:\s*767px\)[\s\S]*?\.detail-section--embed \.detail-embed iframe\s*{[\s\S]*?height:\s*calc\(100dvh - 104px\);/,
     );
+    expect(css).toMatch(
+      /\.workspace-top-bar__action\s*{[^}]*white-space:\s*nowrap;[^}]*flex-shrink:\s*0;/,
+    );
   });
 
   it("renders calculator detail pages with a single H1 and SEO methodology sections", () => {
