@@ -39,6 +39,8 @@ import { NativeCalculatorLayout } from "./native-calculator-layout";
 import { NativeReport } from "./native-report";
 import { ReportDocxButton } from "./report-docx-button";
 
+const REPORT_TITLE = "Розрахунок категорій і групи сталевої конструкції";
+
 type SchemaValues = Partial<CalculatorInputValues>;
 
 const STEEL_NORM_LINKS = [
@@ -309,7 +311,7 @@ function inputFromValues(values: CalculatorInputValues, units: Record<string, st
 }
 
 export function buildSteelStructureCategoryGroupDocxReport(steps: ReturnType<typeof getSteelStructureCategoryGroupReport>["steps"], date = new Date()) {
-  return buildNativeDocxReport({ title: "Покроковий звіт", fileBaseName: `kategorii-ta-grupy-stalevykh-konstruktsii-${formatDocxFileDate(date)}`, steps });
+  return buildNativeDocxReport({ title: REPORT_TITLE, fileBaseName: `kategorii-ta-grupy-stalevykh-konstruktsii-${formatDocxFileDate(date)}`, steps });
 }
 
 function NormScan({ alt, id, src }: { alt: string; id?: string; src: string }) {
@@ -380,5 +382,5 @@ export function SteelStructureCategoryGroupCalculator() {
   const docx = useMemo(() => buildSteelStructureCategoryGroupDocxReport(report.steps), [report.steps]);
   const summary = report.values ? <div className="steel-structure-category-summary"><p>Категорії: {report.values.purposeCategory}/{report.values.stressCategoryBase}</p><p>Початкова група: {report.values.groupBase}, Stot = {report.values.totalBase}</p><p>Уточнена група: {report.values.groupA2}, Stot = {report.values.totalA2}</p><p>γc = {report.values.gammaC}; Ry = {report.values.ryMpa.toFixed(2)} МПа</p><p>Сталь за Г.1: {report.values.steelAllowed ? "дозволено" : "не дозволено"}</p></div> : null;
 
-  return <NativeCalculatorLayout ariaLabel="Калькулятор категорій і груп сталевих конструкцій" navLinks={[{ href: "#steel-structure-selection", label: "Конструкція" }, { href: "#steel-material", label: "Сталь" }, { href: "#steel-a2", label: "Чинники А.2" }, { href: "#steel-gamma-c", label: "Умови γc" }, { href: "#steel-structure-report-title", label: "Звіт" }, { href: "#steel-structure-norms-title", label: "Норми" }]} summary={summary} controls={<InputSchemaForm schema={schema} values={values} onValuesChange={setNormalizedValues} displayUnits={displayUnits} onDisplayUnitsChange={setDisplayUnits} renderDescription={renderSteelNormText} />} errors={report.errors} warnings={report.warnings}><NativeReport titleId="steel-structure-report-title" title="Покроковий звіт" steps={report.steps} actions={<ReportDocxButton report={docx} />} renderText={renderSteelNormText} /><NormativeReferences /></NativeCalculatorLayout>;
+  return <NativeCalculatorLayout ariaLabel="Калькулятор категорій і груп сталевих конструкцій" navLinks={[{ href: "#steel-structure-selection", label: "Конструкція" }, { href: "#steel-material", label: "Сталь" }, { href: "#steel-a2", label: "Чинники А.2" }, { href: "#steel-gamma-c", label: "Умови γc" }, { href: "#steel-structure-report-title", label: "Звіт" }, { href: "#steel-structure-norms-title", label: "Норми" }]} summary={summary} controls={<InputSchemaForm schema={schema} values={values} onValuesChange={setNormalizedValues} displayUnits={displayUnits} onDisplayUnitsChange={setDisplayUnits} renderDescription={renderSteelNormText} />} errors={report.errors} warnings={report.warnings}><NativeReport titleId="steel-structure-report-title" title={REPORT_TITLE} steps={report.steps} actions={<ReportDocxButton report={docx} />} renderText={renderSteelNormText} /><NormativeReferences /></NativeCalculatorLayout>;
 }

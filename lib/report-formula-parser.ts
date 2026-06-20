@@ -10,8 +10,8 @@ export type ParseReportFormulaResult =
   | { ok: false; reason: string };
 
 const MATH_START_PATTERN =
-  /^(?:[-+()[\]]|∫|\d|[A-Za-zØΣА-Яа-яІіЇїЄєҐґλασγφ][A-Za-zØΣА-Яа-яІіЇїЄєҐґ0-9_,./′_-]*)/u;
-const SYMBOL_PATTERN = /[A-Za-zØΣλασγφ∫][A-Za-zØΣλασγφ∫0-9_,.′/_-]*/gu;
+  /^(?:[-+()[\]]|∫|\d|[A-Za-zØΣΔА-Яа-яІіЇїЄєҐґλασγφ][A-Za-zØΣΔА-Яа-яІіЇїЄєҐґ0-9_,./′_-]*)/u;
+const SYMBOL_PATTERN = /[A-Za-zØΣΔλασγφ∫][A-Za-zØΣΔλασγφ∫0-9_,.′/_-]*/gu;
 const REPORT_SYMBOL_PATTERN = new RegExp(
   REPORT_SYMBOLS.map((symbol) => symbol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
   "gu",

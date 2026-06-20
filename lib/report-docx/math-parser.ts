@@ -110,11 +110,11 @@ function splitExplanatorySuffix(source: string): { math: string; suffix?: string
 }
 
 function isIdentifierStart(char: string): boolean {
-  return /[A-Za-zА-Яа-яІіЇїЄєҐґØΣλσγφβαδεθκμρτπωπ]/u.test(char);
+  return /[A-Za-zА-Яа-яІіЇїЄєҐґØΣΔλσγφβαδεθκμρτπωπ]/u.test(char);
 }
 
 function isIdentifierPart(char: string): boolean {
-  return /[A-Za-zА-Яа-яІіЇїЄєҐґØΣλσγφβαδεθκμρτπωπ0-9_,.′_]/u.test(char);
+  return /[A-Za-zА-Яа-яІіЇїЄєҐґØΣΔλσγφβαδεθκμρτπωπ0-9_,.′_]/u.test(char);
 }
 
 function getKnownUnitAt(source: string, index: number): string | null {

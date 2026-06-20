@@ -235,6 +235,17 @@ describe("parseReportFormula", () => {
     expect(result.lines[0].latex).toContain("239,02\\ \\text{МПа}");
   });
 
+  it("renders indexed delta adjustments", () => {
+    const result = parseReportFormula(
+      "ΔS_raw = ΔS_3 + ΔS_+ + ΔS_compression = 0 + 0 + 0 = 0",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines[0].latex).toContain("\\Delta_{S,raw}");
+    expect(result.lines[0].latex).toContain("\\Delta_{S,compression}");
+  });
+
   it("returns fallback for unsupported prose formulas", () => {
     const result = parseReportFormula("Приймаємо значення з таблиці без математичного виразу");
 

@@ -4,9 +4,14 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
   SteelStructureCategoryGroupCalculator,
+  buildSteelStructureCategoryGroupDocxReport,
   buildSteelStructureCategoryGroupInputSchema,
 } from "./steel-structure-category-group-calculator";
 import { STEEL_STRUCTURE_CATALOG } from "@/lib/steel-structure-category-group-data";
+import {
+  DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT,
+  getSteelStructureCategoryGroupReport,
+} from "@/lib/steel-structure-category-group";
 
 afterEach(cleanup);
 
@@ -80,7 +85,8 @@ describe("SteelStructureCategoryGroupCalculator", () => {
     );
     expect(screen.getAllByText(/Початкова група: 3/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Уточнена група: 3/).length).toBeGreaterThan(0);
-    expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Розрахунок категорій і групи сталевої конструкції" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Покроковий звіт" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
     expect(screen.getByAltText("Скан таблиці 5.1 з ДБН В.2.6-198:2014")).toHaveAttribute(
       "src",
@@ -89,17 +95,29 @@ describe("SteelStructureCategoryGroupCalculator", () => {
     expect(screen.getAllByText("Скан фрагмента ДБН")).toHaveLength(14);
   });
 
+  it("uses the agreed title in the DOCX report model", () => {
+    const report = getSteelStructureCategoryGroupReport(
+      DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT,
+    );
+
+    const docx = buildSteelStructureCategoryGroupDocxReport(report.steps);
+
+    expect(docx.title).toBe("Розрахунок категорій і групи сталевої конструкції");
+  });
+
   it("links field guidance to and opens the corresponding DBN scan", async () => {
     const user = userEvent.setup();
     render(<SteelStructureCategoryGroupCalculator />);
 
     await user.click(screen.getByRole("button", { name: "Показати опис поля Марка сталі та нормативний документ" }));
-    const link = screen.getByRole("link", { name: "таблицею Г.5" });
+    const link = screen.getAllByRole("link", { name: "таблицею Г.5" })
+      .find((candidate) => candidate.closest(".input-schema-field__details"));
+    expect(link).toBeDefined();
     expect(link).toHaveAttribute("href", "#steel-norm-table-g-5");
 
     const scan = document.getElementById("steel-norm-table-g-5");
     expect(scan).not.toHaveAttribute("open");
-    await user.click(link);
+    await user.click(link!);
     expect(scan).toHaveAttribute("open");
   });
 

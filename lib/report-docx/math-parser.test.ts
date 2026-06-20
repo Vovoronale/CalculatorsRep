@@ -78,6 +78,24 @@ describe("parseDocxFormula", () => {
     expect(third.parts[0]).toMatchObject({ type: "symbol", base: "d", subscript: "b,input" });
   });
 
+  it("parses indexed delta adjustments", () => {
+    const result = parseDocxFormula(
+      "ΔS_raw = ΔS_3 + ΔS_compression = 0",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.statements[0].expression.type).toBe("chain");
+    if (result.statements[0].expression.type !== "chain") {
+      throw new Error("Expected chain expression");
+    }
+    expect(result.statements[0].expression.parts[0]).toMatchObject({
+      type: "symbol",
+      base: "Δ",
+      subscript: "S,raw",
+    });
+  });
+
   it("parses underscore symbols and foundation pressure units", () => {
     const result = parseDocxFormula(
       "G_fund = γ * b * l * h_gr = 17.28 т; Mx_base = |Mx + Qy * h_fund| = 2.80 т·м; γ = 2.00 т/м³; P_lift = 20.2%",
