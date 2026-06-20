@@ -15,7 +15,130 @@ Revision note:
 
 ```text
 2026-06-18 readability revision: report steps should show table-derived values as report items and keep only arithmetic checks as formulas. This avoids long mixed text/math formula rows.
+2026-06-20 user-facing report revision: the report uses engineering conclusions instead of program diagnostics, explains every derived input, checks applicability before conditional formulas, renders mathematical indices and decimal commas, and records the parameters used for table Г.1 verification. The exact replacements below supersede conflicting text in the original step definitions.
 ```
+
+## 2026-06-20 Agreed Report Revision
+
+Status: Agreed source of truth for the revised report wording and formulas.
+
+Report title:
+
+```text
+Розрахунок категорій і групи сталевої конструкції
+```
+
+Do not add the deferred object/author/date block, compact input table, summary table, or page numbers in this revision.
+
+General presentation rules:
+
+- Use decimal commas in all user-visible values.
+- Render `S_tot,base`, `S_3,A2`, `ΔS_guillotine`, `σ_sum`, `σ_c`, and `σ_dyn` with mathematical subscripts.
+- Use `⇒` or a sentence instead of `=>`.
+- Use `бал` when the number ends in 1 but not 11; `бали` when it ends in 2-4 but not 12-14; otherwise use `балів`. Required examples: `1 бал`, `2 бали`, `11 балів`, `21 бал`, `22 бали`, `111 балів`.
+- Do not show `Режим визначення: Автоматично`, candidate positions, an agreed matrix, internal profile codes such as `p6a`, program functions such as `обмежити(...)`, `вибрана конструкція`, or `вихідний рядок таблиці`.
+- Keep the step caption concise and show `Нормативна підстава: <source>` as a separate report line.
+
+Step 2 replacement:
+
+```text
+За таблицею А.1 конструкцію «<structure_label>» віднесено до категорії <purpose_category> за призначенням і категорії <stress_category> за напруженим станом.
+Нормативна підстава: ДБН В.2.6-198:2014, Додаток А, таблиця А.1, позиція <a1_source_position>.
+```
+
+Step 4 notation replacement:
+
+```text
+S_tot,base = S_1 + S_2 + S_3,base + S_4 + S_5 = <S1> + <S2> + <S3_base> + <S4> + <S5> = <total_base> <бал/бали/балів>
+Початкова група: <group_base>; S_tot,base = <total_base> <бал/бали/балів>.
+```
+
+Step 5 retains the agreed calculated resistance, not a rounded table substitution:
+
+```text
+R_y = R_yn / γ_m = 245 / 1,025 = 239,02 МПа
+```
+
+The report must call `239,02 МПа` a calculated value. Do not replace it with `240 МПа` until a separately approved contract revision identifies an authoritative table value and defines the rule for every supported steel option.
+
+Step 6 automatic-mode replacement for the default main beam:
+
+```text
+Для головних балок при статичному навантаженні спеціальні значення коефіцієнта умов роботи за таблицею 5.1 не застосовуються. Відповідно до примітки 5 прийнято γ_c = 1,0.
+Нормативна підстава: ДБН В.2.6-198:2014, пункт 5.4.1, таблиця 5.1, примітка 5.
+```
+
+For other automatic cases, describe only the factual construction attributes that select the applicable position and the accepted value. Never expose profile codes or the candidate-selection process. Semi-automatic and manual modes state the selected table position or that the value was accepted by the user, respectively.
+
+Step 7 definitions at first use:
+
+```text
+σ_dyn — найбільший модуль нормального розтягувального напруження від динамічної складової навантаження.
+σ_sum — найбільший модуль сумарного нормального розтягувального напруження від усіх розрахункових навантажень у тій самій точці перерізу.
+```
+
+Static load with tensile stress:
+
+```text
+Для статичного навантаження динамічна складова відсутня, тому прийнято σ_dyn = 0 МПа.
+α = |σ_dyn| / |σ_sum| = 0 / <sigma_sum> = 0
+За α = 0 конструкцію віднесено до категорії III за напруженим станом; прийнято S_3,A2 = 1 бал.
+Нормативна підстава: ДБН В.2.6-198:2014, Додаток А, пункт А.2, перший абзац.
+```
+
+Dynamic load retains the same symbolic formula with the entered `σ_dyn` and `σ_sum`. The shared formula parser must render `α`, both absolute-value bars, and all subscripts without fallback or error markup.
+
+Step 8 notation replacement:
+
+```text
+ΔS_t = <value> <бал/бали/балів> — поправка за товщиною прокату t = <thickness> мм.
+ΔS_guillotine = <value> <бал/бали/балів> — поправка за наявністю кромок після гільйотинного різання.
+ΔS_cold = <value> <бал/бали/балів> — поправка за неврахованим наклепом.
+ΔS_initial = <value> <бал/бали/балів> — поправка за високими початковими напруженнями.
+ΔS_+ = ΔS_t + ΔS_guillotine + ΔS_cold + ΔS_initial = <numeric substitution> = <result> <бал/бали/балів>
+```
+
+Step 9 applicability is evaluated before the numerical comparison.
+
+When tensile stress exists:
+
+```text
+Зменшення показника для статичного стиску не застосовується, оскільки в конструкції наявні розтягувальні напруження. Прийнято ΔS_compression = 0 балів.
+Нормативна підстава: ДБН В.2.6-198:2014, Додаток А, пункт А.2, третій абзац.
+```
+
+When tensile stress does not exist and the load is static:
+
+```text
+σ_c — модуль нормального напруження стиску, визначений з урахуванням коефіцієнтів φ, φ_e і φ_b.
+σ_limit = 0,4 * R_y * γ_c = 0,4 * <Ry> * <gamma_c> = <sigma_limit> <unit>
+σ_c = <sigma_c> <unit> <comparison_operator> σ_limit = <sigma_limit> <unit>
+```
+
+Use `≤` only when `σ_c <= σ_limit`; otherwise use `>`. State whether the condition is satisfied and accept `ΔS_compression = -4 бали` or `0 балів` accordingly. For dynamic load, state that this reduction is not applicable and accept zero.
+
+Step 10 replacement:
+
+```text
+ΔS_3 = S_3,A2 - S_3,base = <numeric substitution> = <result> <бал/бали/балів>
+ΔS_raw = ΔS_3 + ΔS_+ + ΔS_compression = <numeric substitution> = <raw> <бал/бали/балів>
+Відповідно до пункту А.2 сумарна зміна показника приймається в межах від −4 до +4 балів. Оскільки розрахункове значення ΔS_raw = <raw>, прийнято ΔS = <applied> <бал/бали/балів>.
+S_tot,A2 = S_tot,base + ΔS = <numeric substitution> = <total_a2> <бал/бали/балів>
+Нормативна підстава: ДБН В.2.6-198:2014, Додаток А, пункт А.2.
+```
+
+Step 11 must show the complete table Г.1 audit path before the conclusion:
+
+```text
+Уточнена група конструкції: <group_a2>.
+Вид прокату: <product_type>.
+Товщина прокату: <thickness> мм.
+Умови експлуатації: <service_condition>.
+Перевірено рядок таблиці Г.1 для сталі <steel_class>, групи <group_a2> та зазначених умов. Застосування сталі <steel_class> <допускається/не допускається>.
+Нормативна підстава: ДБН В.2.6-198:2014, Додаток Г, таблиця Г.1, <cell_or_note_reference>.
+```
+
+For the default case this text identifies group 3, section steel, thickness 10 mm, a heated building, steel C245, and the applicable group-3 cell of table Г.1. A bare `дозволено` or `не дозволено` result is forbidden.
 
 ## Source Evidence
 
@@ -964,6 +1087,10 @@ Footnotes and overrides:
 
 The report always preserves stable steps and finite values. Conditional items
 and formulas follow the display rules below.
+The original step definitions below are a baseline snapshot. Wherever the
+2026-06-20 agreed revision above provides replacement text or rules, that
+revision is canonical and the conflicting baseline text must not be implemented
+or tested.
 
 ### 1. Вихідні дані
 
