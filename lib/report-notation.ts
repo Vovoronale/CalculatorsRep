@@ -1,4 +1,5 @@
 const GREEK_TO_LATEX: Record<string, string> = {
+  "α": "\\alpha",
   "γ": "\\gamma",
   "φ": "\\varphi",
   "Ø": "\\varnothing",
@@ -124,7 +125,7 @@ function splitGenericSymbol(symbol: string): { base: string; subscript?: string 
 }
 
 function baseToLatex(base: string): string {
-  return base.replace(/[γφØΣλσ∫]/g, (match) => GREEK_TO_LATEX[match] ?? match);
+  return base.replace(/[αγφØΣλσ∫]/g, (match) => GREEK_TO_LATEX[match] ?? match);
 }
 
 export const REPORT_SYMBOLS = Object.keys(NAMED_SYMBOLS).sort(
@@ -140,13 +141,13 @@ export function reportSymbolToLatex(symbol: string): string {
 
   if (symbol === "pi") return "\\pi";
 
-  if (/[A-Za-zØΣλσγφ∫][A-Za-zØΣλσγφ∫0-9_,.′_-]+/u.test(symbol)) {
+  if (/[A-Za-zØΣλασγφ∫][A-Za-zØΣλασγφ∫0-9_,.′_-]+/u.test(symbol)) {
     const { base, subscript } = splitGenericSymbol(symbol);
     const latexBase = baseToLatex(base);
     return subscript ? `${latexBase}_{${subscript}}` : latexBase;
   }
 
-  return symbol.replace(/[γφØΣλσ∫]/g, (match) => GREEK_TO_LATEX[match] ?? match);
+  return symbol.replace(/[αγφØΣλσ∫]/g, (match) => GREEK_TO_LATEX[match] ?? match);
 }
 
 export function isKnownReportSymbol(symbol: string): boolean {

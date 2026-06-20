@@ -38,6 +38,17 @@ describe("ReportFormula", () => {
     expect(element.innerHTML).toContain("%");
   });
 
+  it("renders the steel alpha formula without fallback or KaTeX errors", () => {
+    const formula = "α = |σ_dyn| / |σ_sum| = 0 / 100 = 0";
+
+    render(<ReportFormula formula={formula} />);
+
+    const element = screen.getByLabelText(formula);
+    expect(element).not.toHaveClass("report-formula--fallback");
+    expect(element.querySelector(".katex")).toBeInTheDocument();
+    expect(element.querySelector(".katex-error")).not.toBeInTheDocument();
+  });
+
   it("renders unsupported formulas as fallback text without throwing", () => {
     const formula = "Приймаємо значення з таблиці без математичного виразу";
 

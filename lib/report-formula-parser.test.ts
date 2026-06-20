@@ -211,6 +211,30 @@ describe("parseReportFormula", () => {
     expect(latex).not.toContain("aBottom");
   });
 
+  it("renders the steel stress-ratio formula with alpha and absolute values", () => {
+    const result = parseReportFormula(
+      "α = |σ_dyn| / |σ_sum| = 0 / 100 = 0",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines[0].latex).toContain("\\alpha");
+    expect(result.lines[0].latex).toContain("\\sigma_{dyn}");
+    expect(result.lines[0].latex).toContain("\\sigma_{sum}");
+    expect(result.lines[0].latex).toContain(
+      "\\frac{|\\sigma_{dyn}|}{|\\sigma_{sum}|}",
+    );
+  });
+
+  it("preserves decimal commas in steel formulas", () => {
+    const result = parseReportFormula("R_y = 245 / 1,025 = 239,02 МПа");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines[0].latex).toContain("1,025");
+    expect(result.lines[0].latex).toContain("239,02\\ \\text{МПа}");
+  });
+
   it("returns fallback for unsupported prose formulas", () => {
     const result = parseReportFormula("Приймаємо значення з таблиці без математичного виразу");
 
