@@ -130,6 +130,18 @@
       "authorCta": "Про автора",
       "contactEmail": "ivapps.pro@gmail.com"
     },
+    "support": {
+      "stripLabel": "Подобається IVApps.pro? Підтримайте розвиток сервісу →",
+      "eyebrow": "Підтримка проєкту",
+      "title": "Подобається IVApps.pro? Підтримайте розвиток сервісу",
+      "paragraphs": [
+        "Підпишіться на Patreon CadEE.pro. Навіть безкоштовна підписка допомагає популяризувати наші інженерні сервіси та залучати ресурси для створення нових калькуляторів.",
+        "IVApps.pro і CadEE.pro містять різні типи калькуляторів, але розробляються одним автором. Тому підтримка обох проєктів об’єднана на одній сторінці Patreon CadEE.pro.",
+        "Якщо IVApps.pro корисний для вас і ви хочете підтримати його активний розвиток, можете обрати платний рівень підписки."
+      ],
+      "ctaLabel": "Підтримати проєкти на Patreon",
+      "patreonHref": "https://patreon.com/u93873537?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_fan&utm_content=copyLink"
+    },
     "authorPage": {
       "eyebrow": "Автор платформи",
       "title": "Співзасновник LogiStruct / Head of AI R&D / інженер-конструктор і автор AEC продуктів",
@@ -156,6 +168,10 @@
         {
           "label": "LinkedIn",
           "href": "https://www.linkedin.com/in/володимир-іванейко-607650254"
+        },
+        {
+          "label": "Patreon CadEE.pro",
+          "href": "https://patreon.com/u93873537?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_fan&utm_content=copyLink"
         }
       ]
     },

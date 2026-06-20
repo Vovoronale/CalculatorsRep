@@ -22,6 +22,7 @@ import { CatalogRail } from "@/components/catalog-rail";
 import { DrawerBackdrop } from "@/components/drawer-backdrop";
 import { MobileTopBar } from "@/components/mobile-top-bar";
 import { SiteFooter } from "@/components/site-footer";
+import { SupportStrip } from "@/components/support-strip";
 import { WorkspaceTopBar, type Breadcrumb } from "@/components/workspace-top-bar";
 import {
   calculators,
@@ -484,6 +485,8 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
         </div>
       )}
 
+      <SupportStrip />
+
       {!showsIframe ? (
         <ul
           className="detail-use-cases"
@@ -555,6 +558,8 @@ function IframeCalculatorDetail({
           referrerPolicy="no-referrer-when-downgrade"
         />
       </div>
+
+      <SupportStrip />
 
       <details className="detail-about">
         <summary>Про калькулятор</summary>

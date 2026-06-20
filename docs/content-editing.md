@@ -15,6 +15,7 @@
 | `site.topbar` | IVapps top bar: products dropdown, мови, CTA | [`lib/site-content.ts`](../lib/site-content.ts) |
 | `site.workspace` | Тексти hero/каталогу/детальної сторінки | [`lib/site-content.ts`](../lib/site-content.ts) |
 | `site.footer` | Текст футера | [`lib/site-content.ts`](../lib/site-content.ts) |
+| `site.support` | Плашка підтримки, сторінка `/support`, CTA і Patreon URL | [`lib/site-content.ts`](../lib/site-content.ts) |
 | `site.authorPage` | Усі тексти `/author` | [`lib/site-content.ts`](../lib/site-content.ts) |
 | `site.legalPages` | Тексти `/disclaimer`, `/terms`, `/privacy` | [`lib/site-content.ts`](../lib/site-content.ts), [`lib/legal-pages.ts`](../lib/legal-pages.ts) |
 | `categories` | Категорії калькуляторів (бічна панель) | [`lib/calculators.ts`](../lib/calculators.ts) |
@@ -181,10 +182,22 @@
 ### Сторінка `/author`
 
 - `site.authorPage` — заголовки, інтро, фокус роботи, описи блоків.
+- `site.authorPage.socialLinks[]` — зовнішні профілі автора у форматі `{ label, href }`; усі відкриваються в новій вкладці.
 - `projectCategories[]` — групи продуктів у блоці «Екосистема продуктів». Кожна група має `slug`, `title`, `description`, `projects[]` (`{ slug, title, description, href }`).
 - `aiAssistants[]` — асистенти.
 
 Рендериться у [`components/author-view.tsx`](../components/author-view.tsx).
+
+### Підтримка проєкту
+
+`site.support` є єдиним джерелом контенту для тонкої плашки на сторінках калькуляторів і сторінки `/support`:
+
+- `stripLabel` — текст внутрішнього посилання на `/support`;
+- `eyebrow`, `title`, `paragraphs[]` — тексти сторінки підтримки;
+- `ctaLabel` — підпис кнопки Patreon;
+- `patreonHref` — повна зовнішня URL-адреса Patreon.
+
+Плашку рендерить [`components/support-strip.tsx`](../components/support-strip.tsx), сторінку — [`components/support-view.tsx`](../components/support-view.tsx). Patreon-кнопка відкривається в новій вкладці.
 
 ### Юридичні сторінки
 

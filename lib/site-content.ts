@@ -73,6 +73,15 @@ type Footer = {
   contactEmail: string;
 };
 
+export type SupportContent = {
+  stripLabel: string;
+  eyebrow: string;
+  title: string;
+  paragraphs: string[];
+  ctaLabel: string;
+  patreonHref: string;
+};
+
 type AuthorSocialLink = {
   label: string;
   href: string;
@@ -109,6 +118,7 @@ export type SiteContent = {
   topbar: Topbar;
   workspace: Workspace;
   footer: Footer;
+  support: SupportContent;
   authorPage: AuthorPage;
   legalPages: LegalPage[];
 };

@@ -10,6 +10,7 @@ describe("sitemap metadata route", () => {
 
     expect(urls).toContain("https://ivapps.pro/");
     expect(urls).toContain("https://ivapps.pro/author");
+    expect(urls).toContain("https://ivapps.pro/support");
     expect(urls).toContain("https://ivapps.pro/disclaimer");
     expect(urls).toContain("https://ivapps.pro/terms");
     expect(urls).toContain("https://ivapps.pro/privacy");
@@ -19,7 +20,7 @@ describe("sitemap metadata route", () => {
     }
 
     expect(new Set(urls).size).toBe(urls.length);
-    expect(entries).toHaveLength(calculators.length + 5);
+    expect(entries).toHaveLength(calculators.length + 6);
   });
 
   it("uses sensible priorities and change frequencies for SEO discovery", () => {

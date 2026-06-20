@@ -4,6 +4,9 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import AuthorPage from "@/app/author/page";
 
+const patreonHref =
+  "https://patreon.com/u93873537?utm_medium=unknown&utm_source=join_link&utm_campaign=creatorshare_fan&utm_content=copyLink";
+
 describe("AuthorPage", () => {
   afterEach(() => {
     cleanup();
@@ -49,6 +52,12 @@ describe("AuthorPage", () => {
       "href",
       "https://www.linkedin.com/in/володимир-іванейко-607650254",
     );
+    const patreonLink = within(workspace).getByRole("link", {
+      name: "Patreon CadEE.pro",
+    });
+    expect(patreonLink).toHaveAttribute("href", patreonHref);
+    expect(patreonLink).toHaveAttribute("target", "_blank");
+    expect(patreonLink).toHaveAttribute("rel", "noreferrer");
     expect(
       within(workspace).queryByRole("heading", { name: "Екосистема продуктів" }),
     ).not.toBeInTheDocument();
