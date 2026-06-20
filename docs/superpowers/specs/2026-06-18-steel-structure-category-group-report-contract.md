@@ -37,13 +37,12 @@ General presentation rules:
 - Use `⇒` or a sentence instead of `=>`.
 - Use `бал` when the number ends in 1 but not 11; `бали` when it ends in 2-4 but not 12-14; otherwise use `балів`. Required examples: `1 бал`, `2 бали`, `11 балів`, `21 бал`, `22 бали`, `111 балів`.
 - Do not show `Режим визначення: Автоматично`, candidate positions, an agreed matrix, internal profile codes such as `p6a`, program functions such as `обмежити(...)`, `вибрана конструкція`, or `вихідний рядок таблиці`.
-- Keep the step caption concise and show `Нормативна підстава: <source>` as a separate report line.
+- Each step caption states the engineering action, adds an applicability explanation when needed, and ends with the exact normative reference.
 
 Step 2 replacement:
 
 ```text
 За таблицею А.1 конструкцію «<structure_label>» віднесено до категорії <purpose_category> за призначенням і категорії <stress_category> за напруженим станом.
-Нормативна підстава: ДБН В.2.6-198:2014, Додаток А, таблиця А.1, позиція <a1_source_position>.
 ```
 
 Step 4 notation replacement:
@@ -65,7 +64,6 @@ Step 6 automatic-mode replacement for the default main beam:
 
 ```text
 Для головних балок при статичному навантаженні спеціальні значення коефіцієнта умов роботи за таблицею 5.1 не застосовуються. Відповідно до примітки 5 прийнято γ_c = 1,0.
-Нормативна підстава: ДБН В.2.6-198:2014, пункт 5.4.1, таблиця 5.1, примітка 5.
 ```
 
 For other automatic cases, describe only the factual construction attributes that select the applicable position and the accepted value. Never expose profile codes or the candidate-selection process. Semi-automatic and manual modes state the selected table position or that the value was accepted by the user, respectively.
@@ -83,7 +81,6 @@ Static load with tensile stress:
 Для статичного навантаження динамічна складова відсутня, тому прийнято σ_dyn = 0 МПа.
 α = |σ_dyn| / |σ_sum| = 0 / <sigma_sum> = 0
 За α = 0 конструкцію віднесено до категорії III за напруженим станом; прийнято S_3,A2 = 1 бал.
-Нормативна підстава: ДБН В.2.6-198:2014, Додаток А, пункт А.2, перший абзац.
 ```
 
 Dynamic load retains the same symbolic formula with the entered `σ_dyn` and `σ_sum`. The shared formula parser must render `α`, both absolute-value bars, and all subscripts without fallback or error markup.
@@ -104,7 +101,6 @@ When tensile stress exists:
 
 ```text
 Зменшення показника для статичного стиску не застосовується, оскільки в конструкції наявні розтягувальні напруження. Прийнято ΔS_compression = 0 балів.
-Нормативна підстава: ДБН В.2.6-198:2014, Додаток А, пункт А.2, третій абзац.
 ```
 
 When tensile stress does not exist and the load is static:
@@ -124,7 +120,6 @@ Step 10 replacement:
 ΔS_raw = ΔS_3 + ΔS_+ + ΔS_compression = <numeric substitution> = <raw> <бал/бали/балів>
 Відповідно до пункту А.2 сумарна зміна показника приймається в межах від −4 до +4 балів. Оскільки розрахункове значення ΔS_raw = <raw>, прийнято ΔS = <applied> <бал/бали/балів>.
 S_tot,A2 = S_tot,base + ΔS = <numeric substitution> = <total_a2> <бал/бали/балів>
-Нормативна підстава: ДБН В.2.6-198:2014, Додаток А, пункт А.2.
 ```
 
 Step 11 must show the complete table Г.1 audit path before the conclusion:
@@ -135,7 +130,6 @@ Step 11 must show the complete table Г.1 audit path before the conclusion:
 Товщина прокату: <thickness> мм.
 Умови експлуатації: <service_condition>.
 Перевірено рядок таблиці Г.1 для сталі <steel_class>, групи <group_a2> та зазначених умов. Застосування сталі <steel_class> <допускається/не допускається>.
-Нормативна підстава: ДБН В.2.6-198:2014, Додаток Г, таблиця Г.1, <cell_or_note_reference>.
 ```
 
 For the default case this text identifies group 3, section steel, thickness 10 mm, a heated building, steel C245, and the applicable group-3 cell of table Г.1. A bare `дозволено` or `не дозволено` result is forbidden.
@@ -1090,22 +1084,16 @@ Footnotes and overrides:
 The report always preserves stable steps and finite values. Conditional items
 and formulas follow the display rules below.
 The step definitions below incorporate the 2026-06-20 agreed revision and are
-the canonical implementation source. Every step has a concise `caption` and a
-separate `normativeBasis`; renderers prefix the latter with
-`Нормативна підстава:`.
+the canonical implementation source. Every `caption` states the engineering
+action, includes an applicability explanation when needed, and ends with the
+exact normative reference.
 
 ### 1. Вихідні дані
 
 Caption:
 
 ```text
-Вихідні дані для визначення категорій і групи конструкції
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, таблиця 5.1, таблиці 7.1 і 7.2, Додаток А, таблиці А.1 і А.2, Додаток Г, таблиці Г.1 і Г.5
+Вихідні дані для визначення категорій і групи конструкції згідно з таблицею 5.1, таблицями 7.1 і 7.2, таблицями А.1 і А.2 Додатка А та таблицями Г.1 і Г.5 Додатка Г ДБН В.2.6-198:2014:
 ```
 
 Items in order:
@@ -1141,13 +1129,7 @@ Rules:
 Caption:
 
 ```text
-Визначення категорій конструкції за призначенням і за напруженим станом
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, Додаток А, таблиця А.1, позиція <a1_source_position>
+Визначення категорій конструкції за призначенням і за напруженим станом згідно з позицією <a1_source_position> таблиці А.1 Додатка А ДБН В.2.6-198:2014:
 ```
 
 Result item:
@@ -1175,13 +1157,7 @@ Conditional note for manual hoists and manual crane beams:
 Caption:
 
 ```text
-Визначення показників окремих чинників S_1–S_5
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, Додаток А, таблиця А.2
+Визначення показників окремих чинників S_1–S_5 згідно з таблицею А.2 Додатка А ДБН В.2.6-198:2014:
 ```
 
 Items:
@@ -1205,13 +1181,7 @@ Note:
 Caption:
 
 ```text
-Визначення початкового показника та групи конструкції
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, Додаток А, пункт А.1
+Визначення початкового показника та групи конструкції згідно з пунктом А.1 Додатка А ДБН В.2.6-198:2014:
 ```
 
 Formulas:
@@ -1237,13 +1207,7 @@ Note:
 Caption:
 
 ```text
-Визначення розрахункового опору сталі R_y за границею текучості
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, пункт 7.1, таблиці 7.1 і 7.2, Додаток Г, таблиця Г.5
+Визначення розрахункового опору сталі R_y за границею текучості згідно з пунктом 7.1, таблицями 7.1 і 7.2 та таблицею Г.5 Додатка Г ДБН В.2.6-198:2014:
 ```
 
 Items:
@@ -1279,13 +1243,7 @@ Error:
 Caption:
 
 ```text
-Визначення коефіцієнта умов роботи γ_c
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, пункт 5.4.1, таблиця 5.1 та примітки 1–5
+Визначення коефіцієнта умов роботи γ_c з урахуванням ознак конструкції згідно з пунктом 5.4.1, таблицею 5.1 та примітками 1–5 ДБН В.2.6-198:2014:
 ```
 
 Automatic mode, default main beam:
@@ -1350,13 +1308,7 @@ Warning:
 Caption:
 
 ```text
-Уточнення категорії конструкції за напруженим станом після підбору перерізу
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, Додаток А, пункт А.2, перший абзац
+Уточнення категорії конструкції за напруженим станом після підбору перерізу за співвідношенням динамічної та сумарної складових розтягувального напруження згідно з першим абзацом пункту А.2 Додатка А ДБН В.2.6-198:2014:
 ```
 
 Dynamic load with tensile stress:
@@ -1418,13 +1370,7 @@ Errors:
 Caption:
 
 ```text
-Визначення додатних поправок до показника групи після підбору перерізу
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, Додаток А, пункт А.2, другий абзац
+Визначення додатних поправок до показника групи після підбору перерізу за товщиною прокату та технологічними чинниками згідно з другим абзацом пункту А.2 Додатка А ДБН В.2.6-198:2014:
 ```
 
 Items:
@@ -1459,13 +1405,7 @@ Note:
 Caption:
 
 ```text
-Перевірка умови зменшення показника групи при статичному стиску
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, Додаток А, пункт А.2, третій абзац
+Перевірка умови зменшення показника групи при статичному стиску з попередньою перевіркою відсутності розтягувальних напружень згідно з третім абзацом пункту А.2 Додатка А ДБН В.2.6-198:2014:
 ```
 
 Static load with tensile stress:
@@ -1522,13 +1462,7 @@ Error:
 Caption:
 
 ```text
-Уточнення показника та групи конструкції після підбору перерізу
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, Додаток А, пункт А.2
+Уточнення показника та групи конструкції після підбору перерізу з обмеженням сумарної зміни від −4 до +4 балів згідно з пунктом А.2 Додатка А ДБН В.2.6-198:2014:
 ```
 
 Formulas:
@@ -1558,13 +1492,7 @@ Notes:
 Caption:
 
 ```text
-Перевірка застосування вибраної сталі для уточненої групи конструкцій
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, Додаток Г, таблиця Г.1, <cell_or_note_reference>
+Перевірка застосування вибраної сталі за уточненою групою, видом і товщиною прокату та умовами експлуатації згідно з таблицею Г.1 Додатка Г ДБН В.2.6-198:2014, <cell_or_note_reference>:
 ```
 
 Items:
@@ -1605,13 +1533,7 @@ On error, set `valid = false` but preserve all calculated values and steps.
 Caption:
 
 ```text
-Висновок щодо категорій, групи конструкції та застосовності сталі
-```
-
-Normative basis:
-
-```text
-ДБН В.2.6-198:2014, Додаток А, пункти А.1 і А.2; Додаток Г, таблиця Г.1
+Висновок щодо категорій, групи конструкції та застосовності сталі згідно з пунктами А.1 і А.2 Додатка А та таблицею Г.1 Додатка Г ДБН В.2.6-198:2014:
 ```
 
 Items:

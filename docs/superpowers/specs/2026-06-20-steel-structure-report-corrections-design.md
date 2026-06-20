@@ -29,7 +29,7 @@ The calculation core remains responsible for applicability, comparisons, score a
 
 The shared plain-text formula parser gains support for `α` at the tokenizer/start-pattern and notation-conversion boundaries. Both KaTeX and DOCX continue to consume the same canonical formula strings.
 
-The shared report-step shape gains `normativeBasis?: string`. Web and DOCX render it once, immediately after the concise caption, prefixed with `Нормативна підстава:`. Normative references must not be duplicated in `caption`, `items`, or formulas.
+The existing report-step shape remains unchanged. Each `caption` contains the engineering action, an optional explanation of why the formula applies, and the exact normative reference. Web and DOCX render the same caption once; no separate normative-basis field is introduced.
 
 ## Data Flow
 
@@ -51,7 +51,7 @@ Use TDD for every behavior change.
 - Localization tests: decimal commas, mathematical identifiers, and representative score forms `1 бал`, `2 бали`, `11 балів`, `21 бал`.
 - Table Г.1 tests: allowed and forbidden cases include all row-selection parameters and the cell/note reference.
 - Export tests: the revised title appears once and the step 7 formula is emitted as valid DOCX math.
-- Report renderer tests: `normativeBasis` appears exactly once after its caption in both web and DOCX output.
+- Report renderer tests: the complete caption, including its normative reference, appears exactly once in both web and DOCX output.
 - Final verification: targeted Vitest suites, full tests, `npm run typecheck`, `npm run build`, browser inspection, and DOCX inspection.
 
 ## Error Handling
