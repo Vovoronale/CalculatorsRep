@@ -402,6 +402,17 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
     3,
   );
 
+  if (showsIframe && calculator.embedUrl) {
+    return (
+      <IframeCalculatorDetail
+        calculator={calculator}
+        embedUrl={calculator.embedUrl}
+        related={related}
+        onOpenModal={onOpenModal}
+      />
+    );
+  }
+
   return (
     <section className="detail-section" aria-labelledby="detail-title">
       <header className="detail-header">
@@ -427,16 +438,7 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
         ) : null}
       </header>
 
-      {showsIframe && calculator.embedUrl ? (
-        <div className="detail-embed">
-          <iframe
-            src={calculator.embedUrl}
-            title={calculator.title}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-        </div>
-      ) : showsNative ? (
+      {showsNative ? (
         <NativeCalculator calculator={calculator} />
       ) : calculator.displayMode === "modal" && calculator.embedUrl ? (
         <div className="detail-external">
@@ -513,6 +515,101 @@ function CalculatorDetail({ calculator, onOpenModal }: CalculatorDetailProps) {
           </div>
         </section>
       ) : null}
+    </section>
+  );
+}
+
+type IframeCalculatorDetailProps = {
+  calculator: Calculator;
+  embedUrl: string;
+  related: Calculator[];
+  onOpenModal: (calculator: Calculator) => void;
+};
+
+function IframeCalculatorDetail({
+  calculator,
+  embedUrl,
+  related,
+  onOpenModal,
+}: IframeCalculatorDetailProps) {
+  return (
+    <section className="detail-section detail-section--embed" aria-label={calculator.title}>
+      <h1 className="visually-hidden">{calculator.title}</h1>
+      <div className="detail-embed">
+        <iframe
+          src={embedUrl}
+          title={calculator.title}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+      </div>
+
+      <details className="detail-about">
+        <summary>Про калькулятор</summary>
+        <div className="detail-about__body">
+          <div className="detail-header__badges">
+            <span className="detail-badge detail-badge--accent">
+              {calculator.accessLabel}
+            </span>
+            {calculator.editorialLabel ? (
+              <span className="detail-badge detail-badge--neutral">
+                {calculator.editorialLabel}
+              </span>
+            ) : null}
+            {calculator.tools?.map((tool) => (
+              <span key={tool} className="detail-badge detail-badge--neutral">
+                {tool}
+              </span>
+            ))}
+          </div>
+
+          <div className="detail-about__intro">
+            <p className="detail-header__desc">{calculator.shortDescription}</p>
+            {calculator.description ? (
+              <p className="detail-header__long">{calculator.description}</p>
+            ) : null}
+          </div>
+
+          <ul className="detail-use-cases" aria-label={`Сценарії: ${calculator.title}`}>
+            {calculator.useCases.map((useCase) => (
+              <li key={useCase}>{useCase}</li>
+            ))}
+          </ul>
+
+          {calculator.tags && calculator.tags.length > 0 ? (
+            <ul className="detail-tags" aria-label={`Теги: ${calculator.title}`}>
+              {calculator.tags.map((tag) => (
+                <li key={tag}>#{tag}</li>
+              ))}
+            </ul>
+          ) : null}
+
+          <CalculatorSeoSections sections={getCalculatorSeoSections(calculator)} />
+
+          {related.length > 0 ? (
+            <section
+              className="workspace-section workspace-section--related"
+              aria-labelledby="detail-related-title"
+            >
+              <div className="workspace-section__head">
+                <h2 className="workspace-section__title" id="detail-related-title">
+                  Схожі калькулятори
+                </h2>
+              </div>
+              <div className="calc-grid calc-grid--compact">
+                {related.map((calc) => (
+                  <CalculatorCard
+                    key={calc.slug}
+                    calculator={calc}
+                    className="calc-card--compact"
+                    onOpenModal={onOpenModal}
+                  />
+                ))}
+              </div>
+            </section>
+          ) : null}
+        </div>
+      </details>
     </section>
   );
 }

@@ -290,6 +290,20 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByTitle("Теплотехнічний розрахунок огороджувальної конструкції будівлі"),
     ).toBeInTheDocument();
+    const iframe = screen.getByTitle(calculator.title);
+    const aboutSummary = screen.getByText("Про калькулятор");
+    const about = aboutSummary.closest("details");
+
+    expect(about).not.toBeNull();
+    expect(about).not.toHaveAttribute("open");
+    expect(
+      iframe.compareDocumentPosition(about as HTMLElement) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      within(about as HTMLElement).getAllByText(calculator.shortDescription).length,
+    ).toBeGreaterThan(0);
+    expect(document.querySelectorAll("h1")).toHaveLength(1);
     expect(
       screen.getAllByRole("link", { name: /Відкрити окремо/ })[0],
     ).toHaveAttribute("href", calculator.openUrl);
@@ -300,6 +314,14 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByRole("link", { name: "Огороджувальні конструкції" }),
     ).toHaveAttribute("href", "/#ogorodzhuvalni-konstruktsiyi");
+
+    const css = readFileSync("app/globals.css", "utf8");
+    expect(css).toMatch(
+      /\.detail-section--embed \.detail-embed iframe\s*{[\s\S]*?height:\s*calc\(100dvh - 88px\);/,
+    );
+    expect(css).toMatch(
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.detail-section--embed \.detail-embed iframe\s*{[\s\S]*?height:\s*calc\(100dvh - 104px\);/,
+    );
   });
 
   it("renders calculator detail pages with a single H1 and SEO methodology sections", () => {
