@@ -868,7 +868,7 @@ describe("CalculatorShell", () => {
     expect(
       screen.getByLabelText("Калькулятор категорій і груп сталевих конструкцій"),
     ).toHaveClass("native-calculator");
-    expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Розрахунок категорій і групи сталевої конструкції" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
   });
 
