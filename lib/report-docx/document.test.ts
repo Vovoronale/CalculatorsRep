@@ -33,6 +33,32 @@ describe("buildReportDocxDocument", () => {
     expect(footer).toContain("PAGE");
   });
 
+  it("renders a native table and can omit the repeated step heading", async () => {
+    const report: DocxReportDocument = {
+      title: "Розрахунок площ",
+      fileBaseName: "table-report",
+      includeStepHeading: false,
+      steps: [
+        {
+          key: "summary",
+          caption: "Підсумок",
+          table: {
+            columns: ["Вид", "Площа"],
+            rows: [["Дитячі", "70 м²"]],
+          },
+        },
+      ],
+    };
+
+    const buffer = await Packer.toBuffer(buildReportDocxDocument(report));
+    const zip = await JSZip.loadAsync(buffer);
+    const documentXml = await zip.file("word/document.xml")?.async("string");
+
+    expect(documentXml).toContain("<w:tbl>");
+    expect(documentXml).toContain("Дитячі");
+    expect(documentXml).not.toContain("Покроковий звіт");
+  });
+
   it("plans math paragraphs for supported formulas", () => {
     const plan = getFormulaRenderPlan("R = γc1 * γc2 / k = 162.82 кПа");
 

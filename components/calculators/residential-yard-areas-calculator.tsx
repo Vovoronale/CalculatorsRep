@@ -118,6 +118,7 @@ const SITE_AREA_PER_APARTMENT_UNITS = [
 ];
 
 const INITIAL_DISPLAY_UNITS: Record<string, string> = {
+  limitedUseGreeneryAreaM2: "m2",
   manualVacuumAreaM2: "m2",
   householdAreaPerPersonM2: "m2",
   householdAreaPerApartmentM2: "m2",
@@ -159,7 +160,7 @@ export const RESIDENTIAL_YARD_AREAS_INPUT_SCHEMA: CalculatorInputSchema = {
           id: "twoOrMoreRoomApartments",
           kind: "number",
           prefix: { text: "N", subscript: "2+", ariaLabel: "N_2+" },
-          name: "Кількість дво- та більше кімнатних квартир",
+          name: "Кількість квартир із двома і більше кімнатами",
           defaultValue: String(
             DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT.twoOrMoreRoomApartments,
           ),
@@ -204,13 +205,20 @@ export const RESIDENTIAL_YARD_AREAS_INPUT_SCHEMA: CalculatorInputSchema = {
             "Оберіть «Так», якщо проєктом передбачена окрема озеленена зона з фізкультурними майданчиками, яка обслуговує мікрорайон або групу житлових кварталів. Без такого підтвердження зменшення питомої площі з 2,0 до 0,2 м²/особу та з 5,0 до 0,5 м²/квартиру не допускається. Джерело: примітка * до таблиці 6.4 ДБН Б.2.2-12:2019.",
         },
         {
-          id: "hasRequiredLimitedUseGreenery",
-          kind: "checkbox",
-          name: "Забезпечено 6 м² зелених насаджень на одну особу",
-          defaultValue: false,
+          id: "limitedUseGreeneryAreaM2",
+          kind: "number",
+          prefix: { text: "S", subscript: "озел,факт", ariaLabel: "S_озел,факт" },
+          name: "Фактична площа зелених насаджень обмеженого користування",
+          defaultValue: "",
+          min: 0,
+          step: "0.01",
+          required: true,
+          baseUnit: "m2",
+          defaultDisplayUnit: "m2",
+          displayUnits: [SITE_AREA_UNITS[0]],
           showWhen: { fieldId: "physicalCultureMode", equals: "reduced" },
           description:
-            "Оберіть «Так», якщо розрахунком озеленення підтверджено не менше 6 м² зелених насаджень обмеженого користування на кожного мешканця. Checkbox підтверджує умову застосування зменшеного нормативу фізкультурних майданчиків; сам калькулятор площу озеленення не перевіряє. Джерело: примітка * до таблиці 6.4 ДБН Б.2.2-12:2019.",
+            "Введіть фактичну площу зелених насаджень обмеженого користування за проєктною документацією. Значення порівнюється з мінімальною площею 6 м² на одного мешканця та визначає можливість застосування зменшеного нормативу фізкультурних майданчиків. Джерело: примітка * до таблиці 6.4 ДБН Б.2.2-12:2019.",
         },
       ],
     },
@@ -245,7 +253,7 @@ export const RESIDENTIAL_YARD_AREAS_INPUT_SCHEMA: CalculatorInputSchema = {
           displayUnits: SITE_AREA_UNITS,
           showWhen: { fieldId: "wasteCollectionMethod", equals: "vacuum" },
           description:
-            "Введіть площу майданчика або технологічної зони вакуумної системи, прийняту в проєкті за містобудівними та технічними умовами. Значення безпосередньо включається в підсумок замість автоматичного розрахунку за кількістю осіб і квартир. Калькулятор не перевіряє достатність площі, компонування обладнання, під’їзди та нормативні відстані; відповідальність за обґрунтування значення залишається за користувачем. Джерело: п. 6.1.22 і таблиця 6.5 ДБН Б.2.2-12:2019.",
+            "Введіть площу майданчика або технологічної зони вакуумної системи, визначену в проєкті за містобудівними та технічними умовами. Значення безпосередньо включається в підсумок замість автоматичного розрахунку за кількістю осіб і квартир. Перевірка достатності площі, компонування обладнання, під’їздів і нормативних відстаней не входить до цього розрахунку; обґрунтування значення має бути наведено у проєктній документації. Джерело: п. 6.1.22 і таблиця 6.5 ДБН Б.2.2-12:2019.",
         },
       ],
     },
@@ -259,7 +267,7 @@ export const RESIDENTIAL_YARD_AREAS_INPUT_SCHEMA: CalculatorInputSchema = {
           name: "Передбачити господарські майданчики",
           defaultValue: false,
           description:
-            "Оберіть «Так», якщо проєктом передбачені майданчики для господарських цілей, зокрема для сушіння білизни або чищення килимів. Після вибору калькулятор покаже два питомі значення, розрахує площу за кількістю осіб і квартир та включить більший результат у підсумок. Примітка 2 дозволяє облаштовувати такі майданчики, але не встановлює їх безумовної обов’язковості. Джерело: примітка 2 до таблиці 6.4 ДБН Б.2.2-12:2019.",
+            "Оберіть «Так», якщо проєктом передбачені майданчики для господарських цілей, зокрема для сушіння білизни або чищення килимів. Після вибору відображаються два питомі значення; площа визначається за кількістю осіб і квартир, а більший результат включається в підсумок. Примітка 2 дозволяє облаштовувати такі майданчики, але не встановлює їх безумовної обов’язковості. Джерело: примітка 2 до таблиці 6.4 ДБН Б.2.2-12:2019.",
         },
         {
           id: "householdAreaPerPersonM2",
@@ -314,6 +322,7 @@ function inputFromValues(
   displayUnits: Record<string, string>,
 ): ResidentialYardAreasInput {
   const manualVacuumArea = parseNumber(values.manualVacuumAreaM2);
+  const limitedUseGreeneryArea = parseNumber(values.limitedUseGreeneryAreaM2);
   return {
     residents: parseNumber(values.residents),
     oneRoomApartments: parseNumber(values.oneRoomApartments),
@@ -322,8 +331,9 @@ function inputFromValues(
       values.physicalCultureMode === "reduced" ? "reduced" : "full",
     hasSeparateLandscapedPhysicalCultureZone:
       values.hasSeparateLandscapedPhysicalCultureZone === true,
-    hasRequiredLimitedUseGreenery:
-      values.hasRequiredLimitedUseGreenery === true,
+    limitedUseGreeneryAreaM2: Number.isFinite(limitedUseGreeneryArea)
+      ? limitedUseGreeneryArea
+      : null,
     wasteCollectionMethod:
       values.wasteCollectionMethod === "underground" ||
       values.wasteCollectionMethod === "vacuum"
@@ -358,7 +368,7 @@ function normalizeDependentValues(
   const next = { ...values };
   if (next.physicalCultureMode !== "reduced") {
     next.hasSeparateLandscapedPhysicalCultureZone = false;
-    next.hasRequiredLimitedUseGreenery = false;
+    next.limitedUseGreeneryAreaM2 = "";
   }
   if (next.wasteCollectionMethod !== "vacuum") {
     next.manualVacuumAreaM2 = "";
@@ -377,9 +387,14 @@ function getFieldValidationErrors(
   const mappings: Array<[string, string]> = [
     ["Кількість мешканців", "residents"],
     ["Кількість однокімнатних квартир", "oneRoomApartments"],
-    ["Кількість дво- та більше кімнатних квартир", "twoOrMoreRoomApartments"],
+    ["Кількість квартир із двома і більше кімнатами", "twoOrMoreRoomApartments"],
     ["Загальна кількість квартир", "twoOrMoreRoomApartments"],
+    [
+      "Зменшений норматив не можна застосувати: фактична площа",
+      "limitedUseGreeneryAreaM2",
+    ],
     ["Зменшений норматив", "physicalCultureMode"],
+    ["Введіть фактичну площу", "limitedUseGreeneryAreaM2"],
     ["Для вакуумного способу", "manualVacuumAreaM2"],
     ["на одну особу", "householdAreaPerPersonM2"],
     ["на одну квартиру", "householdAreaPerApartmentM2"],
@@ -457,10 +472,11 @@ export function buildResidentialYardAreasDocxReport(
   date = new Date(),
 ) {
   return buildNativeDocxReport({
-    title: "Покроковий звіт",
+    title: "Розрахунок площ майданчиків у складі прибудинкової території",
     fileBaseName: `ploshchi-prybudynkovykh-maidanchykiv-${formatDocxFileDate(
       date,
     )}`,
+    includeStepHeading: false,
     steps: report.steps as NativeReportStep[],
   });
 }
@@ -569,7 +585,7 @@ export function ResidentialYardAreasCalculator() {
       summary={
         result ? (
           <p>
-            Sприбуд = {formatResidentialYardAreaNumber(result.insideBoundaryAreaM2)} м²
+            S_(прибуд) = {formatResidentialYardAreaNumber(result.insideBoundaryAreaM2)} м²
           </p>
         ) : null
       }
@@ -592,63 +608,58 @@ export function ResidentialYardAreasCalculator() {
           className="residential-yard-results"
           aria-label="Результати розрахунку площ майданчиків"
         >
-          <AreaResultCard title="Дитячі майданчики" symbol="Sдіт" result={result.children} />
+          <AreaResultCard title="Дитячі майданчики" symbol="S_(діт)" result={result.children} />
           <AreaResultCard
             title="Відпочинок дорослих"
-            symbol="Sвідп"
+            symbol="S_(відп)"
             result={result.adultRecreation}
           />
           <AreaResultCard
             title="Фізкультурні майданчики"
-            symbol="Sфіз"
+            symbol="S_(фіз)"
             result={result.physicalCulture}
           />
           <article className="residential-yard-result">
             <h4>Гостьова стоянка</h4>
             <strong>
-              Nгост = {result.guestParkingSpaces}; Sгост ={` `}
+              N_(гост) = {result.guestParkingSpaces}; S_(гост) ={` `}
               {formatResidentialYardAreaNumber(result.guestParkingAreaM2)} м²
             </strong>
             <span>За складом квартир</span>
           </article>
           <AreaResultCard
             title="Стоянка велосипедів"
-            symbol="Sвел"
+            symbol="S_(вел)"
             result={result.bicycleParking}
           />
           <AreaResultCard
             title="Збирання відходів"
-            symbol="Sвідх"
+            symbol="S_(відх)"
             result={result.wasteCollection}
           />
           <AreaResultCard
             title="Господарські майданчики"
-            symbol="Sгосп"
+            symbol="S_(госп)"
             result={result.householdPurpose}
           />
           <AreaResultCard
             title="Вигул домашніх тварин"
-            symbol="Sтвар"
+            symbol="S_(твар)"
             result={result.petWalking}
             className="residential-yard-result--outside"
             note="Поза межами прибудинкової території"
           />
           <TotalResultCard
             title="У межах прибудинкової території"
-            symbol="Sприбуд"
+            symbol="S_(прибуд)"
             value={result.insideBoundaryAreaM2}
-          />
-          <TotalResultCard
-            title="Загальна територіальна потреба"
-            symbol="Sтер"
-            value={result.territorialNeedAreaM2}
           />
         </section>
       ) : null}
 
       <NativeReport
         titleId="residential-yard-report-title"
-        title="Покроковий звіт"
+        title="Розрахунок площ майданчиків у складі прибудинкової території"
         steps={report.steps}
         actions={
           <ReportDocxButton report={buildResidentialYardAreasDocxReport(report)} />

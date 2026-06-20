@@ -135,6 +135,12 @@ export const REPORT_SYMBOLS = Object.keys(NAMED_SYMBOLS).sort(
 );
 
 export function reportSymbolToLatex(symbol: string): string {
+  const explicitIndex = symbol.match(/^(.+)_\(([^)]+)\)$/u);
+  if (explicitIndex) {
+    const [, base, subscript] = explicitIndex;
+    return `${baseToLatex(base)}_{\\text{${subscript}}}`;
+  }
+
   const named = NAMED_SYMBOLS[symbol];
   if (named) return named;
 

@@ -6,7 +6,11 @@ import {
   ImageRun,
   PageNumber,
   Paragraph,
+  Table,
+  TableCell,
+  TableRow,
   TextRun,
+  WidthType,
 } from "docx";
 
 import { createDocxMathParagraphs } from "./math-docx";
@@ -59,7 +63,31 @@ function formulaParagraphs(formula: string): Paragraph[] {
   return [textParagraph(plan.text)];
 }
 
-function stepParagraphs(step: DocxReportStep, index: number): Paragraph[] {
+function reportTable(step: DocxReportStep): Table[] {
+  if (!step.table) return [];
+
+  const row = (cells: string[], bold = false) =>
+    new TableRow({
+      children: cells.map(
+        (cell) =>
+          new TableCell({
+            children: [textParagraph(cell, { bold })],
+          }),
+      ),
+    });
+
+  return [
+    new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      rows: [
+        row(step.table.columns, true),
+        ...step.table.rows.map((cells) => row(cells)),
+      ],
+    }),
+  ];
+}
+
+function stepParagraphs(step: DocxReportStep, index: number): Array<Paragraph | Table> {
   const formulas = [
     ...(step.formula ? [step.formula] : []),
     ...(step.formulas ?? []),
@@ -81,6 +109,7 @@ function stepParagraphs(step: DocxReportStep, index: number): Paragraph[] {
         children: [new TextRun({ text: item, bold: true })],
       }),
     ),
+    ...reportTable(step),
   ];
 }
 
@@ -98,16 +127,20 @@ export function getFormulaRenderPlan(formula: string): FormulaRenderPlan {
 }
 
 export function buildReportDocxDocument(report: DocxReportDocument): Document {
-  const children: Paragraph[] = [
+  const children: Array<Paragraph | Table> = [
     new Paragraph({
       heading: HeadingLevel.TITLE,
       children: [new TextRun(report.title)],
     }),
     ...(report.figures ?? []).flatMap(figureParagraphs),
-    new Paragraph({
-      heading: HeadingLevel.HEADING_1,
-      children: [new TextRun("Покроковий звіт")],
-    }),
+    ...(report.includeStepHeading === false
+      ? []
+      : [
+          new Paragraph({
+            heading: HeadingLevel.HEADING_1,
+            children: [new TextRun("Покроковий звіт")],
+          }),
+        ]),
     ...report.steps.flatMap(stepParagraphs),
   ];
 

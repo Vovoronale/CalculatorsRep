@@ -1,8 +1,71 @@
 import { describe, expect, it } from "vitest";
 
+import {
+  DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
+  getResidentialYardAreasReport,
+} from "../residential-yard-areas";
 import { parseDocxFormula } from "./math-parser";
 
+function reportFormulas(
+  report: ReturnType<typeof getResidentialYardAreasReport>,
+): string[] {
+  return report.steps.flatMap((step) => [
+    ...(step.formula ? [step.formula] : []),
+    ...(step.formulas ?? []),
+  ]);
+}
+
 describe("parseDocxFormula", () => {
+  it("parses every formula in the default residential-yard report", () => {
+    const formulas = reportFormulas(
+      getResidentialYardAreasReport(DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT),
+    );
+
+    expect(
+      formulas.filter((formula) => !parseDocxFormula(formula).ok),
+    ).toEqual([]);
+  });
+
+  it("parses every formula in the reduced residential-yard report", () => {
+    const formulas = reportFormulas(
+      getResidentialYardAreasReport({
+        ...DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
+        physicalCultureMode: "reduced",
+        hasSeparateLandscapedPhysicalCultureZone: true,
+        limitedUseGreeneryAreaM2: 600,
+      }),
+    );
+
+    expect(
+      formulas.filter((formula) => !parseDocxFormula(formula).ok),
+    ).toEqual([]);
+  });
+
+  it("parses explicit parenthesized indices as one symbol", () => {
+    const result = parseDocxFormula(
+      "N_(гост) = N_(2+) = 6; S_(прибуд) = 277,2 м²",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.statements[0].expression).toMatchObject({
+      type: "chain",
+      parts: [
+        { type: "symbol", base: "N", subscript: "гост" },
+        { type: "symbol", base: "N", subscript: "2+" },
+        { type: "number", value: "6" },
+      ],
+    });
+    expect(result.statements[1].expression).toMatchObject({ type: "chain" });
+    const secondExpression = result.statements[1].expression;
+    if (secondExpression.type !== "chain") throw new Error("Expected chain");
+    expect(secondExpression.parts[0]).toMatchObject({
+      type: "symbol",
+      base: "S",
+      subscript: "прибуд",
+    });
+  });
+
   it("parses equality chains with symbols, units, and multiplication", () => {
     const source =
       "R = γc1 * γc2 / k * [Mγ * kz * b * γ11 + Mc * c11] = 162.82 кПа";

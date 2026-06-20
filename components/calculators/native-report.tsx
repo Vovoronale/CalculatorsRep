@@ -12,6 +12,7 @@ export type NativeReportStep = {
   formula?: string;
   formulas?: string[];
   resultItems?: string[];
+  table?: { columns: string[]; rows: string[][] };
 };
 
 type NativeReportProps = {
@@ -57,6 +58,32 @@ export function NativeReport({
                   {step.notes.map((note) => (
                     <p key={note}>{renderText(note)}</p>
                   ))}
+                </div>
+              ) : null}
+              {step.table ? (
+                <div className="native-report__table-wrap">
+                  <table className="native-report__table">
+                    <thead>
+                      <tr>
+                        {step.table.columns.map((column) => (
+                          <th key={column} scope="col">
+                            {renderText(column)}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {step.table.rows.map((row, rowIndex) => (
+                        <tr key={`${step.key}-${rowIndex}`}>
+                          {row.map((cell, cellIndex) => (
+                            <td key={`${step.key}-${rowIndex}-${cellIndex}`}>
+                              {renderText(cell)}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               ) : null}
               {formulas.map((formula) => (

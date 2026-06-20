@@ -60,7 +60,6 @@ describe("calculateResidentialYardAreas", () => {
         basis: "residents",
       },
       insideBoundaryAreaM2: 457.2,
-      territorialNeedAreaM2: 487.2,
     });
   });
 
@@ -90,15 +89,32 @@ describe("calculateResidentialYardAreas", () => {
       ...DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
       physicalCultureMode: "reduced",
       hasSeparateLandscapedPhysicalCultureZone: true,
-      hasRequiredLimitedUseGreenery: true,
+      limitedUseGreeneryAreaM2: 600,
     });
 
+    expect(values.minimumLimitedUseGreeneryAreaM2).toBe(600);
+    expect(values.effectivePhysicalCultureMode).toBe("reduced");
     expect(values.physicalCulture).toEqual({
       byResidentsM2: 20,
       byApartmentsM2: 20,
       adoptedM2: 20,
       basis: "equal",
     });
+    expect(values.insideBoundaryAreaM2).toBe(277.2);
+  });
+
+  it("falls back to the full physical-culture rates below the greenery threshold", () => {
+    const values = calculateResidentialYardAreas({
+      ...DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
+      physicalCultureMode: "reduced",
+      hasSeparateLandscapedPhysicalCultureZone: true,
+      limitedUseGreeneryAreaM2: 599.99,
+    });
+
+    expect(values.minimumLimitedUseGreeneryAreaM2).toBe(600);
+    expect(values.effectivePhysicalCultureMode).toBe("full");
+    expect(values.physicalCulture.adoptedM2).toBe(200);
+    expect(values.insideBoundaryAreaM2).toBe(457.2);
   });
 
   it("calculates underground and manual vacuum waste areas", () => {
@@ -165,14 +181,13 @@ describe("calculateResidentialYardAreas", () => {
     },
   );
 
-  it("excludes pet walking from the inside-boundary subtotal", () => {
+  it("keeps pet walking separate from the inside-boundary subtotal", () => {
     const values = calculateResidentialYardAreas(
       DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
     );
 
-    expect(values.territorialNeedAreaM2).toBe(
-      values.insideBoundaryAreaM2 + values.petWalking.adoptedM2,
-    );
+    expect(values).not.toHaveProperty("territorialNeedAreaM2");
+    expect(values.petWalking.adoptedM2).toBe(30);
   });
 });
 
@@ -198,21 +213,26 @@ describe("getResidentialYardAreasReport", () => {
     "pet-walking",
     "household-purpose",
     "inside-boundary-total",
-    "territorial-need",
-    "conclusion",
+    "summary",
+    "conditions",
   ];
 
-  it("keeps the canonical 12-step order and global warnings", () => {
+  it("keeps the canonical 12-step order without global warnings", () => {
     const report = getResidentialYardAreasReport(
       DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
     );
 
     expect(report.valid).toBe(true);
     expect(report.steps.map((step) => step.key)).toEqual(expectedStepKeys);
-    expect(report.warnings).toEqual([
-      "Для кожного виду майданчика приймається більша площа з розрахунків за кількістю мешканців і квартир. Це погоджене консервативне правило калькулятора, а не окрема вимога ДБН.",
-      "Розрахунок площ не підтверджує можливість фактичного розміщення майданчиків. Проєктом окремо перевіряють нормативні відстані, озеленення, інсоляцію, проїзди, протипожежні вимоги, технічні умови та місцеві містобудівні обмеження.",
-    ]);
+    expect(report.warnings).toEqual([]);
+    expect(
+      report.steps
+        .flatMap((step) => step.items ?? [])
+        .filter((item) => item.startsWith("Кількість мешканців:")),
+    ).toHaveLength(1);
+    expect(JSON.stringify(report.steps)).not.toMatch(
+      /користувач|калькулятор|алгоритм|ceil\(|Sтер/iu,
+    );
   });
 
   it("uses the exact approved default formulas", () => {
@@ -224,19 +244,26 @@ describe("getResidentialYardAreasReport", () => {
       "Визначення площі майданчиків для ігор дітей дошкільного і молодшого шкільного віку (п. 6.1.21, таблиця 6.4 ДБН Б.2.2-12:2019):",
     );
     expect(report.steps[1]?.formulas).toEqual([
-      "Sдіт,ос = qдіт,ос × Nосіб = 0,7 × 100 = 70 м²",
-      "Sдіт,кв = qдіт,кв × Nкв = 1,75 × 40 = 70 м²",
-      "Sдіт = max(Sдіт,ос; Sдіт,кв) = max(70; 70) = 70 м²",
+      "S_(діт,осіб) = q_(діт,осіб) × N_(осіб) = 0,7 × 100 = 70 м²",
+      "S_(діт,кв) = q_(діт,кв) × N_(кв) = 1,75 × 40 = 70 м²",
+      "S_(діт) = max(S_(діт,осіб); S_(діт,кв)) = max(70; 70) = 70 м²",
+    ]);
+    expect(report.steps[3]?.items).toEqual([
+      "Режим розрахунку: повний норматив",
+    ]);
+    expect(report.steps[3]?.formulas).toEqual([
+      "q_(фіз,осіб) = 2,0 м²/особу",
+      "q_(фіз,кв) = 5,0 м²/квартиру",
+      "S_(фіз,осіб) = q_(фіз,осіб) × N_(осіб) = 2,0 × 100 = 200 м²",
+      "S_(фіз,кв) = q_(фіз,кв) × N_(кв) = 5,0 × 40 = 200 м²",
+      "S_(фіз) = max(S_(фіз,осіб); S_(фіз,кв)) = max(200; 200) = 200 м²",
     ]);
     expect(report.steps[4]?.formulas).toEqual([
-      "Nгост = ceil(0,15 × (0,5 × N₁ + N₂+)) = ceil(0,15 × (0,5 × 0 + 40)) = 6 машиномісць",
-      "Sгост = 25 × Nгост = 25 × 6 = 150 м²",
+      "N_(гост) = ⌈0,15 × (0,5 × N_(1) + N_(2+))⌉ = ⌈0,15 × (0,5 × 0 + 40)⌉ = 6 машиномісць",
+      "S_(гост) = 25 × N_(гост) = 25 × 6 = 150 м²",
     ]);
     expect(report.steps[9]?.formula).toBe(
-      "Sприбуд = Sдіт + Sвідп + Sфіз + Sгост + Sвел + Sвідх + Sгосп = 70 + 20 + 200 + 150 + 10 + 7,2 + 0 = 457,2 м²",
-    );
-    expect(report.steps[10]?.formula).toBe(
-      "Sтер = Sприбуд + Sтвар = 457,2 + 30 = 487,2 м²",
+      "S_(прибуд) = S_(діт) + S_(відп) + S_(фіз) + S_(гост) + S_(вел) + S_(відх) + S_(госп) = 70 + 20 + 200 + 150 + 10 + 7,2 + 0 = 457,2 м²",
     );
   });
 
@@ -263,18 +290,46 @@ describe("getResidentialYardAreasReport", () => {
       ...DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
       physicalCultureMode: "reduced",
       hasSeparateLandscapedPhysicalCultureZone: true,
-      hasRequiredLimitedUseGreenery: true,
+      limitedUseGreeneryAreaM2: 600,
     });
 
     expect(report.valid).toBe(true);
+    expect(report.steps[3]?.items).toEqual([
+      "Режим розрахунку: зменшений норматив",
+    ]);
     expect(report.steps[3]?.formulas).toEqual([
-      "Sфіз,ос = qфіз,ос × Nосіб = 0,2 × 100 = 20 м²",
-      "Sфіз,кв = qфіз,кв × Nкв = 0,5 × 40 = 20 м²",
-      "Sфіз = max(Sфіз,ос; Sфіз,кв) = max(20; 20) = 20 м²",
+      "S_(озел,мін) = 6 × N_(осіб) = 6 × 100 = 600 м²",
+      "Фактична площа зелених насаджень обмеженого користування: S_(озел,факт) = 600 м²",
+      "S_(озел,факт) ≥ S_(озел,мін): 600 ≥ 600 — умову виконано",
+      "q_(фіз,осіб) = 0,2 м²/особу",
+      "q_(фіз,кв) = 0,5 м²/квартиру",
+      "S_(фіз,осіб) = q_(фіз,осіб) × N_(осіб) = 0,2 × 100 = 20 м²",
+      "S_(фіз,кв) = q_(фіз,кв) × N_(кв) = 0,5 × 40 = 20 м²",
+      "S_(фіз) = max(S_(фіз,осіб); S_(фіз,кв)) = max(20; 20) = 20 м²",
     ]);
     expect(report.steps[0]?.items).toContain(
-      "Окрема озеленена зона з фізкультурними майданчиками: підтверджено",
+      "Окрему озеленену зону з фізкультурними майданчиками передбачено проєктом.",
     );
+    expect(report.steps[0]?.items).toContain(
+      "Фактична площа зелених насаджень обмеженого користування: S_(озел,факт) = 600 м²",
+    );
+    expect(report.steps[10]?.table).toEqual({
+      columns: ["Вид майданчика", "Розрахункова база", "Площа", "Місце розташування"],
+      rows: expect.arrayContaining([
+        [
+          "Сумарна площа майданчиків у межах прибудинкової території",
+          "Сума розрахункових площ",
+          "S_(прибуд) = 277,2 м²",
+          "У межах прибудинкової території",
+        ],
+        [
+          "Майданчик для вигулу домашніх тварин",
+          "Кількість мешканців",
+          "S_(твар) = 30 м²",
+          "Поза межами прибудинкової території",
+        ],
+      ]),
+    });
   });
 
   it("reports manual area conversions without changing the normalized formula", () => {
@@ -286,11 +341,11 @@ describe("getResidentialYardAreasReport", () => {
     });
 
     expect(report.steps[0]?.items).toContain(
-      "Площа майданчика для збирання відходів, прийнята за технічними умовами: Sвідх,руч = 0,08 ар = 8 м²",
+      "Площа майданчика для збирання відходів: S_(відх,руч) = 0,08 ар = 8 м²",
     );
-    expect(report.steps[6]?.formula).toBe("Sвідх = Sвідх,руч = 8 м²");
+    expect(report.steps[6]?.formula).toBe("S_(відх) = S_(відх,руч) = 8 м²");
     expect(report.steps[6]?.resultItems).toContain(
-      "Розрахункова база, що визначила площу: ручне значення за технічними умовами",
+      "Площу визначено відповідно до містобудівних і технічних умов.",
     );
   });
 
@@ -305,7 +360,7 @@ describe("getResidentialYardAreasReport", () => {
     ],
     [
       { twoOrMoreRoomApartments: 2.5 },
-      "Кількість дво- та більше кімнатних квартир має бути цілим числом, не меншим за 0.",
+      "Кількість квартир із двома і більше кімнатами має бути цілим числом, не меншим за 0.",
     ],
     [
       { oneRoomApartments: 0, twoOrMoreRoomApartments: 0 },
@@ -330,9 +385,44 @@ describe("getResidentialYardAreasReport", () => {
     });
 
     expect(report.errors).toEqual([
-      "Зменшений норматив не можна застосувати без окремої озелененої зони з фізкультурними майданчиками.",
-      "Зменшений норматив не можна застосувати без забезпечення не менше 6 м² зелених насаджень обмеженого користування на одну особу.",
+      "Зменшений норматив не можна застосувати: окрему озеленену зону з фізкультурними майданчиками не передбачено проєктом.",
+      "Введіть фактичну площу зелених насаджень обмеженого користування, не меншу за 0 м².",
     ]);
+    expect(report.values?.effectivePhysicalCultureMode).toBe("full");
+    expect(report.steps[0]?.items).toContain(
+      "Фактична площа зелених насаджень обмеженого користування: не введено",
+    );
+    expect(report.steps[3]?.items).toContain(
+      "Умови застосування зменшеного нормативу не виконано; розрахунок виконано за повним нормативом.",
+    );
+  });
+
+  it("reports an insufficient greenery area and uses the full norm", () => {
+    const report = getResidentialYardAreasReport({
+      ...DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
+      physicalCultureMode: "reduced",
+      hasSeparateLandscapedPhysicalCultureZone: true,
+      limitedUseGreeneryAreaM2: 599,
+    });
+
+    expect(report.errors).toContain(
+      "Зменшений норматив не можна застосувати: фактична площа зелених насаджень обмеженого користування має бути не меншою за 600 м².",
+    );
+    expect(report.values?.effectivePhysicalCultureMode).toBe("full");
+    expect(report.values?.insideBoundaryAreaM2).toBe(457.2);
+    expect(report.steps[3]?.formulas).toContain(
+      "S_(озел,факт) ≥ S_(озел,мін): 599 ≥ 600 — умову не виконано",
+    );
+  });
+
+  it("collects every limitation in the final step", () => {
+    const report = getResidentialYardAreasReport(DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT);
+
+    expect(report.steps[11]?.caption).toBe("Умови застосування результатів:");
+    expect(report.steps[11]?.items).toContain(
+      "Перевірка фактичного розміщення, під’їздів і нормативних відстаней не входить до цього розрахунку.",
+    );
+    expect(report.steps.slice(0, 11).flatMap((step) => step.notes ?? [])).toEqual([]);
   });
 
   it("validates vacuum and household-purpose conditional values only when active", () => {

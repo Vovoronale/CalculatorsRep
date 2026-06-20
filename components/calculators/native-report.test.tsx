@@ -16,6 +16,29 @@ describe("NativeReport", () => {
     expect(resultItemsRule).toMatch(/padding-left:\s*18px;/);
   });
 
+  it("renders a semantic summary table", () => {
+    render(
+      <NativeReport
+        title="Розрахунок"
+        titleId="report-title"
+        steps={[
+          {
+            key: "summary",
+            caption: "Підсумок",
+            table: {
+              columns: ["Вид", "База", "Площа", "Розташування"],
+              rows: [["Дитячі", "Мешканці", "70 м²", "У межах"]],
+            },
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(screen.getAllByRole("columnheader")).toHaveLength(4);
+    expect(screen.getByRole("cell", { name: "70 м²" })).toBeInTheDocument();
+  });
+
   it("renders result items after formulas", () => {
     render(
       <NativeReport

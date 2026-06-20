@@ -20,7 +20,7 @@ export type ResidentialYardAreasInput = {
   twoOrMoreRoomApartments: number;
   physicalCultureMode: PhysicalCultureAreaMode;
   hasSeparateLandscapedPhysicalCultureZone: boolean;
-  hasRequiredLimitedUseGreenery: boolean;
+  limitedUseGreeneryAreaM2: number | null;
   wasteCollectionMethod: WasteCollectionMethod;
   manualVacuumAreaM2: number | null;
   manualVacuumAreaUnit: ResidentialYardAreaUnit;
@@ -49,8 +49,9 @@ export type ResidentialYardAreasValues = {
   wasteCollection: ResidentialYardAreaResult;
   petWalking: ResidentialYardAreaResult;
   householdPurpose: ResidentialYardAreaResult;
+  minimumLimitedUseGreeneryAreaM2: number;
+  effectivePhysicalCultureMode: PhysicalCultureAreaMode;
   insideBoundaryAreaM2: number;
-  territorialNeedAreaM2: number;
 };
 
 export const DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT: ResidentialYardAreasInput = {
@@ -59,7 +60,7 @@ export const DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT: ResidentialYardAreasInput = {
   twoOrMoreRoomApartments: 40,
   physicalCultureMode: "full",
   hasSeparateLandscapedPhysicalCultureZone: false,
-  hasRequiredLimitedUseGreenery: false,
+  limitedUseGreeneryAreaM2: null,
   wasteCollectionMethod: "above_ground",
   manualVacuumAreaM2: null,
   manualVacuumAreaUnit: "m2",
@@ -182,10 +183,20 @@ export function calculateResidentialYardAreas(
     apartmentCount,
     RATES.adultRecreation,
   );
+  const minimumLimitedUseGreeneryAreaM2 = multiply(6, input.residents);
+  const canUseReducedMode =
+    input.physicalCultureMode === "reduced" &&
+    input.hasSeparateLandscapedPhysicalCultureZone &&
+    input.limitedUseGreeneryAreaM2 !== null &&
+    Number.isFinite(input.limitedUseGreeneryAreaM2) &&
+    input.limitedUseGreeneryAreaM2 >= minimumLimitedUseGreeneryAreaM2;
+  const effectivePhysicalCultureMode: PhysicalCultureAreaMode = canUseReducedMode
+    ? "reduced"
+    : "full";
   const physicalCulture = calculateDualBasisArea(
     input.residents,
     apartmentCount,
-    RATES.physicalCulture[input.physicalCultureMode],
+    RATES.physicalCulture[effectivePhysicalCultureMode],
   );
   const bicycleParking = calculateDualBasisArea(
     input.residents,
@@ -231,10 +242,9 @@ export function calculateResidentialYardAreas(
     wasteCollection,
     petWalking,
     householdPurpose,
+    minimumLimitedUseGreeneryAreaM2,
+    effectivePhysicalCultureMode,
     insideBoundaryAreaM2,
-    territorialNeedAreaM2: cleanNumber(
-      insideBoundaryAreaM2 + petWalking.adoptedM2,
-    ),
   };
 }
 
@@ -254,14 +264,15 @@ export type ResidentialYardAreasReportStep = {
     | "pet-walking"
     | "household-purpose"
     | "inside-boundary-total"
-    | "territorial-need"
-    | "conclusion";
+    | "summary"
+    | "conditions";
   caption: string;
   items?: string[];
   notes?: string[];
   formula?: string;
   formulas?: string[];
   resultItems?: string[];
+  table?: { columns: string[]; rows: string[][] };
 };
 
 export type ResidentialYardAreasReport = {
@@ -273,10 +284,9 @@ export type ResidentialYardAreasReport = {
   steps: ResidentialYardAreasReportStep[];
 };
 
-const GLOBAL_WARNINGS = [
-  "Для кожного виду майданчика приймається більша площа з розрахунків за кількістю мешканців і квартир. Це погоджене консервативне правило калькулятора, а не окрема вимога ДБН.",
-  "Розрахунок площ не підтверджує можливість фактичного розміщення майданчиків. Проєктом окремо перевіряють нормативні відстані, озеленення, інсоляцію, проїзди, протипожежні вимоги, технічні умови та місцеві містобудівні обмеження.",
-] as const;
+const GLOBAL_WARNINGS: string[] = [];
+const DUAL_BASIS_RULE =
+  "За розрахункову приймається більша з площ, визначених за кількістю мешканців і кількістю квартир згідно з п. 6.1.21 та таблицею 6.4 ДБН Б.2.2-12:2019.";
 
 const AREA_UNIT_DATA: Record<
   ResidentialYardAreaUnit,
@@ -299,6 +309,10 @@ function getSafeCalculationInput(
     residents: safeFinite(input.residents),
     oneRoomApartments: safeFinite(input.oneRoomApartments),
     twoOrMoreRoomApartments: safeFinite(input.twoOrMoreRoomApartments),
+    limitedUseGreeneryAreaM2:
+      input.limitedUseGreeneryAreaM2 === null
+        ? null
+        : safeFinite(input.limitedUseGreeneryAreaM2),
     manualVacuumAreaM2:
       input.manualVacuumAreaM2 === null
         ? null
@@ -333,7 +347,7 @@ function validateResidentialYardAreasInput(
     input.twoOrMoreRoomApartments < 0
   ) {
     errors.push(
-      "Кількість дво- та більше кімнатних квартир має бути цілим числом, не меншим за 0.",
+      "Кількість квартир із двома і більше кімнатами має бути цілим числом, не меншим за 0.",
     );
   }
   if (
@@ -346,13 +360,24 @@ function validateResidentialYardAreasInput(
   if (input.physicalCultureMode === "reduced") {
     if (!input.hasSeparateLandscapedPhysicalCultureZone) {
       errors.push(
-        "Зменшений норматив не можна застосувати без окремої озелененої зони з фізкультурними майданчиками.",
+        "Зменшений норматив не можна застосувати: окрему озеленену зону з фізкультурними майданчиками не передбачено проєктом.",
       );
     }
-    if (!input.hasRequiredLimitedUseGreenery) {
+    const greeneryAreaIsValid =
+      input.limitedUseGreeneryAreaM2 !== null &&
+      Number.isFinite(input.limitedUseGreeneryAreaM2) &&
+      input.limitedUseGreeneryAreaM2 >= 0;
+    if (!greeneryAreaIsValid) {
       errors.push(
-        "Зменшений норматив не можна застосувати без забезпечення не менше 6 м² зелених насаджень обмеженого користування на одну особу.",
+        "Введіть фактичну площу зелених насаджень обмеженого користування, не меншу за 0 м².",
       );
+    } else {
+      const minimumArea = multiply(6, safeFinite(input.residents));
+      if ((input.limitedUseGreeneryAreaM2 as number) < minimumArea) {
+        errors.push(
+          `Зменшений норматив не можна застосувати: фактична площа зелених насаджень обмеженого користування має бути не меншою за ${formatResidentialYardAreaNumber(minimumArea)} м².`,
+        );
+      }
     }
   }
   if (
@@ -396,15 +421,15 @@ function formatCount(value: number): string {
 function formatBasis(basis: ResidentialYardGoverningBasis): string {
   switch (basis) {
     case "residents":
-      return "кількість осіб";
+      return "Кількість мешканців";
     case "apartments":
-      return "кількість квартир";
+      return "Кількість квартир";
     case "equal":
-      return "обидва показники дають однакову площу";
+      return "Кількість мешканців і кількість квартир";
     case "manual":
-      return "ручне значення за технічними умовами";
+      return "Містобудівні і технічні умови";
     case "disabled":
-      return "майданчики не передбачені";
+      return "Проєктом не передбачено";
   }
 }
 
@@ -430,7 +455,7 @@ function formatApartmentCountFormula(
   input: ResidentialYardAreasInput,
   apartmentCount: number,
 ): string {
-  return `Nкв = N₁ + N₂+ = ${formatCount(input.oneRoomApartments)} + ${formatCount(
+  return `N_(кв) = N_(1) + N_(2+) = ${formatCount(input.oneRoomApartments)} + ${formatCount(
     input.twoOrMoreRoomApartments,
   )} = ${formatCount(apartmentCount)} квартир`;
 }
@@ -443,21 +468,22 @@ function buildDualFormulas(
   apartmentRate: number,
   input: ResidentialYardAreasInput,
   values: ResidentialYardAreaResult,
+  rateLabels?: { person: string; apartment: string },
 ): string[] {
   const apartmentCount =
     input.oneRoomApartments + input.twoOrMoreRoomApartments;
+  const personRateLabel =
+    rateLabels?.person ?? formatResidentialYardAreaNumber(personRate);
+  const apartmentRateLabel =
+    rateLabels?.apartment ?? formatResidentialYardAreaNumber(apartmentRate);
   return [
-    `${symbol},ос = ${personRateSymbol} × Nосіб = ${formatResidentialYardAreaNumber(
-      personRate,
-    )} × ${formatCount(input.residents)} = ${formatResidentialYardAreaNumber(
+    `${symbol.replace(/\)$/u, ",осіб)")} = ${personRateSymbol.replace(/\)$/u, ",осіб)")} × N_(осіб) = ${personRateLabel} × ${formatCount(input.residents)} = ${formatResidentialYardAreaNumber(
       values.byResidentsM2 ?? 0,
     )} м²`,
-    `${symbol},кв = ${apartmentRateSymbol} × Nкв = ${formatResidentialYardAreaNumber(
-      apartmentRate,
-    )} × ${formatCount(apartmentCount)} = ${formatResidentialYardAreaNumber(
+    `${symbol.replace(/\)$/u, ",кв)")} = ${apartmentRateSymbol.replace(/\)$/u, ",кв)")} × N_(кв) = ${apartmentRateLabel} × ${formatCount(apartmentCount)} = ${formatResidentialYardAreaNumber(
       values.byApartmentsM2 ?? 0,
     )} м²`,
-    `${symbol} = max(${symbol},ос; ${symbol},кв) = max(${formatResidentialYardAreaNumber(
+    `${symbol} = max(${symbol.replace(/\)$/u, ",осіб)")}; ${symbol.replace(/\)$/u, ",кв)")}) = max(${formatResidentialYardAreaNumber(
       values.byResidentsM2 ?? 0,
     )}; ${formatResidentialYardAreaNumber(
       values.byApartmentsM2 ?? 0,
@@ -470,11 +496,11 @@ function buildInputStep(
   values: ResidentialYardAreasValues,
 ): ResidentialYardAreasReportStep {
   const items = [
-    `Кількість мешканців: Nосіб = ${formatCount(input.residents)} осіб`,
-    `Кількість однокімнатних квартир: N₁ = ${formatCount(
+    `Кількість мешканців: N_(осіб) = ${formatCount(input.residents)} осіб`,
+    `Кількість однокімнатних квартир: N_(1) = ${formatCount(
       input.oneRoomApartments,
     )} квартир`,
-    `Кількість дво- та більше кімнатних квартир: N₂+ = ${formatCount(
+    `Кількість квартир із двома і більше кімнатами: N_(2+) = ${formatCount(
       input.twoOrMoreRoomApartments,
     )} квартир`,
     `Режим розрахунку фізкультурних майданчиків: ${
@@ -489,29 +515,27 @@ function buildInputStep(
           ? "підземний"
           : "вакуумний"
     }`,
-    `Господарські майданчики передбачено: ${
-      input.hasHouseholdPurposeAreas ? "Так" : "Ні"
-    }`,
+    input.hasHouseholdPurposeAreas
+      ? "Господарські майданчики передбачено проєктом."
+      : "Господарські майданчики проєктом не передбачено.",
   ];
 
   if (input.physicalCultureMode === "reduced") {
     items.push(
-      `Окрема озеленена зона з фізкультурними майданчиками: ${
-        input.hasSeparateLandscapedPhysicalCultureZone
-          ? "підтверджено"
-          : "не підтверджено"
-      }`,
-      `Зелені насадження обмеженого користування не менше 6 м²/особу: ${
-        input.hasRequiredLimitedUseGreenery
-          ? "підтверджено"
-          : "не підтверджено"
-      }`,
+      input.hasSeparateLandscapedPhysicalCultureZone
+        ? "Окрему озеленену зону з фізкультурними майданчиками передбачено проєктом."
+        : "Окрему озеленену зону з фізкультурними майданчиками не передбачено проєктом.",
+      input.limitedUseGreeneryAreaM2 === null
+        ? "Фактична площа зелених насаджень обмеженого користування: не введено"
+        : `Фактична площа зелених насаджень обмеженого користування: S_(озел,факт) = ${formatResidentialYardAreaNumber(
+            input.limitedUseGreeneryAreaM2,
+          )} м²`,
     );
   }
   if (input.wasteCollectionMethod === "vacuum") {
     items.push(
-      `Площа майданчика для збирання відходів, прийнята за технічними умовами: ${formatManualArea(
-        "Sвідх,руч",
+      `Площа майданчика для збирання відходів: ${formatManualArea(
+        "S_(відх,руч)",
         safeFinite(input.manualVacuumAreaM2),
         input.manualVacuumAreaUnit,
       )}`,
@@ -519,14 +543,14 @@ function buildInputStep(
   }
   if (input.hasHouseholdPurposeAreas) {
     items.push(
-      `Прийнятий питомий розмір господарських майданчиків на одну особу: ${formatManualArea(
-        "qгосп,ос",
+      `Питомий розмір господарських майданчиків на одну особу: ${formatManualArea(
+        "q_(госп,осіб)",
         input.householdAreaPerPersonM2,
         input.householdAreaPerPersonUnit,
         "/особу",
       )}`,
-      `Прийнятий питомий розмір господарських майданчиків на одну квартиру: ${formatManualArea(
-        "qгосп,кв",
+      `Питомий розмір господарських майданчиків на одну квартиру: ${formatManualArea(
+        "q_(госп,кв)",
         input.householdAreaPerApartmentM2,
         input.householdAreaPerApartmentUnit,
         "/квартиру",
@@ -552,28 +576,26 @@ function buildChildrenStep(
     caption:
       "Визначення площі майданчиків для ігор дітей дошкільного і молодшого шкільного віку (п. 6.1.21, таблиця 6.4 ДБН Б.2.2-12:2019):",
     items: [
-      "Питомий розмір на одну особу: qдіт,ос = 0,7 м²/особу",
-      "Питомий розмір на одну квартиру: qдіт,кв = 1,75 м²/квартиру",
+      "Питомий розмір на одну особу: q_(діт,осіб) = 0,7 м²/особу",
+      "Питомий розмір на одну квартиру: q_(діт,кв) = 1,75 м²/квартиру",
     ],
     formulas: buildDualFormulas(
-      "Sдіт",
-      "qдіт,ос",
-      "qдіт,кв",
+      "S_(діт)",
+      "q_(діт)",
+      "q_(діт)",
       0.7,
       1.75,
       input,
       values.children,
     ),
     resultItems: [
-      `Прийнята площа дитячих майданчиків: Sдіт = ${formatResidentialYardAreaNumber(
+      `Розрахункова площа дитячих майданчиків: S_(діт) = ${formatResidentialYardAreaNumber(
         values.children.adoptedM2,
       )} м²`,
-      `Розрахункова база, що визначила площу: ${formatBasis(
+      `Розрахункова база: ${formatBasis(
         values.children.basis,
       )}`,
-    ],
-    notes: [
-      "Таблиця 6.4 наводить паралельні питомі показники на одну особу та одну квартиру. Прийняття більшої з двох розрахованих площ є погодженим консервативним правилом калькулятора, а не окремою вимогою ДБН.",
+      DUAL_BASIS_RULE,
     ],
   };
 }
@@ -587,28 +609,26 @@ function buildAdultRecreationStep(
     caption:
       "Визначення площі майданчиків для відпочинку дорослого населення (п. 6.1.21, таблиця 6.4 ДБН Б.2.2-12:2019):",
     items: [
-      "Питомий розмір на одну особу: qвідп,ос = 0,2 м²/особу",
-      "Питомий розмір на одну квартиру: qвідп,кв = 0,5 м²/квартиру",
+      "Питомий розмір на одну особу: q_(відп,осіб) = 0,2 м²/особу",
+      "Питомий розмір на одну квартиру: q_(відп,кв) = 0,5 м²/квартиру",
     ],
     formulas: buildDualFormulas(
-      "Sвідп",
-      "qвідп,ос",
-      "qвідп,кв",
+      "S_(відп)",
+      "q_(відп)",
+      "q_(відп)",
       0.2,
       0.5,
       input,
       values.adultRecreation,
     ),
     resultItems: [
-      `Прийнята площа майданчиків для відпочинку дорослого населення: Sвідп = ${formatResidentialYardAreaNumber(
+      `Розрахункова площа майданчиків для відпочинку дорослого населення: S_(відп) = ${formatResidentialYardAreaNumber(
         values.adultRecreation.adoptedM2,
       )} м²`,
-      `Розрахункова база, що визначила площу: ${formatBasis(
+      `Розрахункова база: ${formatBasis(
         values.adultRecreation.basis,
       )}`,
-    ],
-    notes: [
-      "Прийняття більшої з площ, розрахованих за двома паралельними показниками таблиці 6.4, є погодженим консервативним правилом калькулятора.",
+      DUAL_BASIS_RULE,
     ],
   };
 }
@@ -617,33 +637,63 @@ function buildPhysicalCultureStep(
   input: ResidentialYardAreasInput,
   values: ResidentialYardAreasValues,
 ): ResidentialYardAreasReportStep {
-  const reduced = input.physicalCultureMode === "reduced";
+  const reduced = values.effectivePhysicalCultureMode === "reduced";
   const personRate = reduced ? 0.2 : 2;
   const apartmentRate = reduced ? 0.5 : 5;
+  const rateLabels = {
+    person: reduced ? "0,2" : "2,0",
+    apartment: reduced ? "0,5" : "5,0",
+  };
   const items = [
     `Режим розрахунку: ${reduced ? "зменшений норматив" : "повний норматив"}`,
   ];
-  if (reduced) {
+  if (input.physicalCultureMode === "reduced" && !reduced) {
     items.push(
-      `Окрема озеленена зона з фізкультурними майданчиками: ${
-        input.hasSeparateLandscapedPhysicalCultureZone
-          ? "підтверджено"
-          : "не підтверджено"
-      }`,
-      `Зелені насадження обмеженого користування не менше 6 м²/особу: ${
-        input.hasRequiredLimitedUseGreenery
-          ? "підтверджено"
-          : "не підтверджено"
-      }`,
+      "Умови застосування зменшеного нормативу не виконано; розрахунок виконано за повним нормативом.",
     );
   }
-  items.push(
-    `Питомий розмір на одну особу: qфіз,ос = ${formatResidentialYardAreaNumber(
+  const formulas: string[] = [];
+  if (input.physicalCultureMode === "reduced") {
+    formulas.push(
+      `S_(озел,мін) = 6 × N_(осіб) = 6 × ${formatCount(
+        input.residents,
+      )} = ${formatResidentialYardAreaNumber(
+        values.minimumLimitedUseGreeneryAreaM2,
+      )} м²`,
+    );
+    if (
+      input.limitedUseGreeneryAreaM2 !== null &&
+      Number.isFinite(input.limitedUseGreeneryAreaM2) &&
+      input.limitedUseGreeneryAreaM2 >= 0
+    ) {
+      const actual = formatResidentialYardAreaNumber(input.limitedUseGreeneryAreaM2);
+      const minimum = formatResidentialYardAreaNumber(
+        values.minimumLimitedUseGreeneryAreaM2,
+      );
+      formulas.push(
+        `Фактична площа зелених насаджень обмеженого користування: S_(озел,факт) = ${actual} м²`,
+        `S_(озел,факт) ≥ S_(озел,мін): ${actual} ≥ ${minimum} — ${
+          input.limitedUseGreeneryAreaM2 >=
+          values.minimumLimitedUseGreeneryAreaM2
+            ? "умову виконано"
+            : "умову не виконано"
+        }`,
+      );
+    }
+  }
+  formulas.push(
+    `q_(фіз,осіб) = ${rateLabels.person} м²/особу`,
+    `q_(фіз,кв) = ${rateLabels.apartment} м²/квартиру`,
+    ...buildDualFormulas(
+      "S_(фіз)",
+      "q_(фіз)",
+      "q_(фіз)",
       personRate,
-    )} м²/особу`,
-    `Питомий розмір на одну квартиру: qфіз,кв = ${formatResidentialYardAreaNumber(
       apartmentRate,
-    )} м²/квартиру`,
+      input,
+      values.physicalCulture,
+      rateLabels,
+    ),
   );
 
   return {
@@ -651,25 +701,15 @@ function buildPhysicalCultureStep(
     caption:
       "Визначення площі майданчиків для занять фізкультурою (п. 6.1.21, таблиця 6.4 та примітка * ДБН Б.2.2-12:2019):",
     items,
-    formulas: buildDualFormulas(
-      "Sфіз",
-      "qфіз,ос",
-      "qфіз,кв",
-      personRate,
-      apartmentRate,
-      input,
-      values.physicalCulture,
-    ),
+    formulas,
     resultItems: [
-      `Прийнята площа фізкультурних майданчиків: Sфіз = ${formatResidentialYardAreaNumber(
+      `Розрахункова площа фізкультурних майданчиків: S_(фіз) = ${formatResidentialYardAreaNumber(
         values.physicalCulture.adoptedM2,
       )} м²`,
-      `Розрахункова база, що визначила площу: ${formatBasis(
+      `Розрахункова база: ${formatBasis(
         values.physicalCulture.basis,
       )}`,
-    ],
-    notes: [
-      "Зменшений норматив допускається лише за наявності окремої озелененої зони з фізкультурними майданчиками, яка обслуговує мікрорайон або групу житлових кварталів, та за забезпечення не менше 6 м² зелених насаджень обмеженого користування на одну особу.",
+      DUAL_BASIS_RULE,
     ],
   };
 }
@@ -690,27 +730,23 @@ function buildGuestParkingStep(
       "Площа земельної ділянки відкритої стоянки на один автомобіль: 25 м²/автомобіль",
     ],
     formulas: [
-      `Nгост = ceil(0,15 × (0,5 × N₁ + N₂+)) = ceil(0,15 × (0,5 × ${oneRoom} + ${multiRoom})) = ${formatCount(
+      `N_(гост) = ⌈0,15 × (0,5 × N_(1) + N_(2+))⌉ = ⌈0,15 × (0,5 × ${oneRoom} + ${multiRoom})⌉ = ${formatCount(
         values.guestParkingSpaces,
       )} машиномісць`,
-      `Sгост = 25 × Nгост = 25 × ${formatCount(
+      `S_(гост) = 25 × N_(гост) = 25 × ${formatCount(
         values.guestParkingSpaces,
       )} = ${formatResidentialYardAreaNumber(
         values.guestParkingAreaM2,
       )} м²`,
     ],
     resultItems: [
-      `Кількість гостьових машиномісць: Nгост = ${formatCount(
+      `Кількість гостьових машиномісць: N_(гост) = ${formatCount(
         values.guestParkingSpaces,
       )} машиномісць`,
-      `Площа відкритої гостьової стоянки: Sгост = ${formatResidentialYardAreaNumber(
+      `Розрахункова площа відкритої гостьової стоянки: S_(гост) = ${formatResidentialYardAreaNumber(
         values.guestParkingAreaM2,
       )} м²`,
-    ],
-    notes: [
-      "Округлення виконується вгору до цілого машиномісця, щоб забезпечити не менше нормативної кількості місць.",
-      "Площа гостьової стоянки визначається за складом квартир і є спільною складовою підсумку; окремий розрахунок за кількістю мешканців не виконується.",
-      "Цей крок не перевіряє нормативні відстані від стоянки до будинків та інших об’єктів.",
+      "Кількість машиномісць визначено округленням до більшого цілого.",
     ],
   };
 }
@@ -724,28 +760,26 @@ function buildBicycleParkingStep(
     caption:
       "Визначення площі майданчиків для тимчасової стоянки велосипедів (п. 6.1.21, таблиця 6.4 ДБН Б.2.2-12:2019):",
     items: [
-      "Питомий розмір на одну особу: qвел,ос = 0,1 м²/особу",
-      "Питомий розмір на одну квартиру: qвел,кв = 0,25 м²/квартиру",
+      "Питомий розмір на одну особу: q_(вел,осіб) = 0,1 м²/особу",
+      "Питомий розмір на одну квартиру: q_(вел,кв) = 0,25 м²/квартиру",
     ],
     formulas: buildDualFormulas(
-      "Sвел",
-      "qвел,ос",
-      "qвел,кв",
+      "S_(вел)",
+      "q_(вел)",
+      "q_(вел)",
       0.1,
       0.25,
       input,
       values.bicycleParking,
     ),
     resultItems: [
-      `Прийнята площа майданчиків для тимчасової стоянки велосипедів: Sвел = ${formatResidentialYardAreaNumber(
+      `Розрахункова площа майданчиків для тимчасової стоянки велосипедів: S_(вел) = ${formatResidentialYardAreaNumber(
         values.bicycleParking.adoptedM2,
       )} м²`,
-      `Розрахункова база, що визначила площу: ${formatBasis(
+      `Розрахункова база: ${formatBasis(
         values.bicycleParking.basis,
       )}`,
-    ],
-    notes: [
-      "Прийняття більшої з площ, розрахованих за кількістю осіб і квартир, є погодженим консервативним правилом калькулятора.",
+      DUAL_BASIS_RULE,
     ],
   };
 }
@@ -754,42 +788,27 @@ function buildWasteCollectionStep(
   input: ResidentialYardAreasInput,
   values: ResidentialYardAreasValues,
 ): ResidentialYardAreasReportStep {
-  const methodLabel =
-    input.wasteCollectionMethod === "above_ground"
-      ? "наземний"
-      : input.wasteCollectionMethod === "underground"
-        ? "підземний"
-        : "вакуумний";
-  const items = [
-    `Спосіб збирання побутових відходів: ${methodLabel}`,
-  ];
+  const items: string[] = [];
   let formulas: string[] | undefined;
   let formula: string | undefined;
   if (input.wasteCollectionMethod === "vacuum") {
-    items.push(
-      `Площа майданчика, прийнята за технічними умовами: ${formatManualArea(
-        "Sвідх,руч",
-        safeFinite(input.manualVacuumAreaM2),
-        input.manualVacuumAreaUnit,
-      )}`,
-    );
-    formula = `Sвідх = Sвідх,руч = ${formatResidentialYardAreaNumber(
+    formula = `S_(відх) = S_(відх,руч) = ${formatResidentialYardAreaNumber(
       values.wasteCollection.adoptedM2,
     )} м²`;
   } else {
     const rates = RATES.wasteCollection[input.wasteCollectionMethod];
     items.push(
-      `Питомий розмір на одну особу: qвідх,ос = ${formatResidentialYardAreaNumber(
+      `Питомий розмір на одну особу: q_(відх,осіб) = ${formatResidentialYardAreaNumber(
         rates.residents,
       )} м²/особу`,
-      `Питомий розмір на одну квартиру: qвідх,кв = ${formatResidentialYardAreaNumber(
+      `Питомий розмір на одну квартиру: q_(відх,кв) = ${formatResidentialYardAreaNumber(
         rates.apartments,
       )} м²/квартиру`,
     );
     formulas = buildDualFormulas(
-      "Sвідх",
-      "qвідх,ос",
-      "qвідх,кв",
+      "S_(відх)",
+      "q_(відх)",
+      "q_(відх)",
       rates.residents,
       rates.apartments,
       input,
@@ -805,18 +824,15 @@ function buildWasteCollectionStep(
     formula,
     formulas,
     resultItems: [
-      `Прийнята площа майданчиків для збирання побутових відходів: Sвідх = ${formatResidentialYardAreaNumber(
+      `Розрахункова площа майданчика для збирання побутових відходів: S_(відх) = ${formatResidentialYardAreaNumber(
         values.wasteCollection.adoptedM2,
       )} м²`,
-      `Розрахункова база, що визначила площу: ${formatBasis(
-        values.wasteCollection.basis,
-      )}`,
-    ],
-    notes: [
-      "Для вакуумного способу таблиця 6.4 не встановлює питомого показника. Площу приймає користувач за містобудівними та технічними умовами; калькулятор не перевіряє її нормативне обґрунтування.",
-      "Для наземного способу відстань від майданчика до вікон житлових і громадських будівель та до дитячих, фізкультурних і рекреаційних майданчиків має бути не менше 20 м, а пішохідна доступність — не більше 100 м.",
-      "Для підземного і вакуумного способів нормативні відстані визначаються технічними умовами.",
-      "Калькулятор визначає площу, але не перевіряє розміщення, під’їзд сміттєвоза та нормативні відстані.",
+      ...(input.wasteCollectionMethod === "vacuum"
+        ? ["Площу визначено відповідно до містобудівних і технічних умов."]
+        : [
+            `Розрахункова база: ${formatBasis(values.wasteCollection.basis)}`,
+            DUAL_BASIS_RULE,
+          ]),
     ],
   };
 }
@@ -830,32 +846,27 @@ function buildPetWalkingStep(
     caption:
       "Визначення площі майданчиків для вигулу домашніх тварин (п. 6.1.21, таблиця 6.4 та примітка *** ДБН Б.2.2-12:2019):",
     items: [
-      "Питомий розмір на одну особу: qтвар,ос = 0,3 м²/особу",
-      "Питомий розмір на одну квартиру: qтвар,кв = 0,3 м²/квартиру",
+      "Питомий розмір на одну особу: q_(твар,осіб) = 0,3 м²/особу",
+      "Питомий розмір на одну квартиру: q_(твар,кв) = 0,3 м²/квартиру",
     ],
     formulas: buildDualFormulas(
-      "Sтвар",
-      "qтвар,ос",
-      "qтвар,кв",
+      "S_(твар)",
+      "q_(твар)",
+      "q_(твар)",
       0.3,
       0.3,
       input,
       values.petWalking,
     ),
     resultItems: [
-      `Прийнята площа майданчиків для вигулу домашніх тварин: Sтвар = ${formatResidentialYardAreaNumber(
+      `Розрахункова площа майданчиків для вигулу домашніх тварин: S_(твар) = ${formatResidentialYardAreaNumber(
         values.petWalking.adoptedM2,
       )} м²`,
-      `Розрахункова база, що визначила площу: ${formatBasis(
+      `Розрахункова база: ${formatBasis(
         values.petWalking.basis,
       )}`,
+      DUAL_BASIS_RULE,
       "Розміщення: поза межами прибудинкової території",
-    ],
-    notes: [
-      "Майданчики для вигулу домашніх тварин слід влаштовувати поза межами прибудинкових територій на спеціально визначених ділянках.",
-      "Відстань від майданчика до вікон житлового будинку, майданчиків для ігор і відпочинку та майданчиків для занять фізкультурою має бути не менше 40 м.",
-      "Площа Sтвар не входить до підсумку майданчиків у межах прибудинкової території, але входить до загальної територіальної потреби.",
-      "Калькулятор визначає площу, але не перевіряє фактичне розміщення та відстані.",
     ],
   };
 }
@@ -865,22 +876,20 @@ function buildHouseholdPurposeStep(
   values: ResidentialYardAreasValues,
 ): ResidentialYardAreasReportStep {
   const enabled = input.hasHouseholdPurposeAreas;
-  const items = [
-    `Господарські майданчики передбачено: ${enabled ? "Так" : "Ні"}`,
-  ];
+  const items: string[] = [];
   let formulas: string[] | undefined;
   let formula: string | undefined;
   if (enabled) {
     items.push(
-      `Прийнятий питомий розмір на одну особу: ${formatManualArea(
-        "qгосп,ос",
+      `Питомий розмір на одну особу: ${formatManualArea(
+        "q_(госп,осіб)",
         input.householdAreaPerPersonM2,
         input.householdAreaPerPersonUnit,
         "/особу",
       )}`,
       "Нормативний діапазон на одну особу: 0,1–0,3 м²/особу",
-      `Прийнятий питомий розмір на одну квартиру: ${formatManualArea(
-        "qгосп,кв",
+      `Питомий розмір на одну квартиру: ${formatManualArea(
+        "q_(госп,кв)",
         input.householdAreaPerApartmentM2,
         input.householdAreaPerApartmentUnit,
         "/квартиру",
@@ -888,17 +897,17 @@ function buildHouseholdPurposeStep(
       "Нормативний діапазон на одну квартиру: 0,25–0,75 м²/квартиру",
     );
     formulas = buildDualFormulas(
-      "Sгосп",
-      "qгосп,ос",
-      "qгосп,кв",
+      "S_(госп)",
+      "q_(госп)",
+      "q_(госп)",
       input.householdAreaPerPersonM2,
       input.householdAreaPerApartmentM2,
       input,
       values.householdPurpose,
     );
   } else {
-    formula =
-      "Sгосп = 0 м² (господарські майданчики не передбачені користувачем)";
+    formula = "S_(госп) = 0 м²";
+    items.push("Господарські майданчики проєктом не передбачено.");
   }
 
   return {
@@ -909,17 +918,13 @@ function buildHouseholdPurposeStep(
     formula,
     formulas,
     resultItems: [
-      `Прийнята площа господарських майданчиків: Sгосп = ${formatResidentialYardAreaNumber(
+      `Розрахункова площа господарських майданчиків: S_(госп) = ${formatResidentialYardAreaNumber(
         values.householdPurpose.adoptedM2,
       )} м²`,
-      `Розрахункова база, що визначила площу: ${formatBasis(
+      `Розрахункова база: ${formatBasis(
         values.householdPurpose.basis,
       )}`,
-    ],
-    notes: [
-      "Примітка 2 до таблиці 6.4 дозволяє облаштовувати господарські майданчики для сушіння білизни та чищення килимів у наведених діапазонах.",
-      "Відстань від господарських майданчиків до найбільш віддаленого входу в житловий будинок має бути не більше 100 м.",
-      "Калькулятор перевіряє питомі значення, але не перевіряє фактичну відстань до входу.",
+      ...(enabled ? [DUAL_BASIS_RULE] : []),
     ],
   };
 }
@@ -941,121 +946,80 @@ function buildInsideBoundaryStep(
     caption:
       "Визначення сумарної площі майданчиків у межах прибудинкової території:",
     items: [
-      `Дитячі майданчики: Sдіт = ${formatResidentialYardAreaNumber(areas[0])} м²`,
-      `Майданчики для відпочинку дорослих: Sвідп = ${formatResidentialYardAreaNumber(
+      `Дитячі майданчики: S_(діт) = ${formatResidentialYardAreaNumber(areas[0])} м²`,
+      `Майданчики для відпочинку дорослих: S_(відп) = ${formatResidentialYardAreaNumber(
         areas[1],
       )} м²`,
-      `Фізкультурні майданчики: Sфіз = ${formatResidentialYardAreaNumber(
+      `Фізкультурні майданчики: S_(фіз) = ${formatResidentialYardAreaNumber(
         areas[2],
       )} м²`,
-      `Відкрита гостьова стоянка: Sгост = ${formatResidentialYardAreaNumber(
+      `Відкрита гостьова стоянка: S_(гост) = ${formatResidentialYardAreaNumber(
         areas[3],
       )} м²`,
-      `Майданчики для тимчасової стоянки велосипедів: Sвел = ${formatResidentialYardAreaNumber(
+      `Майданчики для тимчасової стоянки велосипедів: S_(вел) = ${formatResidentialYardAreaNumber(
         areas[4],
       )} м²`,
-      `Майданчики для збирання побутових відходів: Sвідх = ${formatResidentialYardAreaNumber(
+      `Майданчики для збирання побутових відходів: S_(відх) = ${formatResidentialYardAreaNumber(
         areas[5],
       )} м²`,
-      `Господарські майданчики: Sгосп = ${formatResidentialYardAreaNumber(
+      `Господарські майданчики: S_(госп) = ${formatResidentialYardAreaNumber(
         areas[6],
       )} м²`,
     ],
-    formula: `Sприбуд = Sдіт + Sвідп + Sфіз + Sгост + Sвел + Sвідх + Sгосп = ${areas
+    formula: `S_(прибуд) = S_(діт) + S_(відп) + S_(фіз) + S_(гост) + S_(вел) + S_(відх) + S_(госп) = ${areas
       .map(formatResidentialYardAreaNumber)
       .join(" + ")} = ${formatResidentialYardAreaNumber(
       values.insideBoundaryAreaM2,
     )} м²`,
     resultItems: [
-      `Сумарна площа майданчиків у межах прибудинкової території: Sприбуд = ${formatResidentialYardAreaNumber(
+      `Сумарна площа майданчиків у межах прибудинкової території: S_(прибуд) = ${formatResidentialYardAreaNumber(
         values.insideBoundaryAreaM2,
       )} м²`,
-    ],
-    notes: [
-      "До суми входить прийнята більша площа кожного виду майданчика, визначена за кількістю осіб і квартир.",
-      "Майданчик для вигулу домашніх тварин не включено, оскільки його слід розміщувати поза межами прибудинкової території.",
-      "Цей підсумок не є мінімальною площею земельної ділянки житлового будинку за таблицею 6.3 і не включає площу забудови, проїздів, тротуарів, озеленення та інших елементів території.",
     ],
   };
 }
 
-function buildTerritorialNeedStep(
+function buildSummaryStep(
   values: ResidentialYardAreasValues,
 ): ResidentialYardAreasReportStep {
+  const inside = "У межах прибудинкової території";
+  const area = (symbol: string, value: number) =>
+    `${symbol} = ${formatResidentialYardAreaNumber(value)} м²`;
   return {
-    key: "territorial-need",
-    caption:
-      "Визначення загальної територіальної потреби для розрахованих майданчиків:",
-    items: [
-      `Сумарна площа майданчиків у межах прибудинкової території: Sприбуд = ${formatResidentialYardAreaNumber(
-        values.insideBoundaryAreaM2,
-      )} м²`,
-      `Площа майданчика для вигулу домашніх тварин поза межами прибудинкової території: Sтвар = ${formatResidentialYardAreaNumber(
-        values.petWalking.adoptedM2,
-      )} м²`,
-    ],
-    formula: `Sтер = Sприбуд + Sтвар = ${formatResidentialYardAreaNumber(
-      values.insideBoundaryAreaM2,
-    )} + ${formatResidentialYardAreaNumber(
-      values.petWalking.adoptedM2,
-    )} = ${formatResidentialYardAreaNumber(
-      values.territorialNeedAreaM2,
-    )} м²`,
-    resultItems: [
-      `Загальна територіальна потреба для розрахованих майданчиків: Sтер = ${formatResidentialYardAreaNumber(
-        values.territorialNeedAreaM2,
-      )} м²`,
-    ],
-    notes: [
-      "Значення Sтер об’єднує площі, які мають розміщуватися в різних територіальних межах, і використовується лише як сумарний планувальний показник.",
-      "Sтер не є нормативною площею прибудинкової земельної ділянки та не скасовує вимоги щодо розміщення майданчика для вигулу тварин поза її межами.",
-    ],
+    key: "summary",
+    caption: "Підсумкові результати розрахунку площ майданчиків:",
+    table: {
+      columns: [
+        "Вид майданчика",
+        "Розрахункова база",
+        "Площа",
+        "Місце розташування",
+      ],
+      rows: [
+        ["Дитячі майданчики", formatBasis(values.children.basis), area("S_(діт)", values.children.adoptedM2), inside],
+        ["Майданчики для відпочинку дорослих", formatBasis(values.adultRecreation.basis), area("S_(відп)", values.adultRecreation.adoptedM2), inside],
+        ["Фізкультурні майданчики", formatBasis(values.physicalCulture.basis), area("S_(фіз)", values.physicalCulture.adoptedM2), inside],
+        ["Відкрита гостьова стоянка", `Квартирографія: N_(гост) = ${formatCount(values.guestParkingSpaces)} машиномісць`, area("S_(гост)", values.guestParkingAreaM2), inside],
+        ["Тимчасова стоянка велосипедів", formatBasis(values.bicycleParking.basis), area("S_(вел)", values.bicycleParking.adoptedM2), inside],
+        ["Майданчики для збирання побутових відходів", formatBasis(values.wasteCollection.basis), area("S_(відх)", values.wasteCollection.adoptedM2), inside],
+        ["Господарські майданчики", formatBasis(values.householdPurpose.basis), area("S_(госп)", values.householdPurpose.adoptedM2), inside],
+        ["Сумарна площа майданчиків у межах прибудинкової території", "Сума розрахункових площ", area("S_(прибуд)", values.insideBoundaryAreaM2), inside],
+        ["Майданчик для вигулу домашніх тварин", formatBasis(values.petWalking.basis), area("S_(твар)", values.petWalking.adoptedM2), "Поза межами прибудинкової території"],
+      ],
+    },
   };
 }
 
-function buildConclusionStep(
-  values: ResidentialYardAreasValues,
-): ResidentialYardAreasReportStep {
+function buildConditionsStep(): ResidentialYardAreasReportStep {
   return {
-    key: "conclusion",
-    caption:
-      "Висновок щодо площ майданчиків у складі прибудинкової території:",
+    key: "conditions",
+    caption: "Умови застосування результатів:",
     items: [
-      `Дитячі майданчики: ${formatResidentialYardAreaNumber(
-        values.children.adoptedM2,
-      )} м²`,
-      `Майданчики для відпочинку дорослих: ${formatResidentialYardAreaNumber(
-        values.adultRecreation.adoptedM2,
-      )} м²`,
-      `Фізкультурні майданчики: ${formatResidentialYardAreaNumber(
-        values.physicalCulture.adoptedM2,
-      )} м²`,
-      `Відкрита гостьова стоянка: ${formatCount(
-        values.guestParkingSpaces,
-      )} машиномісць, ${formatResidentialYardAreaNumber(
-        values.guestParkingAreaM2,
-      )} м²`,
-      `Майданчики для тимчасової стоянки велосипедів: ${formatResidentialYardAreaNumber(
-        values.bicycleParking.adoptedM2,
-      )} м²`,
-      `Майданчики для збирання побутових відходів: ${formatResidentialYardAreaNumber(
-        values.wasteCollection.adoptedM2,
-      )} м²`,
-      `Господарські майданчики: ${formatResidentialYardAreaNumber(
-        values.householdPurpose.adoptedM2,
-      )} м²`,
-      `Сумарна площа майданчиків у межах прибудинкової території: ${formatResidentialYardAreaNumber(
-        values.insideBoundaryAreaM2,
-      )} м²`,
-      `Майданчик для вигулу домашніх тварин поза її межами: ${formatResidentialYardAreaNumber(
-        values.petWalking.adoptedM2,
-      )} м²`,
-      `Загальна територіальна потреба для розрахованих майданчиків: ${formatResidentialYardAreaNumber(
-        values.territorialNeedAreaM2,
-      )} м²`,
-    ],
-    notes: [
-      "Результат визначає площі погодженого переліку майданчиків, але не підтверджує можливість їх фактичного розміщення. Проєктом окремо перевіряють площу земельної ділянки, озеленення, інсоляцію, проїзди, протипожежні та санітарні відстані, місцеві містобудівні обмеження й технічні умови.",
+      "Сумарна площа S_(прибуд) не є мінімальною площею земельної ділянки житлового будинку за таблицею 6.3 ДБН Б.2.2-12:2019 і не включає площу забудови, проїздів, тротуарів, озеленення та інших елементів території.",
+      "Майданчики для вигулу домашніх тварин розміщують поза межами прибудинкової території на відстані не менше 40 м від вікон житлових будинків, майданчиків для ігор і відпочинку та фізкультурних майданчиків.",
+      "Для наземного способу збирання побутових відходів відстань до вікон житлових і громадських будівель та до дитячих, фізкультурних і рекреаційних майданчиків має бути не менше 20 м, а пішохідна доступність — не більше 100 м. Для підземного і вакуумного способів відстані визначаються технічними умовами.",
+      "Відстань від господарських майданчиків до найбільш віддаленого входу в житловий будинок має бути не більше 100 м.",
+      "Перевірка фактичного розміщення, під’їздів і нормативних відстаней не входить до цього розрахунку.",
     ],
   };
 }
@@ -1084,8 +1048,8 @@ export function getResidentialYardAreasReport(
       buildPetWalkingStep(safeInput, values),
       buildHouseholdPurposeStep(safeInput, values),
       buildInsideBoundaryStep(values),
-      buildTerritorialNeedStep(values),
-      buildConclusionStep(values),
+      buildSummaryStep(values),
+      buildConditionsStep(),
     ],
   };
 }

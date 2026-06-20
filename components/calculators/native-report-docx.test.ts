@@ -36,4 +36,28 @@ describe("buildNativeDocxReport", () => {
       ],
     });
   });
+
+  it("maps table data and document heading options", () => {
+    const report = buildNativeDocxReport({
+      title: "Розрахунок",
+      fileBaseName: "test-report",
+      includeStepHeading: false,
+      steps: [
+        {
+          key: "summary",
+          caption: "Підсумок",
+          table: {
+            columns: ["Вид", "Площа"],
+            rows: [["Дитячі", "70 м²"]],
+          },
+        },
+      ],
+    });
+
+    expect(report.includeStepHeading).toBe(false);
+    expect(report.steps[0].table).toEqual({
+      columns: ["Вид", "Площа"],
+      rows: [["Дитячі", "70 м²"]],
+    });
+  });
 });

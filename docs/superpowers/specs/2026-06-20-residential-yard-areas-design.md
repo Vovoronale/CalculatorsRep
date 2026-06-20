@@ -1,7 +1,7 @@
 # Residential Yard Areas Formal Report Redesign
 
 Date: 2026-06-20
-Status: Draft pending confirmation
+Status: Approved
 
 ## Source of Truth
 
@@ -21,8 +21,10 @@ identical UI and DOCX results.
 ## Calculation Core
 
 Keep `lib/residential-yard-areas.ts` as a pure TypeScript core. Replace the
-greenery boolean with the numeric `limitedUseGreeneryAreaM2` input and calculate
-`minimumLimitedUseGreeneryAreaM2 = 6 * residents`.
+greenery boolean with the optional numeric `limitedUseGreeneryAreaM2` input and
+calculate `minimumLimitedUseGreeneryAreaM2 = 6 * residents`. The input is empty
+when reduced mode is first selected; a missing or invalid value gets the exact
+contract error before the minimum-area comparison runs.
 
 The core distinguishes the selected physical-culture mode from the effective
 mode. The effective mode is reduced only when the separate landscaped zone is
@@ -33,6 +35,8 @@ auditable input while preventing an invalid reduction.
 
 Remove the combined territorial total from the public value model. The model
 retains only `insideBoundaryAreaM2` and the separate `petWalking.adoptedM2`.
+All report notation uses the explicit parenthesized-index format from the
+contract, such as `N_(осіб)`, `S_(фіз)`, and `S_(прибуд)`.
 
 ## Report Model
 

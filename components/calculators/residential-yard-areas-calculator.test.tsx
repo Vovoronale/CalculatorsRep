@@ -56,6 +56,14 @@ describe("RESIDENTIAL_YARD_AREAS_INPUT_SCHEMA", () => {
       max: 0.3,
       showWhen: { fieldId: "hasHouseholdPurposeAreas", equals: true },
     });
+    expect(findSchemaField("limitedUseGreeneryAreaM2")).toMatchObject({
+      name: "Фактична площа зелених насаджень обмеженого користування",
+      defaultValue: "",
+      min: 0,
+      baseUnit: "m2",
+      defaultDisplayUnit: "m2",
+      showWhen: { fieldId: "physicalCultureMode", equals: "reduced" },
+    });
   });
 
   it("gives every user field a practical description and exact source", () => {
@@ -69,6 +77,9 @@ describe("RESIDENTIAL_YARD_AREAS_INPUT_SCHEMA", () => {
       expect(field.description).toMatch(/Джерело:/);
       expect(field.description).not.toBe(field.name);
     }
+    expect(fields.map((field) => field.description).join(" ")).not.toMatch(
+      /користувач|калькулятор|алгоритм/iu,
+    );
   });
 });
 
@@ -90,13 +101,18 @@ describe("ResidentialYardAreasCalculator", () => {
       "Господарські майданчики",
       "Вигул домашніх тварин",
       "У межах прибудинкової території",
-      "Загальна територіальна потреба",
     ]) {
       expect(within(results).getByText(text)).toBeInTheDocument();
     }
-    expect(within(results).getByText("Sприбуд = 457,2 м²")).toBeInTheDocument();
-    expect(within(results).getByText("Sтер = 487,2 м²")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
+    expect(within(results).getByText("S_(прибуд) = 457,2 м²")).toBeInTheDocument();
+    expect(within(results).getByText("S_(твар) = 30 м²")).toBeInTheDocument();
+    expect(within(results).queryByText(/S_?\(?тер\)?/)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: "Розрахунок площ майданчиків у складі прибудинкової території",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Покроковий звіт" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
   });
 
@@ -114,7 +130,12 @@ describe("ResidentialYardAreasCalculator", () => {
     const zone = screen.getByLabelText(
       "Передбачена окрема озеленена фізкультурна зона",
     );
+    const greenery = screen.getByLabelText(
+      "Фактична площа зелених насаджень обмеженого користування",
+    );
+    expect(greenery).toHaveValue("");
     await user.click(zone);
+    await user.type(greenery, "600");
     expect(zone).toBeChecked();
     await user.selectOptions(
       screen.getByLabelText("Норматив площі фізкультурних майданчиків"),
@@ -127,6 +148,69 @@ describe("ResidentialYardAreasCalculator", () => {
     expect(
       screen.getByLabelText("Передбачена окрема озеленена фізкультурна зона"),
     ).not.toBeChecked();
+    expect(
+      screen.getByLabelText("Фактична площа зелених насаджень обмеженого користування"),
+    ).toHaveValue("");
+  });
+
+  it("uses the reduced norm after the numeric greenery check passes", async () => {
+    const user = userEvent.setup();
+    render(<ResidentialYardAreasCalculator />);
+
+    await user.selectOptions(
+      screen.getByLabelText("Норматив площі фізкультурних майданчиків"),
+      "reduced",
+    );
+    await user.click(
+      screen.getByLabelText("Передбачена окрема озеленена фізкультурна зона"),
+    );
+    await user.type(
+      screen.getByLabelText("Фактична площа зелених насаджень обмеженого користування"),
+      "600",
+    );
+
+    expect(screen.getAllByText("S_(прибуд) = 277,2 м²").length).toBeGreaterThan(0);
+    const table = screen.getByRole("table");
+    expect(within(table).getByText("S_(твар) = 30 м²")).toBeInTheDocument();
+  });
+
+  it("falls back to the full norm when actual greenery is insufficient", async () => {
+    const user = userEvent.setup();
+    render(<ResidentialYardAreasCalculator />);
+    const mode = screen.getByLabelText(
+      "Норматив площі фізкультурних майданчиків",
+    );
+
+    await user.selectOptions(
+      mode,
+      "reduced",
+    );
+    await user.click(
+      screen.getByLabelText("Передбачена окрема озеленена фізкультурна зона"),
+    );
+    const greenery = screen.getByLabelText(
+      "Фактична площа зелених насаджень обмеженого користування",
+    );
+    await user.type(greenery, "599");
+
+    expect(
+      screen.getByText(
+        "Зменшений норматив не можна застосувати: фактична площа зелених насаджень обмеженого користування має бути не меншою за 600 м².",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Умови застосування зменшеного нормативу не виконано; розрахунок виконано за повним нормативом.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("S_(прибуд) = 457,2 м²").length).toBeGreaterThan(0);
+    expect(greenery.closest(".input-schema-field")).toHaveAttribute(
+      "data-invalid",
+      "true",
+    );
+    expect(mode.closest(".input-schema-field")).not.toHaveAttribute(
+      "data-invalid",
+    );
   });
 
   it("normalizes an are input and reports the selected unit conversion", async () => {
@@ -147,8 +231,8 @@ describe("ResidentialYardAreasCalculator", () => {
     await user.clear(areaInput);
     await user.type(areaInput, "0,08");
 
-    expect(screen.getAllByText(/Sвідх,руч = 0,08 ар = 8 м²/).length).toBeGreaterThan(0);
-    expect(screen.getByText("Sвідх = 8 м²")).toBeInTheDocument();
+    expect(screen.getAllByText(/S_\(відх,руч\) = 0,08 ар = 8 м²/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("S_(відх) = 8 м²").length).toBeGreaterThan(0);
   });
 
   it("links report citations to the five normative scans and opens the target", async () => {
@@ -201,6 +285,10 @@ describe("residential yard DOCX export", () => {
     expect(docxReport.fileBaseName).toBe(
       "ploshchi-prybudynkovykh-maidanchykiv-2026-06-20",
     );
+    expect(docxReport.title).toBe(
+      "Розрахунок площ майданчиків у складі прибудинкової території",
+    );
+    expect(docxReport.includeStepHeading).toBe(false);
     expect(docxReport.steps.map((step) => step.key)).toEqual(
       report.steps.map((step) => step.key),
     );

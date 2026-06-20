@@ -3913,6 +3913,33 @@ textarea {
   line-height: 1.45;
 }
 
+.native-report__table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.native-report__table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.native-report__table th,
+.native-report__table td {
+  border: 1px solid var(--border);
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.native-report__table th {
+  background: var(--surface);
+  font-weight: 800;
+}
+
 .residential-yard-results {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));

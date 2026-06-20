@@ -18,6 +18,11 @@ describe("reportSymbolToLatex", () => {
     expect(reportSymbolToLatex("L/H")).toBe("\\frac{L}{H}");
   });
 
+  it("renders explicit parenthesized indices", () => {
+    expect(reportSymbolToLatex("S_(прибуд)")).toBe("S_{\\text{прибуд}}");
+    expect(reportSymbolToLatex("N_(2+)")).toBe("N_{\\text{2+}}");
+  });
+
   it("keeps concrete exposure class labels as uppercase class tokens", () => {
     expect(reportSymbolToLatex("XC")).toBe("\\mathrm{XC}");
     expect(reportSymbolToLatex("XC1")).toBe("\\mathrm{XC1}");
@@ -30,6 +35,18 @@ describe("reportSymbolToLatex", () => {
 });
 
 describe("parseReportFormula", () => {
+  it("renders Cyrillic parenthesized indices as subscripts", () => {
+    const result = parseReportFormula(
+      "S_(прибуд) = S_(діт) + S_(фіз) = 70 + 20 = 90 м²",
+    );
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.lines[0].latex).toContain("S_{\\text{прибуд}}");
+    expect(result.lines[0].latex).toContain("S_{\\text{діт}}");
+    expect(result.lines[0].latex).toContain("S_{\\text{фіз}}");
+  });
+
   it("renders table E8 interpolation formulas as separate LaTeX lines with fractions", () => {
     const formula =
       "Mγ = Mγ,a + (Mγ,b - Mγ,a) * (φ11 - φa) / (φb - φa) = 1.15 + (1.24 - 1.15) * (30.01 - 30) / (31 - 30) = 1.15; Mq = Mq,a + (Mq,b - Mq,a) * (φ11 - φa) / (φb - φa) = 5.59 + (5.95 - 5.59) * (30.01 - 30) / (31 - 30) = 5.59; Mc = Mc,a + (Mc,b - Mc,a) * (φ11 - φa) / (φb - φa) = 7.95 + (8.24 - 7.95) * (30.01 - 30) / (31 - 30) = 7.95";

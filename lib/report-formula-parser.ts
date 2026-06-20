@@ -16,6 +16,8 @@ const REPORT_SYMBOL_PATTERN = new RegExp(
   REPORT_SYMBOLS.map((symbol) => symbol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
   "gu",
 );
+const EXPLICIT_INDEX_SYMBOL_PATTERN =
+  /[A-Za-zØΣΔλασγφ∫]_\([A-Za-zА-Яа-яІіЇїЄєҐґ0-9,+.-]+\)/gu;
 const FORMULA_OPERATOR_PATTERN = /(=|<=|>=|<|>|\+|-|\*|\/|\(|\[)/u;
 const UNIT_PATTERN =
   /(\d(?:[.,]\d+)?)\s?(мм²\/м\.п\.|кН\*м|т\/м³|т\/м²|кг\/см²|кН\/м²|т·м|мм²|см²|м²|м³|МПа|кПа|кН|балів|бали|бал|т|м|%)(?=$|\s=|\s≈|;|\)|\])/gu;
@@ -98,12 +100,21 @@ function convertSymbols(latex: string): string {
   const placeholders = new Map<string, string>();
   let placeholderIndex = 0;
 
-  const withKnownSymbols = latex.replace(REPORT_SYMBOL_PATTERN, (symbol) => {
-    const placeholder = `@@${placeholderIndex}@@`;
+  const protectSymbol = (symbol: string) => {
+    const placeholder = `\uE000${placeholderIndex}\uE001`;
     placeholderIndex += 1;
     placeholders.set(placeholder, reportSymbolToLatex(symbol));
     return placeholder;
-  });
+  };
+
+  const withExplicitSymbols = latex.replace(
+    EXPLICIT_INDEX_SYMBOL_PATTERN,
+    protectSymbol,
+  );
+  const withKnownSymbols = withExplicitSymbols.replace(
+    REPORT_SYMBOL_PATTERN,
+    protectSymbol,
+  );
 
   const converted = withKnownSymbols.replace(SYMBOL_PATTERN, (symbol) => {
     if (/^\d/.test(symbol)) return symbol;

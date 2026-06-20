@@ -7,6 +7,7 @@ type BuildNativeDocxReportInput = {
   fileBaseName: string;
   figures?: DocxReportFigure[];
   steps: NativeReportStep[];
+  includeStepHeading?: boolean;
 };
 
 export function buildNativeDocxReport({
@@ -14,11 +15,13 @@ export function buildNativeDocxReport({
   fileBaseName,
   figures,
   steps,
+  includeStepHeading,
 }: BuildNativeDocxReportInput): DocxReportDocument {
   return {
     title,
     fileBaseName,
     ...(figures?.length ? { figures } : {}),
+    ...(includeStepHeading === undefined ? {} : { includeStepHeading }),
     steps: steps.map((step) => ({
       key: step.key,
       caption: step.caption,
@@ -27,6 +30,14 @@ export function buildNativeDocxReport({
       ...(step.formula ? { formula: step.formula } : {}),
       ...(step.formulas ? { formulas: [...step.formulas] } : {}),
       ...(step.resultItems ? { resultItems: [...step.resultItems] } : {}),
+      ...(step.table
+        ? {
+            table: {
+              columns: [...step.table.columns],
+              rows: step.table.rows.map((row) => [...row]),
+            },
+          }
+        : {}),
     })),
   };
 }

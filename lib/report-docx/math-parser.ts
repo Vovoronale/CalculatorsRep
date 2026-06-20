@@ -1,5 +1,5 @@
 export type DocxBinaryOperator = "+" | "-" | "*" | "/" | "^";
-export type DocxChainOperator = "=" | "<" | "<=" | ">" | ">=" | "=>" | "≈";
+export type DocxChainOperator = "=" | "<" | "<=" | ">" | ">=" | "=>" | "≈" | ":";
 
 export type DocxFormulaNode =
   | { type: "number"; value: string }
@@ -12,13 +12,18 @@ export type DocxFormulaNode =
       left: DocxFormulaNode;
       right: DocxFormulaNode;
     }
-  | { type: "group"; bracket: "round" | "square"; expression: DocxFormulaNode }
+  | {
+      type: "group";
+      bracket: "round" | "square" | "ceiling";
+      expression: DocxFormulaNode;
+    }
   | { type: "function"; name: "min" | "max" | "sqrt" | "abs"; args: DocxFormulaNode[] }
   | { type: "chain"; operators: DocxChainOperator[]; parts: DocxFormulaNode[] };
 
 export type DocxFormulaStatement = {
   source: string;
   expression: DocxFormulaNode;
+  prefix?: string;
   suffix?: string;
 };
 
@@ -35,6 +40,8 @@ type Token =
   | { type: "close-paren"; value: ")" }
   | { type: "open-bracket"; value: "[" }
   | { type: "close-bracket"; value: "]" }
+  | { type: "open-ceiling"; value: "⌈" }
+  | { type: "close-ceiling"; value: "⌉" }
   | { type: "pipe"; value: "|" }
   | { type: "separator"; value: "," | ";" };
 
@@ -42,11 +49,15 @@ const EXPLANATORY_SUFFIX_PATTERNS = [
   " - умова виконується",
   " - умова не виконується",
   ", оскільки",
+  " — умову виконано",
+  " — умову не виконано",
 ] as const;
 
-const SUPPORTED_OPERATOR_PATTERN = /(<=|>=|=>|=|<|>|\+|-|\*|\/|\^)/u;
+const SUPPORTED_OPERATOR_PATTERN = /(<=|>=|=>|=|<|>|≤|≥|\+|-|\*|×|\/|\^)/u;
 
 const KNOWN_UNITS = [
+  "м²/квартиру",
+  "м²/особу",
   "кгс/м³",
   "кН/м³",
   "кН/м²",
@@ -66,6 +77,8 @@ const KNOWN_UNITS = [
   "балів",
   "бали",
   "бал",
+  "машиномісць",
+  "квартир",
   "мм",
   "см",
   "рад",
@@ -110,6 +123,19 @@ function splitExplanatorySuffix(source: string): { math: string; suffix?: string
   }
 
   return { math: source };
+}
+
+function splitExplanatoryPrefix(source: string): { math: string; prefix?: string } {
+  const separatorIndex = source.indexOf(": ");
+  if (separatorIndex === -1) return { math: source };
+
+  const candidate = source.slice(0, separatorIndex);
+  if (SUPPORTED_OPERATOR_PATTERN.test(candidate)) return { math: source };
+
+  return {
+    prefix: source.slice(0, separatorIndex + 2),
+    math: source.slice(separatorIndex + 2),
+  };
 }
 
 function isIdentifierStart(char: string): boolean {
@@ -182,6 +208,18 @@ function tokenize(source: string): Token[] {
       continue;
     }
 
+    if (char === "⌈") {
+      tokens.push({ type: "open-ceiling", value: char });
+      index += 1;
+      continue;
+    }
+
+    if (char === "⌉") {
+      tokens.push({ type: "close-ceiling", value: char });
+      index += 1;
+      continue;
+    }
+
     if (char === "|") {
       tokens.push({ type: "pipe", value: char });
       index += 1;
@@ -194,14 +232,32 @@ function tokenize(source: string): Token[] {
       continue;
     }
 
-    if (char === "+" || char === "-" || char === "*" || char === "/" || char === "^") {
-      tokens.push({ type: "operator", value: char });
+    if (
+      char === "+" ||
+      char === "-" ||
+      char === "*" ||
+      char === "×" ||
+      char === "/" ||
+      char === "^"
+    ) {
+      tokens.push({ type: "operator", value: char === "×" ? "*" : char });
       index += 1;
       continue;
     }
 
-    if (char === "=" || char === "<" || char === ">" || char === "≈") {
-      tokens.push({ type: "operator", value: char });
+    if (
+      char === "=" ||
+      char === "<" ||
+      char === ">" ||
+      char === "≤" ||
+      char === "≥" ||
+      char === "≈" ||
+      char === ":"
+    ) {
+      tokens.push({
+        type: "operator",
+        value: char === "≤" ? "<=" : char === "≥" ? ">=" : char,
+      });
       index += 1;
       continue;
     }
@@ -219,6 +275,17 @@ function tokenize(source: string): Token[] {
     }
 
     if (isIdentifierStart(char)) {
+      const explicitIndex = source
+        .slice(index)
+        .match(
+          /^([A-Za-zА-Яа-яІіЇїЄєҐґØΣΔλσγφβαδεθκμρτπωπ][A-Za-zА-Яа-яІіЇїЄєҐґØΣΔλσγφβαδεθκμρτπωπ0-9′]*)_\(([^)]+)\)/u,
+        );
+      if (explicitIndex) {
+        tokens.push({ type: "identifier", value: explicitIndex[0] });
+        index += explicitIndex[0].length;
+        continue;
+      }
+
       const start = index;
       index += 1;
 
@@ -243,6 +310,11 @@ function tokenize(source: string): Token[] {
 function splitSymbol(value: string): { base: string; subscript?: string } {
   if (value === "pi") return { base: "π" };
   if (value === "π") return { base: "π" };
+
+  const explicitIndex = value.match(/^(.+)_\(([^)]+)\)$/u);
+  if (explicitIndex) {
+    return { base: explicitIndex[1], subscript: explicitIndex[2] };
+  }
 
   const underscoreIndex = value.indexOf("_");
   if (underscoreIndex > 0) {
@@ -397,6 +469,12 @@ class FormulaParser {
       return { type: "group", bracket: "square", expression };
     }
 
+    if (this.match("open-ceiling")) {
+      const expression = this.parseChain();
+      this.consume("close-ceiling", "Expected closing ceiling bracket.");
+      return { type: "group", bracket: "ceiling", expression };
+    }
+
     if (this.match("pipe")) {
       const expression = this.parseChain();
       this.consume("pipe", "Expected closing absolute value bar.");
@@ -488,7 +566,8 @@ function isChainOperator(value: string): value is DocxChainOperator {
     value === ">" ||
     value === ">=" ||
     value === "=>" ||
-    value === "≈"
+    value === "≈" ||
+    value === ":"
   );
 }
 
@@ -497,13 +576,15 @@ function isSupportedFunction(value: string): value is "min" | "max" | "sqrt" | "
 }
 
 function parseStatement(source: string): DocxFormulaStatement {
-  const { math, suffix } = splitExplanatorySuffix(source);
+  const { math: withoutSuffix, suffix } = splitExplanatorySuffix(source);
+  const { math, prefix } = splitExplanatoryPrefix(withoutSuffix);
   const tokens = tokenize(math);
   const expression = new FormulaParser(tokens).parse();
 
   return {
     source,
     expression,
+    ...(prefix ? { prefix } : {}),
     ...(suffix ? { suffix } : {}),
   };
 }

@@ -6,6 +6,7 @@ export type DocxReportStep = {
   formula?: string;
   formulas?: string[];
   resultItems?: string[];
+  table?: { columns: string[]; rows: string[][] };
 };
 
 export type DocxReportFigure = {
@@ -21,5 +22,6 @@ export type DocxReportDocument = {
   title: string;
   fileBaseName: string;
   figures?: DocxReportFigure[];
+  includeStepHeading?: boolean;
   steps: DocxReportStep[];
 };

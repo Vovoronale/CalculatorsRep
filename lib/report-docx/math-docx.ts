@@ -89,6 +89,10 @@ function convertNode(node: DocxFormulaNode): MathComponent[] {
       return [new MathSquareBrackets({ children })];
     }
 
+    if (node.bracket === "ceiling") {
+      return [mathText("⌈"), ...children, mathText("⌉")];
+    }
+
     return [new MathRoundBrackets({ children })];
   }
 
@@ -126,6 +130,7 @@ function convertFunctionArgs(args: DocxFormulaNode[]): MathComponent[] {
 
 function createMathParagraph(statement: DocxFormulaStatement): Paragraph {
   const children: MathComponent[] = [
+    ...(statement.prefix ? [mathText(statement.prefix)] : []),
     ...convertNode(statement.expression),
     ...(statement.suffix ? [mathText(statement.suffix)] : []),
   ];

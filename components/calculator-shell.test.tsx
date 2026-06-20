@@ -888,7 +888,7 @@ describe("CalculatorShell", () => {
     expect(
       within(
         screen.getByLabelText("Результати розрахунку площ майданчиків"),
-      ).getByText("Sприбуд = 457,2 м²"),
+      ).getByText("S_(прибуд) = 457,2 м²"),
     ).toBeInTheDocument();
   });
 
