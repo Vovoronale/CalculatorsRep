@@ -348,6 +348,27 @@ describe("calculator data model", () => {
     expect(generator).not.toContain('slug: "livebeamcalculator"');
   });
 
+  it("defines every generated calculator once with the enlarged badge typography", () => {
+    const generator = readFileSync(
+      join(process.cwd(), "scripts", "generate-construction-urban-icons.mjs"),
+      "utf8",
+    );
+    const generatedSlugs = [
+      ...generator.matchAll(/slug:\s*"([^"]+)"/g),
+    ].map((match) => match[1]);
+    const expectedSlugs = calculators
+      .map((calculator) => calculator.slug)
+      .filter((slug) => slug !== "armcon" && slug !== "livebeamcalculator")
+      .sort();
+
+    expect(generatedSlugs).toHaveLength(42);
+    expect(new Set(generatedSlugs).size).toBe(42);
+    expect(generatedSlugs.sort()).toEqual(expectedSlugs);
+    expect(generator).toMatch(/function textBadge\([^)]*fontSize = 87\)/);
+    expect(generator).toContain('font-size="87"');
+    expect(generator).toContain('font-size="51"');
+  });
+
   it("registers the foundation base pressure calculator as a native foundation calculator", () => {
     const calculator = getCalculatorBySlug("foundation-base-pressure");
 

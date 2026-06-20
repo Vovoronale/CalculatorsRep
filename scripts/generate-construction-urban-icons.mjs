@@ -13,6 +13,14 @@ const colors = {
   mechanics: { fill: "#3E6288", text: "#FFFFFF", stroke: "#29445F" },
   steel: { fill: "#71558A", text: "#FFFFFF", stroke: "#4F3A63" },
   urban: { fill: "#FFFFFF", text: "#25292B", stroke: "#25292B" },
+  envelope: { fill: "#A45A45", text: "#FFFFFF", stroke: "#713B2D" },
+  floors: { fill: "#8A6A3C", text: "#FFFFFF", stroke: "#5E4828" },
+  bridges: { fill: "#3F7774", text: "#FFFFFF", stroke: "#28514F" },
+  normcontrol: { fill: "#4A6078", text: "#FFFFFF", stroke: "#304255" },
+  consequence: { fill: "#7D4655", text: "#FFFFFF", stroke: "#57303B" },
+  electricity: { fill: "#B27618", text: "#FFFFFF", stroke: "#79500E" },
+  gis: { fill: "#3C6E8F", text: "#FFFFFF", stroke: "#284C64" },
+  ai: { fill: "#6E568C", text: "#FFFFFF", stroke: "#4B3A62" },
 };
 
 const stroke = 'fill="none" stroke="#222729" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"';
@@ -26,9 +34,9 @@ function badge(content, palette, width = 168) {
     </g>`;
 }
 
-function textBadge(label, palette, width = 168, fontSize = 58) {
+function textBadge(label, palette, width = 168, fontSize = 87) {
   return badge(
-    `<text x="${34 + width / 2}" y="109" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="700" fill="${palette.text}">${label}</text>`,
+    `<text x="${34 + width / 2}" y="119" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="700" fill="${palette.text}">${label}</text>`,
     palette,
     width,
   );
@@ -37,7 +45,7 @@ function textBadge(label, palette, width = 168, fontSize = 58) {
 function subscriptBadge(base, subscript, palette, width = 190) {
   const center = 34 + width / 2;
   return badge(
-    `<text x="${center}" y="108" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="59" font-weight="700" fill="${palette.text}">${base}<tspan baseline-shift="sub" font-size="34">${subscript}</tspan></text>`,
+    `<text x="${center}" y="116" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="87" font-weight="700" fill="${palette.text}">${base}<tspan baseline-shift="sub" font-size="51">${subscript}</tspan></text>`,
     palette,
     width,
   );
@@ -66,7 +74,180 @@ function canvas(body, badgeMarkup) {
   </svg>`;
 }
 
+function wall(extra = "", layers = 3) {
+  const stripes = Array.from({ length: layers }, (_, index) =>
+    `<rect x="${184 + index * 62}" y="178" width="62" height="248" fill="${index % 2 ? "#B9BDBA" : "#E1E3E0"}"/>`,
+  ).join("");
+  return `<g><rect x="176" y="170" width="${layers * 62 + 16}" height="264" rx="8" fill="#D7DAD7" stroke="#222729" stroke-width="18"/>${stripes}${extra}</g>`;
+}
+
+function floorSection(extra = "") {
+  return `<path d="M126 252h350v104H126z" fill="url(#concrete)" stroke="#222729" stroke-width="20"/>${extra}`;
+}
+
+function thermalBridge(kind) {
+  const shapes = {
+    wallFloor: "M176 170v264h98V326h190v-94H274V170z",
+    balcony: "M176 170v264h98V326h210v-94H274V170z M380 326v80",
+    floorInclusion: "M120 244h360v108H120z M280 244v108",
+    wallInclusion: "M214 154h112v294H214z M214 280h112",
+    corner: "M156 170v260h276v-96H252V170z",
+    doubleCorner: "M144 158v284h300v-120H264V158z M192 158v236h252",
+  };
+  return `<path d="${shapes[kind]}" fill="url(#concrete)" stroke="#222729" stroke-width="20" stroke-linejoin="round"/>`;
+}
+
 const icons = [
+  {
+    slug: "cadee-external",
+    badge: textBadge("R&#931;", colors.envelope, 220),
+    body: wall(`<path d="M410 224h62m-24-28l28 28-28 28M410 342h62m-24-28l28 28-28 28" ${thinStroke}/>`),
+  },
+  {
+    slug: "cadee-heat-transfer-resistance",
+    badge: textBadge("R", colors.envelope),
+    body: wall(`<path d="M132 250h70m-38-34l-34 34 34 34M396 350h84m-36-34l36 34-36 34" ${thinStroke}/>`),
+  },
+  {
+    slug: "cadee-heat-humid-state",
+    badge: textBadge("w", colors.envelope),
+    body: wall(`<path d="M418 218c-38 54-54 78-54 104a54 54 0 00108 0c0-26-16-50-54-104z" fill="#D9DCDA" stroke="#222729" stroke-width="18"/>`),
+  },
+  {
+    slug: "cadee-vapor-permeability-resistance",
+    badge: subscriptBadge("R", "v", colors.envelope, 190),
+    body: wall(`<g fill="#555B59"><circle cx="130" cy="236" r="13"/><circle cx="130" cy="304" r="13"/><circle cx="130" cy="372" r="13"/><circle cx="438" cy="236" r="8"/><circle cx="438" cy="304" r="8"/><circle cx="438" cy="372" r="8"/></g>`),
+  },
+  {
+    slug: "cadee-heat-inertia",
+    badge: textBadge("D", colors.envelope),
+    body: wall(`<circle cx="430" cy="310" r="62" fill="#F1F2F0" stroke="#222729" stroke-width="18"/><path d="M430 274v40l30 22" ${thinStroke}/>`),
+  },
+  {
+    slug: "cadee-summer-thermo-resistance",
+    badge: textBadge("&#957;", colors.envelope),
+    body: wall(`<circle cx="432" cy="276" r="43" fill="#E5E3DA" stroke="#222729" stroke-width="17"/><path d="M432 202v-28m0 204v-28m-74-74h-28m204 0h-28m-126-52l-20-20m144 144l-20-20m0-104l20-20M380 328l-20 20" ${thinStroke}/>`),
+  },
+  {
+    slug: "cadee-dewpoint-temperature",
+    badge: subscriptBadge("t", "d", colors.envelope, 178),
+    body: `<path d="M314 164c-74 104-104 150-104 202a104 104 0 00208 0c0-52-30-98-104-202z" fill="#DDE0DE" stroke="#222729" stroke-width="20"/><path d="M314 234v136" ${stroke}/><circle cx="314" cy="374" r="36" fill="#8E9491" stroke="#222729" stroke-width="16"/>`,
+  },
+  {
+    slug: "cadee-delta-surface-temperature",
+    badge: subscriptBadge("&#964;", "i", colors.envelope, 178),
+    body: wall(`<path d="M432 212v142" ${stroke}/><circle cx="432" cy="374" r="34" fill="#8E9491" stroke="#222729" stroke-width="16"/><path d="M404 220h56" ${thinStroke}/>`),
+  },
+  {
+    slug: "cadee-air-permeability",
+    badge: textBadge("G", colors.envelope),
+    body: wall(`<path d="M112 240h350m-44-34l44 34-44 34M112 342h350m-44-34l44 34-44 34" ${stroke}/>`),
+  },
+  {
+    slug: "cadee-heated-basement",
+    badge: subscriptBadge("R", "b+", colors.floors, 208),
+    body: floorSection(`<path d="M206 388h168v52H206zM238 388v52m34-52v52m34-52v52m34-52v52" ${thinStroke}/><path d="M230 222c-20-34 20-48 0-78m70 78c-20-34 20-48 0-78m70 78c-20-34 20-48 0-78" ${thinStroke}/>`),
+  },
+  {
+    slug: "cadee-floor-techroom",
+    badge: subscriptBadge("R", "tp", colors.floors, 208),
+    body: floorSection(`<rect x="214" y="382" width="174" height="62" rx="8" fill="#D2D5D2" stroke="#222729" stroke-width="18"/><path d="M248 382v62m106-62v62" ${thinStroke}/>`),
+  },
+  {
+    slug: "cadee-floor-ground",
+    badge: subscriptBadge("R", "g", colors.floors, 190),
+    body: floorSection(`<path d="M120 402c64-34 116-34 176 0s116 34 184 0M120 454c64-34 116-34 176 0s116 34 184 0" ${thinStroke}/>`),
+  },
+  {
+    slug: "cadee-floor-cold-basement",
+    badge: subscriptBadge("R", "b-", colors.floors, 208),
+    body: floorSection(`<path d="M302 382v76m-34-58l68 40m0-40l-68 40M268 382l68 76" ${thinStroke}/>`),
+  },
+  {
+    slug: "cadee-floor-heat-absorption",
+    badge: textBadge("Y", colors.floors),
+    body: floorSection(`<path d="M208 220c22-34 48-34 70 0s48 34 70 0 48-34 70 0" ${stroke}/><path d="M312 212v-72m-28 36l28-36 28 36" ${thinStroke}/>`),
+  },
+  {
+    slug: "cadee-bridge-homogeneous-wall-floor",
+    badge: textBadge("&#936;", colors.bridges),
+    body: thermalBridge("wallFloor"),
+  },
+  {
+    slug: "cadee-bridge-homogeneous-wall-floor-balcony",
+    badge: textBadge("&#936;", colors.bridges),
+    body: thermalBridge("balcony"),
+  },
+  {
+    slug: "cadee-bridge-floor-inclusions",
+    badge: textBadge("&#936;", colors.bridges),
+    body: thermalBridge("floorInclusion"),
+  },
+  {
+    slug: "cadee-bridge-wall-inclusions",
+    badge: textBadge("&#936;", colors.bridges),
+    body: thermalBridge("wallInclusion"),
+  },
+  {
+    slug: "cadee-bridge-homogeneous-wall-corner",
+    badge: textBadge("&#936;", colors.bridges),
+    body: thermalBridge("corner"),
+  },
+  {
+    slug: "cadee-bridge-two-wall-corner",
+    badge: textBadge("&#936;", colors.bridges),
+    body: thermalBridge("doubleCorner"),
+  },
+  {
+    slug: "normcontrol",
+    badge: textBadge("NC", colors.normcontrol, 210),
+    body: `<rect x="150" y="166" width="238" height="280" rx="12" fill="#E1E3E0" stroke="#222729" stroke-width="20"/><path d="M190 232l24 24 42-50M190 318l24 24 42-50" ${thinStroke}/><path d="M278 232h66M278 318h66" ${thinStroke}/><circle cx="394" cy="370" r="62" fill="#F1F2F0" stroke="#222729" stroke-width="18"/><path d="M438 414l40 40" ${stroke}/>` ,
+  },
+  {
+    slug: "consequence-class",
+    badge: textBadge("CC", colors.consequence, 210),
+    body: `<path d="M304 166l142 50v92c0 74-50 124-142 160-92-36-142-86-142-160v-92z" fill="#D9DCDA" stroke="#222729" stroke-width="20"/><path d="M238 332v-74h132v126H238v-52m28-28h28m28 0h28m-84 44h28m28 0h28" ${thinStroke}/>` ,
+  },
+  {
+    slug: "power-calculator",
+    badge: textBadge("P", colors.electricity),
+    body: `<rect x="158" y="164" width="286" height="286" rx="18" fill="#D9DCDA" stroke="#222729" stroke-width="20"/><path d="M330 198l-76 126h62l-38 94 100-142h-66z" fill="#777D7A" stroke="#222729" stroke-width="15" stroke-linejoin="round"/>`,
+  },
+  {
+    slug: "iv-geojson",
+    badge: textBadge("GIS", colors.gis, 250),
+    body: `<path d="M140 214l112-50 96 52 116-50v238l-116 48-96-52-112 50z" fill="#D9DCDA" stroke="#222729" stroke-width="20" stroke-linejoin="round"/><path d="M252 164v236m96-184v236" ${thinStroke}/><path d="M196 330l62-70 82 52 70-78" ${stroke}/><g fill="#222729"><circle cx="196" cy="330" r="17"/><circle cx="258" cy="260" r="17"/><circle cx="340" cy="312" r="17"/><circle cx="410" cy="234" r="17"/></g>` ,
+  },
+  {
+    slug: "dbn-assistant",
+    badge: textBadge("AI", colors.ai, 190),
+    body: `<path d="M142 190h142q42 0 42 42v196H184q-42 0-42-42z" fill="#E1E3E0" stroke="#222729" stroke-width="20"/><path d="M326 232h96q42 0 42 42v82q0 42-42 42h-42l-44 42v-42h-10z" fill="#C5C9C6" stroke="#222729" stroke-width="20"/><path d="M184 254h100m-100 58h100m-100 58h74" ${thinStroke}/>` ,
+  },
+  {
+    slug: "ai-dbn-v-2-2-5-2023",
+    badge: textBadge("AI", colors.ai, 190),
+    body: `<path d="M154 402h310V252L310 166 154 252z" fill="#D9DCDA" stroke="#222729" stroke-width="20"/><path d="M234 402V292h152v110" ${stroke}/><path d="M416 182l68 24v54c0 48-34 82-68 98-34-16-68-50-68-98v-54z" fill="#F1F2F0" stroke="#222729" stroke-width="17"/>` ,
+  },
+  {
+    slug: "ai-dbn-v-2-6-31-2021",
+    badge: textBadge("AI", colors.ai, 190),
+    body: wall(`<circle cx="430" cy="232" r="36" fill="#E5E3DA" stroke="#222729" stroke-width="15"/><path d="M430 330v106m-42-84l84 62m0-62l-84 62" ${thinStroke}/>`),
+  },
+  {
+    slug: "ai-dbn-v-1-1-7-2016",
+    badge: textBadge("AI", colors.ai, 190),
+    body: `<path d="M304 162l142 50v96c0 74-50 124-142 160-92-36-142-86-142-160v-96z" fill="#D9DCDA" stroke="#222729" stroke-width="20"/><path d="M306 242c54 54 64 90 42 128-20 36-80 40-100 0-20-42 14-72 34-98 6 24 14 34 24 40 18-22 12-46 0-70z" fill="#777D7A" stroke="#222729" stroke-width="15"/>` ,
+  },
+  {
+    slug: "ai-dbn-v-2-2-15-2019",
+    badge: textBadge("AI", colors.ai, 190),
+    body: `<path d="M150 434V224l154-70 154 70v210z" fill="#D9DCDA" stroke="#222729" stroke-width="20"/><path d="M198 270h56v58h-56zm156 0h56v58h-56zM198 356h56v58h-56zm156 0h56v58h-56z" fill="#F1F2F0" stroke="#222729" stroke-width="14"/>`,
+  },
+  {
+    slug: "ai-dbn-v-2-5-67-2013",
+    badge: textBadge("AI", colors.ai, 190),
+    body: `<circle cx="302" cy="314" r="126" fill="#D9DCDA" stroke="#222729" stroke-width="20"/><circle cx="302" cy="314" r="28" fill="#222729"/><path d="M302 286c-12-72 26-104 78-92 4 54-26 90-78 120m28 0c72-12 104 26 92 78-54 4-90-26-120-78m0 28c12 72-26 104-78 92-4-54 26-90 78-120m-28 0c-72 12-104-26-92-78 54-4 90 26 120 78" fill="#8E9491" stroke="#222729" stroke-width="14" stroke-linejoin="round"/>` ,
+  },
   {
     slug: "rebar-area-bars",
     badge: textBadge("n&#216;", colors.reinforcedConcrete, 184),

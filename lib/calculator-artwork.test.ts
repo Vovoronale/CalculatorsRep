@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { getCalculatorArtworkPath } from "@/lib/calculator-artwork";
+import { calculators } from "@/lib/calculators";
 
 describe("calculator artwork paths", () => {
   it("uses PNG artwork for the approved construction and urban-planning icons", () => {
@@ -10,9 +11,17 @@ describe("calculator artwork paths", () => {
     );
   });
 
-  it("keeps existing SVG artwork for calculators outside the approved set", () => {
+  it("uses PNG artwork for calculators outside the original approved set", () => {
     expect(getCalculatorArtworkPath("cadee-external")).toBe(
-      "/calculator-icons/cadee-external.svg",
+      "/calculator-icons/cadee-external.png",
     );
+  });
+
+  it("uses PNG artwork for every registered calculator", () => {
+    for (const calculator of calculators) {
+      expect(getCalculatorArtworkPath(calculator.slug), calculator.slug).toMatch(
+        /\.png$/,
+      );
+    }
   });
 });
