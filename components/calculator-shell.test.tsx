@@ -101,7 +101,7 @@ describe("CalculatorShell", () => {
     });
     expect(calculatorImage).toHaveAttribute(
       "src",
-      "/calculator-icons/cadee-external.svg",
+      "/calculator-icons/cadee-external.png",
     );
     expect(
       externalEnvelopeRow.querySelector(".calculator-table__access-marker--embed"),
