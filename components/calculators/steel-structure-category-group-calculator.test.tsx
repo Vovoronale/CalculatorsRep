@@ -100,6 +100,24 @@ describe("SteelStructureCategoryGroupCalculator", () => {
     expect(screen.getAllByText("Скан фрагмента ДБН")).toHaveLength(14);
   });
 
+  it("renders one e-construction action per steel normative card", () => {
+    render(<SteelStructureCategoryGroupCalculator />);
+
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>(".dbn-source-link"),
+    );
+    expect(links).toHaveLength(6);
+    for (const link of links) {
+      expect(link).toHaveTextContent("Відкрити ДБН на e-construction");
+      expect(link).toHaveAttribute(
+        "href",
+        "https://e-construction.gov.ua/laws_detail/3870232666225772499?doc_type=2",
+      );
+      expect(link).toHaveAttribute("target", "_blank");
+      expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    }
+  });
+
   it("uses the agreed title in the DOCX report model", () => {
     const report = getSteelStructureCategoryGroupReport(
       DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT,

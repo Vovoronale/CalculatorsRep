@@ -33,6 +33,7 @@ import {
   type CalculatorInputValues,
 } from "@/lib/calculator-input-schema";
 
+import { DbnSourceLink } from "./dbn-source-link";
 import { InputSchemaForm } from "./input-schema-form";
 import { MathNotation } from "./math-notation";
 import { buildNativeDocxReport, formatDocxFileDate } from "./native-report-docx";
@@ -373,28 +374,34 @@ function NormativeReferences() {
     <div className="native-report__head"><h3 id="steel-structure-norms-title">Нормативні посилання</h3></div>
     <div className="native-report__items">
       <article><h4>ДБН В.2.6-198:2014, Додаток А, таблиця А.1</h4><p>Категорії конструкцій за призначенням і за напруженим станом.</p>
+        <DbnSourceLink document="dbn-v-2-6-198-2014" />
         <NormScan id="steel-norm-table-a-1" src="/dbn/steel-structure-category-group/dbn-table-a-1-part-1.png" alt="Скан таблиці А.1 з ДБН В.2.6-198:2014, частина 1" />
         <NormScan src="/dbn/steel-structure-category-group/dbn-table-a-1-part-2.png" alt="Скан таблиці А.1 з ДБН В.2.6-198:2014, частина 2" />
         <NormScan src="/dbn/steel-structure-category-group/dbn-table-a-1-part-3.png" alt="Скан таблиці А.1 з ДБН В.2.6-198:2014, частина 3" />
       </article>
       <article><h4>ДБН В.2.6-198:2014, Додаток А, таблиця А.2</h4><p>Показники S1–S5, початкова група та її уточнення.</p>
+        <DbnSourceLink document="dbn-v-2-6-198-2014" />
         <NormScan id="steel-norm-table-a-2" src="/dbn/steel-structure-category-group/dbn-table-a-2.png" alt="Скан таблиці А.2 з ДБН В.2.6-198:2014" />
         <NormScan id="steel-norm-a-1-a-2" src="/dbn/steel-structure-category-group/dbn-a-1-a-2-rules-part-1.png" alt="Скан пунктів А.1 і А.2 з ДБН В.2.6-198:2014, частина 1" />
         <NormScan src="/dbn/steel-structure-category-group/dbn-a-1-a-2-rules-part-2.png" alt="Скан пункту А.2 з ДБН В.2.6-198:2014, частина 2" />
       </article>
       <article><h4>ДБН В.2.6-198:2014, пункт 5.4.1, таблиця 5.1</h4><p>Коефіцієнти умов роботи γc та примітки 1–5.</p>
+        <DbnSourceLink document="dbn-v-2-6-198-2014" />
         <NormScan id="steel-norm-table-5-1" src="/dbn/steel-structure-category-group/dbn-table-5-1-part-1.png" alt="Скан таблиці 5.1 з ДБН В.2.6-198:2014" />
         <NormScan id="steel-norm-table-5-1-notes" src="/dbn/steel-structure-category-group/dbn-table-5-1-part-2-notes.png" alt="Скан приміток 1–5 до таблиці 5.1 з ДБН В.2.6-198:2014" />
       </article>
       <article><h4>ДБН В.2.6-198:2014, пункти 7.1–7.2, таблиці 7.1–7.2</h4><p>Визначення Ry = Ryn / γm і коефіцієнта надійності за матеріалом γm.</p>
+        <DbnSourceLink document="dbn-v-2-6-198-2014" />
         <NormScan id="steel-norm-table-7-1" src="/dbn/steel-structure-category-group/dbn-table-7-1.png" alt="Скан пункту 7.1 і таблиці 7.1 з ДБН В.2.6-198:2014" />
         <NormScan id="steel-norm-table-7-2" src="/dbn/steel-structure-category-group/dbn-table-7-2.png" alt="Скан таблиці 7.2 з ДБН В.2.6-198:2014" />
       </article>
       <article><h4>ДБН В.2.6-198:2014, Додаток Г, таблиця Г.1</h4><p>Допустимість класів сталі для груп конструкцій.</p>
+        <DbnSourceLink document="dbn-v-2-6-198-2014" />
         <NormScan id="steel-norm-table-g-1" src="/dbn/steel-structure-category-group/dbn-table-g-1-part-1.png" alt="Скан таблиці Г.1 з ДБН В.2.6-198:2014, частина 1" />
         <NormScan src="/dbn/steel-structure-category-group/dbn-table-g-1-part-2-notes.png" alt="Скан таблиці Г.1 з ДБН В.2.6-198:2014, частина 2 і примітки" />
       </article>
       <article><h4>ДБН В.2.6-198:2014, Додаток Г, таблиця Г.5</h4><p>Відповідність марок сталі класам міцності, виду і товщині прокату.</p>
+        <DbnSourceLink document="dbn-v-2-6-198-2014" />
         <NormScan id="steel-norm-table-g-5" src="/dbn/steel-structure-category-group/dbn-table-g-5-part-1.png" alt="Скан таблиці Г.5 з ДБН В.2.6-198:2014, частина 1" />
         <NormScan src="/dbn/steel-structure-category-group/dbn-table-g-5-part-2.png" alt="Скан таблиці Г.5 з ДБН В.2.6-198:2014, частина 2" />
       </article>
