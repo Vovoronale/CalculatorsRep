@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown, ExternalLink } from "lucide-react";
+import { ChevronDown, ExternalLink, MessageSquareWarning } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { CassoonLoadDistributionCalculator } from "@/components/calculators/cassoon-load-distribution-calculator";
@@ -20,6 +20,7 @@ import { CalculatorCard } from "@/components/calculator-card";
 import { CalculatorModal } from "@/components/calculator-modal";
 import { CatalogRail } from "@/components/catalog-rail";
 import { DrawerBackdrop } from "@/components/drawer-backdrop";
+import { FeedbackDialog } from "@/components/feedback-dialog";
 import { MobileTopBar } from "@/components/mobile-top-bar";
 import { SiteFooter } from "@/components/site-footer";
 import { SupportStrip } from "@/components/support-strip";
@@ -53,6 +54,8 @@ export function CalculatorShell({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [modalCalculator, setModalCalculator] = useState<Calculator | null>(null);
+  const [bugReportOpen, setBugReportOpen] = useState(false);
+  const [bugReportPageUrl, setBugReportPageUrl] = useState("");
   const [activeCategory, setActiveCategory] = useState<CategorySlug>(
     selectedCategory ?? selectedCalculator?.mainCategory ?? calculatorCategories[0].slug,
   );
@@ -104,6 +107,11 @@ export function CalculatorShell({
     });
   };
 
+  const openBugReport = () => {
+    setBugReportPageUrl(window.location.href);
+    setBugReportOpen(true);
+  };
+
   const detailBreadcrumbs: Breadcrumb[] | null =
     selectedCalculator && detailCategoryTrail.length > 0
       ? [
@@ -137,17 +145,27 @@ export function CalculatorShell({
             <WorkspaceTopBar
               breadcrumbs={detailBreadcrumbs}
               actions={
-                selectedCalculator.displayMode === "embed" ? (
-                  <Link
+                <>
+                  {selectedCalculator.displayMode === "embed" ? (
+                    <Link
+                      className="workspace-top-bar__action"
+                      href={selectedCalculator.openUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <ExternalLink size={14} aria-hidden />
+                      {siteContent.workspace.openEmbedded}
+                    </Link>
+                  ) : null}
+                  <button
+                    type="button"
                     className="workspace-top-bar__action"
-                    href={selectedCalculator.openUrl}
-                    target="_blank"
-                    rel="noreferrer"
+                    onClick={openBugReport}
                   >
-                    <ExternalLink size={14} aria-hidden />
-                    {siteContent.workspace.openEmbedded}
-                  </Link>
-                ) : null
+                    <MessageSquareWarning size={14} aria-hidden />
+                    Повідомити про помилку
+                  </button>
+                </>
               }
             />
             <div
@@ -187,6 +205,19 @@ export function CalculatorShell({
       <CalculatorModal
         calculator={modalCalculator}
         onClose={() => setModalCalculator(null)}
+      />
+      <FeedbackDialog
+        open={bugReportOpen}
+        mode="bug-report"
+        onClose={() => setBugReportOpen(false)}
+        calculatorContext={
+          selectedCalculator
+            ? {
+                calculatorName: selectedCalculator.title,
+                pageUrl: bugReportPageUrl,
+              }
+            : undefined
+        }
       />
     </div>
   );

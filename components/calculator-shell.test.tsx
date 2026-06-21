@@ -1,8 +1,8 @@
 import React from "react";
 import { readFileSync } from "node:fs";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { CalculatorShell } from "@/components/calculator-shell";
 import { getCalculatorBySlug } from "@/lib/calculators";
@@ -31,7 +31,67 @@ function getNumericAttribute(element: Element, name: string): number {
 describe("CalculatorShell", () => {
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
     window.history.replaceState(null, "", "/");
+  });
+
+  it("does not show calculator bug reporting in the catalog", () => {
+    render(<CalculatorShell />);
+
+    expect(
+      screen.queryByRole("button", { name: "Повідомити про помилку" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("opens calculator bug reporting and submits its context", async () => {
+    const user = userEvent.setup();
+    const calculator = getCalculatorBySlug("minimum-reinforcement-area");
+
+    if (!calculator) {
+      throw new Error("Expected native minimum reinforcement calculator to exist");
+    }
+
+    window.history.replaceState(null, "", `/calculator/${calculator.slug}`);
+    render(<CalculatorShell selectedCalculator={calculator} />);
+
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const reportButton = screen.queryByRole("button", {
+      name: "Повідомити про помилку",
+    });
+
+    expect(reportButton).toBeInTheDocument();
+    await user.click(reportButton as HTMLButtonElement);
+
+    expect(
+      screen.getByRole("dialog", { name: "Повідомити про помилку" }),
+    ).toBeInTheDocument();
+
+    await user.type(screen.getByRole("textbox", { name: "Ім’я" }), "Іван");
+    await user.type(
+      screen.getByRole("textbox", { name: "Email для відповіді" }),
+      "ivan@example.com",
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: "Опишіть, що сталося" }),
+      "Невірний результат",
+    );
+    await user.click(screen.getByRole("button", { name: "Надіслати повідомлення" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    const [url, options] = fetchMock.mock.calls[0];
+    const form = options?.body;
+
+    expect(url).toBe("/api/feedback");
+    expect(form).toBeInstanceOf(FormData);
+    expect((form as FormData).get("mode")).toBe("bug-report");
+    expect((form as FormData).get("calculatorName")).toBe(calculator.title);
+    expect((form as FormData).get("pageUrl")).toBe(window.location.href);
   });
 
   it("renders category-only navigation and a standards table for the active category", async () => {
@@ -329,6 +389,9 @@ describe("CalculatorShell", () => {
     expect(
       screen.getAllByRole("link", { name: /Відкрити окремо/ })[0],
     ).toHaveAttribute("href", calculator.openUrl);
+    expect(
+      screen.getByRole("button", { name: "Повідомити про помилку" }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Каталог" })).toHaveAttribute("href", "/");
     expect(
       screen.getByRole("link", { name: "Теплотехніка" }),
@@ -346,6 +409,21 @@ describe("CalculatorShell", () => {
     );
     expect(css).toMatch(
       /\.workspace-top-bar__action\s*{[^}]*white-space:\s*nowrap;[^}]*flex-shrink:\s*0;/,
+    );
+    expect(css).toMatch(
+      /@media\s*\(max-width:\s*480px\)\s*{[\s\S]*?\.workspace-top-bar\s*{[\s\S]*?flex-direction:\s*column;[\s\S]*?height:\s*auto;/,
+    );
+    expect(css).toMatch(
+      /@media\s*\(max-width:\s*480px\)\s*{[\s\S]*?\.workspace-top-bar__actions\s*{[\s\S]*?width:\s*100%;[\s\S]*?justify-content:\s*flex-end;/,
+    );
+    expect(css).toMatch(
+      /@media\s*\(max-width:\s*480px\)\s*{[\s\S]*?\.workspace-top-bar__action\s*{[\s\S]*?padding:\s*6px 8px;[\s\S]*?font-size:\s*12px;/,
+    );
+    expect(css).toMatch(
+      /@media\s*\(max-width:\s*480px\)\s*{[\s\S]*?\.workspace-breadcrumbs__item\s*{[\s\S]*?display:\s*none;/,
+    );
+    expect(css).toMatch(
+      /\.workspace-breadcrumbs__item:first-child,[\s\S]*?\.workspace-breadcrumbs__item:last-child\s*{[\s\S]*?display:\s*inline-flex;/,
     );
   });
 
