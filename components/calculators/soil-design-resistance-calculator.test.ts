@@ -156,6 +156,24 @@ describe("SoilDesignResistanceCalculator diagrams", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders one dbn.co.ua action per soil normative card", () => {
+    render(createElement(SoilDesignResistanceCalculator));
+
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>(".dbn-source-link"),
+    );
+    expect(links).toHaveLength(6);
+    for (const link of links) {
+      expect(link).toHaveTextContent("Відкрити ДБН на dbn.co.ua");
+      expect(link).toHaveAttribute(
+        "href",
+        "https://dbn.co.ua/dbn/DBN_V.2.1-10-2009.pdf",
+      );
+      expect(link).toHaveAttribute("target", "_blank");
+      expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    }
+  });
+
   function getLoadBand(diagram: SVGElement): Element {
     const loadBand = diagram.querySelector("rect[fill='#f3cccc']");
     if (!loadBand) {

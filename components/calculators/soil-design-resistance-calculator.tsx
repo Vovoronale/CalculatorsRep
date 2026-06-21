@@ -27,6 +27,7 @@ import {
   type SceneDefinition,
 } from "@/lib/vendor/svgparametric";
 
+import { DbnSourceLink } from "./dbn-source-link";
 import { InputSchemaForm } from "./input-schema-form";
 import { MathNotation } from "./math-notation";
 import { NativeCalculatorLayout } from "./native-calculator-layout";
@@ -982,6 +983,7 @@ export function SoilDesignResistanceCalculator() {
           <article id="soil-norm-e4" className="soil-resistance-norm">
             <h4>п. Е.4 ДБН В.2.1-10-2009</h4>
             <p>Основний пункт для визначення розрахункового опору R за додатком Е.</p>
+            <DbnSourceLink document="dbn-v-2-1-10-2009" />
             <NormScan
               src="/dbn/soil-design-resistance/dbn-e4-e1.png"
               alt="Скан п. Е.4 і формули Е.1 з ДБН В.2.1-10-2009"
@@ -990,6 +992,7 @@ export function SoilDesignResistanceCalculator() {
           <article id="soil-norm-e1" className="soil-resistance-norm">
             <h4>формула (Е.1)</h4>
             <p>Формула визначення розрахункового опору ґрунту основи R.</p>
+            <DbnSourceLink document="dbn-v-2-1-10-2009" />
             <NormScan
               src="/dbn/soil-design-resistance/dbn-e4-e1.png"
               alt="Скан формули Е.1 з ДБН В.2.1-10-2009"
@@ -998,6 +1001,7 @@ export function SoilDesignResistanceCalculator() {
           <article id="soil-norm-e2" className="soil-resistance-norm">
             <h4>формула (Е.2)</h4>
             <p>Формула приведеної глибини закладання d1 для споруди з підвалом.</p>
+            <DbnSourceLink document="dbn-v-2-1-10-2009" />
             <NormScan
               src="/dbn/soil-design-resistance/dbn-e2.png"
               alt="Скан формули Е.2 з ДБН В.2.1-10-2009"
@@ -1006,6 +1010,7 @@ export function SoilDesignResistanceCalculator() {
           <article id="soil-norm-table-e7" className="soil-resistance-norm">
             <h4>табл. Е.7</h4>
             <p>Коефіцієнти умов роботи γc1 і γc2 для різних ґрунтів та схем споруд.</p>
+            <DbnSourceLink document="dbn-v-2-1-10-2009" />
             <NormScan
               src="/dbn/soil-design-resistance/dbn-table-e7.png"
               alt="Скан табл. Е.7 з ДБН В.2.1-10-2009"
@@ -1014,6 +1019,7 @@ export function SoilDesignResistanceCalculator() {
           <article id="soil-norm-table-e7-note-1" className="soil-resistance-norm">
             <h4>примітка 1 до табл. Е.7</h4>
             <p>Ознака жорсткої конструктивної схеми споруди для прийняття γc2.</p>
+            <DbnSourceLink document="dbn-v-2-1-10-2009" />
             <NormScan
               src="/dbn/soil-design-resistance/dbn-table-e7-note-1.png"
               alt="Скан примітки 1 до табл. Е.7 з ДБН В.2.1-10-2009"
@@ -1022,6 +1028,7 @@ export function SoilDesignResistanceCalculator() {
           <article id="soil-norm-table-e8" className="soil-resistance-norm">
             <h4>табл. Е.8</h4>
             <p>Коефіцієнти Mγ, Mq і Mc залежно від φ11.</p>
+            <DbnSourceLink document="dbn-v-2-1-10-2009" />
             <NormScan
               src="/dbn/soil-design-resistance/dbn-table-e8.png"
               alt="Скан табл. Е.8 з ДБН В.2.1-10-2009"
