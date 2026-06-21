@@ -54,7 +54,7 @@ export async function buildResendEmail(
 
   const payload: ResendEmailPayload = {
     ...common,
-    subject: `Помилка в калькуляторі: ${submission.calculatorName}`,
+    subject: `Помилка в калькуляторі: ${submission.calculatorName.replace(/[\r\n]+/g, " ")}`,
     text: [
       "Тип: Повідомлення про помилку",
       `Ім’я: ${submission.name}`,

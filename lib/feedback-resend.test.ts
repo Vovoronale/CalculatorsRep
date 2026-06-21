@@ -64,6 +64,20 @@ describe("buildResendEmail", () => {
     );
     expect(payload.text).toContain("Результат не оновлюється");
   });
+
+  it("removes line breaks from a user-controlled bug-report subject", async () => {
+    const payload = await buildResendEmail({
+      mode: "bug-report",
+      name: "Олена",
+      email: "olena@example.com",
+      message: "Помилка",
+      calculatorName: "Опір ґрунту\r\nInjected header",
+      pageUrl: "https://ivapps.pro/calculator/soil-design-resistance",
+    });
+
+    expect(payload.subject).toBe("Помилка в калькуляторі: Опір ґрунту Injected header");
+    expect(payload.subject).not.toMatch(/[\r\n]/);
+  });
 });
 
 describe("sendFeedbackEmail", () => {
