@@ -64,6 +64,14 @@ describe("calculator data model", () => {
     ]);
   });
 
+  it("describes NormControl as an automated normative-validity check", () => {
+    const normControl = getCalculatorBySlug("normcontrol");
+
+    expect(normControl?.title).toContain("автоматизована перевірка чинності нормативів");
+    expect(normControl?.shortDescription).toContain("проєктній документації");
+    expect(normControl?.description).toContain("проєктній документації");
+  });
+
   it("aggregates calculators for top-level categories", () => {
     const slugs = getCalculatorsForCategory("energoefektyvnist-teplotekhnika").map(
       (calculator) => calculator.slug,

@@ -63,6 +63,12 @@ describe("legal pages", () => {
     expect(JSON.stringify(disclaimer)).toContain(
       "Сайт і його матеріали надаються “як є” та “за наявності”",
     );
+    expect(
+      disclaimer.sections.some(
+        (section: { title: string }) =>
+          section.title === "Умови використання матеріалів",
+      ),
+    ).toBe(true);
     expect(JSON.stringify(privacy)).toContain(
       "Володільцем даних у межах роботи сайту є автор і адміністратор платформи IVApps.pro: Іванейко Володимир",
       );
