@@ -471,6 +471,12 @@
       "icon": "Network"
     },
     {
+      "slug": "revit-plaginy",
+      "title": "Revit плагіни",
+      "note": "Плагіни та розширення для автоматизації роботи в Autodesk Revit.",
+      "icon": "Box"
+    },
+    {
       "slug": "ai-instrumenty",
       "title": "AI-інструменти",
       "note": "AI-асистенти для ДБН, перевірки рішень і підготовки технічних пояснень.",
@@ -1893,6 +1899,34 @@
       ],
       "icon": "Bot",
       "standard": "ДБН В.2.5-67:2013"
+    },
+    {
+      "slug": "revit-screenshot-plugin",
+      "title": "Revit Screenshot Plugin",
+      "shortDescription": "Плагін для Autodesk Revit з ручним та автоматичним створенням скриншотів.",
+      "description": "Плагін фіксує поточний стан моделі вручну або автоматично та допомагає вести журнал змін і готувати матеріали для звітності.",
+      "mainCategory": "revit-plaginy",
+      "extraCategories": [],
+      "displayMode": "product",
+      "accessLabel": "Сторінка продукту",
+      "openUrl": "/products/revit-screenshot",
+      "order": 33,
+      "editorialLabel": "Новий",
+      "useCases": [
+        "Фіксація стану BIM-моделі",
+        "Журнал змін проєкту",
+        "Підготовка скриншотів для звітів"
+      ],
+      "tags": [
+        "Revit",
+        "BIM",
+        "скриншоти"
+      ],
+      "tools": [
+        "Autodesk Revit"
+      ],
+      "icon": "Box",
+      "standard": "Revit 2024–2026"
     }
   ],
   "products": [

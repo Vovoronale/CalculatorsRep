@@ -5,7 +5,7 @@ import { CalculatorShell } from "@/components/calculator-shell";
 import {
   buildCalculatorSeoMetadata,
   buildCalculatorStructuredData,
-  calculators,
+  calculatorPageCalculators,
   getCalculatorBySlug,
 } from "@/lib/calculators";
 import { siteContent } from "@/lib/site-content";
@@ -21,7 +21,7 @@ export const dynamicParams = false;
 const siteUrl = "https://ivapps.pro";
 
 export async function generateStaticParams() {
-  return calculators.map((calculator) => ({
+  return calculatorPageCalculators.map((calculator) => ({
     slug: calculator.slug,
   }));
 }

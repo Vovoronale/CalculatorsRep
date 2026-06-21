@@ -28,6 +28,7 @@ import { WorkspaceTopBar, type Breadcrumb } from "@/components/workspace-top-bar
 import {
   calculators,
   calculatorCategories,
+  getCalculatorCatalogHref,
   getCalculatorsForCategory,
   getCategoryTrail,
   getCalculatorSeoSections,
@@ -376,7 +377,7 @@ function CalculatorCategoryTable({
                         </button>
                       ) : (
                         <Link
-                          href={`/calculator/${calculator.slug}`}
+                          href={getCalculatorCatalogHref(calculator)}
                           className="calculator-table__link"
                         >
                           {calculator.title}

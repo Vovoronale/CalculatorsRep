@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import sitemap, { dynamic } from "@/app/sitemap";
-import { calculators } from "@/lib/calculators";
+import { calculatorPageCalculators, calculators } from "@/lib/calculators";
 import { products } from "@/lib/products";
 
 describe("sitemap metadata route", () => {
@@ -17,7 +17,11 @@ describe("sitemap metadata route", () => {
     expect(urls).toContain("https://ivapps.pro/privacy");
 
     for (const calculator of calculators) {
-      expect(urls).toContain(`https://ivapps.pro/calculator/${calculator.slug}`);
+      if (calculator.displayMode === "product") {
+        expect(urls).not.toContain(`https://ivapps.pro/calculator/${calculator.slug}`);
+      } else {
+        expect(urls).toContain(`https://ivapps.pro/calculator/${calculator.slug}`);
+      }
     }
 
     for (const product of products) {
@@ -25,7 +29,7 @@ describe("sitemap metadata route", () => {
     }
 
     expect(new Set(urls).size).toBe(urls.length);
-    expect(entries).toHaveLength(calculators.length + products.length + 6);
+    expect(entries).toHaveLength(calculatorPageCalculators.length + products.length + 6);
   });
 
   it("uses sensible priorities and change frequencies for SEO discovery", () => {

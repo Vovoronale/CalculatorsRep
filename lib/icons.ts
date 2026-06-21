@@ -104,6 +104,7 @@ const FALLBACK_CATEGORY_ICONS: Record<CategorySlug, LucideIcon> = {
   "inzhenerni-merezhi": Zap,
   elektryka: Zap,
   "dxf-geojson": Map,
+  "revit-plaginy": Box,
   "ai-instrumenty": Bot,
   "asystenty-dbn": Bot,
 };
