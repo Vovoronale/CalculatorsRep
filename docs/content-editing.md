@@ -171,6 +171,8 @@
 
 `site.topbar.products` у [`data/content.json`](../data/content.json). Кожен запис: `{ label, href, external, tagline?, active? }`. Рендериться у [`components/products-dropdown.tsx`](../components/products-dropdown.tsx).
 
+`site.topbar.cta` містить тільки `{ label }`. Кнопка відкриває форму «Запропонувати калькулятор»; для неї не потрібно і не можна додавати `href`, email одержувача або API-ключ у `content.json`. Відправлення виконує Cloudflare Pages Function, а секрет `RESEND_API_KEY` зберігається в налаштуваннях Cloudflare.
+
 ### Утилітарні посилання у footer
 
 `site.navigation.utilityLinks`. Прості `{ label, href, external }`. Рендеряться у [`components/site-footer.tsx`](../components/site-footer.tsx). Для зовнішніх посилань став `external: true`, для внутрішніх сторінок — `false`.
