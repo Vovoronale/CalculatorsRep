@@ -32,7 +32,6 @@ export type TopbarLanguage = {
 
 export type TopbarCta = {
   label: string;
-  href: string;
 };
 
 type Topbar = {
