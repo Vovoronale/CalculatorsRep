@@ -7,6 +7,12 @@ coverage
 .worktrees
 tsconfig.tsbuildinfo
 
+# Local Cloudflare Pages Function secrets
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.wrangler/
+
 # Local agent / tooling artifacts
 .claude/
 .playwright-mcp/

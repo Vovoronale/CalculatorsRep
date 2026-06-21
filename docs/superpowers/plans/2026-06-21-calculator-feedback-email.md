@@ -460,7 +460,7 @@ Add:
 Create `.dev.vars.example` containing only:
 
 ```text
-RESEND_API_KEY=re_replace_with_local_key
+RESEND_API_KEY=<paste-local-resend-key-here>
 ```
 
 Verify no real key matching `re_[A-Za-z0-9_]` appears in tracked files.
