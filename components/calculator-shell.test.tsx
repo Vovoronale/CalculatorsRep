@@ -119,6 +119,26 @@ describe("CalculatorShell", () => {
     ).toBeInTheDocument();
   });
 
+  it("links Revit product entries directly from their catalog category", () => {
+    render(<CalculatorShell selectedCategory="revit-plaginy" />);
+
+    const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
+    const table = screen.getByRole("table", {
+      name: "Розрахунки категорії Revit плагіни",
+    });
+    const row = within(table).getByRole("row", { name: /Revit Screenshot Plugin/ });
+
+    expect(within(rail).getByRole("link", { name: "Revit плагіни 1" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(
+      within(row).getByRole("link", { name: /Revit Screenshot Plugin/ }),
+    ).toHaveAttribute("href", "/products/revit-screenshot");
+    expect(row.querySelector(".calculator-table__access-marker")).not.toBeInTheDocument();
+    expect(row).toHaveTextContent("Revit 2024–2026");
+  });
+
   it("renders category-only navigation and a standards table for the active category", async () => {
     render(<CalculatorShell selectedCategory="energoefektyvnist-teplotekhnika" />);
 

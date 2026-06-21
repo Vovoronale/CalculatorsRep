@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { calculators } from "@/lib/calculators";
+import { calculatorPageCalculators } from "@/lib/calculators";
 import { legalPages } from "@/lib/legal-pages";
 import { products } from "@/lib/products";
 
@@ -30,7 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly" as const,
       priority: 0.4,
     })),
-    ...calculators.map((calculator) => ({
+    ...calculatorPageCalculators.map((calculator) => ({
       url: `${siteUrl}/calculator/${calculator.slug}`,
       changeFrequency: "monthly" as const,
       priority: 0.8,

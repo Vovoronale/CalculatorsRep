@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Search, X } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
+import { getCalculatorCatalogHref } from "@/lib/calculators";
 import {
   groupSearchResults,
   searchCalculators,
@@ -129,7 +130,7 @@ export function SearchInput({ onResultClick }: SearchInputProps) {
                   {group.results.map(({ calculator }) => (
                     <li key={calculator.slug}>
                       <Link
-                        href={`/calculator/${calculator.slug}`}
+                        href={getCalculatorCatalogHref(calculator)}
                         role="option"
                         aria-selected={false}
                         onClick={handleResultClick}
