@@ -3229,6 +3229,42 @@ textarea {
   padding-bottom: 10px;
 }
 
+.dbn-source-link {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.dbn-source-link:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dbn-source-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.dbn-source-link span {
+  overflow-wrap: anywhere;
+}
+
+.dbn-source-link svg {
+  flex: 0 0 auto;
+}
+
 .native-report__step {
   counter-increment: report-step;
 }
