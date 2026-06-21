@@ -364,33 +364,6 @@
   },
   "categories": [
     {
-      "slug": "energoefektyvnist-teplotekhnika",
-      "title": "Теплотехніка",
-      "note": "Розрахунки теплової ізоляції, енергоефективності, вологи, температурних режимів і повітропроникності огороджувальних конструкцій.",
-      "icon": "Thermometer"
-    },
-    {
-      "slug": "ogorodzhuvalni-konstruktsiyi",
-      "parentSlug": "energoefektyvnist-teplotekhnika",
-      "title": "Огороджувальні конструкції",
-      "note": "Опір теплопередачі, волога, точка роси, температура поверхні, теплостійкість і повітропроникність зовнішніх огороджень.",
-      "icon": "BrickWall"
-    },
-    {
-      "slug": "pidlohy",
-      "parentSlug": "energoefektyvnist-teplotekhnika",
-      "title": "Підлоги",
-      "note": "Теплопередача та теплозасвоєння підлог над підвалами, техпідпіллями і по ґрунту.",
-      "icon": "Layers"
-    },
-    {
-      "slug": "teplovi-mistky-fem",
-      "parentSlug": "energoefektyvnist-teplotekhnika",
-      "title": "Теплові містки / FEM",
-      "note": "Двовимірний FEM-аналіз вузлів, кутів, термовключень і теплових містків.",
-      "icon": "Network"
-    },
-    {
       "slug": "konstruktsiyi",
       "title": "Конструкції",
       "note": "Розрахунки залізобетону, фундаментів, сталевих конструкцій і будівельної механіки.",
@@ -432,9 +405,9 @@
     },
     {
       "slug": "normy-perevirky",
-      "title": "Норми та перевірки",
-      "note": "Нормоконтроль, класи наслідків, перевірка ДБН і нормативні обґрунтування.",
-      "icon": "ShieldCheck"
+      "title": "ЄДЕССБ та ПД",
+      "note": "Нормоконтроль, визначення класу наслідків і підготовка даних для ЄДЕССБ та проєктної документації.",
+      "icon": "FileText"
     },
     {
       "slug": "normokontrol",
@@ -451,18 +424,11 @@
       "icon": "BadgeCheck"
     },
     {
-      "slug": "perevirka-dbn",
+      "slug": "dxf-geojson",
       "parentSlug": "normy-perevirky",
-      "title": "Перевірки ДБН",
-      "note": "Інструменти для перевірки вимог ДБН у проектних рішеннях.",
-      "icon": "FileCheck2"
-    },
-    {
-      "slug": "normatyvni-obgruntuvannya",
-      "parentSlug": "normy-perevirky",
-      "title": "Нормативні обґрунтування",
-      "note": "Підготовка нормативних пояснень і посилань для розрахунків та рішень.",
-      "icon": "BookOpenCheck"
+      "title": "DXF / GeoJSON",
+      "note": "Конвертація DXF у GeoJSON і підготовка геоданих.",
+      "icon": "Map"
     },
     {
       "slug": "inzhenerni-merezhi",
@@ -478,17 +444,31 @@
       "icon": "Zap"
     },
     {
-      "slug": "cad-gis-dani",
-      "title": "CAD / GIS / Дані",
-      "note": "Конвертація, геоприв'язка і підготовка CAD/GIS-даних.",
-      "icon": "Map"
+      "slug": "energoefektyvnist-teplotekhnika",
+      "title": "Теплотехніка",
+      "note": "Розрахунки теплової ізоляції, енергоефективності, вологи, температурних режимів і повітропроникності огороджувальних конструкцій.",
+      "icon": "Thermometer"
     },
     {
-      "slug": "dxf-geojson",
-      "parentSlug": "cad-gis-dani",
-      "title": "DXF / GeoJSON",
-      "note": "Конвертація DXF у GeoJSON і підготовка геоданих.",
-      "icon": "Map"
+      "slug": "ogorodzhuvalni-konstruktsiyi",
+      "parentSlug": "energoefektyvnist-teplotekhnika",
+      "title": "Огороджувальні конструкції",
+      "note": "Опір теплопередачі, волога, точка роси, температура поверхні, теплостійкість і повітропроникність зовнішніх огороджень.",
+      "icon": "BrickWall"
+    },
+    {
+      "slug": "pidlohy",
+      "parentSlug": "energoefektyvnist-teplotekhnika",
+      "title": "Підлоги",
+      "note": "Теплопередача та теплозасвоєння підлог над підвалами, техпідпіллями і по ґрунту.",
+      "icon": "Layers"
+    },
+    {
+      "slug": "teplovi-mistky-fem",
+      "parentSlug": "energoefektyvnist-teplotekhnika",
+      "title": "Теплові містки / FEM",
+      "note": "Двовимірний FEM-аналіз вузлів, кутів, термовключень і теплових містків.",
+      "icon": "Network"
     },
     {
       "slug": "ai-instrumenty",
@@ -1293,10 +1273,7 @@
       "shortDescription": "Обчислення розрахункового опору ґрунту основи R за додатком Е ДБН В.2.1-10-2009.",
       "description": "Калькулятор визначає розрахунковий опір ґрунту основи R за формулою (Е.1) додатка Е ДБН В.2.1-10-2009. Звіт показує вихідні дані, прийняття γc1 і γc2 за табл. Е.7, коефіцієнти Mγ, Mq, Mc за табл. Е.8, глибини d1 і db та підстановку в основну формулу.",
       "mainCategory": "fundamenty",
-      "extraCategories": [
-        "perevirka-dbn",
-        "normatyvni-obgruntuvannya"
-      ],
+      "extraCategories": [],
       "displayMode": "native",
       "nativeCalculator": "soil-design-resistance",
       "accessLabel": "Вбудований розрахунок",
@@ -1328,10 +1305,7 @@
       "shortDescription": "Розрахунок крайових напружень під прямокутною підошвою фундаменту з урахуванням відриву.",
       "description": "Калькулятор визначає напруження по кутах підошви фундаменту, перевіряє появу відриву та будує контактну епюру тиску без розтягу за погодженою методикою.",
       "mainCategory": "fundamenty",
-      "extraCategories": [
-        "perevirka-dbn",
-        "normatyvni-obgruntuvannya"
-      ],
+      "extraCategories": [],
       "displayMode": "native",
       "nativeCalculator": "foundation-base-pressure",
       "accessLabel": "Вбудований розрахунок",
@@ -1362,9 +1336,7 @@
       "shortDescription": "Визначення категорій А/Б/В, I/II/III та групи сталевої конструкції за Додатком А ДБН В.2.6-198:2014.",
       "description": "Калькулятор декомпілює таблицю А.1 до окремих конструкцій і елементів, визначає S1-S5, початкову й уточнену групу, коефіцієнт умов роботи γc, Ry та допустимість сталі за таблицею Г.1.",
       "mainCategory": "stalevi-konstruktsiyi",
-      "extraCategories": [
-        "normy-perevirky"
-      ],
+      "extraCategories": [],
       "displayMode": "native",
       "nativeCalculator": "steel-structure-category-group",
       "accessLabel": "Вбудований розрахунок",
@@ -1422,10 +1394,7 @@
       "shortDescription": "Визначення XC, XD, XS, XF та XA для бетонного або залізобетонного елемента з передачею керівного класу в розрахунок захисного шару.",
       "description": "Калькулятор визначає повний набір класів впливу середовища та окремий керівний клас X0/XC/XD/XS для подальшого розрахунку захисного шару бетону за довговічністю.",
       "mainCategory": "zalizobeton",
-      "extraCategories": [
-        "normy-perevirky",
-        "normatyvni-obgruntuvannya"
-      ],
+      "extraCategories": [],
       "displayMode": "native",
       "nativeCalculator": "concrete-exposure-class",
       "accessLabel": "Вбудований розрахунок",
@@ -1481,10 +1450,7 @@
       "shortDescription": "Розрахунок мінімального та номінального захисного шару cmin і cnom за ДБН В.2.6-98:2009.",
       "description": "Нативний калькулятор визначає cmin,b за вимогами зчеплення, клас конструкції S, cmin,dur за таблицями 4.3/4.4, мінімальний cmin і номінальний cnom з урахуванням Δcdev.",
       "mainCategory": "zalizobeton",
-      "extraCategories": [
-        "normy-perevirky",
-        "normatyvni-obgruntuvannya"
-      ],
+      "extraCategories": [],
       "displayMode": "native",
       "nativeCalculator": "concrete-cover-durability",
       "accessLabel": "Нативний розрахунок",
@@ -1929,6 +1895,124 @@
       "standard": "ДБН В.2.5-67:2013"
     }
   ],
+  "products": [
+    {
+      "slug": "revit-screenshot",
+      "typeLabel": "Revit Plugin",
+      "title": "Revit Screenshot Plugin",
+      "shortDescription": "Плагін для Autodesk Revit, який робить ручні та автоматичні скриншоти під час роботи з моделлю.",
+      "description": "Revit Screenshot Plugin допомагає фіксувати поточний стан моделі без ручного експортного циклу. Підходить для ведення журналу змін, контролю якості та підготовки матеріалів для звітності. Плагін працює у стрічці Revit і додає окрему вкладку з командами керування.",
+      "seoTitle": "Revit Screenshot Plugin — завантаження та встановлення",
+      "seoDescription": "Завантажте Revit Screenshot Plugin для Autodesk Revit 2024, 2025 або 2026 та скористайтеся покроковою інструкцією встановлення.",
+      "downloadCtaLabel": "Скачати плагін",
+      "featuresHeading": "Що вміє плагін",
+      "features": [
+        "Ручний скриншот поточного вигляду.",
+        "Автозбереження скриншотів під час роботи в проєкті.",
+        "Налаштування папки збереження та режиму захоплення."
+      ],
+      "descriptionHeading": "Опис плагіну",
+      "screenshotsHeading": "Скріншоти плагіну",
+      "screenshotsIntro": "Інтерфейс вкладки та приклади вікон налаштувань Revit Screenshot Plugin.",
+      "screenshots": [
+        {
+          "src": "/images/products/revit-screenshot/revit-screenshot-1.png",
+          "alt": "Головна панель команд Revit Screenshot Plugin у стрічці Autodesk Revit",
+          "caption": "Головна панель команд плагіну у Revit.",
+          "width": 485,
+          "height": 519
+        },
+        {
+          "src": "/images/products/revit-screenshot/revit-screenshot-2.png",
+          "alt": "Вікно налаштувань папки та параметрів збереження скриншотів",
+          "caption": "Вікно налаштувань з параметрами збереження скриншотів.",
+          "width": 481,
+          "height": 514
+        },
+        {
+          "src": "/images/products/revit-screenshot/revit-screenshot-3.png",
+          "alt": "Налаштування автоматичного створення скриншотів під час роботи з моделлю",
+          "caption": "Автоматичний режим знімання під час роботи з моделлю.",
+          "width": 488,
+          "height": 514
+        },
+        {
+          "src": "/images/products/revit-screenshot/revit-screenshot-4.png",
+          "alt": "Приклад скриншота моделі, створеного командами плагіну",
+          "caption": "Приклад результату після виконання команд плагіну.",
+          "width": 491,
+          "height": 518
+        }
+      ],
+      "downloadsHeading": "Завантаження за версіями Revit",
+      "downloadsIntro": "Оберіть архів для вашої версії Autodesk Revit.",
+      "downloads": [
+        {
+          "version": "2024",
+          "href": "https://dbnassistant.com/downloads/revit-screenshot/RevitScreenshot-2024.zip"
+        },
+        {
+          "version": "2025",
+          "href": "https://dbnassistant.com/downloads/revit-screenshot/RevitScreenshot-2025.zip"
+        },
+        {
+          "version": "2026",
+          "href": "https://dbnassistant.com/downloads/revit-screenshot/RevitScreenshot-2026.zip"
+        }
+      ],
+      "installationHeading": "Повна інструкція встановлення",
+      "installationSteps": [
+        {
+          "title": "Крок 1. Завантаження",
+          "description": "Скачайте ZIP-архів відповідно до вашої версії Revit і розпакуйте його у локальну папку, наприклад:",
+          "code": [
+            "C:\\RevitPlugins\\RevitScreenshot\\"
+          ]
+        },
+        {
+          "title": "Крок 2. Копіювання файлів",
+          "description": "Переконайтесь, що в папці є два файли:",
+          "code": [
+            "RevitScreenshot.dll",
+            "RevitScreenshot.addin"
+          ]
+        },
+        {
+          "title": "Крок 3. Встановлення .addin у Revit",
+          "description": "Скопіюйте RevitScreenshot.addin у каталог Addins вашої версії:",
+          "code": [
+            "%AppData%\\Autodesk\\Revit\\Addins\\2024\\",
+            "%AppData%\\Autodesk\\Revit\\Addins\\2025\\",
+            "%AppData%\\Autodesk\\Revit\\Addins\\2026\\"
+          ]
+        },
+        {
+          "title": "Крок 4. Налаштування шляху DLL",
+          "description": "Відкрийте RevitScreenshot.addin у текстовому редакторі та в тегі Assembly вкажіть повний шлях до RevitScreenshot.dll, наприклад:",
+          "code": [
+            "<Assembly>C:\\RevitPlugins\\RevitScreenshot\\RevitScreenshot.dll</Assembly>"
+          ]
+        },
+        {
+          "title": "Крок 5. Перевірка запуску",
+          "description": "Запустіть Revit. У стрічці повинна з'явитись вкладка RevitScreenshot з командами:",
+          "code": [
+            "Settings",
+            "Auto Capture",
+            "Screenshot"
+          ]
+        }
+      ],
+      "licenseHeading": "Ліцензійні умови",
+      "licenseTerms": [
+        "Тип ліцензії: пропрієтарна (IVSoft).",
+        "Дозволено безоплатне використання плагіну у персональних і комерційних проєктах.",
+        "Заборонено: продаж плагіну як власного продукту, публічне перевикладання файлів без письмового дозволу автора, модифікація з подальшим розповсюдженням під оригінальною назвою.",
+        "Плагін надається за принципом «як є», без гарантій працездатності для будь-якої конкретної задачі. Користувач самостійно несе відповідальність за результати використання.",
+        "© 2026 Volodymyr Ivaneiko. Усі права захищені."
+      ]
+    }
+  ],
   "projectCategories": [
     {
       "slug": "engineering-calculations",
@@ -2001,7 +2085,7 @@
           "slug": "revit-screenshot-plugin",
           "title": "Revit Screenshot Plugin",
           "description": "Плагін для Autodesk Revit з ручним та автоматичним створенням скриншотів.",
-          "href": "https://dbnassistant.com/products/revit-screenshot/"
+          "href": "/products/revit-screenshot"
         }
       ]
     },

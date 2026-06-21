@@ -1,10 +1,6 @@
 import contentData from "@/data/content.json";
 
 export type CategorySlug =
-  | "energoefektyvnist-teplotekhnika"
-  | "ogorodzhuvalni-konstruktsiyi"
-  | "pidlohy"
-  | "teplovi-mistky-fem"
   | "konstruktsiyi"
   | "zalizobeton"
   | "fundamenty"
@@ -14,12 +10,13 @@ export type CategorySlug =
   | "normy-perevirky"
   | "normokontrol"
   | "klas-naslidkiv"
-  | "perevirka-dbn"
-  | "normatyvni-obgruntuvannya"
+  | "dxf-geojson"
   | "inzhenerni-merezhi"
   | "elektryka"
-  | "cad-gis-dani"
-  | "dxf-geojson"
+  | "energoefektyvnist-teplotekhnika"
+  | "ogorodzhuvalni-konstruktsiyi"
+  | "pidlohy"
+  | "teplovi-mistky-fem"
   | "ai-instrumenty"
   | "asystenty-dbn";
 

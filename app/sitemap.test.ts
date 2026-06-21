@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import sitemap, { dynamic } from "@/app/sitemap";
 import { calculators } from "@/lib/calculators";
+import { products } from "@/lib/products";
 
 describe("sitemap metadata route", () => {
   it("lists static pages and every calculator detail page", () => {
@@ -19,8 +20,12 @@ describe("sitemap metadata route", () => {
       expect(urls).toContain(`https://ivapps.pro/calculator/${calculator.slug}`);
     }
 
+    for (const product of products) {
+      expect(urls).toContain(`https://ivapps.pro/products/${product.slug}`);
+    }
+
     expect(new Set(urls).size).toBe(urls.length);
-    expect(entries).toHaveLength(calculators.length + 6);
+    expect(entries).toHaveLength(calculators.length + products.length + 6);
   });
 
   it("uses sensible priorities and change frequencies for SEO discovery", () => {

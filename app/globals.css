@@ -5787,6 +5787,302 @@ textarea {
 }
 
 /* =====================================================
+   Product page
+   ===================================================== */
+
+.product-page {
+  gap: 0;
+}
+
+.product-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 24px 0 56px;
+}
+
+.product-hero__eyebrow {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.product-hero h1 {
+  max-width: 18ch;
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2.25rem, 6vw, 4.25rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.product-hero__lead {
+  max-width: 46rem;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.65;
+}
+
+.product-primary-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--accent-on-fill);
+  font-weight: 700;
+  transition: background-color 150ms, border-color 150ms, transform 150ms;
+}
+
+.product-primary-action:hover {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+  transform: translateY(-1px);
+}
+
+.product-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 48px 0;
+  border-top: 1px solid var(--border);
+  scroll-margin-top: 104px;
+}
+
+.product-section h2,
+.product-section h3,
+.product-section p {
+  margin: 0;
+}
+
+.product-section h2 {
+  color: var(--text);
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.product-section > p,
+.product-section__intro p {
+  max-width: 48rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.product-section__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-feature-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.product-feature-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-muted);
+}
+
+.product-feature-list svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--accent);
+}
+
+.product-screenshot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.product-screenshot {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-sm);
+}
+
+.product-screenshot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--surface);
+}
+
+.product-screenshot figcaption {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.product-download-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.product-download-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  transition: border-color 150ms, box-shadow 150ms, transform 150ms;
+}
+
+.product-download-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.product-download-card > span {
+  color: var(--text-subtle);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.product-download-card strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  line-height: 1.35;
+}
+
+.product-installation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: product-step;
+}
+
+.product-installation-list > li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 20px 20px 64px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  counter-increment: product-step;
+}
+
+.product-installation-list > li::before {
+  content: counter(product-step, decimal-leading-zero);
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: var(--accent);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.product-installation-list h3 {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.product-installation-list p {
+  color: var(--text-muted);
+}
+
+.product-code-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.product-code-list code {
+  max-width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.product-license {
+  margin-bottom: 48px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.product-license > p {
+  max-width: none;
+}
+
+@media (max-width: 767px) {
+  .product-hero {
+    padding: 8px 0 40px;
+  }
+
+  .product-section {
+    padding: 36px 0;
+  }
+
+  .product-feature-list,
+  .product-screenshot-grid,
+  .product-download-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-installation-list > li {
+    padding: 18px;
+  }
+
+  .product-installation-list > li::before {
+    position: static;
+  }
+
+  .product-license {
+    margin-bottom: 24px;
+    padding: 20px;
+  }
+}
+
+/* =====================================================
    Calculator modal
    ===================================================== */
 

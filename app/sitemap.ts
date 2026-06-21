@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { calculators } from "@/lib/calculators";
 import { legalPages } from "@/lib/legal-pages";
+import { products } from "@/lib/products";
 
 const siteUrl = "https://ivapps.pro";
 
@@ -33,6 +34,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${siteUrl}/calculator/${calculator.slug}`,
       changeFrequency: "monthly" as const,
       priority: 0.8,
+    })),
+    ...products.map((product) => ({
+      url: `${siteUrl}/products/${product.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     })),
   ];
 }

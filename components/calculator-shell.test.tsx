@@ -94,8 +94,33 @@ describe("CalculatorShell", () => {
     expect((form as FormData).get("pageUrl")).toBe(window.location.href);
   });
 
-  it("renders category-only navigation and a standards table for the active category", async () => {
+  it("opens the catalog on construction calculators by default", () => {
     render(<CalculatorShell />);
+
+    const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
+    const workspace = screen.getByRole("main");
+
+    expect(
+      within(rail).getByRole("link", { name: "Конструкції 13" }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(
+      within(rail).getByRole("link", { name: "Залізобетон 8" }),
+    ).toBeInTheDocument();
+    expect(
+      within(rail).getByRole("button", { name: "Згорнути Конструкції" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(
+      within(workspace).getByRole("heading", { name: "Конструкції" }),
+    ).toBeInTheDocument();
+    expect(
+      within(workspace).getByRole("table", {
+        name: "Розрахунки категорії Конструкції",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders category-only navigation and a standards table for the active category", async () => {
+    render(<CalculatorShell selectedCategory="energoefektyvnist-teplotekhnika" />);
 
     const rail = screen.getByRole("complementary", { name: "Каталог калькуляторів" });
     const workspace = screen.getByRole("main");
@@ -222,40 +247,18 @@ describe("CalculatorShell", () => {
 
     render(<CalculatorShell />);
 
-    await user.click(screen.getByRole("button", { name: "Розгорнути Конструкції" }));
-    await user.click(screen.getByRole("link", { name: "Конструкції 13" }));
+    await user.click(screen.getByRole("link", { name: "Теплотехніка 20" }));
 
-    expect(screen.getByRole("heading", { name: "Конструкції" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Теплотехніка" })).toBeInTheDocument();
     const table = screen.getByRole("table", {
-      name: "Розрахунки категорії Конструкції",
+      name: "Розрахунки категорії Теплотехніка",
     });
-    const minimumReinforcementRow = within(table).getByRole("row", {
-      name: /Мінімальна площа армування залізобетонної балки або плити/,
-    });
-    const armConRow = within(table).getByRole("row", {
-      name: /ArmCon — розрахунок армування залізобетонних конструкцій/,
-    });
+    expect(within(table).getByRole("row", { name: /Опір теплопередачі/ })).toBeInTheDocument();
     expect(
-      armConRow.querySelector(".calculator-table__access-marker--external"),
-    ).toBeInTheDocument();
-    expect(
-      minimumReinforcementRow.querySelector(".calculator-table__access-marker"),
-    ).not.toBeInTheDocument();
-    expect(
-      within(minimumReinforcementRow).getByRole("img", {
-        name: "Іконка: Мінімальна площа армування залізобетонної балки або плити",
+      within(table).queryByRole("row", {
+        name: /Мінімальна площа армування залізобетонної балки або плити/,
       }),
-    ).toHaveAttribute(
-      "src",
-      "/calculator-icons/minimum-reinforcement-area.png",
-    );
-    expect(
-      minimumReinforcementRow.querySelector(".calculator-table__standard-primary"),
-    ).toHaveTextContent("ДСТУ Б В.2.6-156:2010");
-    expect(
-      minimumReinforcementRow.querySelector(".calculator-table__standard-secondary"),
-    ).toHaveTextContent("Eurocode 2");
-    expect(within(table).queryByRole("row", { name: /Опір теплопередачі/ })).not.toBeInTheDocument();
+    ).not.toBeInTheDocument();
   });
 
   it("collapses inactive category groups and toggles them from the rail", async () => {
@@ -267,18 +270,18 @@ describe("CalculatorShell", () => {
     const engineeringToggle = within(rail).getByRole("button", {
       name: "Згорнути Інженерні мережі",
     });
-    const cadToggle = within(rail).getByRole("button", {
-      name: "Розгорнути CAD / GIS / Дані",
+    const edessbToggle = within(rail).getByRole("button", {
+      name: "Розгорнути ЄДЕССБ та ПД",
     });
 
     expect(engineeringToggle).toHaveAttribute("aria-expanded", "true");
     expect(within(rail).getByRole("link", { name: "Електрика 1" })).toBeInTheDocument();
-    expect(cadToggle).toHaveAttribute("aria-expanded", "false");
+    expect(edessbToggle).toHaveAttribute("aria-expanded", "false");
     expect(within(rail).queryByRole("link", { name: "DXF / GeoJSON 1" })).not.toBeInTheDocument();
 
-    await user.click(cadToggle);
+    await user.click(edessbToggle);
 
-    expect(cadToggle).toHaveAttribute("aria-expanded", "true");
+    expect(edessbToggle).toHaveAttribute("aria-expanded", "true");
     expect(within(rail).getByRole("link", { name: "DXF / GeoJSON 1" })).toBeInTheDocument();
     expect(within(rail).queryByRole("link", { name: "Конвертери 0" })).not.toBeInTheDocument();
     expect(within(rail).getByRole("link", { name: "DXF / GeoJSON 1" })).toHaveAttribute(
@@ -286,16 +289,16 @@ describe("CalculatorShell", () => {
       "filled",
     );
 
-    await user.click(cadToggle);
+    await user.click(edessbToggle);
 
-    expect(cadToggle).toHaveAttribute("aria-expanded", "false");
+    expect(edessbToggle).toHaveAttribute("aria-expanded", "false");
     expect(within(rail).queryByRole("link", { name: "DXF / GeoJSON 1" })).not.toBeInTheDocument();
   });
 
   it("switches the homepage table to leaf-only calculators when a subcategory is selected", async () => {
     const user = userEvent.setup();
 
-    render(<CalculatorShell />);
+    render(<CalculatorShell selectedCategory="energoefektyvnist-teplotekhnika" />);
 
     await user.click(screen.getByRole("link", { name: "Підлоги 5" }));
 

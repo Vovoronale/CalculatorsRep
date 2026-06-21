@@ -19,10 +19,6 @@ import { getCalculatorArtworkPath } from "@/lib/calculator-artwork";
 describe("calculator data model", () => {
   it("builds the category navigation in the expected order", () => {
     expect(calculatorCategories.map((category) => category.slug)).toEqual([
-      "energoefektyvnist-teplotekhnika",
-      "ogorodzhuvalni-konstruktsiyi",
-      "pidlohy",
-      "teplovi-mistky-fem",
       "konstruktsiyi",
       "zalizobeton",
       "fundamenty",
@@ -32,14 +28,39 @@ describe("calculator data model", () => {
       "normy-perevirky",
       "normokontrol",
       "klas-naslidkiv",
-      "perevirka-dbn",
-      "normatyvni-obgruntuvannya",
+      "dxf-geojson",
       "inzhenerni-merezhi",
       "elektryka",
-      "cad-gis-dani",
-      "dxf-geojson",
+      "energoefektyvnist-teplotekhnika",
+      "ogorodzhuvalni-konstruktsiyi",
+      "pidlohy",
+      "teplovi-mistky-fem",
       "ai-instrumenty",
       "asystenty-dbn",
+    ]);
+  });
+
+  it("groups project documentation tools under EDESSB", () => {
+    const category = calculatorCategories.find(
+      (item) => item.slug === "normy-perevirky",
+    );
+    const geoJsonCategory = calculatorCategories.find(
+      (item) => item.slug === "dxf-geojson",
+    );
+    const categorySlugs = calculatorCategories.map((item) => item.slug);
+
+    expect(category).toMatchObject({
+      title: "ЄДЕССБ та ПД",
+      icon: "FileText",
+    });
+    expect(geoJsonCategory?.parentSlug).toBe("normy-perevirky");
+    expect(categorySlugs).not.toContain("cad-gis-dani");
+    expect(categorySlugs).not.toContain("perevirka-dbn");
+    expect(categorySlugs).not.toContain("normatyvni-obgruntuvannya");
+    expect(getCalculatorsForCategory("normy-perevirky").map((item) => item.slug)).toEqual([
+      "normcontrol",
+      "consequence-class",
+      "iv-geojson",
     ]);
   });
 
@@ -125,28 +146,7 @@ describe("calculator data model", () => {
           slug: calculator.slug,
           extraCategories: calculator.extraCategories,
         })),
-    ).toEqual([
-      {
-        slug: "soil-design-resistance",
-        extraCategories: ["perevirka-dbn", "normatyvni-obgruntuvannya"],
-      },
-      {
-        slug: "foundation-base-pressure",
-        extraCategories: ["perevirka-dbn", "normatyvni-obgruntuvannya"],
-      },
-      {
-        slug: "steel-structure-category-group",
-        extraCategories: ["normy-perevirky"],
-      },
-      {
-        slug: "concrete-exposure-class",
-        extraCategories: ["normy-perevirky", "normatyvni-obgruntuvannya"],
-      },
-      {
-        slug: "concrete-cover-durability",
-        extraCategories: ["normy-perevirky", "normatyvni-obgruntuvannya"],
-      },
-    ]);
+    ).toEqual([]);
   });
 
   it("keeps only populated category branches", () => {
@@ -176,6 +176,9 @@ describe("calculator data model", () => {
       "normatyvni-kharakterystyky",
       "asystenty-perevirky-rishen",
       "asystenty-pidhotovky-poyasnen",
+      "cad-gis-dani",
+      "perevirka-dbn",
+      "normatyvni-obgruntuvannya",
     ];
     const categorySlugs = calculatorCategories.map((category) => category.slug);
 
@@ -187,10 +190,6 @@ describe("calculator data model", () => {
       expect(categorySlugs).not.toContain(removedSlug);
     }
 
-    expect(getCalculatorsForCategory("perevirka-dbn").map((calculator) => calculator.slug)).toEqual([
-      "soil-design-resistance",
-      "foundation-base-pressure",
-    ]);
   });
 
   it("registers the steel category/group calculator in the steel category", () => {
@@ -206,7 +205,7 @@ describe("calculator data model", () => {
     });
     expect(calculator).toMatchObject({
       mainCategory: "stalevi-konstruktsiyi",
-      extraCategories: ["normy-perevirky"],
+      extraCategories: [],
       displayMode: "native",
       nativeCalculator: "steel-structure-category-group",
       standard: "ДБН В.2.6-198:2014",
@@ -238,7 +237,7 @@ describe("calculator data model", () => {
       shortDescription:
         "Обчислення розрахункового опору ґрунту основи R за додатком Е ДБН В.2.1-10-2009.",
       mainCategory: "fundamenty",
-      extraCategories: ["perevirka-dbn", "normatyvni-obgruntuvannya"],
+      extraCategories: [],
       displayMode: "native",
       nativeCalculator: "soil-design-resistance",
       icon: "Layers",
@@ -377,7 +376,7 @@ describe("calculator data model", () => {
       shortDescription:
         "Розрахунок крайових напружень під прямокутною підошвою фундаменту з урахуванням відриву.",
       mainCategory: "fundamenty",
-      extraCategories: ["perevirka-dbn", "normatyvni-obgruntuvannya"],
+      extraCategories: [],
       displayMode: "native",
       nativeCalculator: "foundation-base-pressure",
       icon: "Layers",
@@ -393,7 +392,7 @@ describe("calculator data model", () => {
       shortDescription:
         "Визначення XC, XD, XS, XF та XA для бетонного або залізобетонного елемента з передачею керівного класу в розрахунок захисного шару.",
       mainCategory: "zalizobeton",
-      extraCategories: ["normy-perevirky", "normatyvni-obgruntuvannya"],
+      extraCategories: [],
       displayMode: "native",
       nativeCalculator: "concrete-exposure-class",
       icon: "ShieldCheck",
@@ -409,7 +408,7 @@ describe("calculator data model", () => {
       shortDescription:
         "Розрахунок мінімального та номінального захисного шару cmin і cnom за ДБН В.2.6-98:2009.",
       mainCategory: "zalizobeton",
-      extraCategories: ["normy-perevirky", "normatyvni-obgruntuvannya"],
+      extraCategories: [],
       displayMode: "native",
       nativeCalculator: "concrete-cover-durability",
       icon: "Shield",
