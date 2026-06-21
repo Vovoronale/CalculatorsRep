@@ -68,15 +68,17 @@ describe("buildResendEmail", () => {
 
 describe("sendFeedbackEmail", () => {
   it("posts the built message to Resend with server authorization", async () => {
-    const fetchImpl = vi.fn(async () => new Response(JSON.stringify({ id: "email_1" }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    }));
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      new Response(JSON.stringify({ id: "email_1" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
 
     await sendFeedbackEmail({
       apiKey: "re_private_key",
       submission: suggestion,
-      fetchImpl: fetchImpl as typeof fetch,
+      fetchImpl,
     });
 
     expect(fetchImpl).toHaveBeenCalledTimes(1);
@@ -96,14 +98,14 @@ describe("sendFeedbackEmail", () => {
   });
 
   it("throws a generic error without exposing provider details or the key", async () => {
-    const fetchImpl = vi.fn(async () => new Response("provider-secret-detail", {
-      status: 422,
-    }));
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      new Response("provider-secret-detail", { status: 422 }),
+    );
 
     const promise = sendFeedbackEmail({
       apiKey: "re_private_key",
       submission: suggestion,
-      fetchImpl: fetchImpl as typeof fetch,
+      fetchImpl,
     });
 
     await expect(promise).rejects.toThrow("Feedback email provider rejected the request");
