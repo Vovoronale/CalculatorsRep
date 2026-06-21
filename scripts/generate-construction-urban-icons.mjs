@@ -21,6 +21,7 @@ const colors = {
   electricity: { fill: "#B27618", text: "#FFFFFF", stroke: "#79500E" },
   gis: { fill: "#3C6E8F", text: "#FFFFFF", stroke: "#284C64" },
   ai: { fill: "#6E568C", text: "#FFFFFF", stroke: "#4B3A62" },
+  revit: { fill: "#176B87", text: "#FFFFFF", stroke: "#10495C" },
 };
 
 const stroke = 'fill="none" stroke="#222729" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"';
@@ -361,6 +362,17 @@ const icons = [
       <path d="M166 218h162v144h-54v52H166z" fill="#B8BCB9" stroke="#222729" stroke-width="20" stroke-linejoin="round"/>
       <rect x="352" y="240" width="76" height="150" rx="6" fill="#F1F2F0" stroke="#222729" stroke-width="18"/>
       <path d="M372 264h36M372 300h36M372 336h36M372 372h36" stroke="#777D7A" stroke-width="10"/>
+    `,
+  },
+  {
+    slug: "revit-screenshot-plugin",
+    badge: textBadge("R", colors.revit),
+    body: `
+      <path d="M132 176h348v246H132z" fill="#DDE4E6" stroke="#222729" stroke-width="20"/>
+      <path d="M190 226h232v146H190z" fill="#F5F7F7" stroke="#222729" stroke-width="16"/>
+      <path d="M244 272h124v72H244zM210 248h18M210 284h18M210 320h18" ${thinStroke}/>
+      <circle cx="422" cy="222" r="34" fill="#176B87" stroke="#222729" stroke-width="14"/>
+      <path d="M406 222h32M422 206v32" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round"/>
     `,
   },
 ];

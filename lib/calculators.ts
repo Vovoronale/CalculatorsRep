@@ -17,10 +17,11 @@ export type CategorySlug =
   | "ogorodzhuvalni-konstruktsiyi"
   | "pidlohy"
   | "teplovi-mistky-fem"
+  | "revit-plaginy"
   | "ai-instrumenty"
   | "asystenty-dbn";
 
-export type DisplayMode = "embed" | "external" | "modal" | "native";
+export type DisplayMode = "embed" | "external" | "modal" | "native" | "product";
 
 export type EditorialLabel = "Новий" | "Популярний";
 
@@ -89,6 +90,16 @@ export const calculatorCategories = contentData.categories as CalculatorCategory
 export const calculators = (contentData.calculators as Calculator[])
   .slice()
   .sort((left, right) => left.order - right.order);
+
+export const calculatorPageCalculators = calculators.filter(
+  (calculator) => calculator.displayMode !== "product",
+);
+
+export function getCalculatorCatalogHref(calculator: Calculator): string {
+  return calculator.displayMode === "product"
+    ? calculator.openUrl
+    : `/calculator/${calculator.slug}`;
+}
 
 export function getCalculatorBySlug(slug: string): Calculator | undefined {
   return calculators.find((calculator) => calculator.slug === slug);

@@ -8,8 +8,10 @@ import {
   buildCalculatorSeoMetadata,
   buildCalculatorStructuredData,
   calculatorCategories,
+  calculatorPageCalculators,
   calculators,
   getCalculatorBySlug,
+  getCalculatorCatalogHref,
   getCalculatorsForCategory,
   getCalculatorSeoSections,
 } from "@/lib/calculators";
@@ -35,9 +37,35 @@ describe("calculator data model", () => {
       "ogorodzhuvalni-konstruktsiyi",
       "pidlohy",
       "teplovi-mistky-fem",
+      "revit-plaginy",
       "ai-instrumenty",
       "asystenty-dbn",
     ]);
+  });
+
+  it("registers Revit Screenshot Plugin in its own catalog category", () => {
+    const category = calculatorCategories.find(
+      (item) => item.slug === "revit-plaginy",
+    );
+    const calculator = getCalculatorBySlug("revit-screenshot-plugin");
+
+    expect(category).toMatchObject({
+      title: "Revit плагіни",
+      icon: "Box",
+    });
+    expect(getCalculatorsForCategory("revit-plaginy").map((item) => item.slug)).toEqual([
+      "revit-screenshot-plugin",
+    ]);
+    expect(calculator).toMatchObject({
+      title: "Revit Screenshot Plugin",
+      mainCategory: "revit-plaginy",
+      extraCategories: [],
+      displayMode: "product",
+      openUrl: "/products/revit-screenshot",
+      standard: "Revit 2024–2026",
+    });
+    expect(getCalculatorCatalogHref(calculator!)).toBe("/products/revit-screenshot");
+    expect(calculatorPageCalculators).not.toContainEqual(calculator);
   });
 
   it("groups project documentation tools under EDESSB", () => {
@@ -360,8 +388,8 @@ describe("calculator data model", () => {
       .filter((slug) => slug !== "armcon" && slug !== "livebeamcalculator")
       .sort();
 
-    expect(generatedSlugs).toHaveLength(42);
-    expect(new Set(generatedSlugs).size).toBe(42);
+    expect(generatedSlugs).toHaveLength(expectedSlugs.length);
+    expect(new Set(generatedSlugs).size).toBe(expectedSlugs.length);
     expect(generatedSlugs.sort()).toEqual(expectedSlugs);
     expect(generator).toMatch(/function textBadge\([^)]*fontSize = 87\)/);
     expect(generator).toContain('font-size="87"');
