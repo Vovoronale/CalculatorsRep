@@ -38,6 +38,7 @@ import {
   buildNativeDocxReport,
   formatDocxFileDate,
 } from "./native-report-docx";
+import { DbnSourceLink } from "./dbn-source-link";
 import { NativeCalculatorLayout } from "./native-calculator-layout";
 import { NativeReport } from "./native-report";
 import { ReportDocxButton } from "./report-docx-button";
@@ -719,6 +720,7 @@ function ConcreteCoverDurabilityNorms() {
       <div className="concrete-cover-durability-norms__list">
         <article className="concrete-cover-durability-norm" id="concrete-cover-norm-formula-4-2">
           <h4>п. 4.4.2.2, формула (4.2) ДБН В.2.6-98:2009</h4>
+          <DbnSourceLink document="dbn-v-2-6-98-2009" />
           <NormScan
             alt="Скан п. 4.4.2.2 і формули (4.2) з ДБН В.2.6-98:2009"
             src="/dbn/concrete-cover-durability/dbn-4-4-2-2-formula-4-2.png"
@@ -726,6 +728,7 @@ function ConcreteCoverDurabilityNorms() {
         </article>
         <article className="concrete-cover-durability-norm" id="concrete-cover-norm-table-4-2">
           <h4>п. 4.4.2.3, таблиця 4.2 ДБН В.2.6-98:2009</h4>
+          <DbnSourceLink document="dbn-v-2-6-98-2009" />
           <NormScan
             alt="Скан п. 4.4.2.3 і таблиці 4.2 з ДБН В.2.6-98:2009"
             src="/dbn/concrete-cover-durability/dbn-table-4-2.png"
@@ -733,6 +736,7 @@ function ConcreteCoverDurabilityNorms() {
         </article>
         <article className="concrete-cover-durability-norm" id="concrete-cover-norm-table-4-3">
           <h4>п. 4.4.2.4.1, таблиця 4.3 ДБН В.2.6-98:2009</h4>
+          <DbnSourceLink document="dbn-v-2-6-98-2009" />
           <NormScan
             alt="Скан таблиці 4.3 з ДБН В.2.6-98:2009"
             src="/dbn/concrete-cover-durability/dbn-table-4-3.png"
@@ -740,6 +744,7 @@ function ConcreteCoverDurabilityNorms() {
         </article>
         <article className="concrete-cover-durability-norm" id="concrete-cover-norm-table-4-4">
           <h4>п. 4.4.2.4.2, таблиця 4.4 ДБН В.2.6-98:2009</h4>
+          <DbnSourceLink document="dbn-v-2-6-98-2009" />
           <NormScan
             alt="Скан таблиці 4.4 з ДБН В.2.6-98:2009"
             src="/dbn/concrete-cover-durability/dbn-table-4-4.png"
@@ -747,6 +752,7 @@ function ConcreteCoverDurabilityNorms() {
         </article>
         <article className="concrete-cover-durability-norm" id="concrete-cover-norm-table-4-5">
           <h4>п. 4.4.2.4.3, таблиця 4.5 ДБН В.2.6-98:2009</h4>
+          <DbnSourceLink document="dbn-v-2-6-98-2009" />
           <NormScan
             alt="Скан таблиці 4.5 з ДБН В.2.6-98:2009"
             src="/dbn/concrete-cover-durability/dbn-table-4-5.png"
@@ -754,6 +760,7 @@ function ConcreteCoverDurabilityNorms() {
         </article>
         <article className="concrete-cover-durability-norm" id="concrete-cover-norm-45-mm">
           <h4>п. 4.4.2.4.4 ДБН В.2.6-98:2009</h4>
+          <DbnSourceLink document="dbn-v-2-6-98-2009" />
           <NormScan
             alt="Скан п. 4.4.2.4.4 з ДБН В.2.6-98:2009"
             src="/dbn/concrete-cover-durability/dbn-4-4-2-4-4.png"
@@ -761,6 +768,7 @@ function ConcreteCoverDurabilityNorms() {
         </article>
         <article className="concrete-cover-durability-norm" id="concrete-cover-norm-cdev">
           <h4>п. 4.4.3 ДБН В.2.6-98:2009</h4>
+          <DbnSourceLink document="dbn-v-2-6-98-2009" />
           <NormScan
             alt="Скан п. 4.4.3 з ДБН В.2.6-98:2009"
             src="/dbn/concrete-cover-durability/dbn-4-4-3.png"

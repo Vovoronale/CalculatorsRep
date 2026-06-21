@@ -142,6 +142,24 @@ describe("ConcreteCoverDurabilityCalculator", () => {
     }
   });
 
+  it("renders one e-construction action per concrete-cover normative card", () => {
+    render(<ConcreteCoverDurabilityCalculator />);
+
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>(".dbn-source-link"),
+    );
+    expect(links).toHaveLength(7);
+    for (const link of links) {
+      expect(link).toHaveTextContent("Відкрити ДБН на e-construction");
+      expect(link).toHaveAttribute(
+        "href",
+        "https://e-construction.gov.ua/laws_detail/3873881846584444859?doc_type=2",
+      );
+      expect(link).toHaveAttribute("target", "_blank");
+      expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    }
+  });
+
   it("opens the exposure-class calculator through the inspector action", async () => {
     const originalLocation = window.location;
     const assign = vi.fn();
