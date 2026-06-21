@@ -276,6 +276,9 @@ function buildFoundationBasePressureDiagramSvg(report: FoundationBasePressureRep
   const baseY = 88;
   const baseWidth = 300;
   const baseHeight = 225;
+  const axisOriginX = baseX + 28;
+  const axisOriginY = baseY + baseHeight - 28;
+  const axisLength = 72;
   const values = report.values;
   const uplift = values?.uplift;
   const title = "Епюра тиску під підошвою фундаменту";
@@ -374,8 +377,27 @@ function buildFoundationBasePressureDiagramSvg(report: FoundationBasePressureRep
 
   return `
 <svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${title}" class="foundation-base-pressure-diagram__svg" viewBox="0 0 ${width} ${height}">
+  <defs>
+    <marker id="foundation-base-pressure-axis-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 8 4 L 0 8 z" fill="#2563eb" />
+    </marker>
+  </defs>
   <rect x="${baseX}" y="${baseY}" width="${baseWidth}" height="${baseHeight}" fill="#f8fafc" stroke="#111827" stroke-width="2" />
   <polygon points="${contactPolygon}" fill="#dbeafe" stroke="#2563eb" stroke-width="1.8" />
+  <g aria-label="Локальні осі фундаменту">
+    <line data-axis="x" x1="${axisOriginX}" y1="${axisOriginY}" x2="${
+      axisOriginX + axisLength
+    }" y2="${axisOriginY}" stroke="#2563eb" stroke-width="2" marker-end="url(#foundation-base-pressure-axis-arrow)" />
+    <line data-axis="y" x1="${axisOriginX}" y1="${axisOriginY}" x2="${axisOriginX}" y2="${
+      axisOriginY - axisLength
+    }" stroke="#2563eb" stroke-width="2" marker-end="url(#foundation-base-pressure-axis-arrow)" />
+    <text data-axis-label="x" x="${axisOriginX + axisLength + 10}" y="${
+      axisOriginY + 5
+    }" class="foundation-base-pressure-diagram__label">x</text>
+    <text data-axis-label="y" x="${axisOriginX - 4}" y="${
+      axisOriginY - axisLength - 8
+    }" class="foundation-base-pressure-diagram__label">y</text>
+  </g>
   ${pointMarkers}
   <line x1="${baseX}" y1="${baseY + baseHeight}" x2="${baseX + baseWidth}" y2="${
     baseY + baseHeight

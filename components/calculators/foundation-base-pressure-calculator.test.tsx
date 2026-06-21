@@ -117,6 +117,12 @@ describe("foundation base pressure DOCX export", () => {
     expect(svg).toContain('data-stress-label="2"');
     expect(svg).not.toContain('data-stress-label="3"');
     expect(svg).not.toContain('data-stress-label="4"');
+    expect(svg).toContain('data-axis="x"');
+    expect(svg).toContain('data-axis="y"');
+    expect(svg).toContain('data-axis-label="x"');
+    expect(svg).toContain('data-axis-label="y"');
+    expect(svg).toContain('x1="124" y1="285" x2="196" y2="285"');
+    expect(svg).toContain('x1="124" y1="285" x2="124" y2="213"');
     expect(svg).toContain('x="410" y="82"');
     expect(svg).toContain('x="410" y="324"');
     expect(svg).not.toContain('x="420" y="116"');
