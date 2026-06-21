@@ -235,6 +235,26 @@ describe("ResidentialYardAreasCalculator", () => {
     expect(screen.getAllByText("S_(відх) = 8 м²").length).toBeGreaterThan(0);
   });
 
+  it("links every residential-yard normative card to its DBN", () => {
+    render(<ResidentialYardAreasCalculator />);
+
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>(".dbn-source-link"),
+    );
+    expect(links).toHaveLength(4);
+    expect(links.map((link) => link.getAttribute("href"))).toEqual([
+      "https://e-construction.gov.ua/laws_detail/3874277768581612585?doc_type=2",
+      "https://e-construction.gov.ua/laws_detail/3874277768581612585?doc_type=2",
+      "https://e-construction.gov.ua/laws_detail/3874277768581612585?doc_type=2",
+      "https://e-construction.gov.ua/laws_detail/3875034753086261244?doc_type=2",
+    ]);
+    for (const link of links) {
+      expect(link).toHaveTextContent("Відкрити ДБН на e-construction");
+      expect(link).toHaveAttribute("target", "_blank");
+      expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    }
+  });
+
   it("links report citations to the five normative scans and opens the target", async () => {
     const user = userEvent.setup();
     render(<ResidentialYardAreasCalculator />);

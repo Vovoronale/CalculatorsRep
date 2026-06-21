@@ -19,6 +19,7 @@ import {
   type CalculatorInputValues,
 } from "@/lib/calculator-input-schema";
 
+import { DbnSourceLink } from "./dbn-source-link";
 import { InputSchemaForm } from "./input-schema-form";
 import { NativeCalculatorLayout } from "./native-calculator-layout";
 import { NativeReport, type NativeReportStep } from "./native-report";
@@ -513,6 +514,7 @@ function ResidentialYardNormativeReferences() {
         <article className="residential-yard-norm">
           <h4>ДБН Б.2.2-12:2019, п. 6.1.21, таблиця 6.4</h4>
           <p>Питомі розміри майданчиків на одну особу та одну квартиру.</p>
+          <DbnSourceLink document="dbn-b-2-2-12-2019" />
           <ResidentialYardNormScan
             id="residential-yard-norm-table-6-4"
             src="/dbn/residential-yard-areas/dbn-b-2-2-12-table-6-4.png"
@@ -527,6 +529,7 @@ function ResidentialYardNormativeReferences() {
         <article className="residential-yard-norm">
           <h4>ДБН Б.2.2-12:2019, п. 6.1.22, таблиця 6.5</h4>
           <p>Вимоги до розміщення майданчиків для збирання побутових відходів.</p>
+          <DbnSourceLink document="dbn-b-2-2-12-2019" />
           <ResidentialYardNormScan
             id="residential-yard-norm-table-6-5"
             src="/dbn/residential-yard-areas/dbn-b-2-2-12-table-6-5.png"
@@ -536,6 +539,7 @@ function ResidentialYardNormativeReferences() {
         <article className="residential-yard-norm">
           <h4>ДБН Б.2.2-12:2019, п. 10.8.1, таблиця 10.5</h4>
           <p>Нормативні показники гостьових машиномісць для житлової забудови.</p>
+          <DbnSourceLink document="dbn-b-2-2-12-2019" />
           <ResidentialYardNormScan
             id="residential-yard-norm-table-10-5"
             src="/dbn/residential-yard-areas/dbn-b-2-2-12-table-10-5.png"
@@ -545,6 +549,7 @@ function ResidentialYardNormativeReferences() {
         <article className="residential-yard-norm">
           <h4>ДБН В.2.3-15:2007, п. 4.6, таблиця 1</h4>
           <p>Площа земельної ділянки відкритої автостоянки на одне машиномісце.</p>
+          <DbnSourceLink document="dbn-v-2-3-15-2007" />
           <ResidentialYardNormScan
             id="residential-yard-norm-parking-4-6-table-1"
             src="/dbn/residential-yard-areas/dbn-v-2-3-15-4-6-table-1.png"
