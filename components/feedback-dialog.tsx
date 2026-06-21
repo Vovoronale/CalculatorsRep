@@ -233,7 +233,11 @@ export function FeedbackDialog({
             </button>
           </div>
         ) : (
-          <form className="feedback-form" onSubmit={onSubmit}>
+          <form
+            className="feedback-form"
+            onSubmit={onSubmit}
+            onPaste={isBugReport ? onPaste : undefined}
+          >
             <label className="feedback-form__field">
               <span>Ім’я</span>
               <input
@@ -280,7 +284,6 @@ export function FeedbackDialog({
                 className="feedback-screenshot"
                 data-testid="feedback-screenshot-zone"
                 tabIndex={0}
-                onPaste={onPaste}
                 onKeyDown={onZoneKeyDown}
               >
                 <div className="feedback-screenshot__prompt">

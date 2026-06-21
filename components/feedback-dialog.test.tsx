@@ -122,7 +122,7 @@ describe("FeedbackDialog", () => {
     );
     const file = new File([new Uint8Array([1])], "pasted.png", { type: "image/png" });
 
-    fireEvent.paste(screen.getByTestId("feedback-screenshot-zone"), {
+    fireEvent.paste(screen.getByRole("textbox", { name: "Опишіть, що сталося" }), {
       clipboardData: { files: [file] },
     });
 
