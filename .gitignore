@@ -11,6 +11,7 @@ tsconfig.tsbuildinfo
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
+.wrangler/
 
 # Local agent / tooling artifacts
 .claude/
