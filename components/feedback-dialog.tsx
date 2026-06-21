@@ -160,6 +160,8 @@ export function FeedbackDialog({
     event.preventDefault();
     if (submitState === "submitting") return;
 
+    const browserForm = new FormData(event.currentTarget);
+
     setSubmitState("submitting");
     setSubmitError(null);
 
@@ -168,7 +170,7 @@ export function FeedbackDialog({
     form.set("name", name);
     form.set("email", email);
     form.set("message", message);
-    form.set("website", "");
+    form.set("website", String(browserForm.get("website") ?? ""));
     form.set("startedAt", String(startedAt));
     if (isBugReport) {
       form.set("calculatorName", calculatorContext?.calculatorName ?? "");

@@ -182,6 +182,9 @@ describe("FeedbackDialog", () => {
       screen.getByRole("textbox", { name: "Опишіть калькулятор" }),
       "Калькулятор прогину балки",
     );
+    const honeypot = document.querySelector<HTMLInputElement>('input[name="website"]');
+    expect(honeypot).not.toBeNull();
+    fireEvent.change(honeypot as HTMLInputElement, { target: { value: "bot-value" } });
     await userEvent.click(screen.getByRole("button", { name: "Надіслати пропозицію" }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
@@ -193,7 +196,7 @@ describe("FeedbackDialog", () => {
     const body = init?.body as FormData;
     expect(body.get("mode")).toBe("suggestion");
     expect(body.get("name")).toBe("Іван");
-    expect(body.get("website")).toBe("");
+    expect(body.get("website")).toBe("bot-value");
     expect(Number(body.get("startedAt"))).toBeGreaterThan(0);
     expect(await screen.findByText("Дякуємо! Пропозицію надіслано.")).toBeInTheDocument();
   });
