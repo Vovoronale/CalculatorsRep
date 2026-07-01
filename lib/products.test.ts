@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -61,16 +62,48 @@ describe("product content", () => {
 
     expect(existsSync(sourcePath)).toBe(true);
 
-    const source = readFileSync(sourcePath, "utf8");
+    const source = readFileSync(sourcePath);
+    const approvedHeader = Buffer.from(
+      [
+        ";;----------------------------------------------------------------------;;",
+        ";; Program: XRef to Current Drawing                                    ;;",
+        ";; Filename: XRef2Current.lsp                                          ;;",
+        ";; Command: X2C                                                        ;;",
+        ";; Version: 1.0                                                        ;;",
+        ";; Author: Ivaneiko Volodymyr                                          ;;",
+        ";; Copyright (c) 2026 Ivaneiko Volodymyr. All rights reserved.         ;;",
+        ";;                                                                      ;;",
+        ";; Proprietary license: free use is permitted in personal and          ;;",
+        ";; commercial projects. Resale, public republication without written  ;;",
+        ";; permission, and distribution of modified versions under the         ;;",
+        ";; original name are prohibited.                                       ;;",
+        ";;                                                                      ;;",
+        ';; This software is provided "as is", without warranty of any kind.    ;;',
+        ";; The user is solely responsible for the results of its use.           ;;",
+        ";;----------------------------------------------------------------------;;",
+        "",
+      ].join("\r\n"),
+      "utf8",
+    );
 
-    expect(source).toContain("Program: XRef to Current Drawing");
-    expect(source).toContain("Filename: XRef2Current.lsp");
-    expect(source).toContain("Command: X2C");
-    expect(source).toContain("Version: 1.0");
-    expect(source).toContain("Author: Ivaneiko Volodymyr");
-    expect(source).toContain(
+    expect(source.subarray(0, approvedHeader.length)).toEqual(approvedHeader);
+
+    const programSource = source.subarray(approvedHeader.length);
+
+    expect(createHash("sha256").update(programSource).digest("hex")).toBe(
+      "f051358f510fafc124eb0299b56280edeaa80b3aee0ad1a3707449cf152e3fdf",
+    );
+
+    const sourceText = source.toString("utf8");
+
+    expect(sourceText).toContain("Program: XRef to Current Drawing");
+    expect(sourceText).toContain("Filename: XRef2Current.lsp");
+    expect(sourceText).toContain("Command: X2C");
+    expect(sourceText).toContain("Version: 1.0");
+    expect(sourceText).toContain("Author: Ivaneiko Volodymyr");
+    expect(sourceText).toContain(
       "Copyright (c) 2026 Ivaneiko Volodymyr. All rights reserved.",
     );
-    expect(source).toContain("(defun c:x2c");
+    expect(sourceText).toContain("(defun c:x2c");
   });
 });

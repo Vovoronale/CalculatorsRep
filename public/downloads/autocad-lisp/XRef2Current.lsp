@@ -14,7 +14,6 @@
 ;; This software is provided "as is", without warranty of any kind.    ;;
 ;; The user is solely responsible for the results of its use.           ;;
 ;;----------------------------------------------------------------------;;
-
 ;;----------------------=={ XRef to Current Drawing }==--------------------;;
 ;; Command: X2C
 ;;
