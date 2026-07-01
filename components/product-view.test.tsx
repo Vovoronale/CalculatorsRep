@@ -90,4 +90,36 @@ describe("ProductView", () => {
     ).toBe("CODE");
     expect(screen.getByText("Тип ліцензії: пропрієтарна (IVSoft).")).toBeVisible();
   });
+
+  it("renders the LISP facts, workflow, warning, download, and license without screenshots", () => {
+    const product = getProductBySlug("xref-to-current");
+    expect(product).toBeDefined();
+
+    render(<ProductView product={product!} />);
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "XRef to Current Drawing (X2C)" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent),
+    ).toEqual([
+      "Основні відомості",
+      "Що робить LISP",
+      "Опис роботи",
+      "Як користуватися",
+      "Важливе застереження",
+      "Завантаження",
+      "Як встановити LISP в AutoCAD",
+      "Ліцензійні умови",
+    ]);
+
+    const facts = screen.getByRole("region", { name: "Основні відомості" });
+    expect(within(facts).getByText("X2C").tagName).toBe("CODE");
+    expect(screen.queryByRole("heading", { name: /Скріншоти/ })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Завантажити XRef2Current.lsp" }),
+    ).toHaveAttribute("href", "/downloads/autocad-lisp/XRef2Current.lsp");
+    expect(screen.getByRole("note")).toHaveTextContent("не можна скасувати командою Undo");
+    expect(screen.getByText("© 2026 Ivaneiko Volodymyr. Усі права захищені.")).toBeVisible();
+  });
 });

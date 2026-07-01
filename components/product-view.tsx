@@ -72,6 +72,20 @@ export function ProductView({ product }: ProductViewProps) {
             </a>
           </header>
 
+          {product.factsHeading && product.facts?.length ? (
+            <section className="product-section" aria-labelledby="product-facts-heading">
+              <h2 id="product-facts-heading">{product.factsHeading}</h2>
+              <dl className="product-facts">
+                {product.facts.map((fact) => (
+                  <div key={fact.label} className="product-fact">
+                    <dt>{fact.label}</dt>
+                    <dd>{fact.label === "Команда" ? <code>{fact.value}</code> : fact.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          ) : null}
+
           <section className="product-section" aria-labelledby="product-features-heading">
             <h2 id="product-features-heading">{product.featuresHeading}</h2>
             <ul className="product-feature-list">
@@ -89,26 +103,64 @@ export function ProductView({ product }: ProductViewProps) {
             <p>{product.description}</p>
           </section>
 
-          <section className="product-section" aria-labelledby="product-screenshots-heading">
-            <div className="product-section__intro">
-              <h2 id="product-screenshots-heading">{product.screenshotsHeading}</h2>
-              <p>{product.screenshotsIntro}</p>
-            </div>
-            <div className="product-screenshot-grid">
-              {(product.screenshots ?? []).map((screenshot) => (
-                <figure key={screenshot.src} className="product-screenshot">
-                  <Image
-                    src={screenshot.src}
-                    alt={screenshot.alt}
-                    width={screenshot.width}
-                    height={screenshot.height}
-                    sizes="(max-width: 720px) 100vw, 460px"
-                  />
-                  <figcaption>{screenshot.caption}</figcaption>
-                </figure>
+          {product.usageHeading && product.usageSteps?.length ? (
+            <section className="product-section" aria-labelledby="product-usage-heading">
+              <h2 id="product-usage-heading">{product.usageHeading}</h2>
+              <ol className="product-installation-list">
+                {product.usageSteps.map((step) => (
+                  <li key={step.title}>
+                    <h3>{step.title}</h3>
+                    <p>{step.description}</p>
+                    {step.code ? (
+                      <div className="product-code-list">
+                        {step.code.map((value) => (
+                          <code key={value}>{value}</code>
+                        ))}
+                      </div>
+                    ) : null}
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ) : null}
+
+          {product.warningHeading && product.warningParagraphs?.length ? (
+            <section
+              className="product-section product-warning"
+              aria-labelledby="product-warning-heading"
+              role="note"
+            >
+              <h2 id="product-warning-heading">{product.warningHeading}</h2>
+              {product.warningParagraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
               ))}
-            </div>
-          </section>
+            </section>
+          ) : null}
+
+          {product.screenshotsHeading &&
+          product.screenshotsIntro &&
+          product.screenshots?.length ? (
+            <section className="product-section" aria-labelledby="product-screenshots-heading">
+              <div className="product-section__intro">
+                <h2 id="product-screenshots-heading">{product.screenshotsHeading}</h2>
+                <p>{product.screenshotsIntro}</p>
+              </div>
+              <div className="product-screenshot-grid">
+                {product.screenshots.map((screenshot) => (
+                  <figure key={screenshot.src} className="product-screenshot">
+                    <Image
+                      src={screenshot.src}
+                      alt={screenshot.alt}
+                      width={screenshot.width}
+                      height={screenshot.height}
+                      sizes="(max-width: 720px) 100vw, 460px"
+                    />
+                    <figcaption>{screenshot.caption}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <section
             id="downloads"
