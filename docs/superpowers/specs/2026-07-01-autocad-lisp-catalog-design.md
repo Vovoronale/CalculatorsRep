@@ -1,7 +1,7 @@
 # AutoCAD LISP Catalog and XRef2Current Product Page Design
 
 **Date:** 2026-07-01  
-**Status:** Approved design; awaiting written-spec review
+**Status:** Approved
 
 ## Goal
 
