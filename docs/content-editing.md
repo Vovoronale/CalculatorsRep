@@ -172,10 +172,10 @@
 
 Масив `products[]` керує сторінками `/products/<slug>`. Обов'язкові поля запису задають hero, можливості, опис, блок завантажень, інструкцію встановлення та ліцензію.
 
-- `factsHeading` + `facts[]` (`{ label, value }`) — короткі факти про продукт;
-- `usageHeading` + `usageSteps[]` — порядок використання;
-- `warningHeading` + `warningParagraphs[]` — важливе попередження;
-- `screenshotsHeading`, `screenshotsIntro`, `screenshots[]` — необов'язкова галерея, яка не рендериться за відсутності;
+- `factsHeading` + `facts[]` (`{ label, value }`) — необов'язковий блок коротких фактів про продукт;
+- `usageHeading` + `usageSteps[]` — необов'язковий блок із порядком використання;
+- `warningHeading` + `warningParagraphs[]` — необов'язковий блок важливого попередження;
+- `screenshotsHeading`, `screenshotsIntro`, `screenshots[]` — необов'язкова галерея; кожен із цих чотирьох блоків не рендериться за відсутності;
 - `downloads[]` — `{ label, ctaLabel, ariaLabel, href }`; назву продукту й версію не хардкодь у компонентах.
 
 Локальні файли клади в `public/downloads/<group>/`; коренева URL-адреса має вигляд `/downloads/autocad-lisp/XRef2Current.lsp`. Для запису цього продукту в каталозі калькуляторів використовуй `displayMode: "product"` та `openUrl: "/products/<slug>"`.
