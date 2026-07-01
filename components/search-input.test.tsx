@@ -20,4 +20,18 @@ describe("SearchInput", () => {
       screen.getByRole("option", { name: /Revit Screenshot Plugin/ }),
     ).toHaveAttribute("href", "/products/revit-screenshot");
   });
+
+  it("links the XRef result to its internal product page", async () => {
+    const user = userEvent.setup();
+    render(<SearchInput />);
+
+    await user.type(
+      screen.getByRole("searchbox", { name: "Пошук калькуляторів" }),
+      "XRef",
+    );
+
+    expect(
+      screen.getByRole("option", { name: /XRef to Current Drawing/ }),
+    ).toHaveAttribute("href", "/products/xref-to-current");
+  });
 });

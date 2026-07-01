@@ -7,6 +7,7 @@ describe("calculator static routes", () => {
     const params = await generateStaticParams();
 
     expect(params).not.toContainEqual({ slug: "revit-screenshot-plugin" });
+    expect(params).not.toContainEqual({ slug: "xref-to-current" });
     expect(params).toContainEqual({ slug: "soil-design-resistance" });
   });
 });

@@ -20,10 +20,11 @@
 | `site.legalPages` | Тексти `/disclaimer`, `/terms`, `/privacy` | [`lib/site-content.ts`](../lib/site-content.ts), [`lib/legal-pages.ts`](../lib/legal-pages.ts) |
 | `categories` | Категорії калькуляторів (бічна панель) | [`lib/calculators.ts`](../lib/calculators.ts) |
 | `calculators` | Записи калькуляторів | [`lib/calculators.ts`](../lib/calculators.ts) |
+| `products` | Окремі сторінки продуктів `/products/<slug>` | [`lib/products.ts`](../lib/products.ts) |
 | `projectCategories` | Блок «Екосистема продуктів» на `/author` | [`lib/projects.ts`](../lib/projects.ts) |
 | `aiAssistants` | Блок AI-асистентів на `/author` | [`lib/projects.ts`](../lib/projects.ts) |
 
-**Усі три loader-файли імпортують `data/content.json` напряму** — окремих джерел даних немає.
+**Усі loader-файли імпортують `data/content.json` напряму** — окремих джерел даних немає.
 
 ---
 
@@ -166,6 +167,18 @@
 ---
 
 ## 5. Інший контент
+
+### Сторінки продуктів
+
+Масив `products[]` керує сторінками `/products/<slug>`. Обов'язкові поля запису задають hero, можливості, опис, блок завантажень, інструкцію встановлення та ліцензію.
+
+- `factsHeading` + `facts[]` (`{ label, value }`) — короткі факти про продукт;
+- `usageHeading` + `usageSteps[]` — порядок використання;
+- `warningHeading` + `warningParagraphs[]` — важливе попередження;
+- `screenshotsHeading`, `screenshotsIntro`, `screenshots[]` — необов'язкова галерея, яка не рендериться за відсутності;
+- `downloads[]` — `{ label, ctaLabel, ariaLabel, href }`; назву продукту й версію не хардкодь у компонентах.
+
+Локальні файли клади в `public/downloads/<group>/`; коренева URL-адреса має вигляд `/downloads/autocad-lisp/XRef2Current.lsp`. Для запису цього продукту в каталозі калькуляторів використовуй `displayMode: "product"` та `openUrl: "/products/<slug>"`.
 
 ### IVapps top bar (продуктовий dropdown)
 

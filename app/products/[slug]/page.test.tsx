@@ -29,7 +29,10 @@ afterEach(() => {
 
 describe("product page route", () => {
   it("generates a static route for each product", () => {
-    expect(generateStaticParams()).toEqual([{ slug: "revit-screenshot" }]);
+    expect(generateStaticParams()).toEqual([
+      { slug: "revit-screenshot" },
+      { slug: "xref-to-current" },
+    ]);
   });
 
   it("generates product metadata", async () => {
@@ -42,6 +45,16 @@ describe("product page route", () => {
     });
   });
 
+  it("generates XRef product metadata", async () => {
+    await expect(
+      generateMetadata({ params: Promise.resolve({ slug: "xref-to-current" }) }),
+    ).resolves.toMatchObject({
+      title: "XRef to Current Drawing (X2C) — завантажити AutoCAD LISP",
+      description:
+        "Завантажте XRef2Current.lsp для копіювання вкладених об’єктів із Xref у поточне креслення AutoCAD. Команда X2C, опис роботи та інструкція встановлення.",
+    });
+  });
+
   it("renders the known product", async () => {
     render(
       await ProductPage({
@@ -50,6 +63,17 @@ describe("product page route", () => {
     );
 
     expect(screen.getByText("Revit Screenshot Plugin")).toBeInTheDocument();
+    expect(notFoundMock).not.toHaveBeenCalled();
+  });
+
+  it("renders the known XRef product", async () => {
+    render(
+      await ProductPage({
+        params: Promise.resolve({ slug: "xref-to-current" }),
+      }),
+    );
+
+    expect(screen.getByText("XRef to Current Drawing (X2C)")).toBeInTheDocument();
     expect(notFoundMock).not.toHaveBeenCalled();
   });
 

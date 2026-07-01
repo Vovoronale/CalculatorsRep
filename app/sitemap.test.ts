@@ -15,6 +15,7 @@ describe("sitemap metadata route", () => {
     expect(urls).toContain("https://ivapps.pro/disclaimer");
     expect(urls).toContain("https://ivapps.pro/terms");
     expect(urls).toContain("https://ivapps.pro/privacy");
+    expect(urls).toContain("https://ivapps.pro/products/xref-to-current");
 
     for (const calculator of calculators) {
       if (calculator.displayMode === "product") {
