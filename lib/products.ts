@@ -9,8 +9,15 @@ export type ProductScreenshot = {
 };
 
 export type ProductDownload = {
-  version: string;
+  label: string;
+  ctaLabel: string;
+  ariaLabel: string;
   href: string;
+};
+
+export type ProductFact = {
+  label: string;
+  value: string;
 };
 
 export type ProductInstallationStep = {
@@ -28,12 +35,18 @@ export type Product = {
   seoTitle: string;
   seoDescription: string;
   downloadCtaLabel: string;
+  factsHeading?: string;
+  facts?: ProductFact[];
   featuresHeading: string;
   features: string[];
   descriptionHeading: string;
-  screenshotsHeading: string;
-  screenshotsIntro: string;
-  screenshots: ProductScreenshot[];
+  usageHeading?: string;
+  usageSteps?: ProductInstallationStep[];
+  warningHeading?: string;
+  warningParagraphs?: string[];
+  screenshotsHeading?: string;
+  screenshotsIntro?: string;
+  screenshots?: ProductScreenshot[];
   downloadsHeading: string;
   downloadsIntro: string;
   downloads: ProductDownload[];

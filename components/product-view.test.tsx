@@ -71,12 +71,12 @@ describe("ProductView", () => {
     for (const download of product.downloads) {
       expect(
         within(downloads).getByRole("link", {
-          name: `Завантажити для Revit ${download.version}`,
+          name: download.ariaLabel,
         }),
       ).toHaveAttribute("href", download.href);
     }
 
-    for (const screenshot of product.screenshots) {
+    for (const screenshot of product.screenshots ?? []) {
       expect(screen.getByRole("img", { name: screenshot.alt })).toBeInTheDocument();
     }
   });

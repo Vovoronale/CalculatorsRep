@@ -18,7 +18,7 @@ describe("product content", () => {
 
   it("provides distinct accessible screenshot descriptions", () => {
     const product = getProductBySlug("revit-screenshot");
-    const altTexts = product?.screenshots.map((screenshot) => screenshot.alt) ?? [];
+    const altTexts = product?.screenshots?.map((screenshot) => screenshot.alt) ?? [];
 
     expect(altTexts).toHaveLength(4);
     expect(altTexts.every((alt) => alt.trim().length > 0)).toBe(true);
@@ -28,18 +28,56 @@ describe("product content", () => {
   it("provides approved Revit download URLs", () => {
     expect(getProductBySlug("revit-screenshot")?.downloads).toEqual([
       {
-        version: "2024",
+        label: "Revit 2024",
+        ctaLabel: "Завантажити для Revit 2024",
+        ariaLabel: "Завантажити для Revit 2024",
         href: "https://dbnassistant.com/downloads/revit-screenshot/RevitScreenshot-2024.zip",
       },
       {
-        version: "2025",
+        label: "Revit 2025",
+        ctaLabel: "Завантажити для Revit 2025",
+        ariaLabel: "Завантажити для Revit 2025",
         href: "https://dbnassistant.com/downloads/revit-screenshot/RevitScreenshot-2025.zip",
       },
       {
-        version: "2026",
+        label: "Revit 2026",
+        ctaLabel: "Завантажити для Revit 2026",
+        ariaLabel: "Завантажити для Revit 2026",
         href: "https://dbnassistant.com/downloads/revit-screenshot/RevitScreenshot-2026.zip",
       },
     ]);
+  });
+
+  it("loads the XRef2Current product with facts, download, warning, and rights", () => {
+    const product = getProductBySlug("xref-to-current");
+
+    expect(product?.typeLabel).toBe("AutoCAD LISP");
+    expect(product?.title).toBe("XRef to Current Drawing (X2C)");
+    expect(product?.factsHeading).toBe("Основні відомості");
+    expect(product?.downloadCtaLabel).toBe("Завантажити LISP");
+    expect(product?.warningHeading).toBe("Важливе застереження");
+    expect(product?.screenshots).toBeUndefined();
+    expect(product?.facts).toEqual([
+      { label: "Команда", value: "X2C" },
+      { label: "Версія", value: "1.0" },
+      { label: "Платформа", value: "AutoCAD for Windows" },
+      { label: "AutoCAD for Mac", value: "Не підтримується" },
+      { label: "AutoCAD LT", value: "Не підтримується" },
+    ]);
+    expect(product?.downloads).toEqual([
+      {
+        label: "XRef2Current.lsp",
+        ctaLabel: "Завантажити XRef2Current.lsp",
+        ariaLabel: "Завантажити XRef2Current.lsp",
+        href: "/downloads/autocad-lisp/XRef2Current.lsp",
+      },
+    ]);
+    expect(product?.warningParagraphs?.join(" ")).toContain(
+      "не можна скасувати командою Undo",
+    );
+    expect(product?.licenseTerms).toContain(
+      "© 2026 Ivaneiko Volodymyr. Усі права захищені.",
+    );
   });
 
   it("links the BIM project card to the internal product page", () => {

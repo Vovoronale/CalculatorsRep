@@ -95,7 +95,7 @@ export function ProductView({ product }: ProductViewProps) {
               <p>{product.screenshotsIntro}</p>
             </div>
             <div className="product-screenshot-grid">
-              {product.screenshots.map((screenshot) => (
+              {(product.screenshots ?? []).map((screenshot) => (
                 <figure key={screenshot.src} className="product-screenshot">
                   <Image
                     src={screenshot.src}
@@ -122,15 +122,15 @@ export function ProductView({ product }: ProductViewProps) {
             <div className="product-download-grid">
               {product.downloads.map((download) => (
                 <a
-                  key={download.version}
+                  key={download.href}
                   className="product-download-card"
                   href={download.href}
-                  aria-label={`Завантажити для Revit ${download.version}`}
+                  aria-label={download.ariaLabel}
                 >
-                  <span>Revit {download.version}</span>
+                  <span>{download.label}</span>
                   <strong>
                     <Download aria-hidden size={17} />
-                    Завантажити для Revit {download.version}
+                    {download.ctaLabel}
                   </strong>
                 </a>
               ))}
