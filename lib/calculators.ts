@@ -18,6 +18,7 @@ export type CategorySlug =
   | "pidlohy"
   | "teplovi-mistky-fem"
   | "revit-plaginy"
+  | "autocad-lisp"
   | "ai-instrumenty"
   | "asystenty-dbn";
 

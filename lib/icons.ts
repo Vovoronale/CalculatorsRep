@@ -9,6 +9,7 @@ import {
   BookOpenCheck,
   Building,
   Calculator as CalculatorIcon,
+  Code2,
   Drill,
   Droplets,
   Fan,
@@ -57,6 +58,7 @@ export const iconRegistry: Record<string, LucideIcon> = {
   BookOpenCheck,
   Building,
   Calculator: CalculatorIcon,
+  Code2,
   Drill,
   Droplets,
   Fan,
@@ -105,6 +107,7 @@ const FALLBACK_CATEGORY_ICONS: Record<CategorySlug, LucideIcon> = {
   elektryka: Zap,
   "dxf-geojson": Map,
   "revit-plaginy": Box,
+  "autocad-lisp": Code2,
   "ai-instrumenty": Bot,
   "asystenty-dbn": Bot,
 };

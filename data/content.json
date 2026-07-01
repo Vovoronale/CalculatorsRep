@@ -477,6 +477,12 @@
       "icon": "Box"
     },
     {
+      "slug": "autocad-lisp",
+      "title": "AutoCAD Lisp",
+      "note": "AutoLISP-утиліти для автоматизації роботи в Autodesk AutoCAD.",
+      "icon": "Code2"
+    },
+    {
       "slug": "ai-instrumenty",
       "title": "AI-інструменти",
       "note": "AI-асистенти для ДБН, перевірки рішень і підготовки технічних пояснень.",
@@ -1927,6 +1933,34 @@
       ],
       "icon": "Box",
       "standard": "Revit 2024–2026"
+    },
+    {
+      "slug": "xref-to-current",
+      "title": "XRef to Current Drawing (X2C)",
+      "shortDescription": "Копіювання вибраних вкладених об’єктів із Xref у поточне креслення зі збереженням їхнього видимого положення, масштабу та повороту.",
+      "description": "AutoCAD LISP переносить вибрані об’єкти із зовнішнього DWG-посилання в поточний простір креслення та за підтвердженням може видалити оригінали з вихідного Xref.",
+      "mainCategory": "autocad-lisp",
+      "extraCategories": [],
+      "displayMode": "product",
+      "accessLabel": "Сторінка LISP",
+      "openUrl": "/products/xref-to-current",
+      "order": 34,
+      "editorialLabel": "Новий",
+      "useCases": [
+        "Копіювання геометрії з Xref",
+        "Перенесення вибраних об’єктів у поточний DWG",
+        "Контрольоване видалення об’єктів із вихідного Xref"
+      ],
+      "tags": [
+        "AutoCAD",
+        "AutoLISP",
+        "Xref"
+      ],
+      "tools": [
+        "Autodesk AutoCAD"
+      ],
+      "icon": "Code2",
+      "standard": "AutoCAD for Windows"
     }
   ],
   "products": [

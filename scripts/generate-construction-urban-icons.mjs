@@ -22,6 +22,7 @@ const colors = {
   gis: { fill: "#3C6E8F", text: "#FFFFFF", stroke: "#284C64" },
   ai: { fill: "#6E568C", text: "#FFFFFF", stroke: "#4B3A62" },
   revit: { fill: "#176B87", text: "#FFFFFF", stroke: "#10495C" },
+  autocad: { fill: "#A9473D", text: "#FFFFFF", stroke: "#713029" },
 };
 
 const stroke = 'fill="none" stroke="#222729" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"';
@@ -373,6 +374,16 @@ const icons = [
       <path d="M244 272h124v72H244zM210 248h18M210 284h18M210 320h18" ${thinStroke}/>
       <circle cx="422" cy="222" r="34" fill="#176B87" stroke="#222729" stroke-width="14"/>
       <path d="M406 222h32M422 206v32" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round"/>
+    `,
+  },
+  {
+    slug: "xref-to-current",
+    badge: textBadge("X2C", colors.autocad, 238, 68),
+    body: `
+      <path d="M132 176h264v228H132z" fill="#E4E7E5" stroke="#222729" stroke-width="20"/>
+      <path d="M214 230h264v228H214z" fill="#F5F7F6" stroke="#222729" stroke-width="20"/>
+      <path d="M166 290h112m-34-34l34 34-34 34" ${stroke}/>
+      <path d="M338 344H226m34-34l-34 34 34 34" ${stroke}/>
     `,
   },
 ];

@@ -38,6 +38,7 @@ describe("calculator data model", () => {
       "pidlohy",
       "teplovi-mistky-fem",
       "revit-plaginy",
+      "autocad-lisp",
       "ai-instrumenty",
       "asystenty-dbn",
     ]);
@@ -65,6 +66,34 @@ describe("calculator data model", () => {
       standard: "Revit 2024–2026",
     });
     expect(getCalculatorCatalogHref(calculator!)).toBe("/products/revit-screenshot");
+    expect(calculatorPageCalculators).not.toContainEqual(calculator);
+  });
+
+  it("registers XRef2Current immediately after the Revit plugin category", () => {
+    const categorySlugs = calculatorCategories.map((item) => item.slug);
+    const revitCategoryIndex = categorySlugs.indexOf("revit-plaginy");
+    const category = calculatorCategories.find(
+      (item) => item.slug === "autocad-lisp",
+    );
+    const calculator = getCalculatorBySlug("xref-to-current");
+
+    expect(categorySlugs[revitCategoryIndex + 1]).toBe("autocad-lisp");
+    expect(category).toMatchObject({
+      title: "AutoCAD Lisp",
+      icon: "Code2",
+    });
+    expect(getCalculatorsForCategory("autocad-lisp").map((item) => item.slug)).toEqual([
+      "xref-to-current",
+    ]);
+    expect(calculator).toMatchObject({
+      title: "XRef to Current Drawing (X2C)",
+      mainCategory: "autocad-lisp",
+      extraCategories: [],
+      displayMode: "product",
+      openUrl: "/products/xref-to-current",
+      standard: "AutoCAD for Windows",
+    });
+    expect(getCalculatorCatalogHref(calculator!)).toBe("/products/xref-to-current");
     expect(calculatorPageCalculators).not.toContainEqual(calculator);
   });
 
