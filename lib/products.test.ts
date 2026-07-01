@@ -1,3 +1,6 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { projectCategories } from "@/lib/projects";
@@ -45,5 +48,29 @@ describe("product content", () => {
     );
 
     expect(project?.href).toBe("/products/revit-screenshot");
+  });
+
+  it("publishes the licensed XRef2Current source", () => {
+    const sourcePath = join(
+      process.cwd(),
+      "public",
+      "downloads",
+      "autocad-lisp",
+      "XRef2Current.lsp",
+    );
+
+    expect(existsSync(sourcePath)).toBe(true);
+
+    const source = readFileSync(sourcePath, "utf8");
+
+    expect(source).toContain("Program: XRef to Current Drawing");
+    expect(source).toContain("Filename: XRef2Current.lsp");
+    expect(source).toContain("Command: X2C");
+    expect(source).toContain("Version: 1.0");
+    expect(source).toContain("Author: Ivaneiko Volodymyr");
+    expect(source).toContain(
+      "Copyright (c) 2026 Ivaneiko Volodymyr. All rights reserved.",
+    );
+    expect(source).toContain("(defun c:x2c");
   });
 });
