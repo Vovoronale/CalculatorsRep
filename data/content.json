@@ -1961,6 +1961,34 @@
       ],
       "icon": "Code2",
       "standard": "AutoCAD for Windows"
+    },
+    {
+      "slug": "text2tabel",
+      "title": "Text2Tabel",
+      "shortDescription": "Створення AutoCAD Table з вибраного TEXT/MTEXT, лінійної сітки таблиці або послідовно вибраних текстових значень.",
+      "description": "AutoCAD LISP перетворює текстові написи та креслені лініями таблиці на нативні AutoCAD Table, а також може переносити окремий текст у вибрану комірку існуючої таблиці.",
+      "mainCategory": "autocad-lisp",
+      "extraCategories": [],
+      "displayMode": "product",
+      "accessLabel": "Сторінка LISP",
+      "openUrl": "/products/text2tabel",
+      "order": 35,
+      "editorialLabel": "Новий",
+      "useCases": [
+        "Створення таблиць із розкладеного TEXT/MTEXT",
+        "Перетворення лінійної сітки з текстом на AutoCAD Table",
+        "Перенесення окремого тексту в комірку існуючої таблиці"
+      ],
+      "tags": [
+        "AutoCAD",
+        "AutoLISP",
+        "Table"
+      ],
+      "tools": [
+        "Autodesk AutoCAD"
+      ],
+      "icon": "Code2",
+      "standard": "AutoCAD for Windows"
     }
   ],
   "products": [
@@ -2198,6 +2226,133 @@
           "description": "Поверніться до креслення, введіть X2C у командному рядку та натисніть Enter.",
           "code": [
             "X2C"
+          ]
+        }
+      ],
+      "licenseHeading": "Ліцензійні умови",
+      "licenseTerms": [
+        "Тип ліцензії: пропрієтарна. Автор і правовласник — Ivaneiko Volodymyr.",
+        "Дозволено безоплатне використання програми у персональних і комерційних проєктах.",
+        "Заборонено продавати програму як власний продукт, публічно перевикладати файл без письмового дозволу автора або розповсюджувати модифіковані версії під оригінальною назвою.",
+        "Програма надається за принципом «як є», без будь-яких гарантій. Користувач самостійно відповідає за результати її використання та зміни у файлах креслень.",
+        "© 2026 Ivaneiko Volodymyr. Усі права захищені."
+      ]
+    },
+    {
+      "slug": "text2tabel",
+      "typeLabel": "AutoCAD LISP",
+      "title": "Text2Tabel",
+      "shortDescription": "AutoCAD LISP для створення нативних AutoCAD Table з тексту, MTEXT, лінійної сітки таблиці або послідовно вибраних текстових значень.",
+      "description": "Text2Tabel допомагає швидко зібрати креслену або текстову таблицю в нативний об’єкт AutoCAD Table. Програма підтримує автоматичне групування вибраних TEXT/MTEXT у рядки, розпізнавання прямокутної таблиці з LINE/LWPOLYLINE/POLYLINE та текстом усередині комірок, ручне поелементне збирання рядків або фіксованих колонок, а також запис окремого текстового об’єкта в комірку існуючої таблиці.",
+      "seoTitle": "Text2Tabel — завантажити AutoCAD LISP",
+      "seoDescription": "Завантажте Text2Tabel.lsp для створення AutoCAD Table з тексту, MTEXT або лінійної сітки таблиці. Команда Text2Tabel, режими роботи та інструкція встановлення.",
+      "downloadCtaLabel": "Завантажити LISP",
+      "factsHeading": "Основні відомості",
+      "facts": [
+        {
+          "label": "Команда",
+          "value": "Text2Tabel"
+        },
+        {
+          "label": "Версія",
+          "value": "1.0"
+        },
+        {
+          "label": "Платформа",
+          "value": "AutoCAD for Windows"
+        },
+        {
+          "label": "AutoCAD for Mac",
+          "value": "Не підтримується"
+        },
+        {
+          "label": "AutoCAD LT",
+          "value": "Не підтримується"
+        }
+      ],
+      "featuresHeading": "Що робить LISP",
+      "features": [
+        "Режим ByLines створює AutoCAD Table з вибраної лінійної сітки та тексту, розміщеного в її комірках.",
+        "Режим ByText групує вибрані TEXT/MTEXT за рядками й колонками у порядку читання та створює нову таблицю.",
+        "Режим OneByOne дає вручну вибирати текстові значення для рядків або фіксованої кількості колонок.",
+        "Режим TextToCell записує вибраний текст у комірку існуючої AutoCAD Table."
+      ],
+      "descriptionHeading": "Опис роботи",
+      "usageHeading": "Як користуватися",
+      "usageSteps": [
+        {
+          "title": "Крок 1. Запустіть команду",
+          "description": "Введіть Text2Tabel у командному рядку AutoCAD і натисніть Enter.",
+          "code": [
+            "Text2Tabel"
+          ]
+        },
+        {
+          "title": "Крок 2. Виберіть режим",
+          "description": "Оберіть ByLines для кресленої сітки, ByText для автоматичного групування тексту, OneByOne для ручного збору значень або TextToCell для запису одного тексту в існуючу таблицю.",
+          "code": [
+            "ByLines",
+            "ByText",
+            "OneByOne",
+            "TextToCell"
+          ]
+        },
+        {
+          "title": "Крок 3. Виберіть об’єкти",
+          "description": "Для ByLines виберіть LINE/LWPOLYLINE/POLYLINE разом із TEXT/MTEXT. Для ByText виберіть лише TEXT/MTEXT. Для OneByOne і TextToCell виконуйте підказки командного рядка."
+        },
+        {
+          "title": "Крок 4. Вкажіть точку вставки",
+          "description": "Для режимів, що створюють нову таблицю, клацніть точку вставки AutoCAD Table у поточному model space або paper space."
+        }
+      ],
+      "warningHeading": "Важливе застереження",
+      "warningParagraphs": [
+        "Режим TextToCell після успішного запису значення в комірку видаляє вихідний текстовий об’єкт із креслення.",
+        "Перед масовим перетворенням креслених таблиць перевірте копію фрагмента креслення: якість результату залежить від повноти прямокутної сітки, положення тексту в комірках і підтримки ActiveX-методу AddTable у вашій версії AutoCAD."
+      ],
+      "downloadsHeading": "Завантаження",
+      "downloadsIntro": "Збережіть файл LISP у локальну довірену папку та завантажте його в AutoCAD через APPLOAD.",
+      "downloads": [
+        {
+          "label": "Text2Tabel.lsp",
+          "ctaLabel": "Завантажити Text2Tabel.lsp",
+          "ariaLabel": "Завантажити Text2Tabel.lsp",
+          "href": "/downloads/autocad-lisp/Text2Tabel.lsp"
+        }
+      ],
+      "installationHeading": "Як встановити LISP в AutoCAD",
+      "installationSteps": [
+        {
+          "title": "Крок 1. Завантажте файл",
+          "description": "Збережіть Text2Tabel.lsp у постійній локальній папці, якій ви довіряєте.",
+          "code": [
+            "Text2Tabel.lsp"
+          ]
+        },
+        {
+          "title": "Крок 2. Відкрийте APPLOAD",
+          "description": "У командному рядку AutoCAD введіть APPLOAD і натисніть Enter.",
+          "code": [
+            "APPLOAD"
+          ]
+        },
+        {
+          "title": "Крок 3. Завантажте LISP",
+          "description": "У діалозі Load/Unload Applications знайдіть Text2Tabel.lsp, виберіть файл і натисніть Load. Якщо AutoCAD блокує файл, підтвердьте довіру або додайте його папку до TRUSTEDPATHS.",
+          "code": [
+            "TRUSTEDPATHS"
+          ]
+        },
+        {
+          "title": "Крок 4. За потреби додайте в автозавантаження",
+          "description": "Щоб LISP завантажувався в наступних сеансах, у вікні APPLOAD додайте Text2Tabel.lsp до Startup Suite."
+        },
+        {
+          "title": "Крок 5. Запустіть програму",
+          "description": "Поверніться до креслення, введіть Text2Tabel у командному рядку та натисніть Enter.",
+          "code": [
+            "Text2Tabel"
           ]
         }
       ],

@@ -32,6 +32,7 @@ describe("product page route", () => {
     expect(generateStaticParams()).toEqual([
       { slug: "revit-screenshot" },
       { slug: "xref-to-current" },
+      { slug: "text2tabel" },
     ]);
   });
 
@@ -55,6 +56,16 @@ describe("product page route", () => {
     });
   });
 
+  it("generates Text2Tabel product metadata", async () => {
+    await expect(
+      generateMetadata({ params: Promise.resolve({ slug: "text2tabel" }) }),
+    ).resolves.toMatchObject({
+      title: "Text2Tabel — завантажити AutoCAD LISP",
+      description:
+        "Завантажте Text2Tabel.lsp для створення AutoCAD Table з тексту, MTEXT або лінійної сітки таблиці. Команда Text2Tabel, режими роботи та інструкція встановлення.",
+    });
+  });
+
   it("renders the known product", async () => {
     render(
       await ProductPage({
@@ -74,6 +85,17 @@ describe("product page route", () => {
     );
 
     expect(screen.getByText("XRef to Current Drawing (X2C)")).toBeInTheDocument();
+    expect(notFoundMock).not.toHaveBeenCalled();
+  });
+
+  it("renders the known Text2Tabel product", async () => {
+    render(
+      await ProductPage({
+        params: Promise.resolve({ slug: "text2tabel" }),
+      }),
+    );
+
+    expect(screen.getByText("Text2Tabel")).toBeInTheDocument();
     expect(notFoundMock).not.toHaveBeenCalled();
   });
 

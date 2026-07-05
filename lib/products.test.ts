@@ -144,4 +144,96 @@ describe("product content", () => {
     );
     expect(sourceText).toContain("(defun c:x2c");
   });
+
+  it("loads the Text2Tabel product with modes, download, warning, and rights", () => {
+    const product = getProductBySlug("text2tabel");
+
+    expect(product?.typeLabel).toBe("AutoCAD LISP");
+    expect(product?.title).toBe("Text2Tabel");
+    expect(product?.factsHeading).toBe("Основні відомості");
+    expect(product?.downloadCtaLabel).toBe("Завантажити LISP");
+    expect(product?.warningHeading).toBe("Важливе застереження");
+    expect(product?.screenshots).toBeUndefined();
+    expect(product?.facts).toEqual([
+      { label: "Команда", value: "Text2Tabel" },
+      { label: "Версія", value: "1.0" },
+      { label: "Платформа", value: "AutoCAD for Windows" },
+      { label: "AutoCAD for Mac", value: "Не підтримується" },
+      { label: "AutoCAD LT", value: "Не підтримується" },
+    ]);
+    expect(product?.features.join(" ")).toContain("ByLines");
+    expect(product?.features.join(" ")).toContain("ByText");
+    expect(product?.features.join(" ")).toContain("OneByOne");
+    expect(product?.features.join(" ")).toContain("TextToCell");
+    expect(product?.downloads).toEqual([
+      {
+        label: "Text2Tabel.lsp",
+        ctaLabel: "Завантажити Text2Tabel.lsp",
+        ariaLabel: "Завантажити Text2Tabel.lsp",
+        href: "/downloads/autocad-lisp/Text2Tabel.lsp",
+      },
+    ]);
+    expect(product?.warningParagraphs?.join(" ")).toContain(
+      "видаляє вихідний текстовий об’єкт",
+    );
+    expect(product?.licenseTerms).toContain(
+      "© 2026 Ivaneiko Volodymyr. Усі права захищені.",
+    );
+  });
+
+  it("publishes the licensed Text2Tabel source", () => {
+    const sourcePath = join(
+      process.cwd(),
+      "public",
+      "downloads",
+      "autocad-lisp",
+      "Text2Tabel.lsp",
+    );
+
+    expect(existsSync(sourcePath)).toBe(true);
+
+    const source = readFileSync(sourcePath);
+    const approvedHeader = Buffer.from(
+      [
+        ";;----------------------------------------------------------------------;;",
+        ";; Program: Text2Tabel                                                 ;;",
+        ";; Filename: Text2Tabel.lsp                                            ;;",
+        ";; Command: Text2Tabel                                                 ;;",
+        ";; Version: 1.0                                                        ;;",
+        ";; Author: Ivaneiko Volodymyr                                          ;;",
+        ";; Copyright (c) 2026 Ivaneiko Volodymyr. All rights reserved.         ;;",
+        ";;                                                                      ;;",
+        ";; Proprietary license: free use is permitted in personal and          ;;",
+        ";; commercial projects. Resale, public republication without written  ;;",
+        ";; permission, and distribution of modified versions under the         ;;",
+        ";; original name are prohibited.                                       ;;",
+        ";;                                                                      ;;",
+        ';; This software is provided "as is", without warranty of any kind.    ;;',
+        ";; The user is solely responsible for the results of its use.           ;;",
+        ";;----------------------------------------------------------------------;;",
+        "",
+      ].join("\r\n"),
+      "utf8",
+    );
+
+    expect(source.subarray(0, approvedHeader.length)).toEqual(approvedHeader);
+
+    const programSource = source.subarray(approvedHeader.length);
+
+    expect(createHash("sha256").update(programSource).digest("hex")).toBe(
+      "f40e1ce567c10f709fd2f39cb8d98e079f71374dbb04e5d0d40dbc69fe6043b6",
+    );
+
+    const sourceText = source.toString("utf8");
+
+    expect(sourceText).toContain("Program: Text2Tabel");
+    expect(sourceText).toContain("Filename: Text2Tabel.lsp");
+    expect(sourceText).toContain("Command: Text2Tabel");
+    expect(sourceText).toContain("Version: 1.0");
+    expect(sourceText).toContain("Author: Ivaneiko Volodymyr");
+    expect(sourceText).toContain(
+      "Copyright (c) 2026 Ivaneiko Volodymyr. All rights reserved.",
+    );
+    expect(sourceText).toContain("(defun c:Text2Tabel");
+  });
 });

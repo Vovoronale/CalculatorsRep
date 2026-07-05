@@ -69,13 +69,14 @@ describe("calculator data model", () => {
     expect(calculatorPageCalculators).not.toContainEqual(calculator);
   });
 
-  it("registers XRef2Current immediately after the Revit plugin category", () => {
+  it("registers AutoCAD LISP products immediately after the Revit plugin category", () => {
     const categorySlugs = calculatorCategories.map((item) => item.slug);
     const revitCategoryIndex = categorySlugs.indexOf("revit-plaginy");
     const category = calculatorCategories.find(
       (item) => item.slug === "autocad-lisp",
     );
-    const calculator = getCalculatorBySlug("xref-to-current");
+    const xrefCalculator = getCalculatorBySlug("xref-to-current");
+    const text2TabelCalculator = getCalculatorBySlug("text2tabel");
 
     expect(categorySlugs[revitCategoryIndex + 1]).toBe("autocad-lisp");
     expect(category).toMatchObject({
@@ -84,8 +85,9 @@ describe("calculator data model", () => {
     });
     expect(getCalculatorsForCategory("autocad-lisp").map((item) => item.slug)).toEqual([
       "xref-to-current",
+      "text2tabel",
     ]);
-    expect(calculator).toMatchObject({
+    expect(xrefCalculator).toMatchObject({
       title: "XRef to Current Drawing (X2C)",
       mainCategory: "autocad-lisp",
       extraCategories: [],
@@ -93,8 +95,18 @@ describe("calculator data model", () => {
       openUrl: "/products/xref-to-current",
       standard: "AutoCAD for Windows",
     });
-    expect(getCalculatorCatalogHref(calculator!)).toBe("/products/xref-to-current");
-    expect(calculatorPageCalculators).not.toContainEqual(calculator);
+    expect(text2TabelCalculator).toMatchObject({
+      title: "Text2Tabel",
+      mainCategory: "autocad-lisp",
+      extraCategories: [],
+      displayMode: "product",
+      openUrl: "/products/text2tabel",
+      standard: "AutoCAD for Windows",
+    });
+    expect(getCalculatorCatalogHref(xrefCalculator!)).toBe("/products/xref-to-current");
+    expect(getCalculatorCatalogHref(text2TabelCalculator!)).toBe("/products/text2tabel");
+    expect(calculatorPageCalculators).not.toContainEqual(xrefCalculator);
+    expect(calculatorPageCalculators).not.toContainEqual(text2TabelCalculator);
   });
 
   it("groups project documentation tools under EDESSB", () => {

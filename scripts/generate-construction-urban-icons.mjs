@@ -386,6 +386,16 @@ const icons = [
       <path d="M338 344H226m34-34l-34 34 34 34" ${stroke}/>
     `,
   },
+  {
+    slug: "text2tabel",
+    badge: textBadge("T2T", colors.autocad, 238, 68),
+    body: `
+      <rect x="136" y="162" width="332" height="278" rx="10" fill="#F5F7F6" stroke="#222729" stroke-width="20"/>
+      <path d="M136 232h332M136 302h332M136 372h332M246 162v278M358 162v278" ${thinStroke}/>
+      <path d="M174 126h168M174 126v82M232 126v82" ${stroke}/>
+      <path d="M396 118v86m-42-43h84" ${stroke}/>
+    `,
+  },
 ];
 
 await mkdir(outputDir, { recursive: true });
