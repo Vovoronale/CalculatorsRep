@@ -601,7 +601,7 @@ describe("CalculatorShell", () => {
 
     await user.click(screen.getByRole("radio", { name: "мм²" }));
 
-    expect(screen.getByRole("spinbutton", { name: "Мінімальна площа, мм²" })).toHaveValue(5);
+    expect(screen.getByRole("spinbutton", { name: "Мінімальна площа, мм²" })).toHaveValue(500);
   });
 
   it("updates the native rebar table when custom n changes above the old upper limit", async () => {
