@@ -4,6 +4,8 @@ Date: 2026-06-17
 Calculator: `concrete-exposure-class`
 Status: Agreed source of truth
 
+2026-07-15 amendment status: Pending written-spec confirmation
+
 This document contains the Ukrainian UI labels, report captions, display conditions, item text, formula strings, warning/error text, and handoff behavior for the concrete exposure class calculator.
 
 Implementation plans, tests, and code must treat this file as the canonical source. If any report wording or formula changes during implementation, update this file first and get approval before changing tests or code.
@@ -355,7 +357,7 @@ carbonation_exposure_row = XC3 -> XC3
 carbonation_exposure_row = XC4 -> XC4
 ```
 
-Warning when `carbonation_exposure_row = X0` and `xd_exposure_row != none` or `xf_exposure_row != none` or `xa_exposure_row != none`:
+Warning when `carbonation_exposure_row = X0` and (`xd_exposure_row != none` or `xs_exposure_row != none` or `xf_exposure_row != none` or `xa_exposure_row != none`):
 
 ```text
 Для X0 агресивні дії мають бути відсутні; вибрані додаткові класи впливу перевірте на сумісність із рядком X0 таблиці 4.1.

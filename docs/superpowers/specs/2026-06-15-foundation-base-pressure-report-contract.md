@@ -4,6 +4,8 @@ Date: 2026-06-15
 Calculator: `foundation-base-pressure`
 Status: Agreed source of truth for report text and formulas
 
+2026-07-15 amendment status: Pending written-spec confirmation
+
 This document contains the agreed Ukrainian report captions, display conditions, formula strings, warnings, and expected check examples for the foundation base pressure calculator. Implementation plans, tests, and code must treat this file as the canonical source for the step-by-step report.
 
 Temporary method source used in every calculation step:
@@ -118,14 +120,14 @@ Formulas:
 
 ```text
 G_fund = γ * b * l * h_gr = <γ> * <b> * <l> * <h_gr> = <G_fund> т
-N_total = N + G_fund = <N> + <G_fund> = <N_total> т >= 0
+N_total = N + G_fund = <N> + <G_fund> = <N_total> т > 0
 ```
 
 Default example 1 formulas:
 
 ```text
 G_fund = γ * b * l * h_gr = 2.00 * 1.80 * 2.40 * 2.00 = 17.28 т
-N_total = N + G_fund = 26.00 + 17.28 = 43.28 т >= 0
+N_total = N + G_fund = 26.00 + 17.28 = 43.28 т > 0
 ```
 
 ### 3. Геометричні характеристики підошви
@@ -407,14 +409,14 @@ Caption:
 Formulas:
 
 ```text
-ΣP = N_total = <N_total> т
-ΣMx = N_total * (y_R - b / 2) = <N_total> * (<y_R> - <b/2>) = <ΣMx> т·м ≈ Mx_base = <Mx_base> т·м
-ΣMy = N_total * (x_R - l / 2) = <N_total> * (<x_R> - <l/2>) = <ΣMy> т·м ≈ My_base = <My_base> т·м
+ΣP = <integrated_force> т ≈ N_total = <N_total> т
+ΣMx = <integrated_moment_x_about_center> т·м ≈ Mx_base = <Mx_base> т·м
+ΣMy = <integrated_moment_y_about_center> т·м ≈ My_base = <My_base> т·м
 ```
 
 Rule:
 
-The equilibrium check is a diagnostic engineering control of the selected uplift scheme. Do not show integral expressions or `p0`, `ax`, `ay` in this step.
+The equilibrium check is a diagnostic engineering control of the selected uplift scheme. Values on the left side are calculated from the integrated contact-pressure plane, not reconstructed from the target resultant. Do not show integral expressions or `p0`, `ax`, `ay` in this step.
 
 ### 11. Схема епюри
 
@@ -501,15 +503,23 @@ P_lift = 26.9%
 Errors:
 
 ```text
-N_total має бути не менше 0.
+N_total має бути більше 0.
 l має бути більше 0.
 b має бути більше 0.
 h_gr має бути не менше 0.
 h_fund має бути не менше 0.
 γ має бути не менше 0.
+ex має бути менше l / 2; рівнодійна виходить за межі підошви в напрямку l.
+ey має бути менше b / 2; рівнодійна виходить за межі підошви в напрямку b.
+Не вдалося отримати збіжний розв'язок контактної епюри; перевірте вихідні дані.
 ```
 
 Rules:
 
 - Numeric inputs must be finite numbers.
-- Invalid inputs must return a stable report with the input step, errors, and no `NaN` or `Infinity` formulas.
+- Every validation failure returns a stable report with the input step and
+  errors, but no calculated values, uplift classification, equilibrium step,
+  summary, or DOCX action. No report formula may contain `NaN` or `Infinity`.
+- Check `ex < l / 2` and `ey < b / 2` before solving the no-tension contact plane. Equality is invalid because the non-negative contact area degenerates at the footing boundary.
+- For a no-tension solution, accept convergence only when the force residual and both moment residuals are each within `1e-6 * max(1, abs(target))`.
+- A solver-convergence error follows the same invalid-report rule.

@@ -4,6 +4,8 @@ Date: 2026-06-20
 Calculator: `residential-yard-areas`
 Status: Agreed source of truth for report text and formulas
 
+2026-07-15 amendment status: Pending written-spec confirmation
+
 This contract contains the agreed Ukrainian UI labels and the exact report
 captions, display conditions, formulas, results, warnings, and errors. After
 confirmation, it becomes the sole source of truth for implementation and tests.
@@ -180,7 +182,12 @@ Caption:
 Визначення площі майданчиків для занять фізкультурою (п. 6.1.21, таблиця 6.4 та примітка * ДБН Б.2.2-12:2019):
 ```
 
-When the reduced mode is selected, always show the greenery check before the
+When the reduced mode is selected, first validate that
+`S_(озел,факт)` is a finite value not less than zero. A missing, non-finite, or
+negative value is a blocking input error and follows the blocking-invalid rule;
+do not render this step or apply automatic fallback.
+
+For a valid finite `S_(озел,факт)`, show the greenery check before the
 physical-culture formulas:
 
 ```text
@@ -202,7 +209,9 @@ q_(фіз,осіб) = 0,2 м²/особу
 q_(фіз,кв) = 0,5 м²/квартиру
 ```
 
-For the selected full mode, or after the agreed automatic fallback, show:
+For the selected full mode, or after the agreed automatic fallback caused only
+by a missing separate landscaped zone or a valid finite greenery area below
+`S_(озел,мін)`, show:
 
 ```text
 q_(фіз,осіб) = 2,0 м²/особу
@@ -456,3 +465,29 @@ Sтер
 
 UI result cards, report formulas, summary table, and DOCX must use the same
 calculation object and therefore identical numeric values.
+
+Blocking-invalid and fallback rules:
+
+- The following two errors are non-blocking fallback errors:
+
+```text
+Зменшений норматив не можна застосувати: окрему озеленену зону з фізкультурними майданчиками не передбачено проєктом.
+Зменшений норматив не можна застосувати: фактична площа зелених насаджень обмеженого користування має бути не меншою за <S_(озел,мін)> м².
+```
+
+- If those are the only errors, keep `valid = false`, retain finite `values`,
+  calculate with the already contracted automatic fallback to full
+  physical-culture rates, render the complete report and result cards, and keep
+  `ReportDocxButton` available.
+- Every other validation error is blocking. When any blocking error exists, set
+  `valid = false` and `values = null`; this rule wins if fallback errors coexist.
+- For a blocking error, return exactly one report step with `key = inputs` and
+  the existing input-step caption.
+- That blocking-invalid input step contains only non-derived input items. A non-finite
+  numeric input is rendered as `не введено`; a finite but out-of-range value is
+  echoed as entered.
+- For a blocking error, omit the derived apartment-count formula
+  `N_(кв) = N_(1) + N_(2+)` and every calculation, result, summary, and
+  conditions step.
+- For a blocking error, do not render summary cards, result cards, the summary
+  table, or `ReportDocxButton` while `values = null`.

@@ -4,6 +4,10 @@ Date: 2026-05-13
 Project: `construction-calculators-hub`
 Status: Approved for planning
 
+2026-07-15 amendment status: Pending written-spec confirmation. The canonical
+bugfix report text is recorded in
+`2026-07-15-foundation-bar-anchorage-report-contract.md`.
+
 ## Context
 
 The project needs a native calculator for checking whether the available anchorage length at the end of a foundation reinforcement bar is sufficient. The calculation follows the foundation force model in `ДСТУ Б В.2.6-156:2010`, clauses 8.8.2.4-8.8.2.8, and the anchorage length rules in clauses 7.2.2-7.2.4.
@@ -174,7 +178,11 @@ Caption:
 
 Formula:
 
-`Mtot = M + MQ = ... + ... = ... кН*м`
+`Mtot = |M + MQ| = |... + ...| = ... кН*м`
+
+The input actions are combined algebraically before taking the absolute value.
+The magnitude selects the critical footing edge, so all downstream values `e`,
+`qmax`, `qmin`, `qx`, `R`, and `Fs` use non-negative `Mtot`.
 
 ### 3. Eccentricity
 
@@ -779,7 +787,8 @@ The calculator must validate:
 - `lbAvailable > 0`
 - `N > 0`
 - `Ø > 0`
-- for beams: `barCount > 0`
+- for beams: `barCount` is a positive integer; otherwise show
+  `n має бути цілим числом, більшим за 0.`
 - for slabs: `barSpacing > 0`
 - `hQ >= 0`
 - `barSpacingA > 0`
