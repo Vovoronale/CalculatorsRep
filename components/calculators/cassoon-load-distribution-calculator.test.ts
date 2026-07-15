@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { createElement } from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import type { CalculatorInputField } from "@/lib/calculator-input-schema";
 import { getCassoonLoadDistributionReport } from "@/lib/cassoon-load-distribution";
@@ -10,6 +10,8 @@ import {
   CassoonLoadDistributionCalculator,
   buildCassoonLoadDistributionDocxReport,
 } from "./cassoon-load-distribution-calculator";
+
+afterEach(cleanup);
 
 function findSchemaField(id: string): CalculatorInputField {
   for (const group of CASSOON_INPUT_SCHEMA.groups) {
@@ -102,5 +104,21 @@ describe("CassoonLoadDistributionCalculator", () => {
     expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
     expect(screen.getByLabelText(/qk = c1 \* q/)).toHaveAttribute("title");
+  });
+
+  it("rejects malformed numeric text without keeping calculated output", () => {
+    render(createElement(CassoonLoadDistributionCalculator));
+
+    const input = screen.getByRole("textbox", { name: "Короткий проліт" });
+    fireEvent.change(input, {
+      target: { value: "10abc" },
+    });
+
+    expect(input.closest(".input-schema-field")).toHaveAttribute("data-invalid", "true");
+    expect(
+      screen.getByRole("button", { name: "Показати помилку поля Короткий проліт" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText(/qk = c1 \* q/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Завантажити DOCX" })).not.toBeInTheDocument();
   });
 });

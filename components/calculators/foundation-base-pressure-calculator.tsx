@@ -12,6 +12,7 @@ import {
 } from "@/lib/foundation-base-pressure";
 import {
   getDefaultInputSchemaValues,
+  parseCalculatorDecimal,
   type CalculatorInputSchema,
   type CalculatorInputValues,
 } from "@/lib/calculator-input-schema";
@@ -176,7 +177,7 @@ export const FOUNDATION_BASE_PRESSURE_INPUT_SCHEMA: CalculatorInputSchema = {
 };
 
 function parseNumberInput(value: string): number {
-  return Number.parseFloat(value.replace(",", "."));
+  return parseCalculatorDecimal(value);
 }
 
 function inputFromValues(values: CalculatorInputValues): FoundationBasePressureInput {
@@ -507,7 +508,7 @@ export function FoundationBasePressureCalculator() {
         titleId="foundation-base-pressure-report-title"
         title="Покроковий звіт"
         steps={report.steps}
-        actions={<ReportDocxButton report={docxReport} />}
+        actions={report.values ? <ReportDocxButton report={docxReport} /> : undefined}
       />
     </NativeCalculatorLayout>
   );

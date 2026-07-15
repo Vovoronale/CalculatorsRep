@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { createElement } from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import type { CalculatorInputField } from "@/lib/calculator-input-schema";
 import { getMinimumReinforcementReport } from "@/lib/minimum-reinforcement";
@@ -10,6 +10,8 @@ import {
   MinimumReinforcementCalculator,
   buildMinimumReinforcementDocxReport,
 } from "./minimum-reinforcement-calculator";
+
+afterEach(cleanup);
 
 function findSchemaField(id: string): CalculatorInputField {
   for (const group of MINIMUM_REINFORCEMENT_INPUT_SCHEMA.groups) {
@@ -65,6 +67,22 @@ describe("MinimumReinforcementCalculator", () => {
     expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
     expect(screen.getByLabelText(/As,min = max/)).toHaveAttribute("title");
+  });
+
+  it("rejects malformed numeric text without keeping calculated output", () => {
+    render(createElement(MinimumReinforcementCalculator));
+
+    const input = screen.getByRole("textbox", { name: "Висота перерізу" });
+    fireEvent.change(input, {
+      target: { value: "10abc" },
+    });
+
+    expect(input.closest(".input-schema-field")).toHaveAttribute("data-invalid", "true");
+    expect(
+      screen.getByRole("button", { name: "Показати помилку поля Висота перерізу" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByLabelText(/As,min = max/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Завантажити DOCX" })).not.toBeInTheDocument();
   });
 });
 

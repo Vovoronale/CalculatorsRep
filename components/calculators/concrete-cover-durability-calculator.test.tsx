@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -82,6 +82,22 @@ describe("ConcreteCoverDurabilityCalculator", () => {
     expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Нормативні посилання" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
+  });
+
+  it("rejects malformed numeric text without keeping calculated output", () => {
+    render(<ConcreteCoverDurabilityCalculator />);
+
+    const input = screen.getByRole("textbox", { name: "Діаметр стрижня" });
+    fireEvent.change(input, {
+      target: { value: "10abc" },
+    });
+
+    expect(input.closest(".input-schema-field")).toHaveAttribute("data-invalid", "true");
+    expect(
+      screen.getByRole("button", { name: "Показати помилку поля Діаметр стрижня" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Мінімальний захисний шар: cmin/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Завантажити DOCX" })).not.toBeInTheDocument();
   });
 
   it("renders a parametric concrete cover detail from the current result values", () => {

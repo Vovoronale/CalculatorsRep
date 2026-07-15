@@ -374,8 +374,39 @@ describe("getResidentialYardAreasReport", () => {
 
     expect(report.valid).toBe(false);
     expect(report.errors).toContain(error);
-    expect(report.steps.map((step) => step.key)).toEqual(expectedStepKeys);
+    expect(report.values).toBeNull();
+    expect(report.steps.map((step) => step.key)).toEqual(["inputs"]);
+    expect(report.steps[0]?.formula).toBeUndefined();
     expect(JSON.stringify(report.steps)).not.toMatch(/NaN|Infinity/);
+  });
+
+  it("shows malformed raw input as not entered and never derives values from it", () => {
+    const report = getResidentialYardAreasReport({
+      ...DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
+      residents: Number.NaN,
+    });
+
+    expect(report.valid).toBe(false);
+    expect(report.values).toBeNull();
+    expect(report.steps.map((step) => step.key)).toEqual(["inputs"]);
+    expect(report.steps[0]?.items).toContain(
+      "Кількість мешканців: N_(осіб) = не введено осіб",
+    );
+    expect(report.steps[0]?.formula).toBeUndefined();
+    expect(JSON.stringify(report)).not.toMatch(/NaN|Infinity/);
+  });
+
+  it("echoes finite out-of-range raw input without calculating a result", () => {
+    const report = getResidentialYardAreasReport({
+      ...DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
+      residents: -5,
+    });
+
+    expect(report.values).toBeNull();
+    expect(report.steps[0]?.items).toContain(
+      "Кількість мешканців: N_(осіб) = -5 осіб",
+    );
+    expect(report.steps[0]?.formula).toBeUndefined();
   });
 
   it("validates both reduced physical-culture prerequisites independently", () => {
@@ -388,13 +419,28 @@ describe("getResidentialYardAreasReport", () => {
       "Зменшений норматив не можна застосувати: окрему озеленену зону з фізкультурними майданчиками не передбачено проєктом.",
       "Введіть фактичну площу зелених насаджень обмеженого користування, не меншу за 0 м².",
     ]);
-    expect(report.values?.effectivePhysicalCultureMode).toBe("full");
+    expect(report.values).toBeNull();
+    expect(report.steps.map((step) => step.key)).toEqual(["inputs"]);
     expect(report.steps[0]?.items).toContain(
       "Фактична площа зелених насаджень обмеженого користування: не введено",
     );
-    expect(report.steps[3]?.items).toContain(
-      "Умови застосування зменшеного нормативу не виконано; розрахунок виконано за повним нормативом.",
-    );
+  });
+
+  it("keeps a full finite fallback report when only the separate zone is missing", () => {
+    const report = getResidentialYardAreasReport({
+      ...DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
+      physicalCultureMode: "reduced",
+      hasSeparateLandscapedPhysicalCultureZone: false,
+      limitedUseGreeneryAreaM2: 600,
+    });
+
+    expect(report.valid).toBe(false);
+    expect(report.errors).toEqual([
+      "Зменшений норматив не можна застосувати: окрему озеленену зону з фізкультурними майданчиками не передбачено проєктом.",
+    ]);
+    expect(report.values?.effectivePhysicalCultureMode).toBe("full");
+    expect(report.values?.insideBoundaryAreaM2).toBe(457.2);
+    expect(report.steps.map((step) => step.key)).toEqual(expectedStepKeys);
   });
 
   it("reports an insufficient greenery area and uses the full norm", () => {
@@ -410,9 +456,29 @@ describe("getResidentialYardAreasReport", () => {
     );
     expect(report.values?.effectivePhysicalCultureMode).toBe("full");
     expect(report.values?.insideBoundaryAreaM2).toBe(457.2);
+    expect(report.steps.map((step) => step.key)).toEqual(expectedStepKeys);
     expect(report.steps[3]?.formulas).toContain(
       "S_(озел,факт) ≥ S_(озел,мін): 599 ≥ 600 — умову не виконано",
     );
+  });
+
+  it("lets a blocking input error take precedence over a reduced-mode fallback", () => {
+    const report = getResidentialYardAreasReport({
+      ...DEFAULT_RESIDENTIAL_YARD_AREAS_INPUT,
+      residents: -5,
+      physicalCultureMode: "reduced",
+      hasSeparateLandscapedPhysicalCultureZone: false,
+      limitedUseGreeneryAreaM2: 600,
+    });
+
+    expect(report.errors).toContain(
+      "Кількість мешканців має бути цілим числом, більшим за 0.",
+    );
+    expect(report.errors).toContain(
+      "Зменшений норматив не можна застосувати: окрему озеленену зону з фізкультурними майданчиками не передбачено проєктом.",
+    );
+    expect(report.values).toBeNull();
+    expect(report.steps.map((step) => step.key)).toEqual(["inputs"]);
   });
 
   it("collects every limitation in the final step", () => {

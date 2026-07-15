@@ -19,6 +19,7 @@ import type {
 } from "@/lib/concrete-exposure-class";
 import {
   getDefaultInputSchemaValues,
+  parseCalculatorDecimal,
   type CalculatorInputDisplayUnit,
   type CalculatorInputSchema,
   type CalculatorInputValues,
@@ -408,7 +409,7 @@ export const CONCRETE_COVER_DURABILITY_INPUT_SCHEMA: CalculatorInputSchema = {
 };
 
 function parseNumberInput(value: unknown): number {
-  return Number.parseFloat(String(value ?? "").replace(",", "."));
+  return typeof value === "string" ? parseCalculatorDecimal(value) : Number.NaN;
 }
 
 function getSearchParam(name: string): string | null {
@@ -832,7 +833,7 @@ export function ConcreteCoverDurabilityCalculator() {
         titleId="concrete-cover-durability-report-title"
         title="Покроковий звіт"
         steps={report.steps}
-        actions={<ReportDocxButton report={docxReport} />}
+        actions={report.values ? <ReportDocxButton report={docxReport} /> : undefined}
       />
       <ConcreteCoverDurabilityNorms />
     </NativeCalculatorLayout>

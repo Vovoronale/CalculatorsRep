@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { createElement } from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import type { CalculatorInputField } from "@/lib/calculator-input-schema";
 import { getFoundationBarAnchorageReport } from "@/lib/foundation-bar-anchorage";
@@ -10,6 +10,8 @@ import {
   FoundationBarAnchorageCalculator,
   buildFoundationBarAnchorageDocxReport,
 } from "./foundation-bar-anchorage-calculator";
+
+afterEach(cleanup);
 
 function findSchemaField(id: string): CalculatorInputField {
   for (const group of FOUNDATION_BAR_ANCHORAGE_INPUT_SCHEMA.groups) {
@@ -78,6 +80,22 @@ describe("FoundationBarAnchorageCalculator", () => {
     expect(screen.getByRole("heading", { name: "Покроковий звіт" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
     expect(screen.getByLabelText(/lb >= lb,req/)).toHaveAttribute("title");
+  });
+
+  it("rejects malformed numeric text without keeping calculated output", () => {
+    render(createElement(FoundationBarAnchorageCalculator));
+
+    const input = screen.getByRole("textbox", { name: "Довжина фундаменту" });
+    fireEvent.change(input, {
+      target: { value: "10abc" },
+    });
+
+    expect(input.closest(".input-schema-field")).toHaveAttribute("data-invalid", "true");
+    expect(
+      screen.getByRole("button", { name: "Показати помилку поля Довжина фундаменту" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Анкерування достатнє/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Завантажити DOCX" })).not.toBeInTheDocument();
   });
 });
 

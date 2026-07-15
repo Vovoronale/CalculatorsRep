@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import {
   getDefaultInputSchemaValues,
+  parseCalculatorDecimal,
   type CalculatorInputDisplayUnit,
   type CalculatorInputSchema,
   type CalculatorInputValues,
@@ -63,7 +64,7 @@ const REBAR_CLASS_OPTIONS = getRebarClasses().map((className) => ({
 }));
 
 function parseNumberInput(value: string): number {
-  return Number.parseFloat(value.replace(",", "."));
+  return parseCalculatorDecimal(value);
 }
 
 function getSchemaNumber(
@@ -893,7 +894,7 @@ export function FoundationBarAnchorageCalculator() {
         title="Покроковий звіт"
         steps={report.steps}
         renderText={(text) => <CaptionText text={text} />}
-        actions={<ReportDocxButton report={docxReport} />}
+        actions={report.values ? <ReportDocxButton report={docxReport} /> : undefined}
       />
 
       <section

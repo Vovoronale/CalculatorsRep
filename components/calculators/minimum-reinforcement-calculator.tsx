@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import {
   getDefaultInputSchemaValues,
+  parseCalculatorDecimal,
   type CalculatorInputDisplayUnit,
   type CalculatorInputSchema,
   type CalculatorInputValues,
@@ -177,7 +178,7 @@ function isFormulaBoundary(value: string | undefined): boolean {
 }
 
 function parseNumberInput(value: string): number {
-  return Number.parseFloat(value.replace(",", "."));
+  return parseCalculatorDecimal(value);
 }
 
 function FormulaText({ text }: { text: string }) {
@@ -582,7 +583,7 @@ export function MinimumReinforcementCalculator() {
         title="Покроковий звіт"
         steps={report.steps}
         renderText={(text) => <FormulaText text={text} />}
-        actions={<ReportDocxButton report={docxReport} />}
+        actions={report.values ? <ReportDocxButton report={docxReport} /> : undefined}
       />
     </NativeCalculatorLayout>
   );

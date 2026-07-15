@@ -14,6 +14,7 @@ import {
 } from "@/lib/cassoon-load-distribution";
 import {
   getDefaultInputSchemaValues,
+  parseCalculatorDecimal,
   type CalculatorInputSchema,
   type CalculatorInputValues,
 } from "@/lib/calculator-input-schema";
@@ -109,7 +110,7 @@ export const CASSOON_INPUT_SCHEMA: CalculatorInputSchema = {
 };
 
 function parseNumberInput(value: string): number {
-  return Number.parseFloat(value.replace(",", "."));
+  return parseCalculatorDecimal(value);
 }
 
 function getDisplayLoadValue(valueKnM2: number, unit: CassoonLoadDistributionLoadUnit): number {
@@ -662,7 +663,7 @@ export function CassoonLoadDistributionCalculator() {
         title="Покроковий звіт"
         steps={report.steps}
         renderText={(text) => <FormulaText text={text} />}
-        actions={<ReportDocxButton report={docxReport} />}
+        actions={report.values ? <ReportDocxButton report={docxReport} /> : undefined}
       />
     </NativeCalculatorLayout>
   );

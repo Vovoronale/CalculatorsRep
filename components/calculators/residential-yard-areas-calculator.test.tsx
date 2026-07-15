@@ -116,6 +116,41 @@ describe("ResidentialYardAreasCalculator", () => {
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
   });
 
+  it("rejects malformed numeric text without keeping calculated output", async () => {
+    const user = userEvent.setup();
+    render(<ResidentialYardAreasCalculator />);
+
+    const residents = screen.getByRole("textbox", { name: "Кількість мешканців" });
+    await user.clear(residents);
+    await user.type(residents, "10abc");
+
+    expect(residents.closest(".input-schema-field")).toHaveAttribute("data-invalid", "true");
+    expect(
+      screen.getByRole("button", { name: "Показати помилку поля Кількість мешканців" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Результати розрахунку площ майданчиків"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Завантажити DOCX" })).not.toBeInTheDocument();
+  });
+
+  it("blocks a negative resident count without showing results or DOCX", async () => {
+    const user = userEvent.setup();
+    render(<ResidentialYardAreasCalculator />);
+
+    const residents = screen.getByRole("textbox", { name: "Кількість мешканців" });
+    await user.clear(residents);
+    await user.type(residents, "-5");
+
+    expect(
+      screen.getByText("Кількість мешканців має бути цілим числом, більшим за 0."),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Результати розрахунку площ майданчиків"),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Завантажити DOCX" })).not.toBeInTheDocument();
+  });
+
   it("shows conditional fields and resets their values when controllers change", async () => {
     const user = userEvent.setup();
     render(<ResidentialYardAreasCalculator />);
@@ -204,6 +239,7 @@ describe("ResidentialYardAreasCalculator", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getAllByText("S_(прибуд) = 457,2 м²").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
     expect(greenery.closest(".input-schema-field")).toHaveAttribute(
       "data-invalid",
       "true",

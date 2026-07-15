@@ -47,6 +47,7 @@ describe("rebar area by bars calculator", () => {
     expect(getRebarBarCounts(10)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     expect(getRebarBarCounts(12)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 12]);
     expect(getRebarBarCounts(120)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 120]);
+    expect(getRebarBarCounts(5)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
   });
 
   it("uses base spacing values plus a custom spacing column", () => {
@@ -55,6 +56,9 @@ describe("rebar area by bars calculator", () => {
     ]);
     expect(getRebarSpacingColumns(350)).toEqual([
       50, 75, 100, 125, 150, 175, 200, 250, 300, 350,
+    ]);
+    expect(getRebarSpacingColumns(100)).toEqual([
+      50, 75, 100, 125, 150, 175, 200, 250, 300,
     ]);
   });
 

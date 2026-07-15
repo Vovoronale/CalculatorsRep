@@ -17,6 +17,7 @@ import {
 } from "@/lib/soil-design-resistance";
 import {
   getDefaultInputSchemaValues,
+  parseCalculatorDecimal,
   type CalculatorInputSchema,
   type CalculatorInputValues,
 } from "@/lib/calculator-input-schema";
@@ -373,7 +374,7 @@ export const SOIL_INPUT_SCHEMA: CalculatorInputSchema = {
 };
 
 function parseNumberInput(value: string): number {
-  return Number.parseFloat(value.replace(",", "."));
+  return parseCalculatorDecimal(value);
 }
 
 const SVG_PARAMETRIC_REGISTRY = createDefaultRegistry();
@@ -942,7 +943,7 @@ export function SoilDesignResistanceCalculator() {
       <section className="soil-resistance-report" aria-labelledby="soil-resistance-report-title">
         <div className="soil-resistance-report__head">
           <h3 id="soil-resistance-report-title">Покроковий звіт</h3>
-          <ReportDocxButton report={docxReport} />
+          {report.values ? <ReportDocxButton report={docxReport} /> : null}
         </div>
 
         <ol className="soil-resistance-report__steps">

@@ -130,6 +130,22 @@ describe("soil design resistance DOCX export", () => {
 
     expect(screen.getByRole("button", { name: "Завантажити DOCX" })).toBeInTheDocument();
   });
+
+  it("rejects malformed numeric text without keeping calculated output", () => {
+    render(createElement(SoilDesignResistanceCalculator));
+
+    const input = screen.getByRole("textbox", { name: "Ширина підошви" });
+    fireEvent.change(input, {
+      target: { value: "10abc" },
+    });
+
+    expect(input.closest(".input-schema-field")).toHaveAttribute("data-invalid", "true");
+    expect(
+      screen.getByRole("button", { name: "Показати помилку поля Ширина підошви" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("R=162.8 кПа")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Завантажити DOCX" })).not.toBeInTheDocument();
+  });
 });
 
 describe("SoilDesignResistanceCalculator diagrams", () => {

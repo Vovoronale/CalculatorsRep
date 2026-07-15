@@ -75,11 +75,17 @@ export function clampRebarSpacing(spacingMillimeters: number): number {
 }
 
 export function getRebarBarCounts(customCount: number): number[] {
-  return [...BASE_BAR_COUNTS, clampRebarCount(customCount)];
+  const normalizedCustomCount = clampRebarCount(customCount);
+  return (BASE_BAR_COUNTS as readonly number[]).includes(normalizedCustomCount)
+    ? [...BASE_BAR_COUNTS]
+    : [...BASE_BAR_COUNTS, normalizedCustomCount];
 }
 
 export function getRebarSpacingColumns(customSpacingMillimeters: number): number[] {
-  return [...REBAR_SPACINGS, clampRebarSpacing(customSpacingMillimeters)];
+  const normalizedCustomSpacing = clampRebarSpacing(customSpacingMillimeters);
+  return (REBAR_SPACINGS as readonly number[]).includes(normalizedCustomSpacing)
+    ? [...REBAR_SPACINGS]
+    : [...REBAR_SPACINGS, normalizedCustomSpacing];
 }
 
 export function convertAreaToSquareMillimeters(

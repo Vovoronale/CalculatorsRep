@@ -14,6 +14,7 @@ import {
 } from "@/lib/residential-yard-areas";
 import {
   getDefaultInputSchemaValues,
+  parseCalculatorDecimal,
   type CalculatorInputSchema,
   type CalculatorInputValidationErrors,
   type CalculatorInputValues,
@@ -306,8 +307,7 @@ export const RESIDENTIAL_YARD_AREAS_INPUT_SCHEMA: CalculatorInputSchema = {
 };
 
 function parseNumber(value: unknown): number {
-  if (typeof value !== "string") return Number.NaN;
-  return Number.parseFloat(value.replace(",", "."));
+  return typeof value === "string" ? parseCalculatorDecimal(value) : Number.NaN;
 }
 
 function readUnit(
@@ -667,7 +667,9 @@ export function ResidentialYardAreasCalculator() {
         title="Розрахунок площ майданчиків у складі прибудинкової території"
         steps={report.steps}
         actions={
-          <ReportDocxButton report={buildResidentialYardAreasDocxReport(report)} />
+          report.values ? (
+            <ReportDocxButton report={buildResidentialYardAreasDocxReport(report)} />
+          ) : undefined
         }
         renderText={renderResidentialYardNormText}
       />

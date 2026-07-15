@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   REBAR_AREA_UNITS,
   REBAR_DIAMETERS,
+  REBAR_SPACINGS,
   clampRebarCount,
   clampRebarSpacing,
   convertAreaToSquareMillimeters,
@@ -28,6 +29,23 @@ const UNIT_OPTIONS = Object.entries(REBAR_AREA_UNITS) as Array<
   [RebarAreaUnit, (typeof REBAR_AREA_UNITS)[RebarAreaUnit]]
 >;
 
+function parseAreaInput(value: string): number {
+  const normalized = value.trim().replace(",", ".");
+  if (normalized === "" || normalized.endsWith(".")) return Number.NaN;
+  return Number(normalized);
+}
+
+function formatEditableArea(
+  areaSquareMillimeters: number,
+  unit: RebarAreaUnit,
+): string {
+  const converted =
+    areaSquareMillimeters / REBAR_AREA_UNITS[unit].factorToSquareMillimeters;
+  return Number.isInteger(converted)
+    ? String(converted)
+    : String(Number.parseFloat(converted.toFixed(12)));
+}
+
 function getQueryPrefill():
   | {
       minimumArea: string;
@@ -48,7 +66,7 @@ function getQueryPrefill():
     !minimumArea ||
     !unit ||
     !(unit in REBAR_AREA_UNITS) ||
-    !Number.isFinite(Number.parseFloat(minimumArea.replace(",", ".")))
+    !Number.isFinite(parseAreaInput(minimumArea))
   ) {
     return null;
   }
@@ -95,7 +113,7 @@ export function RebarAreaBarsCalculator() {
     }
   }, []);
 
-  const minimumArea = Number.parseFloat(minimumAreaInput.replace(",", "."));
+  const minimumArea = parseAreaInput(minimumAreaInput);
   const customCount = clampRebarCount(Number.parseFloat(customCountInput));
   const customSpacing = clampRebarSpacing(Number.parseFloat(customSpacingInput));
   const requiredAreaSquareMillimeters =
@@ -129,6 +147,20 @@ export function RebarAreaBarsCalculator() {
   const hasNoSpacingMatch = hasSelectionTarget && !spacingSelection.bestMatch;
   const unitLabel = REBAR_AREA_UNITS[unit].label;
   const perMeterUnitLabel = `${unitLabel}/м.п.`;
+  const hasCustomCountColumn = barCounts.length > 9;
+  const hasCustomSpacingColumn = spacingColumns.length > REBAR_SPACINGS.length;
+
+  const handleUnitChange = (nextUnit: RebarAreaUnit) => {
+    const currentArea = parseAreaInput(minimumAreaInput);
+    if (Number.isFinite(currentArea)) {
+      const areaSquareMillimeters = convertAreaToSquareMillimeters(
+        currentArea,
+        unit,
+      );
+      setMinimumAreaInput(formatEditableArea(areaSquareMillimeters, nextUnit));
+    }
+    setUnit(nextUnit);
+  };
 
   return (
     <div className="rebar-calculator" aria-label="Калькулятор підбору арматури">
@@ -164,7 +196,7 @@ export function RebarAreaBarsCalculator() {
                 name="rebar-area-unit"
                 value={value}
                 checked={unit === value}
-                onChange={() => setUnit(value)}
+                onChange={() => handleUnitChange(value)}
               />
               <span>{config.label}</span>
             </label>
@@ -224,9 +256,13 @@ export function RebarAreaBarsCalculator() {
                 <th
                   key={`${index}:${count}`}
                   scope="col"
-                  aria-label={index === barCounts.length - 1 ? `n = ${count}` : String(count)}
+                  aria-label={
+                    hasCustomCountColumn && index === barCounts.length - 1
+                      ? `n = ${count}`
+                      : String(count)
+                  }
                 >
-                  {index === barCounts.length - 1 ? (
+                  {hasCustomCountColumn && index === barCounts.length - 1 ? (
                     <>
                       <MathNotation base="n" ariaLabel="n" /> = {count}
                     </>
@@ -339,12 +375,12 @@ export function RebarAreaBarsCalculator() {
                     key={`${index}:${spacing}`}
                     scope="col"
                     aria-label={
-                      index === spacingColumns.length - 1
+                      hasCustomSpacingColumn && index === spacingColumns.length - 1
                         ? `s = ${spacing} мм`
                         : `${spacing} мм`
                     }
                   >
-                    {index === spacingColumns.length - 1 ? (
+                    {hasCustomSpacingColumn && index === spacingColumns.length - 1 ? (
                       <>
                         <MathNotation base="s" ariaLabel="s" /> = {spacing} мм
                       </>

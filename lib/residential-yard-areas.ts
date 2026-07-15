@@ -285,6 +285,10 @@ export type ResidentialYardAreasReport = {
 };
 
 const GLOBAL_WARNINGS: string[] = [];
+const REDUCED_MODE_ZONE_ERROR =
+  "Зменшений норматив не можна застосувати: окрему озеленену зону з фізкультурними майданчиками не передбачено проєктом.";
+const REDUCED_MODE_GREENERY_ERROR_PREFIX =
+  "Зменшений норматив не можна застосувати: фактична площа зелених насаджень обмеженого користування має бути не меншою за ";
 const DUAL_BASIS_RULE =
   "За розрахункову приймається більша з площ, визначених за кількістю мешканців і кількістю квартир згідно з п. 6.1.21 та таблицею 6.4 ДБН Б.2.2-12:2019.";
 
@@ -359,9 +363,7 @@ function validateResidentialYardAreasInput(
   }
   if (input.physicalCultureMode === "reduced") {
     if (!input.hasSeparateLandscapedPhysicalCultureZone) {
-      errors.push(
-        "Зменшений норматив не можна застосувати: окрему озеленену зону з фізкультурними майданчиками не передбачено проєктом.",
-      );
+      errors.push(REDUCED_MODE_ZONE_ERROR);
     }
     const greeneryAreaIsValid =
       input.limitedUseGreeneryAreaM2 !== null &&
@@ -375,7 +377,7 @@ function validateResidentialYardAreasInput(
       const minimumArea = multiply(6, safeFinite(input.residents));
       if ((input.limitedUseGreeneryAreaM2 as number) < minimumArea) {
         errors.push(
-          `Зменшений норматив не можна застосувати: фактична площа зелених насаджень обмеженого користування має бути не меншою за ${formatResidentialYardAreaNumber(minimumArea)} м².`,
+          `${REDUCED_MODE_GREENERY_ERROR_PREFIX}${formatResidentialYardAreaNumber(minimumArea)} м².`,
         );
       }
     }
@@ -415,7 +417,9 @@ function validateResidentialYardAreasInput(
 }
 
 function formatCount(value: number): string {
-  return Number.isFinite(value) ? formatResidentialYardAreaNumber(value) : "0";
+  return Number.isFinite(value)
+    ? formatResidentialYardAreaNumber(value)
+    : "не введено";
 }
 
 function formatBasis(basis: ResidentialYardGoverningBasis): string {
@@ -493,7 +497,7 @@ function buildDualFormulas(
 
 function buildInputStep(
   input: ResidentialYardAreasInput,
-  values: ResidentialYardAreasValues,
+  values?: ResidentialYardAreasValues,
 ): ResidentialYardAreasReportStep {
   const items = [
     `Кількість мешканців: N_(осіб) = ${formatCount(input.residents)} осіб`,
@@ -525,7 +529,8 @@ function buildInputStep(
       input.hasSeparateLandscapedPhysicalCultureZone
         ? "Окрему озеленену зону з фізкультурними майданчиками передбачено проєктом."
         : "Окрему озеленену зону з фізкультурними майданчиками не передбачено проєктом.",
-      input.limitedUseGreeneryAreaM2 === null
+      input.limitedUseGreeneryAreaM2 === null ||
+      !Number.isFinite(input.limitedUseGreeneryAreaM2)
         ? "Фактична площа зелених насаджень обмеженого користування: не введено"
         : `Фактична площа зелених насаджень обмеженого користування: S_(озел,факт) = ${formatResidentialYardAreaNumber(
             input.limitedUseGreeneryAreaM2,
@@ -534,27 +539,34 @@ function buildInputStep(
   }
   if (input.wasteCollectionMethod === "vacuum") {
     items.push(
-      `Площа майданчика для збирання відходів: ${formatManualArea(
-        "S_(відх,руч)",
-        safeFinite(input.manualVacuumAreaM2),
-        input.manualVacuumAreaUnit,
-      )}`,
+      input.manualVacuumAreaM2 === null ||
+        !Number.isFinite(input.manualVacuumAreaM2)
+        ? "Площа майданчика для збирання відходів: не введено"
+        : `Площа майданчика для збирання відходів: ${formatManualArea(
+            "S_(відх,руч)",
+            input.manualVacuumAreaM2,
+            input.manualVacuumAreaUnit,
+          )}`,
     );
   }
   if (input.hasHouseholdPurposeAreas) {
     items.push(
-      `Питомий розмір господарських майданчиків на одну особу: ${formatManualArea(
-        "q_(госп,осіб)",
-        input.householdAreaPerPersonM2,
-        input.householdAreaPerPersonUnit,
-        "/особу",
-      )}`,
-      `Питомий розмір господарських майданчиків на одну квартиру: ${formatManualArea(
-        "q_(госп,кв)",
-        input.householdAreaPerApartmentM2,
-        input.householdAreaPerApartmentUnit,
-        "/квартиру",
-      )}`,
+      Number.isFinite(input.householdAreaPerPersonM2)
+        ? `Питомий розмір господарських майданчиків на одну особу: ${formatManualArea(
+            "q_(госп,осіб)",
+            input.householdAreaPerPersonM2,
+            input.householdAreaPerPersonUnit,
+            "/особу",
+          )}`
+        : "Питомий розмір господарських майданчиків на одну особу: не введено",
+      Number.isFinite(input.householdAreaPerApartmentM2)
+        ? `Питомий розмір господарських майданчиків на одну квартиру: ${formatManualArea(
+            "q_(госп,кв)",
+            input.householdAreaPerApartmentM2,
+            input.householdAreaPerApartmentUnit,
+            "/квартиру",
+          )}`
+        : "Питомий розмір господарських майданчиків на одну квартиру: не введено",
     );
   }
 
@@ -563,8 +575,17 @@ function buildInputStep(
     caption:
       "Вихідні дані для розрахунку площ майданчиків у складі прибудинкової території (п. 6.1.21, таблиця 6.4 ДБН Б.2.2-12:2019):",
     items,
-    formula: formatApartmentCountFormula(input, values.apartmentCount),
+    formula: values
+      ? formatApartmentCountFormula(input, values.apartmentCount)
+      : undefined,
   };
+}
+
+function isReducedModeFallbackError(error: string): boolean {
+  return (
+    error === REDUCED_MODE_ZONE_ERROR ||
+    error.startsWith(REDUCED_MODE_GREENERY_ERROR_PREFIX)
+  );
 }
 
 function buildChildrenStep(
@@ -1028,6 +1049,21 @@ export function getResidentialYardAreasReport(
   input: ResidentialYardAreasInput,
 ): ResidentialYardAreasReport {
   const errors = validateResidentialYardAreasInput(input);
+  const blockingErrors = errors.filter(
+    (error) => !isReducedModeFallbackError(error),
+  );
+
+  if (blockingErrors.length > 0) {
+    return {
+      input,
+      valid: false,
+      errors,
+      warnings: [...GLOBAL_WARNINGS],
+      values: null,
+      steps: [buildInputStep(input)],
+    };
+  }
+
   const safeInput = getSafeCalculationInput(input);
   const values = calculateResidentialYardAreas(safeInput);
 

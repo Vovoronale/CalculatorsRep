@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { createElement } from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import type { CalculatorInputField } from "@/lib/calculator-input-schema";
 import { getFoundationBasePressureReport } from "@/lib/foundation-base-pressure";
@@ -10,6 +10,8 @@ import {
   FoundationBasePressureCalculator,
   buildFoundationBasePressureDocxReport,
 } from "./foundation-base-pressure-calculator";
+
+afterEach(cleanup);
 
 function findSchemaField(id: string): CalculatorInputField {
   for (const group of FOUNDATION_BASE_PRESSURE_INPUT_SCHEMA.groups) {
@@ -59,6 +61,22 @@ describe("FoundationBasePressureCalculator", () => {
     expect(screen.getAllByText(/σ1 = 27.73 т\/м²/).length).toBeGreaterThan(0);
     expect(screen.getByLabelText("P_lift")).toBeInTheDocument();
     expect(screen.getAllByText(/20.2%/).length).toBeGreaterThan(0);
+  });
+
+  it("rejects malformed numeric text without keeping calculated output", () => {
+    render(createElement(FoundationBasePressureCalculator));
+
+    const input = screen.getByRole("textbox", { name: "Вертикальна сила" });
+    fireEvent.change(input, {
+      target: { value: "10abc" },
+    });
+
+    expect(input.closest(".input-schema-field")).toHaveAttribute("data-invalid", "true");
+    expect(
+      screen.getByRole("button", { name: "Показати помилку поля Вертикальна сила" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/10\.02 т\/м²/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Завантажити DOCX" })).not.toBeInTheDocument();
   });
 });
 
