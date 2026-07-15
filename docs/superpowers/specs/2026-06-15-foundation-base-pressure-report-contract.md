@@ -4,7 +4,7 @@ Date: 2026-06-15
 Calculator: `foundation-base-pressure`
 Status: Agreed source of truth for report text and formulas
 
-2026-07-15 amendment status: Pending written-spec confirmation
+2026-07-15 amendment status: Agreed source of truth
 
 This document contains the agreed Ukrainian report captions, display conditions, formula strings, warnings, and expected check examples for the foundation base pressure calculator. Implementation plans, tests, and code must treat this file as the canonical source for the step-by-step report.
 

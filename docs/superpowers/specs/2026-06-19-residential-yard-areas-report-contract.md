@@ -4,7 +4,7 @@ Date: 2026-06-20
 Calculator: `residential-yard-areas`
 Status: Agreed source of truth for report text and formulas
 
-2026-07-15 amendment status: Pending written-spec confirmation
+2026-07-15 amendment status: Agreed source of truth
 
 This contract contains the agreed Ukrainian UI labels and the exact report
 captions, display conditions, formulas, results, warnings, and errors. After

@@ -4,7 +4,7 @@ Date: 2026-05-13
 Project: `construction-calculators-hub`
 Status: Approved for planning
 
-2026-07-15 amendment status: Pending written-spec confirmation. The canonical
+2026-07-15 amendment status: Agreed source of truth. The canonical
 bugfix report text is recorded in
 `2026-07-15-foundation-bar-anchorage-report-contract.md`.
 

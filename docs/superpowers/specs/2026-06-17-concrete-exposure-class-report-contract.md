@@ -4,7 +4,7 @@ Date: 2026-06-17
 Calculator: `concrete-exposure-class`
 Status: Agreed source of truth
 
-2026-07-15 amendment status: Pending written-spec confirmation
+2026-07-15 amendment status: Agreed source of truth
 
 This document contains the Ukrainian UI labels, report captions, display conditions, item text, formula strings, warning/error text, and handoff behavior for the concrete exposure class calculator.
 

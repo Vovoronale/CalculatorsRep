@@ -2,7 +2,7 @@
 
 Date: 2026-07-15
 Project: `construction-calculators-hub`
-Status: Approved design; pending written-spec confirmation
+Status: Approved for implementation
 
 ## Context
 

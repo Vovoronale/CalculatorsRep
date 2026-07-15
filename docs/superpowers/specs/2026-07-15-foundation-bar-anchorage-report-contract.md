@@ -2,7 +2,7 @@
 
 Date: 2026-07-15
 Calculator: `foundation-bar-anchorage`
-Status: Proposed source of truth; awaiting written-spec confirmation
+Status: Agreed source of truth
 
 This contract records the exact report and validation amendments agreed for the
 2026-07-15 native-calculator audit fixes. It supersedes the affected passages in
