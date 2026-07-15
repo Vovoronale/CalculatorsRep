@@ -333,10 +333,11 @@ function solveNoTensionPressurePlane({
   areaM2: number;
   sectionModulusWyM3: number;
   sectionModulusWxM3: number;
-}): { plane: Plane; integrated: IntegratedPressure } {
+}): { plane: Plane; integrated: IntegratedPressure; converged: boolean } {
   const targetForce = totalVerticalForceT;
   const targetMomentX = totalVerticalForceT * (widthM / 2 + baseMomentXTm / totalVerticalForceT);
   const targetMomentY = totalVerticalForceT * (lengthM / 2 + baseMomentYTm / totalVerticalForceT);
+  const targets = [targetForce, targetMomentX, targetMomentY];
   let plane: Plane = {
     ax: (2 * (baseMomentYTm / sectionModulusWyM3)) / lengthM,
     ay: (2 * (baseMomentXTm / sectionModulusWxM3)) / widthM,
@@ -359,11 +360,17 @@ function solveNoTensionPressurePlane({
     ];
   };
 
+  const isConverged = (candidateResidual: [number, number, number]): boolean =>
+    candidateResidual.every(
+      (value, index) =>
+        Math.abs(value) <= 1e-6 * Math.max(1, Math.abs(targets[index])),
+    );
+
   for (let iteration = 0; iteration < 50; iteration += 1) {
     const currentResidual = residual(plane);
     const residualNorm = Math.hypot(...currentResidual);
 
-    if (residualNorm < 1e-8) break;
+    if (isConverged(currentResidual)) break;
 
     const variables = [plane.p0, plane.ax, plane.ay];
     const jacobian = [[], [], []] as number[][];
@@ -383,10 +390,16 @@ function solveNoTensionPressurePlane({
       }
     }
 
-    const step = solveLinear3(
-      jacobian,
-      currentResidual.map((value) => -value),
-    );
+    let step: [number, number, number];
+
+    try {
+      step = solveLinear3(
+        jacobian,
+        currentResidual.map((value) => -value),
+      );
+    } catch {
+      break;
+    }
     let damping = 1;
     let accepted = false;
 
@@ -420,10 +433,14 @@ function solveNoTensionPressurePlane({
     }
   }
 
-  return {
-    plane,
-    integrated: integratePositivePressure(lengthM, widthM, plane),
-  };
+  const integrated = integratePositivePressure(lengthM, widthM, plane);
+  const finalResidual: [number, number, number] = [
+    integrated.forceT - targetForce,
+    integrated.momentXTm - targetMomentX,
+    integrated.momentYTm - targetMomentY,
+  ];
+
+  return { plane, integrated, converged: isConverged(finalResidual) };
 }
 
 function getValidationErrors(input: FoundationBasePressureInput): string[] {
@@ -446,16 +463,37 @@ function getValidationErrors(input: FoundationBasePressureInput): string[] {
     errors.push("Усі числові поля мають бути скінченними числами.");
   }
 
-  if (
-    errors.length === 0 &&
-    input.verticalForceT +
+  if (errors.length === 0) {
+    const totalVerticalForceT =
+      input.verticalForceT +
       input.soilAndFoundationUnitWeightTM3 *
         input.foundationWidthM *
         input.foundationLengthM *
-        input.embedmentDepthM <
-      0
-  ) {
-    errors.push("N_total має бути не менше 0.");
+        input.embedmentDepthM;
+
+    if (totalVerticalForceT <= 0) {
+      errors.push("N_total має бути більше 0.");
+    } else {
+      const baseMomentXTm = Math.abs(
+        input.momentXTm + input.shearYT * input.loadApplicationHeightM,
+      );
+      const baseMomentYTm = Math.abs(
+        input.momentYTm + input.shearXT * input.loadApplicationHeightM,
+      );
+      const eccentricityXM = baseMomentYTm / totalVerticalForceT;
+      const eccentricityYM = baseMomentXTm / totalVerticalForceT;
+
+      if (eccentricityXM >= input.foundationLengthM / 2) {
+        errors.push(
+          "ex має бути менше l / 2; рівнодійна виходить за межі підошви в напрямку l.",
+        );
+      }
+      if (eccentricityYM >= input.foundationWidthM / 2) {
+        errors.push(
+          "ey має бути менше b / 2; рівнодійна виходить за межі підошви в напрямку b.",
+        );
+      }
+    }
   }
 
   return errors;
@@ -631,6 +669,20 @@ export function getFoundationBasePressureReport(
       sectionModulusWyM3,
       sectionModulusWxM3,
     });
+
+    if (!noTensionSolution.converged) {
+      return {
+        input,
+        valid: false,
+        errors: [
+          "Не вдалося отримати збіжний розв'язок контактної епюри; перевірте вихідні дані.",
+        ],
+        warnings: [],
+        values: null,
+        steps: [inputStep],
+      };
+    }
+
     uplift = classifyUplift({
       input,
       plane: noTensionSolution.plane,
@@ -638,8 +690,12 @@ export function getFoundationBasePressureReport(
     });
     equilibrium = {
       forceT: noTensionSolution.integrated.forceT,
-      momentXTm: noTensionSolution.integrated.momentXTm - totalVerticalForceT * input.foundationWidthM / 2,
-      momentYTm: noTensionSolution.integrated.momentYTm - totalVerticalForceT * input.foundationLengthM / 2,
+      momentXTm:
+        noTensionSolution.integrated.momentXTm -
+        noTensionSolution.integrated.forceT * input.foundationWidthM / 2,
+      momentYTm:
+        noTensionSolution.integrated.momentYTm -
+        noTensionSolution.integrated.forceT * input.foundationLengthM / 2,
     };
   }
 
@@ -726,7 +782,7 @@ function buildReportSteps(
       caption: `Розрахунок вертикального навантаження з урахуванням власної ваги фундаменту і ґрунту на обрізах (${FOUNDATION_BASE_PRESSURE_SOURCE}):`,
       formulas: [
         `G_fund = γ * b * l * h_gr = ${fixed(input.soilAndFoundationUnitWeightTM3, 2)} * ${fixed(input.foundationWidthM, 2)} * ${fixed(input.foundationLengthM, 2)} * ${fixed(input.embedmentDepthM, 2)} = ${fixed(values.selfWeightT, 2)} т`,
-        `N_total = N + G_fund = ${fixed(input.verticalForceT, 2)} + ${fixed(values.selfWeightT, 2)} = ${fixed(values.totalVerticalForceT, 2)} т >= 0`,
+        `N_total = N + G_fund = ${fixed(input.verticalForceT, 2)} + ${fixed(values.selfWeightT, 2)} = ${fixed(values.totalVerticalForceT, 2)} т > 0`,
       ],
     },
     {
@@ -887,9 +943,9 @@ function buildReportSteps(
       key: "equilibrium",
       caption: `Перевірка рівноваги контактної епюри з урахуванням відриву (${FOUNDATION_BASE_PRESSURE_SOURCE}):`,
       formulas: [
-        `ΣP = N_total = ${fixed(values.totalVerticalForceT, 2)} т`,
-        `ΣMx = N_total * (y_R - b / 2) = ${fixed(values.totalVerticalForceT, 2)} * (${fixed(values.resultantYM, 4)} - ${fixed(input.foundationWidthM / 2, 4)}) = ${fixed(values.equilibrium.momentXTm, 2)} т·м ≈ Mx_base = ${fixed(values.baseMomentXTm, 2)} т·м`,
-        `ΣMy = N_total * (x_R - l / 2) = ${fixed(values.totalVerticalForceT, 2)} * (${fixed(values.resultantXM, 4)} - ${fixed(input.foundationLengthM / 2, 4)}) = ${fixed(values.equilibrium.momentYTm, 2)} т·м ≈ My_base = ${fixed(values.baseMomentYTm, 2)} т·м`,
+        `ΣP = ${fixed(values.equilibrium.forceT, 2)} т ≈ N_total = ${fixed(values.totalVerticalForceT, 2)} т`,
+        `ΣMx = ${fixed(values.equilibrium.momentXTm, 2)} т·м ≈ Mx_base = ${fixed(values.baseMomentXTm, 2)} т·м`,
+        `ΣMy = ${fixed(values.equilibrium.momentYTm, 2)} т·м ≈ My_base = ${fixed(values.baseMomentYTm, 2)} т·м`,
       ],
     });
   }

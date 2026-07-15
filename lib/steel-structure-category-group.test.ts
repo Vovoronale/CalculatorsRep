@@ -4,6 +4,7 @@ import {
   DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT,
   getSteelStructureCategoryGroupReport,
   groupForTotal,
+  resolveGammaC,
 } from "@/lib/steel-structure-category-group";
 
 describe("steel structure category/group core", () => {
@@ -228,6 +229,43 @@ describe("steel structure category/group core", () => {
     expect(report.steps.find((step) => step.key === "gamma-c")?.items).toEqual([
       "За обраною позицією 9б таблиці 5.1 прийнято γ_c = 1,15. Застосовність цієї позиції перевіряє користувач.",
     ]);
+  });
+
+  it("replaces paired p9 and p3 factors with their permitted product", () => {
+    const report = getSteelStructureCategoryGroupReport({
+      ...DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT,
+      sectionId: "a1-section-04",
+      structureId: "a1-04-04",
+      table51: {
+        isSupportPlate: true,
+        isPlateForSingleStoreyIndustrialCraneColumn: true,
+      },
+    });
+
+    expect(report.valid).toBe(true);
+    expect(report.values?.gammaC).toBeCloseTo(1.2 * 1.05, 12);
+  });
+
+  it("replaces paired p6 and p1 factors with their permitted product", () => {
+    const result = resolveGammaC(
+      ["p1", "p6a"],
+      {
+        ...DEFAULT_STEEL_STRUCTURE_CATEGORY_GROUP_INPUT,
+        sectionId: "a1-section-18",
+        structureId: "a1-18-01",
+        table51: {
+          floorLocation: "intermediate",
+          floorElementType: "solid_beam",
+          temporaryLoadNotAboveFloorWeight: true,
+          isStrengthCheck: true,
+          hasBoltHoles: true,
+          isFrictionConnection: false,
+        },
+      },
+      245,
+    );
+
+    expect(result.value).toBeCloseTo(1.1 * 0.9, 12);
   });
 
   it("uses and validates a manual gamma c value", () => {

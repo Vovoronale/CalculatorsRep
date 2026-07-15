@@ -698,6 +698,7 @@ export function getConcreteExposureClassReport(
   if (
     input.carbonationExposureRow === "X0" &&
     (input.xdExposureRow !== "none" ||
+      input.xsExposureRow !== "none" ||
       input.xfExposureRow !== "none" ||
       input.xaExposureRow !== "none")
   ) {

@@ -162,6 +162,41 @@ describe("foundation bar anchorage calculator", () => {
     );
   });
 
+  it("uses the absolute total moment so opposite directions select the same critical edge", () => {
+    const positive = getFoundationBarAnchorageReport(representativeBeamInput);
+    const negative = getFoundationBarAnchorageReport({
+      ...representativeBeamInput,
+      momentKnM: -150,
+    });
+
+    expect(positive.valid).toBe(true);
+    expect(negative.valid).toBe(true);
+    expect(negative.values?.totalMomentKnM).toBe(125);
+    expect(negative.steps.find((step) => step.key === "total-moment")?.formula).toBe(
+      "Mtot = |M + MQ| = |-150 + 25| = 125 кН*м",
+    );
+    expect(negative.values).toMatchObject({
+      maximumSoilPressureKPa: positive.values?.maximumSoilPressureKPa,
+      minimumSoilPressureKPa: positive.values?.minimumSoilPressureKPa,
+      soilPressureAtXKPa: positive.values?.soilPressureAtXKPa,
+      soilResultantKn: positive.values?.soilResultantKn,
+      tensileForceKn: positive.values?.tensileForceKn,
+      anchorageSufficient: positive.values?.anchorageSufficient,
+    });
+  });
+
+  it("requires a positive integer bar count for beams", () => {
+    const report = getFoundationBarAnchorageReport({
+      ...representativeBeamInput,
+      barCount: 2.5,
+    });
+
+    expect(report.valid).toBe(false);
+    expect(report.errors).toContain("n має бути цілим числом, більшим за 0.");
+    expect(report.values).toBeNull();
+    expect(report.steps.map((step) => step.key)).toEqual(["inputs"]);
+  });
+
   it("detects good and other bond conditions from member height and bar position", () => {
     expect(
       getGoodBondCondition({

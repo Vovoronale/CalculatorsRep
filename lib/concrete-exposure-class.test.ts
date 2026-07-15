@@ -146,6 +146,18 @@ describe("getConcreteExposureClassReport", () => {
     );
   });
 
+  it("warns when X0 is combined with a marine chloride XS row", () => {
+    const report = reportFor({
+      carbonationExposureRow: "X0",
+      xsExposureRow: "XS3",
+    });
+
+    expect(report.values?.exposureClasses).toEqual(["X0", "XS3"]);
+    expect(report.warnings).toContain(
+      "Для X0 агресивні дії мають бути відсутні; вибрані додаткові класи впливу перевірте на сумісність із рядком X0 таблиці 4.1.",
+    );
+  });
+
   it("keeps unknown XA classification out of exposure classes and emits the contract warning", () => {
     const report = reportFor({
       carbonationExposureRow: "XC2",

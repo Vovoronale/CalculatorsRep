@@ -304,7 +304,7 @@ function evaluateProfile(
   }
 }
 
-function resolveGammaC(
+export function resolveGammaC(
   profiles: Table51Profile[],
   input: SteelStructureCategoryGroupInput,
   rynMpa: number,
@@ -322,17 +322,27 @@ function resolveGammaC(
     .filter((result): result is ProfileValue => Boolean(result));
   if (applicable.length === 0) return { value: 1, applicable };
 
-  const candidates = applicable.map((item) => item.value);
+  const candidates: number[] = [];
+  const pairedProfiles = new Set<Table51Profile>();
   for (const high of applicable.filter((item) => item.profile === "p6a" || item.profile === "p6b")) {
     for (const low of applicable.filter((item) => ["p1", "p2", "p5"].includes(item.profile))) {
       candidates.push(high.value * low.value);
+      pairedProfiles.add(high.profile);
+      pairedProfiles.add(low.profile);
     }
   }
   for (const plate of applicable.filter((item) => item.profile === "p9")) {
     for (const other of applicable.filter((item) => item.profile === "p2" || item.profile === "p3")) {
       candidates.push(plate.value * other.value);
+      pairedProfiles.add(plate.profile);
+      pairedProfiles.add(other.profile);
     }
   }
+  candidates.push(
+    ...applicable
+      .filter((item) => !pairedProfiles.has(item.profile))
+      .map((item) => item.value),
+  );
   return { value: Math.min(...candidates), applicable };
 }
 

@@ -164,10 +164,110 @@ describe("foundation base pressure calculator", () => {
     expect(JSON.stringify(equilibriumStep)).not.toContain("∫A");
     expect(JSON.stringify(equilibriumStep)).not.toContain("p(x, y)");
     expect(equilibriumStep?.formulas).toEqual([
-      "ΣP = N_total = 43.28 т",
-      "ΣMx = N_total * (y_R - b / 2) = 43.28 * (0.9647 - 0.9000) = 2.80 т·м ≈ Mx_base = 2.80 т·м",
-      "ΣMy = N_total * (x_R - l / 2) = 43.28 * (1.7568 - 1.2000) = 24.10 т·м ≈ My_base = 24.10 т·м",
+      "ΣP = 43.28 т ≈ N_total = 43.28 т",
+      "ΣMx = 2.80 т·м ≈ Mx_base = 2.80 т·м",
+      "ΣMy = 24.10 т·м ≈ My_base = 24.10 т·м",
     ]);
+    expect(report.values?.equilibrium?.forceT).toBeCloseTo(
+      report.values?.totalVerticalForceT ?? 0,
+      5,
+    );
+    expect(report.values?.equilibrium?.momentXTm).toBeCloseTo(
+      report.values?.baseMomentXTm ?? 0,
+      5,
+    );
+    expect(report.values?.equilibrium?.momentYTm).toBeCloseTo(
+      report.values?.baseMomentYTm ?? 0,
+      5,
+    );
+  });
+
+  it("requires a strictly positive total vertical force before dividing by it", () => {
+    const report = getFoundationBasePressureReport({
+      ...DEFAULT_FOUNDATION_BASE_PRESSURE_INPUT,
+      verticalForceT: 0,
+      embedmentDepthM: 0,
+      soilAndFoundationUnitWeightTM3: 0,
+    });
+
+    expect(report.valid).toBe(false);
+    expect(report.errors).toEqual(["N_total має бути більше 0."]);
+    expect(report.values).toBeNull();
+    expect(report.steps.map((step) => step.key)).toEqual(["inputs"]);
+    expect(JSON.stringify(report)).not.toMatch(/NaN|Infinity/);
+  });
+
+  it("rejects a resultant on the foundation length boundary", () => {
+    const report = getFoundationBasePressureReport({
+      ...DEFAULT_FOUNDATION_BASE_PRESSURE_INPUT,
+      verticalForceT: 10,
+      momentXTm: 0,
+      momentYTm: 12,
+      shearXT: 0,
+      shearYT: 0,
+      embedmentDepthM: 0,
+      loadApplicationHeightM: 0,
+      soilAndFoundationUnitWeightTM3: 0,
+    });
+
+    expect(report.valid).toBe(false);
+    expect(report.errors).toEqual([
+      "ex має бути менше l / 2; рівнодійна виходить за межі підошви в напрямку l.",
+    ]);
+    expect(report.values).toBeNull();
+    expect(report.steps.map((step) => step.key)).toEqual(["inputs"]);
+  });
+
+  it("rejects a resultant on the foundation width boundary", () => {
+    const report = getFoundationBasePressureReport({
+      ...DEFAULT_FOUNDATION_BASE_PRESSURE_INPUT,
+      verticalForceT: 10,
+      momentXTm: 9,
+      momentYTm: 0,
+      shearXT: 0,
+      shearYT: 0,
+      embedmentDepthM: 0,
+      loadApplicationHeightM: 0,
+      soilAndFoundationUnitWeightTM3: 0,
+    });
+
+    expect(report.valid).toBe(false);
+    expect(report.errors).toEqual([
+      "ey має бути менше b / 2; рівнодійна виходить за межі підошви в напрямку b.",
+    ]);
+    expect(report.values).toBeNull();
+    expect(report.steps.map((step) => step.key)).toEqual(["inputs"]);
+  });
+
+  it("rejects an inside-footprint pressure plane when the solver does not converge", () => {
+    const report = getFoundationBasePressureReport({
+      ...DEFAULT_FOUNDATION_BASE_PRESSURE_INPUT,
+      verticalForceT: 10,
+      momentXTm: 8.9,
+      momentYTm: 11.9,
+      shearXT: 0,
+      shearYT: 0,
+      embedmentDepthM: 0,
+      loadApplicationHeightM: 0,
+      soilAndFoundationUnitWeightTM3: 0,
+    });
+
+    expect(report.valid).toBe(false);
+    expect(report.errors).toEqual([
+      "Не вдалося отримати збіжний розв'язок контактної епюри; перевірте вихідні дані.",
+    ]);
+    expect(report.values).toBeNull();
+    expect(report.steps.map((step) => step.key)).toEqual(["inputs"]);
+  });
+
+  it("marks the accepted total vertical force as strictly positive in the report", () => {
+    const report = getFoundationBasePressureReport(
+      DEFAULT_FOUNDATION_BASE_PRESSURE_INPUT,
+    );
+
+    expect(report.steps.find((step) => step.key === "vertical-load")?.formulas?.[1]).toBe(
+      "N_total = N + G_fund = 26.00 + 17.28 = 43.28 т > 0",
+    );
   });
 
   it("validates dimensions and avoids non-finite formulas", () => {

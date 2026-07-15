@@ -341,8 +341,11 @@ function getValidationErrors(input: FoundationBarAnchorageInput): string[] {
   if (!Number.isFinite(input.shearKn)) errors.push("Q має бути числом.");
   if (!isNonNegativeFinite(input.shearHeightM)) errors.push("hQ має бути не менше 0.");
   if (!isPositiveFinite(input.barDiameterMm)) errors.push("Ø має бути більше 0.");
-  if (input.structureType === "beam" && !isPositiveFinite(input.barCount ?? NaN)) {
-    errors.push("n має бути більше 0.");
+  if (
+    input.structureType === "beam" &&
+    (!isPositiveFinite(input.barCount ?? NaN) || !Number.isInteger(input.barCount))
+  ) {
+    errors.push("n має бути цілим числом, більшим за 0.");
   }
   if (
     input.structureType === "slab" &&
@@ -481,7 +484,7 @@ export function getFoundationBarAnchorageReport(
   const footingWidthM = input.footingWidthMm / 1000;
   const criticalDistanceM = input.footingHeightMm / 2 / 1000;
   const shearMomentKnM = input.shearKn * input.shearHeightM;
-  const totalMomentKnM = input.momentKnM + shearMomentKnM;
+  const totalMomentKnM = Math.abs(input.momentKnM + shearMomentKnM);
   const eccentricityM = totalMomentKnM / input.axialLoadKn;
   const meanSoilPressureKPa = input.axialLoadKn / (footingLengthM * footingWidthM);
   const pressureDeltaKPa =
@@ -681,9 +684,9 @@ export function getFoundationBarAnchorageReport(
     {
       key: "total-moment",
       caption: "Визначення сумарного моменту на уступі фундаменту:",
-      formula: `Mtot = M + MQ = ${formatFormulaNumber(
+      formula: `Mtot = |M + MQ| = |${formatFormulaNumber(
         input.momentKnM,
-      )} + ${formatFormulaNumber(shearMomentKnM)} = ${formatFormulaNumber(
+      )} + ${formatFormulaNumber(shearMomentKnM)}| = ${formatFormulaNumber(
         totalMomentKnM,
       )} кН*м`,
     },
